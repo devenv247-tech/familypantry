@@ -1,0 +1,234 @@
+import { useState } from 'react'
+
+const SAMPLE_LIST = [
+  { id: 1, name: 'Onions', qty: '2kg', store: 'Superstore', price: '$3.99', category: 'Vegetables', checked: false },
+  { id: 2, name: 'Tomatoes', qty: '1kg', store: 'Superstore', price: '$2.49', category: 'Vegetables', checked: false },
+  { id: 3, name: 'Soy sauce', qty: '1 bottle', store: 'T&T Supermarket', price: '$4.99', category: 'Condiments', checked: false },
+  { id: 4, name: 'Green chilli', qty: '200g', store: 'Superstore', price: '$1.99', category: 'Vegetables', checked: false },
+  { id: 5, name: 'Cream', qty: '500ml', store: 'Superstore', price: '$3.49', category: 'Dairy', checked: false },
+  { id: 6, name: 'Bread', qty: '1 loaf', store: 'Walmart', price: '$2.99', category: 'Bakery', checked: true },
+  { id: 7, name: 'Orange juice', qty: '2L', store: 'Walmart', price: '$4.49', category: 'Drinks', checked: false },
+]
+
+const STORES = ['All stores', 'Superstore', 'Walmart', 'T&T Supermarket']
+
+export default function Grocery() {
+  const [items, setItems] = useState(SAMPLE_LIST)
+  const [activeStore, setActiveStore] = useState('All stores')
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ name: '', qty: '', store: 'Superstore', price: '', category: '' })
+
+  const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
+
+  const filtered = items.filter(i =>
+    activeStore === 'All stores' || i.store === activeStore
+  )
+
+  const toggleCheck = (id) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i))
+  }
+
+  const handleDelete = (id) => {
+    setItems(prev => prev.filter(i => i.id !== id))
+  }
+
+  const handleAdd = (e) => {
+    e.preventDefault()
+    if (!form.name.trim()) return
+    setItems(prev => [...prev, { ...form, id: Date.now(), checked: false }])
+    setForm({ name: '', qty: '', store: 'Superstore', price: '', category: '' })
+    setShowForm(false)
+  }
+
+  const totalCost = items
+    .filter(i => !i.checked)
+    .reduce((sum, i) => sum + parseFloat(i.price?.replace('$', '') || 0), 0)
+
+  const checkedCount = items.filter(i => i.checked).length
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-textPrimary">Grocery list</h1>
+          <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowForm(true)}
+            className="btn-secondary flex items-center gap-2"
+          >
+            + Add item
+          </button>
+          <button className="btn-primary flex items-center gap-2">
+            🤖 Auto-generate
+          </button>
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="card text-center">
+          <p className="text-2xl font-bold text-textPrimary">{items.length}</p>
+          <p className="text-xs text-textMuted mt-1">Total items</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-2xl font-bold text-success">{checkedCount}</p>
+          <p className="text-xs text-textMuted mt-1">Checked off</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-2xl font-bold text-primary">${totalCost.toFixed(2)}</p>
+          <p className="text-xs text-textMuted mt-1">Estimated total</p>
+        </div>
+      </div>
+
+      {/* Add item form */}
+      {showForm && (
+        <div className="card mb-6 border-2 border-primary">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-textPrimary">Add item</h2>
+            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+          </div>
+          <form onSubmit={handleAdd}>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="label">Item name</label>
+                <input className="input" placeholder="e.g. Milk" value={form.name} onChange={e => update('name', e.target.value)} />
+              </div>
+              <div>
+                <label className="label">Quantity</label>
+                <input className="input" placeholder="e.g. 2L" value={form.qty} onChange={e => update('qty', e.target.value)} />
+              </div>
+              <div>
+                <label className="label">Estimated price</label>
+                <input className="input" placeholder="e.g. $3.99" value={form.price} onChange={e => update('price', e.target.value)} />
+              </div>
+              <div>
+                <label className="label">Store</label>
+                <select className="input" value={form.store} onChange={e => update('store', e.target.value)}>
+                  {STORES.filter(s => s !== 'All stores').map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="label">Category</label>
+                <input className="input" placeholder="e.g. Dairy" value={form.category} onChange={e => update('category', e.target.value)} />
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancel</button>
+              <button type="submit" className="btn-primary">Add to list</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Store filter */}
+      <div className="flex gap-2 flex-wrap mb-6">
+        {STORES.map(store => (
+          <button
+            key={store}
+            onClick={() => setActiveStore(store)}
+            className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
+              activeStore === store
+                ? 'bg-primary text-white border-primary'
+                : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+            }`}
+          >
+            {store}
+          </button>
+        ))}
+      </div>
+
+      {/* Progress bar */}
+      <div className="mb-6">
+        <div className="flex justify-between text-xs text-textMuted mb-1.5">
+          <span>Shopping progress</span>
+          <span>{Math.round((checkedCount / items.length) * 100)}%</span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
+          <div
+            className="h-full bg-success rounded-pill transition-all duration-500"
+            style={{ width: `${(checkedCount / items.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Items list */}
+      <div className="card p-0 overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="text-center py-12 text-textMuted">
+            <div className="text-4xl mb-3">🛒</div>
+            <p className="font-medium">No items for this store</p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {filtered.map(item => (
+              <li
+                key={item.id}
+                className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}
+              >
+                {/* Checkbox */}
+                <button
+                  onClick={() => toggleCheck(item.id)}
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                    item.checked
+                      ? 'bg-success border-success text-white'
+                      : 'border-border hover:border-primary'
+                  }`}
+                >
+                  {item.checked && <span className="text-xs">✓</span>}
+                </button>
+
+                {/* Item info */}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
+                    {item.name}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-textMuted">{item.qty}</span>
+                    {item.category && (
+                      <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Store badge */}
+                <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
+                  {item.store}
+                </span>
+
+                {/* Price */}
+                <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
+                  {item.price}
+                </span>
+
+                {/* Delete */}
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Clear checked */}
+      {checkedCount > 0 && (
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => setItems(prev => prev.filter(i => !i.checked))}
+            className="text-sm text-danger hover:underline font-medium"
+          >
+            Remove {checkedCount} checked item{checkedCount > 1 ? 's' : ''}
+          </button>
+        </div>
+      )}
+
+    </div>
+  )
+}
