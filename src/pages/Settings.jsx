@@ -1,13 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
-
-const INITIAL_MEMBERS = [
-  { id: 1, name: 'Jas', role: 'Admin', age: 35, weight: '80kg', height: '5\'10"', goals: 'Maintain weight', dietary: 'None', icon: 'J' },
-  { id: 2, name: 'Priya', role: 'Member', age: 32, weight: '65kg', height: '5\'5"', goals: 'Lose weight', dietary: 'Vegetarian', icon: 'P' },
-  { id: 3, name: 'Arjun', role: 'Member', age: 10, weight: '35kg', height: '4\'6"', goals: 'Healthy growth', dietary: 'None', icon: 'A' },
-  { id: 4, name: 'Meena', role: 'Member', age: 7, weight: '25kg', height: '4\'0"', goals: 'Healthy growth', dietary: 'None', icon: 'M' },
-]
+import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
@@ -20,7 +14,7 @@ const PLANS = [
 export default function Settings() {
   const { user, family, logout } = useAuthStore()
   const navigate = useNavigate()
-  const [members, setMembers] = useState(INITIAL_MEMBERS)
+  const [members, setMembers] = useState([])
   const [activeTab, setActiveTab] = useState('members')
   const [editingId, setEditingId] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
@@ -34,31 +28,54 @@ export default function Settings() {
     { id: 'notifications', label: 'Notifications', icon: '🔔' },
   ]
 
+  useEffect(() => {
+    fetchMembers()
+  }, [])
+
+  const fetchMembers = async () => {
+    try {
+      const data = await getMembers()
+      setMembers(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const startEdit = (member) => {
     setEditingId(member.id)
     setEditForm({ ...member })
   }
 
-  const saveEdit = () => {
-    setMembers(prev => prev.map(m => m.id === editingId ? { ...editForm } : m))
-    setEditingId(null)
+  const saveEdit = async () => {
+    try {
+      const updated = await updateMember(editingId, editForm)
+      setMembers(prev => prev.map(m => m.id === editingId ? updated : m))
+      setEditingId(null)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const deleteMember = (id) => {
-    setMembers(prev => prev.filter(m => m.id !== id))
+  const handleDeleteMember = async (id) => {
+    try {
+      await deleteMember(id)
+      setMembers(prev => prev.filter(m => m.id !== id))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const addMember = (e) => {
+  const handleAddMember = async (e) => {
     e.preventDefault()
     if (!newMember.name.trim()) return
-    setMembers(prev => [...prev, {
-      ...newMember,
-      id: Date.now(),
-      role: 'Member',
-      icon: newMember.name[0].toUpperCase(),
-    }])
-    setNewMember({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None' })
-    setShowAddMember(false)
+    try {
+      const member = await addMember(newMember)
+      setMembers(prev => [...prev, member])
+      setNewMember({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None' })
+      setShowAddMember(false)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (
@@ -105,7 +122,7 @@ export default function Settings() {
                 <h3 className="font-semibold text-textPrimary">New family member</h3>
                 <button onClick={() => setShowAddMember(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
               </div>
-              <form onSubmit={addMember}>
+              <form onSubmit={handleAddMember}>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div>
                     <label className="label">Name</label>
@@ -145,90 +162,98 @@ export default function Settings() {
           )}
 
           {/* Members list */}
-          <div className="space-y-4">
-            {members.map(member => (
-              <div key={member.id} className="card">
-                {editingId === member.id ? (
-                  <div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <label className="label">Name</label>
-                        <input className="input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
+          {members.length === 0 ? (
+            <div className="text-center py-12 text-textMuted">
+              <div className="text-4xl mb-3">👨‍👩‍👧‍👦</div>
+              <p className="font-medium">No members yet</p>
+              <p className="text-sm mt-1">Add your first family member above</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {members.map(member => (
+                <div key={member.id} className="card">
+                  {editingId === member.id ? (
+                    <div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                          <label className="label">Name</label>
+                          <input className="input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="label">Age</label>
+                          <input className="input" type="number" value={editForm.age || ''} onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="label">Weight</label>
+                          <input className="input" value={editForm.weight || ''} onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="label">Height</label>
+                          <input className="input" value={editForm.height || ''} onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="label">Health goal</label>
+                          <select className="input" value={editForm.goals || ''} onChange={e => setEditForm(p => ({ ...p, goals: e.target.value }))}>
+                            {GOALS.map(g => <option key={g}>{g}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="label">Dietary preference</label>
+                          <select className="input" value={editForm.dietary || ''} onChange={e => setEditForm(p => ({ ...p, dietary: e.target.value }))}>
+                            {DIETARY.map(d => <option key={d}>{d}</option>)}
+                          </select>
+                        </div>
                       </div>
-                      <div>
-                        <label className="label">Age</label>
-                        <input className="input" type="number" value={editForm.age} onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
-                      </div>
-                      <div>
-                        <label className="label">Weight</label>
-                        <input className="input" value={editForm.weight} onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))} />
-                      </div>
-                      <div>
-                        <label className="label">Height</label>
-                        <input className="input" value={editForm.height} onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))} />
-                      </div>
-                      <div>
-                        <label className="label">Health goal</label>
-                        <select className="input" value={editForm.goals} onChange={e => setEditForm(p => ({ ...p, goals: e.target.value }))}>
-                          {GOALS.map(g => <option key={g}>{g}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="label">Dietary preference</label>
-                        <select className="input" value={editForm.dietary} onChange={e => setEditForm(p => ({ ...p, dietary: e.target.value }))}>
-                          {DIETARY.map(d => <option key={d}>{d}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 justify-end">
-                      <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
-                      <button onClick={saveEdit} className="btn-primary">Save changes</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {member.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-textPrimary">{member.name}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
-                          {member.role}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                        {[
-                          { label: 'Age', value: member.age ? `${member.age} yrs` : '—' },
-                          { label: 'Weight', value: member.weight || '—' },
-                          { label: 'Height', value: member.height || '—' },
-                          { label: 'Dietary', value: member.dietary || '—' },
-                        ].map((item, i) => (
-                          <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
-                            <p className="text-xs text-textMuted">{item.label}</p>
-                            <p className="text-sm font-medium text-textPrimary">{item.value}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-3 flex items-center gap-2">
-                        <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
-                          Goal: {member.goals}
-                        </span>
+                      <div className="flex gap-3 justify-end">
+                        <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
+                        <button onClick={saveEdit} className="btn-primary">Save changes</button>
                       </div>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
-                      {member.role !== 'Admin' && (
-                        <button onClick={() => deleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
-                          Remove
-                        </button>
-                      )}
+                  ) : (
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {member.name?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-textPrimary">{member.name}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
+                            {member.role}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                          {[
+                            { label: 'Age', value: member.age ? `${member.age} yrs` : '—' },
+                            { label: 'Weight', value: member.weight || '—' },
+                            { label: 'Height', value: member.height || '—' },
+                            { label: 'Dietary', value: member.dietary || '—' },
+                          ].map((item, i) => (
+                            <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
+                              <p className="text-xs text-textMuted">{item.label}</p>
+                              <p className="text-sm font-medium text-textPrimary">{item.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
+                            Goal: {member.goals || '—'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
+                        {member.role !== 'Admin' && (
+                          <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -239,15 +264,15 @@ export default function Settings() {
           <div className="space-y-5">
             <div>
               <label className="label">Family name</label>
-              <input className="input" defaultValue={family?.name || 'The Sangha Family'} />
+              <input className="input" defaultValue={family?.name || ''} />
             </div>
             <div>
               <label className="label">Your name</label>
-              <input className="input" defaultValue={user?.name || 'Jas'} />
+              <input className="input" defaultValue={user?.name || ''} />
             </div>
             <div>
               <label className="label">Email address</label>
-              <input className="input" type="email" defaultValue={user?.email || 'jas@test.com'} />
+              <input className="input" type="email" defaultValue={user?.email || ''} />
             </div>
             <div>
               <label className="label">New password</label>
