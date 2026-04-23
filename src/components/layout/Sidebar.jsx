@@ -6,6 +6,7 @@ const links = [
   { to: '/app/pantry', label: 'Pantry', icon: '🧺' },
   { to: '/app/recipes', label: 'Recipes', icon: '🍽️' },
   { to: '/app/grocery', label: 'Grocery list', icon: '🛒' },
+  { to: '/app/recalls', label: 'Recall alerts', icon: '🚨' },
   { to: '/app/reports', label: 'Reports', icon: '📊' },
   { to: '/app/settings', label: 'Settings', icon: '⚙️' },
 ]
