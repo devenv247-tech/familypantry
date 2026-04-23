@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import { suggestRecipes } from '../api/recipes'
 const MEMBERS = ['Jas', 'Priya', 'Arjun', 'Meena']
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
@@ -56,16 +56,20 @@ export default function Recipes() {
     )
   }
 
-  const handleGenerate = async () => {
-    if (selectedMembers.length === 0) return
-    setLoading(true)
-    setGenerated(false)
-    // Simulate AI call — we'll wire real Claude API later
-    await new Promise(r => setTimeout(r, 2000))
-    setRecipes(SAMPLE_RECIPES)
+ const handleGenerate = async () => {
+  if (selectedMembers.length === 0) return
+  setLoading(true)
+  setGenerated(false)
+  try {
+    const data = await suggestRecipes(selectedMembers, mealType)
+    setRecipes(data)
     setGenerated(true)
+  } catch (err) {
+    console.error(err)
+  } finally {
     setLoading(false)
   }
+}
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
