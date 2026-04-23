@@ -1,22 +1,29 @@
-import { useState } from 'react'
-
-const SAMPLE_LIST = [
-  { id: 1, name: 'Onions', qty: '2kg', store: 'Superstore', price: '$3.99', category: 'Vegetables', checked: false },
-  { id: 2, name: 'Tomatoes', qty: '1kg', store: 'Superstore', price: '$2.49', category: 'Vegetables', checked: false },
-  { id: 3, name: 'Soy sauce', qty: '1 bottle', store: 'T&T Supermarket', price: '$4.99', category: 'Condiments', checked: false },
-  { id: 4, name: 'Green chilli', qty: '200g', store: 'Superstore', price: '$1.99', category: 'Vegetables', checked: false },
-  { id: 5, name: 'Cream', qty: '500ml', store: 'Superstore', price: '$3.49', category: 'Dairy', checked: false },
-  { id: 6, name: 'Bread', qty: '1 loaf', store: 'Walmart', price: '$2.99', category: 'Bakery', checked: true },
-  { id: 7, name: 'Orange juice', qty: '2L', store: 'Walmart', price: '$4.49', category: 'Drinks', checked: false },
-]
+import { useState, useEffect } from 'react'
+import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
 
 const STORES = ['All stores', 'Superstore', 'Walmart', 'T&T Supermarket']
 
 export default function Grocery() {
-  const [items, setItems] = useState(SAMPLE_LIST)
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
   const [activeStore, setActiveStore] = useState('All stores')
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', qty: '', store: 'Superstore', price: '', category: '' })
+  const [form, setForm] = useState({ name: '', qty: '', store: 'Superstore', price: '', category: '', isCustomStore: false })
+
+  useEffect(() => {
+    fetchItems()
+  }, [])
+
+  const fetchItems = async () => {
+    try {
+      const data = await getGroceryItems()
+      setItems(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
@@ -24,20 +31,45 @@ export default function Grocery() {
     activeStore === 'All stores' || i.store === activeStore
   )
 
-  const toggleCheck = (id) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, checked: !i.checked } : i))
+  const toggleCheck = async (id) => {
+    const item = items.find(i => i.id === id)
+    try {
+      const updated = await updateGroceryItem(id, { checked: !item.checked })
+      setItems(prev => prev.map(i => i.id === id ? updated : i))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const handleDelete = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id))
+  const handleDelete = async (id) => {
+    try {
+      await deleteGroceryItem(id)
+      setItems(prev => prev.filter(i => i.id !== id))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return
-    setItems(prev => [...prev, { ...form, id: Date.now(), checked: false }])
-    setForm({ name: '', qty: '', store: 'Superstore', price: '', category: '' })
-    setShowForm(false)
+    try {
+      const item = await addGroceryItem(form)
+      setItems(prev => [item, ...prev])
+      setForm({ name: '', qty: '', store: 'Superstore', price: '', category: '', isCustomStore: false })
+      setShowForm(false)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const handleClearChecked = async () => {
+    try {
+      await clearCheckedItems()
+      setItems(prev => prev.filter(i => !i.checked))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const totalCost = items
@@ -105,12 +137,34 @@ export default function Grocery() {
                 <label className="label">Estimated price</label>
                 <input className="input" placeholder="e.g. $3.99" value={form.price} onChange={e => update('price', e.target.value)} />
               </div>
-              <div>
-                <label className="label">Store</label>
-                <select className="input" value={form.store} onChange={e => update('store', e.target.value)}>
-                  {STORES.filter(s => s !== 'All stores').map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
+            <div>
+  <label className="label">Store</label>
+  <select
+    className="input"
+    value={form.isCustomStore ? '__custom__' : form.store}
+    onChange={e => {
+      if (e.target.value === '__custom__') {
+        update('store', '')
+        update('isCustomStore', true)
+      } else {
+        update('store', e.target.value)
+        update('isCustomStore', false)
+      }
+    }}
+  >
+    {STORES.filter(s => s !== 'All stores').map(s => <option key={s}>{s}</option>)}
+    <option value="__custom__">+ Custom store</option>
+  </select>
+  {form.isCustomStore && (
+    <input
+      className="input mt-2"
+      placeholder="e.g. Costco, No Frills..."
+      value={form.store}
+      onChange={e => update('store', e.target.value)}
+      autoFocus
+    />
+  )}
+</div>
               <div>
                 <label className="label">Category</label>
                 <input className="input" placeholder="e.g. Dairy" value={form.category} onChange={e => update('category', e.target.value)} />
@@ -142,86 +196,93 @@ export default function Grocery() {
       </div>
 
       {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex justify-between text-xs text-textMuted mb-1.5">
-          <span>Shopping progress</span>
-          <span>{Math.round((checkedCount / items.length) * 100)}%</span>
+      {items.length > 0 && (
+        <div className="mb-6">
+          <div className="flex justify-between text-xs text-textMuted mb-1.5">
+            <span>Shopping progress</span>
+            <span>{Math.round((checkedCount / items.length) * 100)}%</span>
+          </div>
+          <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
+            <div
+              className="h-full bg-success rounded-pill transition-all duration-500"
+              style={{ width: `${(checkedCount / items.length) * 100}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
-          <div
-            className="h-full bg-success rounded-pill transition-all duration-500"
-            style={{ width: `${(checkedCount / items.length) * 100}%` }}
-          />
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <div className="text-center py-12 text-textMuted">
+          <p className="text-sm">Loading grocery list...</p>
         </div>
-      </div>
+      )}
 
       {/* Items list */}
-      <div className="card p-0 overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="text-center py-12 text-textMuted">
-            <div className="text-4xl mb-3">🛒</div>
-            <p className="font-medium">No items for this store</p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-border">
-            {filtered.map(item => (
-              <li
-                key={item.id}
-                className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}
-              >
-                {/* Checkbox */}
-                <button
-                  onClick={() => toggleCheck(item.id)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                    item.checked
-                      ? 'bg-success border-success text-white'
-                      : 'border-border hover:border-primary'
-                  }`}
+      {!loading && (
+        <div className="card p-0 overflow-hidden">
+          {filtered.length === 0 ? (
+            <div className="text-center py-12 text-textMuted">
+              <div className="text-4xl mb-3">🛒</div>
+              <p className="font-medium">No items yet</p>
+              <p className="text-sm mt-1">Click Add item to get started</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {filtered.map(item => (
+                <li
+                  key={item.id}
+                  className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}
                 >
-                  {item.checked && <span className="text-xs">✓</span>}
-                </button>
+                  <button
+                    onClick={() => toggleCheck(item.id)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      item.checked
+                        ? 'bg-success border-success text-white'
+                        : 'border-border hover:border-primary'
+                    }`}
+                  >
+                    {item.checked && <span className="text-xs">✓</span>}
+                  </button>
 
-                {/* Item info */}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
-                    {item.name}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-textMuted">{item.qty}</span>
-                    {item.category && (
-                      <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
-                    )}
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
+                      {item.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-textMuted">{item.qty}</span>
+                      {item.category && (
+                        <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Store badge */}
-                <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
-                  {item.store}
-                </span>
+                  <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
+                    {item.store}
+                  </span>
 
-                {/* Price */}
-                <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
-                  {item.price}
-                </span>
+                  <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
+                    {item.price}
+                  </span>
 
-                {/* Delete */}
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Clear checked */}
       {checkedCount > 0 && (
         <div className="mt-4 flex justify-end">
           <button
-            onClick={() => setItems(prev => prev.filter(i => !i.checked))}
+            onClick={handleClearChecked}
             className="text-sm text-danger hover:underline font-medium"
           >
             Remove {checkedCount} checked item{checkedCount > 1 ? 's' : ''}
