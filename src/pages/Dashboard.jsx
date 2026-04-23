@@ -1,12 +1,7 @@
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
-
-const stats = [
-  { label: 'Pantry items', value: '24', icon: '🧺', color: 'bg-blue-50 text-primary' },
-  { label: 'Family members', value: '4', icon: '👨‍👩‍👧‍👦', color: 'bg-green-50 text-success' },
-  { label: 'Recipes this week', value: '7', icon: '🍽️', color: 'bg-orange-50 text-orange-500' },
-  { label: 'Monthly spend', value: '$342', icon: '📊', color: 'bg-purple-50 text-purple-500' },
-]
+import { getDashboardStats, getRecentActivity } from '../api/dashboard'
 
 const quickActions = [
   { label: 'Add pantry item', icon: '➕', to: '/app/pantry' },
@@ -15,19 +10,34 @@ const quickActions = [
   { label: 'See reports', icon: '📊', to: '/app/reports' },
 ]
 
-const recentActivity = [
-  { text: 'Milk added to pantry', time: '2 min ago', icon: '🥛' },
-  { text: 'Recipe suggested: Butter Chicken', time: '1 hour ago', icon: '🍗' },
-  { text: 'Grocery list updated', time: '3 hours ago', icon: '🛒' },
-  { text: 'Priya\'s health goals updated', time: 'Yesterday', icon: '💪' },
-]
-
 export default function Dashboard() {
   const { user, family } = useAuthStore()
   const navigate = useNavigate()
+  const [stats, setStats] = useState(null)
+  const [activity, setActivity] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    try {
+      const [statsData, activityData] = await Promise.all([
+        getDashboardStats(),
+        getRecentActivity(),
+      ])
+      setStats(statsData)
+      setActivity(activityData)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -42,32 +52,85 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Expiry alert */}
+      {stats && (stats.expiringSoon > 0 || stats.expired > 0) && (
+        <div className="bg-orange-50 border border-orange-100 rounded-card px-5 py-4 mb-6 flex items-start gap-3">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <p className="text-sm font-semibold text-orange-600">Pantry alert</p>
+            <p className="text-sm text-orange-500 mt-0.5">
+              {stats.expired > 0 && `${stats.expired} item${stats.expired > 1 ? 's' : ''} expired. `}
+              {stats.expiringSoon > 0 && `${stats.expiringSoon} item${stats.expiringSoon > 1 ? 's' : ''} expiring within 3 days.`}
+              <button onClick={() => navigate('/app/pantry')} className="ml-2 underline font-medium">Check pantry</button>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Recall alert */}
       <div className="bg-red-50 border border-red-100 rounded-card px-5 py-4 mb-8 flex items-start gap-3">
         <span className="text-xl">🚨</span>
         <div>
           <p className="text-sm font-semibold text-danger">Health Canada Recall Alert</p>
           <p className="text-sm text-red-600 mt-0.5">
-            Certain Pillsbury Pizza Pops recalled due to E. coli contamination.
+            Certain cheese products recalled due to Listeria contamination — Apr 8, 2026.
             <button className="ml-2 underline font-medium">Check your pantry</button>
           </p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((s, i) => (
-          <div key={i} className="card flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${s.color} bg-opacity-50`}>
-              {s.icon}
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="card animate-pulse">
+              <div className="h-8 bg-gray-100 rounded mb-2"/>
+              <div className="h-4 bg-gray-100 rounded w-2/3"/>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-textPrimary">{s.value}</p>
-              <p className="text-xs text-textMuted">{s.label}</p>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: 'Pantry items', value: stats?.pantryCount || 0, icon: '🧺', color: 'bg-blue-50 text-primary' },
+            { label: 'Family members', value: stats?.memberCount || 0, icon: '👨‍👩‍👧‍👦', color: 'bg-green-50 text-success' },
+            { label: 'Grocery items', value: stats?.groceryCount || 0, icon: '🛒', color: 'bg-orange-50 text-orange-500' },
+            { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: '📊', color: 'bg-purple-50 text-purple-500' },
+          ].map((s, i) => (
+            <div key={i} className="card flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${s.color}`}>
+                {s.icon}
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-textPrimary">{s.value}</p>
+                <p className="text-xs text-textMuted">{s.label}</p>
+              </div>
             </div>
+          ))}
+        </div>
+      )}
+
+      {/* Plan usage for free plan */}
+      {stats?.plan === 'free' && (
+        <div className="card mb-6 border border-blue-100 bg-blue-50/30">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-textPrimary">Free plan — recipe usage this week</p>
+            <button
+              onClick={() => navigate('/app/settings')}
+              className="text-xs text-primary hover:underline font-medium"
+            >
+              Upgrade
+            </button>
           </div>
-        ))}
-      </div>
+          <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-pill transition-all"
+              style={{ width: `${Math.min((stats.recipeCount / 5) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-textMuted mt-1">{stats.recipeCount}/5 recipes used this week</p>
+        </div>
+      )}
 
       {/* Quick actions + activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -92,19 +155,23 @@ export default function Dashboard() {
         {/* Recent activity */}
         <div className="card">
           <h2 className="font-semibold text-textPrimary mb-4">Recent activity</h2>
-          <div className="space-y-4">
-            {recentActivity.map((a, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center text-lg border border-border flex-shrink-0">
-                  {a.icon}
+          {activity.length === 0 ? (
+            <p className="text-sm text-textMuted">No activity yet — start by adding pantry items!</p>
+          ) : (
+            <div className="space-y-4">
+              {activity.map((a, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center text-lg border border-border flex-shrink-0">
+                    {a.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-textPrimary font-medium truncate">{a.text}</p>
+                    <p className="text-xs text-textMuted">{a.time}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-textPrimary font-medium truncate">{a.text}</p>
-                  <p className="text-xs text-textMuted">{a.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
@@ -113,23 +180,61 @@ export default function Dashboard() {
       <div className="card mt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-textPrimary">Family members</h2>
-          <button className="text-sm text-primary hover:underline font-medium">Manage members</button>
-        </div>
-        <div className="flex gap-4 flex-wrap">
-          {['Jas', 'Priya', 'Arjun', 'Meena'].map((name, i) => (
-            <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-pill px-4 py-2 border border-border">
-              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
-                {name[0]}
-              </div>
-              <span className="text-sm font-medium text-textPrimary">{name}</span>
-            </div>
-          ))}
-          <button className="flex items-center gap-2 px-4 py-2 rounded-pill border border-dashed border-border text-sm text-textMuted hover:border-primary hover:text-primary transition-all">
-            + Add member
+          <button
+            onClick={() => navigate('/app/settings')}
+            className="text-sm text-primary hover:underline font-medium"
+          >
+            Manage members
           </button>
         </div>
+        {loading ? (
+          <div className="flex gap-3">
+            {[1,2,3].map(i => (
+              <div key={i} className="h-10 w-28 bg-gray-100 rounded-pill animate-pulse"/>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-3 flex-wrap">
+            {activity
+              .filter((v, i, a) => a.findIndex(t => t.type === 'member') === i)
+              .slice(0, 5)
+              .map((_, i) => null)
+            }
+            <MemberStrip navigate={navigate} />
+          </div>
+        )}
       </div>
 
+    </div>
+  )
+}
+
+function MemberStrip({ navigate }) {
+  const [members, setMembers] = useState([])
+  const { getMembers } = require('../api/family') 
+
+  useEffect(() => {
+    import('../api/family').then(mod => {
+      mod.getMembers().then(data => setMembers(data)).catch(console.error)
+    })
+  }, [])
+
+  return (
+    <div className="flex gap-3 flex-wrap w-full">
+      {members.map((member, i) => (
+        <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-pill px-4 py-2 border border-border">
+          <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
+            {member.name?.[0]?.toUpperCase()}
+          </div>
+          <span className="text-sm font-medium text-textPrimary">{member.name}</span>
+        </div>
+      ))}
+      <button
+        onClick={() => navigate('/app/settings')}
+        className="flex items-center gap-2 px-4 py-2 rounded-pill border border-dashed border-border text-sm text-textMuted hover:border-primary hover:text-primary transition-all"
+      >
+        + Add member
+      </button>
     </div>
   )
 }
