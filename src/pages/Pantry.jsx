@@ -14,7 +14,8 @@ const SAMPLE_ITEMS = [
   { id: 8, name: 'Yogurt', qty: '1kg', category: 'Fridge', expiry: '2026-04-23', icon: '🥣' },
 ]
 
-const EMPTY_FORM = { name: '', qty: '', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
+const UNITS = ['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
+const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
 const CATEGORIES = ['All', 'Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks']
 const ICONS = ['🥛', '🍗', '🍚', '🥚', '🌿', '🫛', '🌾', '🥣', '🧀', '🥦', '🍎', '🥕', '🧅', '🫙', '🥩', '🍞', '🛒']
 
@@ -61,17 +62,18 @@ export default function Pantry() {
 
   const handleAdd = async (e) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.qty.trim()) {
-      return setError('Please fill in name and quantity')
-    }
+   if (!form.name.trim() || !form.quantity) {
+  return setError('Please fill in name and quantity')
+}
     try {
       const item = await addPantryItem({
-        name: form.name,
-        qty: form.qty,
-        category: form.category,
-        expiry: form.expiry || null,
-        icon: form.icon,
-      })
+      name: form.name,
+      quantity: parseFloat(form.quantity),
+      unit: form.unit,
+      category: form.category,
+      expiry: form.expiry || null,
+      icon: form.icon,
+    })
       setItems(prev => [item, ...prev])
       setForm(EMPTY_FORM)
       setError('')
@@ -150,14 +152,26 @@ export default function Pantry() {
                 />
               </div>
               <div>
-                <label className="label">Quantity</label>
-                <input
-                  className="input"
-                  placeholder="e.g. 2kg, 1L, 12 pcs"
-                  value={form.qty}
-                  onChange={e => update('qty', e.target.value)}
-                />
-              </div>
+  <label className="label">Quantity</label>
+  <div className="flex gap-2">
+    <input
+      className="input"
+      type="number"
+      placeholder="e.g. 2"
+      value={form.quantity}
+      onChange={e => update('quantity', e.target.value)}
+      style={{ width: '60%' }}
+    />
+    <select
+      className="input"
+      value={form.unit}
+      onChange={e => update('unit', e.target.value)}
+      style={{ width: '40%' }}
+    >
+      {UNITS.map(u => <option key={u}>{u}</option>)}
+    </select>
+  </div>
+</div>
           <div>
   <label className="label">Category</label>
   <select
@@ -254,7 +268,7 @@ export default function Pantry() {
 
               <div className="text-3xl mb-3">{item.icon}</div>
               <p className="font-semibold text-textPrimary">{item.name}</p>
-              <p className="text-sm text-textMuted mt-0.5">{item.qty}</p>
+              <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
 
               <div className="flex items-center justify-between mt-4">
                 <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">
