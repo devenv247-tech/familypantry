@@ -68,9 +68,9 @@ export default function Landing() {
           <p className="text-textMuted text-center mb-12 text-lg">Start free. Upgrade when you're ready.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: 'Free', price: '$0', period: 'forever', features: ['1 family account', 'Up to 3 members', 'Basic pantry tracking', '5 AI recipes / week'], highlight: false },
-              { name: 'Family', price: '$7', period: '/month', features: ['1 family account', 'Up to 8 members', 'Unlimited AI recipes', 'Weekly grocery planner', 'Expense reports'], highlight: true },
-              { name: 'Premium', price: '$15', period: '/month', features: ['Multiple families', 'Unlimited members', 'Store price comparison', 'Nutrition analysis', 'Food recall alerts', 'Priority support'], highlight: false },
+              { name: 'Free', price: '$0', period: 'forever', features: ['Unlimited family members', 'Pantry tracking', '5 AI recipes / week', 'Basic grocery list'], highlight: false },
+{ name: 'Family', price: '$7', period: '/month', features: ['Everything in Free', 'Unlimited AI recipes', 'Expense reports', 'Food recall alerts', 'Weekly grocery planner'], highlight: true },
+{ name: 'Premium', price: '$15', period: '/month', features: ['Everything in Family', 'Multiple family accounts', 'Store price comparison', 'Nutrition analysis', 'Priority support'], highlight: false },
             ].map((plan, i) => (
               <div key={i} className={`rounded-card p-8 border-2 transition-all ${plan.highlight ? 'border-primary shadow-dropdown' : 'border-border bg-surface'}`}>
                 {plan.highlight && (

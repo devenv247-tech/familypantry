@@ -6,9 +6,9 @@ import { getMembers, addMember, updateMember, deleteMember } from '../api/family
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
 const PLANS = [
-  { name: 'Free', price: '$0', features: '5 recipes/week · 3 members' },
-  { name: 'Family', price: '$7/mo', features: 'Unlimited recipes · 8 members' },
-  { name: 'Premium', price: '$15/mo', features: 'Everything + price comparison' },
+  { name: 'Free', price: '$0', features: 'Unlimited members · 5 recipes/week' },
+  { name: 'Family', price: '$7/mo', features: 'Unlimited recipes · expense reports · recall alerts' },
+  { name: 'Premium', price: '$15/mo', features: 'Everything + multiple families + price comparison' },
 ]
 
 export default function Settings() {
