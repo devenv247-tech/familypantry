@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const CATEGORIES = ['All', 'Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks']
+import { getPantryItems, addPantryItem, deletePantryItem } from '../api/pantry'
+
 
 const SAMPLE_ITEMS = [
   { id: 1, name: 'Milk', qty: '2L', category: 'Fridge', expiry: '2026-04-25', icon: '🥛' },
@@ -14,16 +15,30 @@ const SAMPLE_ITEMS = [
 ]
 
 const EMPTY_FORM = { name: '', qty: '', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
-
+const CATEGORIES = ['All', 'Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks']
 const ICONS = ['🥛', '🍗', '🍚', '🥚', '🌿', '🫛', '🌾', '🥣', '🧀', '🥦', '🍎', '🥕', '🧅', '🫙', '🥩', '🍞', '🛒']
 
 export default function Pantry() {
-  const [items, setItems] = useState(SAMPLE_ITEMS)
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState('')
+  useEffect(() => {
+    fetchItems()
+  }, [])
+  const fetchItems = async () => {
+    try {
+      const data = await getPantryItems()
+      setItems(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
@@ -34,25 +49,45 @@ export default function Pantry() {
   })
 
   const isExpiringSoon = (expiry) => {
+    if (!expiry) return false
     const days = Math.ceil((new Date(expiry) - new Date()) / (1000 * 60 * 60 * 24))
     return days <= 3
   }
 
-  const isExpired = (expiry) => new Date(expiry) < new Date()
-
-  const handleAdd = (e) => {
-    e.preventDefault()
-    if (!form.name.trim() || !form.qty.trim() || !form.expiry) {
-      return setError('Please fill in all fields')
-    }
-    setItems(prev => [...prev, { ...form, id: Date.now() }])
-    setForm(EMPTY_FORM)
-    setError('')
-    setShowForm(false)
+   const isExpired = (expiry) => {
+    if (!expiry) return false
+    return new Date(expiry) < new Date()
   }
 
-  const handleDelete = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id))
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    if (!form.name.trim() || !form.qty.trim()) {
+      return setError('Please fill in name and quantity')
+    }
+    try {
+      const item = await addPantryItem({
+        name: form.name,
+        qty: form.qty,
+        category: form.category,
+        expiry: form.expiry || null,
+        icon: form.icon,
+      })
+      setItems(prev => [item, ...prev])
+      setForm(EMPTY_FORM)
+      setError('')
+      setShowForm(false)
+    } catch (err) {
+      setError('Failed to add item. Please try again.')
+    }
+  }
+
+   const handleDelete = async (id) => {
+    try {
+      await deletePantryItem(id)
+      setItems(prev => prev.filter(i => i.id !== id))
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (

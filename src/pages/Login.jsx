@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { login } from '../api/auth'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -9,24 +10,20 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      // Temporary mock login — we'll connect real API later
-      if (form.email && form.password) {
-        setAuth('mock-token-123', { name: 'Jas', email: form.email }, { name: 'Sangha Family' })
-        navigate('/app')
-      } else {
-        setError('Please fill in all fields')
-      }
-    } catch (err) {
-      setError('Invalid email or password')
-    } finally {
-      setLoading(false)
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setError('')
+  setLoading(true)
+  try {
+    const data = await login({ email: form.email, password: form.password })
+    setAuth(data.token, data.user, data.family)
+    navigate('/app')
+  } catch (err) {
+    setError(err.response?.data?.error || 'Invalid email or password')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

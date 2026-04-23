@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { register } from '../api/auth'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -25,23 +26,28 @@ export default function Register() {
     setStep(2)
   }
 
-  const handleStep2 = async (e) => {
-    e.preventDefault()
-    setError('')
-    if (!form.name || !form.email || !form.password) return setError('Please fill in all fields')
-    if (form.password !== form.confirmPassword) return setError('Passwords do not match')
-    if (form.password.length < 6) return setError('Password must be at least 6 characters')
-    setLoading(true)
-    try {
-      // Mock register — we'll connect real API later
-      setAuth('mock-token-123', { name: form.name, email: form.email }, { name: form.familyName })
-      navigate('/app')
-    } catch (err) {
-      setError('Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+const handleStep2 = async (e) => {
+  e.preventDefault()
+  setError('')
+  if (!form.name || !form.email || !form.password) return setError('Please fill in all fields')
+  if (form.password !== form.confirmPassword) return setError('Passwords do not match')
+  if (form.password.length < 6) return setError('Password must be at least 6 characters')
+  setLoading(true)
+  try {
+    const data = await register({
+      familyName: form.familyName,
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    })
+    setAuth(data.token, data.user, data.family)
+    navigate('/app')
+  } catch (err) {
+    setError(err.response?.data?.error || 'Something went wrong. Please try again.')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
