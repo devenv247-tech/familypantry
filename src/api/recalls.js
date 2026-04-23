@@ -9,3 +9,8 @@ export const checkPantryMatches = async () => {
   const res = await client.get('/recalls/check-pantry')
   return res.data
 }
+
+export const getRecentRecalls = async () => {
+  const res = await client.get('/recalls/recent')
+  return res.data
+}
