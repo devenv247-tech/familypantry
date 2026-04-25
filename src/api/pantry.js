@@ -19,3 +19,7 @@ export const updatePantryItem = async (id, data) => {
   const res = await client.put(`/pantry/${id}`, data)
   return res.data
 }
+export const restockPantryItem = async (id, quantity) => {
+  const res = await client.post(`/pantry/${id}/restock`, { quantity })
+  return res.data
+}

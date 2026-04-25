@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
+import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem } from '../api/pantry'
 
-import { getPantryItems, addPantryItem, deletePantryItem } from '../api/pantry'
 
 
 const SAMPLE_ITEMS = [
@@ -27,6 +27,8 @@ export default function Pantry() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState('')
+  const [restockingId, setRestockingId] = useState(null)
+  const [restockQty, setRestockQty] = useState('')
   useEffect(() => {
     fetchItems()
   }, [])
@@ -91,6 +93,17 @@ export default function Pantry() {
       console.error(err)
     }
   }
+  const handleRestock = async (id) => {
+  if (!restockQty || parseFloat(restockQty) <= 0) return
+  try {
+    const updated = await restockPantryItem(id, parseFloat(restockQty))
+    setItems(prev => prev.map(i => i.id === id ? updated : i))
+    setRestockingId(null)
+    setRestockQty('')
+  } catch (err) {
+    console.error(err)
+  }
+}
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -258,13 +271,56 @@ export default function Pantry() {
           {filtered.map(item => (
             <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
 
-              {/* Delete button */}
+              {/* Delete Restock button */}
               <button
-                onClick={() => handleDelete(item.id)}
-                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
-              >
-                ✕
-              </button>
+  onClick={() => handleDelete(item.id)}
+  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+>
+  ✕
+</button>
+
+{/* Restock button */}
+<button
+  onClick={() => {
+    setRestockingId(item.id)
+    setRestockQty('')
+  }}
+  className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-0 group-hover:opacity-100 transition-all font-medium hover:bg-green-100"
+>
+  + Restock
+</button>
+
+{/* Restock form */}
+{restockingId === item.id && (
+  <div className="mt-3 pt-3 border-t border-border">
+    <p className="text-xs text-textMuted mb-2">How much did you buy?</p>
+    <div className="flex gap-2">
+      <input
+        type="number"
+        className="input text-sm py-1.5"
+        placeholder={`Add ${item.unit}`}
+        value={restockQty}
+        onChange={e => setRestockQty(e.target.value)}
+        autoFocus
+      />
+      <button
+        onClick={() => handleRestock(item.id)}
+        className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap"
+      >
+        Add
+      </button>
+      <button
+        onClick={() => setRestockingId(null)}
+        className="btn-secondary text-xs px-3 py-1.5"
+      >
+        Cancel
+      </button>
+    </div>
+    <p className="text-xs text-textMuted mt-1">
+      Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}
+    </p>
+  </div>
+)}
 
               <div className="text-3xl mb-3">{item.icon}</div>
               <p className="font-semibold text-textPrimary">{item.name}</p>
