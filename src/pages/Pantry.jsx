@@ -323,7 +323,7 @@ const handleScan = async (barcode) => {
       )}
 
       {/* Search + filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-4">
         <input
           className="input flex-1"
           placeholder="Search pantry items..."
