@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMembers } from '../api/family'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe } from '../api/recipes'
+import { addGroceryItem } from '../api/grocery'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
@@ -33,6 +34,8 @@ const [familyLoading, setFamilyLoading] = useState(false)
 const [cookedId, setCookedId] = useState(null)
 const [cuisine, setCuisine] = useState('Any cuisine')
 const [nutritionView, setNutritionView] = useState({})
+const [addingToGrocery, setAddingToGrocery] = useState({})
+const [addedToGrocery, setAddedToGrocery] = useState({})
   useEffect(() => {
     fetchMembers()
   }, [])
@@ -91,6 +94,29 @@ const handleCook = async (recipe, idx) => {
     setTimeout(() => setCookedId(null), 3000)
   } catch (err) {
     console.error(err)
+  }
+}
+const handleAddToGrocery = async (recipe, idx) => {
+  if (!recipe.missing || recipe.missing.length === 0) return
+  setAddingToGrocery(prev => ({ ...prev, [idx]: true }))
+  try {
+    await Promise.all(
+      recipe.missing.map(item =>
+        addGroceryItem({
+          name: typeof item === 'string' ? item : item.name,
+          qty: typeof item === 'string' ? '' : `${item.quantity} ${item.unit}`,
+          category: 'Recipe ingredient',
+          store: '',
+          price: '',
+        })
+      )
+    )
+    setAddedToGrocery(prev => ({ ...prev, [idx]: true }))
+    setTimeout(() => setAddedToGrocery(prev => ({ ...prev, [idx]: false })), 3000)
+  } catch (err) {
+    console.error(err)
+  } finally {
+    setAddingToGrocery(prev => ({ ...prev, [idx]: false }))
   }
 }
 
@@ -302,14 +328,27 @@ const handleCook = async (recipe, idx) => {
     </div>
 
     {/* Missing */}
-    {familyRecipe.missing?.length > 0 && (
-      <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
-        <p className="text-xs font-medium text-orange-600 mb-1">Need to buy:</p>
-        <p className="text-xs text-orange-500">
-          {familyRecipe.missing.map(m => `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
-        </p>
-      </div>
-    )}
+   {familyRecipe.missing?.length > 0 && (
+  <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
+    <div className="flex items-center justify-between mb-1">
+      <p className="text-xs font-medium text-orange-600">Need to buy:</p>
+      <button
+        onClick={() => handleAddToGrocery(familyRecipe, 'family')}
+        disabled={addingToGrocery['family']}
+        className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${
+          addedToGrocery['family']
+            ? 'bg-success text-white'
+            : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+        }`}
+      >
+        {addingToGrocery['family'] ? 'Adding...' : addedToGrocery['family'] ? '✓ Added!' : '+ Add to grocery'}
+      </button>
+    </div>
+    <p className="text-xs text-orange-500">
+      {familyRecipe.missing.map(m => `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
+    </p>
+  </div>
+)}
 
     {/* Steps */}
     {familyRecipe.steps?.length > 0 && (
@@ -407,9 +446,22 @@ const handleCook = async (recipe, idx) => {
                   <span>👥 Serves {recipe.serves}</span>
                 </div>
 
-                {recipe.missing?.length > 0 && (
+             {recipe.missing?.length > 0 && (
   <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
-    <p className="text-xs font-medium text-orange-600 mb-1">Need to buy:</p>
+    <div className="flex items-center justify-between mb-1">
+      <p className="text-xs font-medium text-orange-600">Need to buy:</p>
+      <button
+        onClick={() => handleAddToGrocery(recipe, idx)}
+        disabled={addingToGrocery[idx]}
+        className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${
+          addedToGrocery[idx]
+            ? 'bg-success text-white'
+            : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+        }`}
+      >
+        {addingToGrocery[idx] ? 'Adding...' : addedToGrocery[idx] ? '✓ Added!' : '+ Add to grocery'}
+      </button>
+    </div>
     <p className="text-xs text-orange-500">
       {recipe.missing.map(m => typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
     </p>
