@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
 import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem } from '../api/pantry'
-
+import { useState, useEffect, useRef } from 'react'
+import BarcodeScanner from '../components/ui/BarcodeScanner'
+import { lookupBarcode } from '../api/barcode'
 
 
 const SAMPLE_ITEMS = [
@@ -29,6 +30,10 @@ export default function Pantry() {
   const [error, setError] = useState('')
   const [restockingId, setRestockingId] = useState(null)
   const [restockQty, setRestockQty] = useState('')
+  const [showScanner, setShowScanner] = useState(false)
+  const [scanLoading, setScanLoading] = useState(false)
+  const [scanResult, setScanResult] = useState(null)
+
   useEffect(() => {
     fetchItems()
   }, [])
@@ -104,10 +109,70 @@ export default function Pantry() {
     console.error(err)
   }
 }
-
+const handleScan = async (barcode) => {
+  setShowScanner(false)
+  setScanLoading(true)
+  try {
+    const product = await lookupBarcode(barcode)
+    if (product && product.name) {
+      // Parse quantity and unit from product.quantity like "2kg" or "500ml"
+      let qty = 1
+      let unit = 'pcs'
+      if (product.quantity) {
+        const match = product.quantity.match(/(\d+\.?\d*)\s*(kg|g|ml|l|oz|lb)?/i)
+        if (match) {
+          qty = parseFloat(match[1])
+          unit = match[2]?.toLowerCase() || 'pcs'
+          if (unit === 'l') unit = 'L'
+        }
+      }
+      setScanResult(product)
+      setForm({
+        name: `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim(),
+        quantity: qty,
+        unit,
+        category: 'Fridge',
+        expiry: '',
+        icon: '🛒',
+        isCustomCategory: false,
+      })
+      setShowScanner(false)
+      setShowForm(true)
+    } else {
+      alert('Product not found in database. Please add it manually.')
+    }
+  } catch (err) {
+    console.error(err)
+    alert('Could not look up product. Please add manually.')
+  } finally {
+    setScanLoading(false)
+  }
+}
   return (
     <div className="p-8 max-w-6xl mx-auto">
+     {/* Barcode scanner */}
+{showScanner && (
+  <BarcodeScanner
+    onScan={handleScan}
+    onClose={() => setShowScanner(false)}
+  />
+)}
 
+{/* Scan result preview */}
+{scanResult && (
+  <div className="card mb-4 border border-primary bg-blue-50/20">
+    <div className="flex items-center gap-3">
+      {scanResult.image && (
+        <img src={scanResult.image} alt={scanResult.name} className="w-12 h-12 object-contain rounded-btn" />
+      )}
+      <div>
+        <p className="text-sm font-semibold text-textPrimary">{scanResult.name}</p>
+        {scanResult.brand && <p className="text-xs text-textMuted">{scanResult.brand}</p>}
+        <p className="text-xs text-success mt-0.5">✓ Product found — form filled automatically</p>
+      </div>
+    </div>
+  </div>
+)}
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -121,6 +186,29 @@ export default function Pantry() {
           <span className="text-lg">+</span> Add item
         </button>
       </div>
+      <div className="flex gap-3">
+  <button
+    onClick={() => setShowScanner(true)}
+    className="btn-secondary flex items-center gap-2"
+    disabled={scanLoading}
+  >
+    {scanLoading ? (
+      <>
+        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        Looking up...
+      </>
+    ) : '📷 Scan barcode'}
+  </button>
+  <button
+    onClick={() => setShowForm(true)}
+    className="btn-primary flex items-center gap-2"
+  >
+    <span className="text-lg">+</span> Add item
+  </button>
+</div>
 
       {/* Add item form */}
       {showForm && (
