@@ -30,20 +30,33 @@ export default function Reports() {
   }, [])
 
   const fetchReports = async () => {
-    try {
-      setError('')
-      const reports = await getReports()
-      setData(reports)
-      if (reports.monthlySpend?.length > 0) {
-        setActiveMonth(reports.monthlySpend[reports.monthlySpend.length - 1].month)
+  try {
+    setError('')
+    const reports = await getReports()
+    // Ensure all expected fields exist with defaults
+    const safeReports = {
+      monthlySpend: reports.monthlySpend || [],
+      categories: reports.categories || [],
+      stores: reports.stores || [],
+      recentTrips: reports.recentTrips || [],
+      summary: reports.summary || {
+        thisMonth: '0.00',
+        lastMonth: '0.00',
+        avg: '0.00',
+        totalItems: 0,
       }
-    } catch (err) {
-      console.error(err)
-      setError('Failed to load reports')
-    } finally {
-      setLoading(false)
     }
+    setData(safeReports)
+    if (safeReports.monthlySpend.length > 0) {
+      setActiveMonth(safeReports.monthlySpend[safeReports.monthlySpend.length - 1].month)
+    }
+  } catch (err) {
+    console.error(err)
+    setError('Failed to load reports')
+  } finally {
+    setLoading(false)
   }
+}
 
   const fetchTips = async () => {
     setTipsLoading(true)
@@ -82,7 +95,9 @@ export default function Reports() {
   }
 
   const hasData = data?.summary?.totalItems > 0
-  const maxSpend = data ? Math.max(...data.monthlySpend.map(m => m.amount), 1) : 1
+  const maxSpend = data?.monthlySpend?.length > 0 
+  ? Math.max(...data.monthlySpend.map(m => m.amount), 1) 
+  : 1
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
