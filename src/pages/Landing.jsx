@@ -107,7 +107,12 @@ export default function Landing() {
           </div>
           <span className="font-semibold text-textPrimary">FamilyPantry</span>
         </div>
-        <p>© 2026 FamilyPantry · Built for Canadian families · Privacy Policy · Terms of Service</p>
+        <p>
+  © 2026 FamilyPantry · Built for Canadian families ·{' '}
+  <a href="/privacy" className="hover:underline">Privacy Policy</a>
+  {' · '}
+  <a href="/terms" className="hover:underline">Terms of Service</a>
+</p>
       </footer>
 
     </div>
