@@ -186,10 +186,18 @@ export default function Grocery() {
                 <label className="label">Quantity</label>
                 <input className="input" placeholder="e.g. 2L" value={form.qty} onChange={e => update('qty', e.target.value)} />
               </div>
-              <div>
-                <label className="label">Estimated price</label>
-                <input className="input" placeholder="e.g. $3.99" value={form.price} onChange={e => update('price', e.target.value)} />
-              </div>
+             <div>
+  <label className="label">Estimated price</label>
+  <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
+    <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+    <input
+      className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+      placeholder="0.00"
+      value={form.price?.replace('$', '') || ''}
+      onChange={e => update('price', e.target.value)}
+    />
+  </div>
+</div>
               <div>
                 <label className="label">Store</label>
                 <StoreSelect
@@ -296,14 +304,17 @@ export default function Grocery() {
                           />
                         </div>
                         <div>
-                          <label className="label">Price</label>
-                          <input
-                            className="input text-sm py-1.5"
-                            placeholder="e.g. $3.99"
-                            value={editForm.price || ''}
-                            onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
-                          />
-                        </div>
+  <label className="label">Price</label>
+  <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
+    <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+    <input
+      className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+      placeholder="0.00"
+      value={editForm.price?.replace('$', '') || ''}
+      onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
+    />
+  </div>
+</div>
                       </div>
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => setEditingId(null)} className="btn-secondary text-xs py-1.5">Cancel</button>
