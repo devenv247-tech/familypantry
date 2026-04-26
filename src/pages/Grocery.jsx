@@ -190,20 +190,20 @@ export default function Grocery() {
 
       {/* Store filter */}
       <div className="flex gap-2 flex-wrap mb-6">
-        {STORES.map(store => (
-          <button
-            key={store}
-            onClick={() => setActiveStore(store)}
-            className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-              activeStore === store
-                ? 'bg-primary text-white border-primary'
-                : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-            }`}
-          >
-            {store}
-          </button>
-        ))}
-      </div>
+  {['All stores', ...new Set(items.map(i => i.store).filter(Boolean))].map(store => (
+    <button
+      key={store}
+      onClick={() => setActiveStore(store)}
+      className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
+        activeStore === store
+          ? 'bg-primary text-white border-primary'
+          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+      }`}
+    >
+      {store}
+    </button>
+  ))}
+</div>
 
       {/* Progress bar */}
       {items.length > 0 && (
