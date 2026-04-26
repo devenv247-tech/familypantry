@@ -100,17 +100,41 @@ const handleAddToGrocery = async (recipe, idx) => {
   if (!recipe.missing || recipe.missing.length === 0) return
   setAddingToGrocery(prev => ({ ...prev, [idx]: true }))
   try {
+    // Get current grocery list first
+    const { getGroceryItems, updateGroceryItem } = await import('../api/grocery')
+    const currentList = await getGroceryItems()
+
     await Promise.all(
-      recipe.missing.map(item =>
-        addGroceryItem({
-          name: typeof item === 'string' ? item : item.name,
-          qty: typeof item === 'string' ? '' : `${item.quantity} ${item.unit}`,
-          category: 'Recipe ingredient',
-          store: '',
-          price: '',
-        })
-      )
+      recipe.missing.map(async (item) => {
+        const name = typeof item === 'string' ? item : item.name
+        const qty = typeof item === 'string' ? '' : `${item.quantity} ${item.unit}`
+        const quantity = typeof item === 'string' ? 0 : (parseFloat(item.quantity) || 0)
+        const unit = typeof item === 'string' ? '' : item.unit
+
+        // Check if item already exists in grocery list
+        const existing = currentList.find(g =>
+          g.name.toLowerCase().trim() === name.toLowerCase().trim()
+        )
+
+        if (existing) {
+          // Parse existing quantity and add to it
+          const existingQty = parseFloat(existing.qty) || 0
+          const newQty = existingQty + quantity
+          await updateGroceryItem(existing.id, {
+            qty: `${newQty} ${unit}`.trim()
+          })
+        } else {
+          await addGroceryItem({
+            name,
+            qty,
+            category: 'Recipe ingredient',
+            store: '',
+            price: '',
+          })
+        }
+      })
     )
+
     setAddedToGrocery(prev => ({ ...prev, [idx]: true }))
     setTimeout(() => setAddedToGrocery(prev => ({ ...prev, [idx]: false })), 3000)
   } catch (err) {
