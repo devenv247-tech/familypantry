@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMembers } from '../api/family'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe } from '../api/recipes'
-import { addGroceryItem } from '../api/grocery'
+import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
@@ -101,7 +101,6 @@ const handleAddToGrocery = async (recipe, idx) => {
   setAddingToGrocery(prev => ({ ...prev, [idx]: true }))
   try {
     // Get current grocery list first
-    const { getGroceryItems, updateGroceryItem } = await import('../api/grocery')
     const currentList = await getGroceryItems()
 
     await Promise.all(
