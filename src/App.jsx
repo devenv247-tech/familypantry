@@ -25,7 +25,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/privacy" element={<Privacy />} />
-<Route path="/terms" element={<Terms />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/register" element={<Register />} />
       <Route path="/app" element={<PrivateRoute><AppShell /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
