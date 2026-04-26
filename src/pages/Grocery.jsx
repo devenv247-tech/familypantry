@@ -9,7 +9,8 @@ export default function Grocery() {
   const [activeStore, setActiveStore] = useState('All stores')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', qty: '', store: 'Superstore', price: '', category: '', isCustomStore: false })
-
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState({})
   useEffect(() => {
     fetchItems()
   }, [])
@@ -71,7 +72,16 @@ export default function Grocery() {
       console.error(err)
     }
   }
-
+  const handleEdit = async (id) => {
+  try {
+    const updated = await updateGroceryItem(id, editForm)
+    setItems(prev => prev.map(i => i.id === id ? updated : i))
+    setEditingId(null)
+    setEditForm({})
+  } catch (err) {
+    console.error(err)
+  }
+}
   const totalCost = items
     .filter(i => !i.checked)
     .reduce((sum, i) => sum + parseFloat(i.price?.replace('$', '') || 0), 0)
@@ -220,64 +230,128 @@ export default function Grocery() {
 
       {/* Items list */}
       {!loading && (
-        <div className="card p-0 overflow-hidden">
-          {filtered.length === 0 ? (
-            <div className="text-center py-12 text-textMuted">
-              <div className="text-4xl mb-3">🛒</div>
-              <p className="font-medium">No items yet</p>
-              <p className="text-sm mt-1">Click Add item to get started</p>
-            </div>
-          ) : (
-            <ul className="divide-y divide-border">
-              {filtered.map(item => (
-                <li
-                  key={item.id}
-                  className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}
-                >
-                  <button
-                    onClick={() => toggleCheck(item.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                      item.checked
-                        ? 'bg-success border-success text-white'
-                        : 'border-border hover:border-primary'
-                    }`}
-                  >
-                    {item.checked && <span className="text-xs">✓</span>}
-                  </button>
-
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
-                      {item.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-textMuted">{item.qty}</span>
-                      {item.category && (
-                        <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
-                      )}
-                    </div>
+  <div className="card p-0 overflow-hidden">
+    {filtered.length === 0 ? (
+      <div className="text-center py-12 text-textMuted">
+        <div className="text-4xl mb-3">🛒</div>
+        <p className="font-medium">No items yet</p>
+        <p className="text-sm mt-1">Click Add item to get started</p>
+      </div>
+    ) : (
+      <ul className="divide-y divide-border">
+        {filtered.map(item => (
+          <li key={item.id} className="border-b border-border last:border-0">
+            {editingId === item.id ? (
+              <div className="px-5 py-4 bg-blue-50/30">
+                <p className="text-xs font-semibold text-textPrimary mb-3">Edit item</p>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label className="label">Name</label>
+                    <input
+                      className="input text-sm py-1.5"
+                      value={editForm.name || ''}
+                      onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
+                    />
                   </div>
+                  <div>
+                    <label className="label">Quantity</label>
+                    <input
+                      className="input text-sm py-1.5"
+                      value={editForm.qty || ''}
+                      onChange={e => setEditForm(p => ({ ...p, qty: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Store</label>
+                    <select
+                      className="input text-sm py-1.5"
+                      value={editForm.store || ''}
+                      onChange={e => setEditForm(p => ({ ...p, store: e.target.value }))}
+                    >
+                      <option value="">Select store</option>
+                      {STORES.filter(s => s !== 'All stores').map(s => (
+                        <option key={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">Price</label>
+                    <input
+                      className="input text-sm py-1.5"
+                      placeholder="e.g. $3.99"
+                      value={editForm.price || ''}
+                      onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button onClick={() => setEditingId(null)} className="btn-secondary text-xs py-1.5">Cancel</button>
+                  <button onClick={() => handleEdit(item.id)} className="btn-primary text-xs py-1.5">Save</button>
+                </div>
+              </div>
+            ) : (
+              <div className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}>
+                <button
+                  onClick={() => toggleCheck(item.id)}
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                    item.checked
+                      ? 'bg-success border-success text-white'
+                      : 'border-border hover:border-primary'
+                  }`}
+                >
+                  {item.checked && <span className="text-xs">✓</span>}
+                </button>
 
-                  <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
-                    {item.store}
-                  </span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
+                    {item.name}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-textMuted">{item.qty}</span>
+                    {item.category && (
+                      <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
+                    )}
+                  </div>
+                </div>
 
-                  <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
-                    {item.price}
-                  </span>
+                <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
+                  {item.store || 'No store'}
+                </span>
 
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+                <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
+                  {item.price}
+                </span>
 
+                <button
+                  onClick={() => {
+                    setEditingId(item.id)
+                    setEditForm({
+                      name: item.name,
+                      qty: item.qty,
+                      store: item.store,
+                      price: item.price,
+                      category: item.category,
+                    })
+                  }}
+                  className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                >
+                  ✎
+                </button>
+
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
       {/* Clear checked */}
       {checkedCount > 0 && (
         <div className="mt-4 flex justify-end">
