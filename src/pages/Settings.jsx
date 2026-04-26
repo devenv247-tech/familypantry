@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
-import { deleteAccount } from '../api/auth'
+import { deleteAccount, updateAccount } from '../api/auth'
+import { useAuthStore } from '../store/authStore'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
@@ -24,6 +25,13 @@ export default function Settings() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [accountForm, setAccountForm] = useState({
+  name: user?.name || '',
+  email: user?.email || '',
+  familyName: family?.name || '',
+  password: '',
+  })
+  const [savingAccount, setSavingAccount] = useState(false)
 
   const TABS = [
     { id: 'members', label: 'Family members', icon: '👨‍👩‍👧‍👦' },
@@ -94,7 +102,30 @@ export default function Settings() {
       setDeleting(false)
     }
   }
+  
+  const handleUpdateAccount = async () => {
+  setSavingAccount(true)
+  try {
+    const updateData = {}
+    if (accountForm.name !== user?.name) updateData.name = accountForm.name
+    if (accountForm.email !== user?.email) updateData.email = accountForm.email
+    if (accountForm.familyName !== family?.name) updateData.familyName = accountForm.familyName
+    if (accountForm.password) updateData.password = accountForm.password
 
+    const res = await updateAccount(updateData)
+
+    // Update auth store with new values
+    const { setAuth, token } = useAuthStore.getState()
+    setAuth(token, res.user, res.family || family)
+
+    setAccountForm(prev => ({ ...prev, password: '' }))
+    showToast('Account updated successfully!')
+  } catch (err) {
+    showToast(err.response?.data?.error || 'Failed to update account', 'error')
+  } finally {
+    setSavingAccount(false)
+  }
+}
   return (
     <div className="p-8 max-w-5xl mx-auto">
 
@@ -274,74 +305,99 @@ export default function Settings() {
 
       {/* Account tab */}
       {activeTab === 'account' && (
-        <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-6">Account details</h2>
-          <div className="space-y-5">
-            <div>
-              <label className="label">Family name</label>
-              <input className="input" defaultValue={family?.name || ''} />
-            </div>
-            <div>
-              <label className="label">Your name</label>
-              <input className="input" defaultValue={user?.name || ''} />
-            </div>
-            <div>
-              <label className="label">Email address</label>
-              <input className="input" type="email" defaultValue={user?.email || ''} />
-            </div>
-            <div>
-              <label className="label">New password</label>
-              <input className="input" type="password" placeholder="Leave blank to keep current" />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button className="btn-primary">Save changes</button>
-            </div>
-          </div>
+  <div className="card max-w-lg">
+    <h2 className="font-semibold text-textPrimary mb-6">Account details</h2>
+    <div className="space-y-5">
+      <div>
+        <label className="label">Family name</label>
+        <input
+          className="input"
+          value={accountForm.familyName}
+          onChange={e => setAccountForm(p => ({ ...p, familyName: e.target.value }))}
+        />
+      </div>
+      <div>
+        <label className="label">Your name</label>
+        <input
+          className="input"
+          value={accountForm.name}
+          onChange={e => setAccountForm(p => ({ ...p, name: e.target.value }))}
+        />
+      </div>
+      <div>
+        <label className="label">Email address</label>
+        <input
+          className="input"
+          type="email"
+          value={accountForm.email}
+          onChange={e => setAccountForm(p => ({ ...p, email: e.target.value }))}
+        />
+      </div>
+      <div>
+        <label className="label">New password</label>
+        <input
+          className="input"
+          type="password"
+          placeholder="Leave blank to keep current"
+          value={accountForm.password}
+          onChange={e => setAccountForm(p => ({ ...p, password: e.target.value }))}
+        />
+      </div>
+      <div className="flex gap-3 pt-2">
+        <button
+          onClick={handleUpdateAccount}
+          disabled={savingAccount}
+          className="btn-primary disabled:opacity-50"
+        >
+          {savingAccount ? 'Saving...' : 'Save changes'}
+        </button>
+      </div>
+    </div>
 
-          <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
-            <p className="text-sm text-textMuted mb-4">
-              Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
-            </p>
-            {!showDeleteConfirm ? (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all"
-              >
-                Delete family account
-              </button>
-            ) : (
-              <div className="bg-red-50 border border-red-100 rounded-card p-4">
-                <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
-                <p className="text-xs text-red-600 mb-3">
-                  This will permanently delete everything. Type <strong>DELETE</strong> to confirm.
-                </p>
-                <input
-                  className="input mb-3 text-sm"
-                  placeholder="Type DELETE to confirm"
-                  value={deleteConfirmText}
-                  onChange={e => setDeleteConfirmText(e.target.value)}
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }}
-                    className="btn-secondary text-sm flex-1"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDeleteAccount}
-                    disabled={deleteConfirmText !== 'DELETE' || deleting}
-                    className="text-sm flex-1 py-2 px-4 rounded-btn font-medium transition-all bg-danger text-white hover:bg-red-600 disabled:opacity-40"
-                  >
-                    {deleting ? 'Deleting...' : 'Permanently delete everything'}
-                  </button>
-                </div>
-              </div>
-            )}
+    <div className="mt-8 pt-6 border-t border-border">
+      <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
+      <p className="text-sm text-textMuted mb-4">
+        Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
+      </p>
+      {!showDeleteConfirm ? (
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all"
+        >
+          Delete family account
+        </button>
+      ) : (
+        <div className="bg-red-50 border border-red-100 rounded-card p-4">
+          <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
+          <p className="text-xs text-red-600 mb-3">
+            This will permanently delete everything. Type <strong>DELETE</strong> to confirm.
+          </p>
+          <input
+            className="input mb-3 text-sm"
+            placeholder="Type DELETE to confirm"
+            value={deleteConfirmText}
+            onChange={e => setDeleteConfirmText(e.target.value)}
+          />
+          <div className="flex gap-3">
+            <button
+              onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }}
+              className="btn-secondary text-sm flex-1"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmText !== 'DELETE' || deleting}
+              className="text-sm flex-1 py-2 px-4 rounded-btn font-medium transition-all bg-danger text-white hover:bg-red-600 disabled:opacity-40"
+            >
+              {deleting ? 'Deleting...' : 'Permanently delete everything'}
+            </button>
           </div>
         </div>
       )}
+    </div>
+  </div>
+)}     
 
       {/* Plan tab */}
       {activeTab === 'plan' && (
