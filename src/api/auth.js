@@ -9,3 +9,8 @@ export const login = async (data) => {
   const res = await client.post('/auth/login', data)
   return res.data
 }
+
+export const deleteAccount = async () => {
+  const res = await client.delete('/auth/account')
+  return res.data
+}

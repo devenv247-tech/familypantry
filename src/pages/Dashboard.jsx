@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { useNavigate } from 'react-router-form'
+import { useNavigate } from 'react-router-dom'
 import { getDashboardStats, getRecentActivity } from '../api/dashboard'
 import { getMembers } from '../api/family'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
