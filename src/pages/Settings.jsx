@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
+import { deleteAccount } from '../api/auth'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
@@ -20,6 +21,9 @@ export default function Settings() {
   const [showAddMember, setShowAddMember] = useState(false)
   const [editForm, setEditForm] = useState({})
   const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None' })
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
 
   const TABS = [
     { id: 'members', label: 'Family members', icon: '👨‍👩‍👧‍👦' },
@@ -77,6 +81,18 @@ export default function Settings() {
       console.error(err)
     }
   }
+  const handleDeleteAccount = async () => {
+  if (deleteConfirmText !== 'DELETE') return
+  setDeleting(true)
+  try {
+    await deleteAccount()
+    logout()
+    navigate('/')
+  } catch (err) {
+    console.error(err)
+    setDeleting(false)
+  }
+}
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -283,13 +299,51 @@ export default function Settings() {
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
-            <p className="text-sm text-textMuted mb-4">Deleting your account is permanent and cannot be undone.</p>
-            <button className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all">
-              Delete family account
-            </button>
-          </div>
-        </div>
+  <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
+  <p className="text-sm text-textMuted mb-4">
+    Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
+  </p>
+
+  {!showDeleteConfirm ? (
+    <button
+      onClick={() => setShowDeleteConfirm(true)}
+      className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all"
+    >
+      Delete family account
+    </button>
+  ) : (
+    <div className="bg-red-50 border border-red-100 rounded-card p-4">
+      <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
+      <p className="text-xs text-red-600 mb-3">
+        This will permanently delete everything — your family, all members, pantry, grocery lists, and all data. Type <strong>DELETE</strong> to confirm.
+      </p>
+      <input
+        className="input mb-3 text-sm"
+        placeholder="Type DELETE to confirm"
+        value={deleteConfirmText}
+        onChange={e => setDeleteConfirmText(e.target.value)}
+      />
+      <div className="flex gap-3">
+        <button
+          onClick={() => {
+            setShowDeleteConfirm(false)
+            setDeleteConfirmText('')
+          }}
+          className="btn-secondary text-sm flex-1"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleDeleteAccount}
+          disabled={deleteConfirmText !== 'DELETE' || deleting}
+          className="text-sm flex-1 py-2 px-4 rounded-btn font-medium transition-all bg-danger text-white hover:bg-red-600 disabled:opacity-40"
+        >
+          {deleting ? 'Deleting...' : 'Permanently delete everything'}
+        </button>
+      </div>
+    </div>
+  )}
+</div>
       )}
 
       {/* Plan tab */}
