@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 import { checkPantryMatches, getRecentRecalls } from '../api/recalls'
+import { LoadingSpinner, Toast } from '../components/ui/PageState'
+import { useToast } from '../hooks/useToast'
 
 export default function Recalls() {
+  const { toast, showToast, hideToast } = useToast()
   const [matches, setMatches] = useState([])
   const [recentRecalls, setRecentRecalls] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [checking, setChecking] = useState(false)
   const [lastChecked, setLastChecked] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All')
@@ -20,8 +24,13 @@ export default function Recalls() {
       const data = await checkPantryMatches()
       setMatches(data.matches || [])
       setLastChecked(new Date().toLocaleTimeString())
+      if (data.matches?.length > 0) {
+        showToast(`⚠️ ${data.matches.length} recalled item(s) found in your pantry!`, 'error')
+      } else {
+        showToast('Pantry scanned — no recalled items found', 'success')
+      }
     } catch (err) {
-      console.error(err)
+      showToast('Failed to check pantry. Please try again.', 'error')
     } finally {
       setChecking(false)
     }
@@ -29,10 +38,11 @@ export default function Recalls() {
 
   const fetchRecentRecalls = async () => {
     try {
+      setError('')
       const data = await getRecentRecalls()
       setRecentRecalls(data)
     } catch (err) {
-      console.error(err)
+      setError('Failed to load recent recalls')
     } finally {
       setLoading(false)
     }
@@ -66,7 +76,7 @@ export default function Recalls() {
         <button
           onClick={checkMatches}
           disabled={checking}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 disabled:opacity-50"
         >
           {checking ? (
             <>
@@ -161,13 +171,14 @@ export default function Recalls() {
         </div>
 
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-4 bg-gray-100 rounded w-3/4 mb-2"/>
-                <div className="h-3 bg-gray-100 rounded w-1/2"/>
-              </div>
-            ))}
+          <LoadingSpinner />
+        ) : error ? (
+          <div className="text-center py-12 text-textMuted">
+            <div className="text-4xl mb-3">⚠️</div>
+            <p className="font-medium text-danger">{error}</p>
+            <button onClick={fetchRecentRecalls} className="btn-secondary mt-4 text-sm">
+              Try again
+            </button>
           </div>
         ) : filteredRecalls.length === 0 ? (
           <div className="text-center py-12 text-textMuted">
@@ -200,11 +211,9 @@ export default function Recalls() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <span className={`text-xs px-2.5 py-1 rounded-pill border font-medium ${getRiskColor(recall.risk)}`}>
-                      {recall.risk || 'Unknown risk'}
-                    </span>
-                  </div>
+                  <span className={`text-xs px-2.5 py-1 rounded-pill border font-medium flex-shrink-0 ${getRiskColor(recall.risk)}`}>
+                    {recall.risk || 'Unknown risk'}
+                  </span>
                 </div>
               </div>
             ))}
@@ -215,6 +224,9 @@ export default function Recalls() {
       <p className="text-xs text-textMuted text-center mt-8">
         Data sourced from Health Canada Recalls and Safety Alerts — recalls-rappels.canada.ca
       </p>
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
     </div>
   )

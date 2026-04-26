@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-form'
 import { getDashboardStats, getRecentActivity } from '../api/dashboard'
+import { getMembers } from '../api/family'
+import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
+import { useToast } from '../hooks/useToast'
 
 const quickActions = [
   { label: 'Add pantry item', icon: '➕', to: '/app/pantry' },
@@ -13,9 +16,12 @@ const quickActions = [
 export default function Dashboard() {
   const { user, family } = useAuthStore()
   const navigate = useNavigate()
+  const { toast, showToast, hideToast } = useToast()
   const [stats, setStats] = useState(null)
   const [activity, setActivity] = useState([])
+  const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -26,17 +32,49 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [statsData, activityData] = await Promise.all([
+      setError('')
+      const [statsData, activityData, membersData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
+        getMembers(),
       ])
       setStats(statsData)
       setActivity(activityData)
+      setMembers(membersData)
     } catch (err) {
       console.error(err)
+      setError('Failed to load dashboard data')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="mb-8">
+          <div className="h-8 bg-gray-100 rounded w-64 mb-2 animate-pulse"/>
+          <div className="h-4 bg-gray-100 rounded w-48 animate-pulse"/>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="card animate-pulse">
+              <div className="h-8 bg-gray-100 rounded mb-2"/>
+              <div className="h-4 bg-gray-100 rounded w-2/3"/>
+            </div>
+          ))}
+        </div>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <ErrorState message={error} onRetry={fetchData} />
+      </div>
+    )
   }
 
   return (
@@ -73,42 +111,31 @@ export default function Dashboard() {
         <div>
           <p className="text-sm font-semibold text-danger">Health Canada Recall Alert</p>
           <p className="text-sm text-red-600 mt-0.5">
-            Certain cheese products recalled due to Listeria contamination — Apr 8, 2026.
-            <button className="ml-2 underline font-medium">Check your pantry</button>
+            Check the Recall alerts page for items that may match your pantry.
+            <button onClick={() => navigate('/app/recalls')} className="ml-2 underline font-medium">View recalls</button>
           </p>
         </div>
       </div>
 
       {/* Stats */}
-      {loading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-8 bg-gray-100 rounded mb-2"/>
-              <div className="h-4 bg-gray-100 rounded w-2/3"/>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: 'Pantry items', value: stats?.pantryCount || 0, icon: '🧺', color: 'bg-blue-50 text-primary' },
+          { label: 'Family members', value: stats?.memberCount || 0, icon: '👨‍👩‍👧‍👦', color: 'bg-green-50 text-success' },
+          { label: 'Grocery items', value: stats?.groceryCount || 0, icon: '🛒', color: 'bg-orange-50 text-orange-500' },
+          { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: '📊', color: 'bg-purple-50 text-purple-500' },
+        ].map((s, i) => (
+          <div key={i} className="card flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${s.color}`}>
+              {s.icon}
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Pantry items', value: stats?.pantryCount || 0, icon: '🧺', color: 'bg-blue-50 text-primary' },
-            { label: 'Family members', value: stats?.memberCount || 0, icon: '👨‍👩‍👧‍👦', color: 'bg-green-50 text-success' },
-            { label: 'Grocery items', value: stats?.groceryCount || 0, icon: '🛒', color: 'bg-orange-50 text-orange-500' },
-            { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: '📊', color: 'bg-purple-50 text-purple-500' },
-          ].map((s, i) => (
-            <div key={i} className="card flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${s.color}`}>
-                {s.icon}
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-textPrimary">{s.value}</p>
-                <p className="text-xs text-textMuted">{s.label}</p>
-              </div>
+            <div>
+              <p className="text-2xl font-bold text-textPrimary">{s.value}</p>
+              <p className="text-xs text-textMuted">{s.label}</p>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
 
       {/* Plan usage for free plan */}
       {stats?.plan === 'free' && (
@@ -187,54 +214,31 @@ export default function Dashboard() {
             Manage members
           </button>
         </div>
-        {loading ? (
-          <div className="flex gap-3">
-            {[1,2,3].map(i => (
-              <div key={i} className="h-10 w-28 bg-gray-100 rounded-pill animate-pulse"/>
-            ))}
-          </div>
-        ) : (
-          <div className="flex gap-3 flex-wrap">
-            {activity
-              .filter((v, i, a) => a.findIndex(t => t.type === 'member') === i)
-              .slice(0, 5)
-              .map((_, i) => null)
-            }
-            <MemberStrip navigate={navigate} />
-          </div>
-        )}
+        <div className="flex gap-3 flex-wrap">
+          {members.length === 0 ? (
+            <p className="text-sm text-textMuted">No members yet</p>
+          ) : (
+            members.map((member, i) => (
+              <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-pill px-4 py-2 border border-border">
+                <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
+                  {member.name?.[0]?.toUpperCase()}
+                </div>
+                <span className="text-sm font-medium text-textPrimary">{member.name}</span>
+              </div>
+            ))
+          )}
+          <button
+            onClick={() => navigate('/app/settings')}
+            className="flex items-center gap-2 px-4 py-2 rounded-pill border border-dashed border-border text-sm text-textMuted hover:border-primary hover:text-primary transition-all"
+          >
+            + Add member
+          </button>
+        </div>
       </div>
 
-    </div>
-  )
-}
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
-function MemberStrip({ navigate }) {
-  const [members, setMembers] = useState([])
-  const { getMembers } = require('../api/family') 
-
-  useEffect(() => {
-    import('../api/family').then(mod => {
-      mod.getMembers().then(data => setMembers(data)).catch(console.error)
-    })
-  }, [])
-
-  return (
-    <div className="flex gap-3 flex-wrap w-full">
-      {members.map((member, i) => (
-        <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-pill px-4 py-2 border border-border">
-          <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
-            {member.name?.[0]?.toUpperCase()}
-          </div>
-          <span className="text-sm font-medium text-textPrimary">{member.name}</span>
-        </div>
-      ))}
-      <button
-        onClick={() => navigate('/app/settings')}
-        className="flex items-center gap-2 px-4 py-2 rounded-pill border border-dashed border-border text-sm text-textMuted hover:border-primary hover:text-primary transition-all"
-      >
-        + Add member
-      </button>
     </div>
   )
 }

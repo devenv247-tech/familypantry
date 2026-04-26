@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
+import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
+import { useToast } from '../hooks/useToast'
 
 export default function Grocery() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [activeStore, setActiveStore] = useState('All stores')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', qty: '', store: '', price: '', category: '', isCustomStore: false })
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const { toast, showToast, hideToast } = useToast()
 
   const DEFAULT_STORES = ['Superstore', 'Walmart', 'T&T Supermarket', 'Costco', 'No Frills']
 
@@ -23,10 +27,11 @@ export default function Grocery() {
 
   const fetchItems = async () => {
     try {
+      setError('')
       const data = await getGroceryItems()
       setItems(data)
     } catch (err) {
-      console.error(err)
+      setError('Failed to load grocery list')
     } finally {
       setLoading(false)
     }
@@ -44,7 +49,7 @@ export default function Grocery() {
       const updated = await updateGroceryItem(id, { checked: !item.checked })
       setItems(prev => prev.map(i => i.id === id ? updated : i))
     } catch (err) {
-      console.error(err)
+      showToast('Failed to update item', 'error')
     }
   }
 
@@ -52,8 +57,9 @@ export default function Grocery() {
     try {
       await deleteGroceryItem(id)
       setItems(prev => prev.filter(i => i.id !== id))
+      showToast('Item removed')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to delete item', 'error')
     }
   }
 
@@ -65,8 +71,9 @@ export default function Grocery() {
       setItems(prev => [item, ...prev])
       setForm({ name: '', qty: '', store: '', price: '', category: '', isCustomStore: false })
       setShowForm(false)
+      showToast('Item added to grocery list!')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to add item', 'error')
     }
   }
 
@@ -76,8 +83,9 @@ export default function Grocery() {
       setItems(prev => prev.map(i => i.id === id ? updated : i))
       setEditingId(null)
       setEditForm({})
+      showToast('Item updated!')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to update item', 'error')
     }
   }
 
@@ -85,8 +93,9 @@ export default function Grocery() {
     try {
       await clearCheckedItems()
       setItems(prev => prev.filter(i => !i.checked))
+      showToast('Checked items removed')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to clear items', 'error')
     }
   }
 
@@ -239,15 +248,12 @@ export default function Grocery() {
         </div>
       )}
 
-      {/* Loading */}
-      {loading && (
-        <div className="text-center py-12 text-textMuted">
-          <p className="text-sm">Loading grocery list...</p>
-        </div>
-      )}
-
       {/* Items list */}
-      {!loading && (
+      {loading ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <ErrorState message={error} onRetry={fetchItems} />
+      ) : (
         <div className="card p-0 overflow-hidden">
           {filtered.length === 0 ? (
             <div className="text-center py-12 text-textMuted">
@@ -380,6 +386,9 @@ export default function Grocery() {
           </button>
         </div>
       )}
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
     </div>
   )

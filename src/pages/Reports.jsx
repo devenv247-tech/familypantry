@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getReports, getAISavingsTips } from '../api/reports'
+import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
+import { useToast } from '../hooks/useToast'
 
 const CATEGORY_COLORS = [
   'bg-primary', 'bg-success', 'bg-yellow-400',
@@ -15,9 +17,11 @@ const STORE_ICONS = {
 }
 
 export default function Reports() {
+  const { toast, showToast, hideToast } = useToast()
   const [data, setData] = useState(null)
   const [tips, setTips] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [tipsLoading, setTipsLoading] = useState(false)
   const [activeMonth, setActiveMonth] = useState(null)
 
@@ -27,6 +31,7 @@ export default function Reports() {
 
   const fetchReports = async () => {
     try {
+      setError('')
       const reports = await getReports()
       setData(reports)
       if (reports.monthlySpend?.length > 0) {
@@ -34,6 +39,7 @@ export default function Reports() {
       }
     } catch (err) {
       console.error(err)
+      setError('Failed to load reports')
     } finally {
       setLoading(false)
     }
@@ -44,14 +50,13 @@ export default function Reports() {
     try {
       const res = await getAISavingsTips()
       setTips(res.tips)
+      showToast('Savings tips generated!')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to generate tips', 'error')
     } finally {
       setTipsLoading(false)
     }
   }
-
-  const maxSpend = data ? Math.max(...data.monthlySpend.map(m => m.amount), 1) : 1
 
   if (loading) {
     return (
@@ -60,19 +65,24 @@ export default function Reports() {
           <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
           <p className="text-textMuted mt-1">Loading your spending data...</p>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-8 bg-gray-100 rounded mb-2"/>
-              <div className="h-4 bg-gray-100 rounded w-2/3"/>
-            </div>
-          ))}
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
         </div>
+        <ErrorState message={error} onRetry={fetchReports} />
       </div>
     )
   }
 
   const hasData = data?.summary?.totalItems > 0
+  const maxSpend = data ? Math.max(...data.monthlySpend.map(m => m.amount), 1) : 1
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -198,9 +208,17 @@ export default function Reports() {
           <button
             onClick={fetchTips}
             disabled={tipsLoading}
-            className="btn-secondary text-xs px-3 py-1.5"
+            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50"
           >
-            {tipsLoading ? 'Generating...' : tips.length > 0 ? 'Refresh tips' : 'Generate tips'}
+            {tipsLoading ? (
+              <span className="flex items-center gap-1">
+                <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Generating...
+              </span>
+            ) : tips.length > 0 ? 'Refresh tips' : 'Generate tips'}
           </button>
         </div>
         {tips.length > 0 ? (
@@ -248,6 +266,9 @@ export default function Reports() {
           </div>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
     </div>
   )
