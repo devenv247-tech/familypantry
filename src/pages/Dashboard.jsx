@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { getDashboardStats, getRecentActivity } from '../api/dashboard'
 import { getMembers } from '../api/family'
 import { getExpiringSoon } from '../api/expiry'
+import { getHealthProgress } from '../api/healthProgress'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -35,7 +36,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [activity, setActivity] = useState([])
   const [members, setMembers] = useState([])
-  const [expiringSoon, setExpiringSoon] = useState([])
+ const [expiringSoon, setExpiringSoon] = useState([])
+  const [healthProgress, setHealthProgress] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -49,16 +51,18 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setError('')
-      const [statsData, activityData, membersData, expiryData] = await Promise.all([
+     const [statsData, activityData, membersData, expiryData, healthData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getMembers(),
         getExpiringSoon(),
+        getHealthProgress(),
       ])
       setStats(statsData)
       setActivity(activityData)
       setMembers(membersData)
       setExpiringSoon(expiryData)
+      setHealthProgress(healthData)
     } catch (err) {
       console.error(err)
       setError('Failed to load dashboard data')
@@ -239,7 +243,57 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-
+      {/* Health goal progress widget */}
+      {healthProgress?.hasData && (
+        <div className="card mt-6 border border-green-100 bg-green-50/20">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-textPrimary">💪 Health goal progress</h2>
+            <span className="text-xs text-textMuted">Last 7 days</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {healthProgress.members.filter(m => m.hasData).map((member, i) => (
+              <div key={i} className="bg-white rounded-btn border border-green-100 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {member.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-textPrimary">{member.name}</p>
+                      <p className="text-xs text-textMuted capitalize">{member.goal}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-lg font-bold ${
+                      member.overallScore >= 75 ? 'text-success' :
+                      member.overallScore >= 50 ? 'text-orange-500' : 'text-danger'
+                    }`}>{member.overallScore}%</p>
+                    <p className="text-xs text-textMuted">{member.mealsLogged} meals</p>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  {member.metrics.map((metric, j) => (
+                    <div key={j} className="flex items-center justify-between text-xs">
+                      <span className="text-textMuted">{metric.icon} {metric.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-textPrimary">{metric.value}{metric.unit}</span>
+                        {metric.targetText && (
+                          <span className="text-textMuted">/ {metric.targetText}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          {healthProgress.members.some(m => !m.hasData) && (
+            <p className="text-xs text-textMuted mt-3">
+              Cook more meals and click "I cooked this" to track all members' progress.
+            </p>
+          )}
+        </div>
+      )}
       {/* Seasonal picks widget */}
       {(() => {
         const season = getCurrentSeason()
