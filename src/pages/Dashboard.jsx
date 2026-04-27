@@ -94,21 +94,6 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Expiry alert */}
-      {stats && (stats.expiringSoon > 0 || stats.expired > 0) && (
-        <div className="bg-orange-50 border border-orange-100 rounded-card px-5 py-4 mb-6 flex items-start gap-3">
-          <span className="text-xl">⚠️</span>
-          <div>
-            <p className="text-sm font-semibold text-orange-600">Pantry alert</p>
-            <p className="text-sm text-orange-500 mt-0.5">
-              {stats.expired > 0 && `${stats.expired} item${stats.expired > 1 ? 's' : ''} expired. `}
-              {stats.expiringSoon > 0 && `${stats.expiringSoon} item${stats.expiringSoon > 1 ? 's' : ''} expiring within 3 days.`}
-              <button onClick={() => navigate('/app/pantry')} className="ml-2 underline font-medium">Check pantry</button>
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Recall alert */}
       <div className="bg-red-50 border border-red-100 rounded-card px-5 py-4 mb-8 flex items-start gap-3">
         <span className="text-xl">🚨</span>
@@ -164,7 +149,7 @@ export default function Dashboard() {
       {expiringSoon.length > 0 && (
         <div className="card mb-6 border border-yellow-200 bg-yellow-50/30">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-textPrimary">⏰ Expiring Soon</h2>
+            <h2 className="font-semibold text-textPrimary">⏰ Expiring Soon <span className="text-sm font-normal text-textMuted">({expiringSoon.length} item{expiringSoon.length > 1 ? 's' : ''})</span></h2>
             <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium">
               View pantry
             </button>
