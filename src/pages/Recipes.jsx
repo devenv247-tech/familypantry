@@ -468,7 +468,7 @@ export default function Recipes() {
     <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
     {recipe.allergenWarnings.map((w, i) => (
       <p key={i} className="text-xs text-red-600">
-        {w.member} — contains {w.allergen} ({w.ingredient})
+        contains {w.allergen} ({w.ingredient})
       </p>
     ))}
   </div>
