@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan } from '../api/mealplan'
+import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan } from '../api/mealplan'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner']
+const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
 const MEAL_ICONS = {
   Breakfast: '🌅',
   Lunch: '☀️',
   Dinner: '🌙',
+  Snack: '🍎',
 }
 
 const getWeekStart = (offset = 0) => {
@@ -38,8 +39,11 @@ export default function MealPlan() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [generating, setGenerating] = useState(false)
+  const [generatingWeek, setGeneratingWeek] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState(null)
+  const [selectedMeal, setSelectedMeal] = useState(null)
   const [recipeName, setRecipeName] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -72,6 +76,12 @@ export default function MealPlan() {
     setShowAddModal(true)
   }
 
+  const handleMealClick = (meal, e) => {
+    e.stopPropagation()
+    setSelectedMeal(meal)
+    setShowDetailModal(true)
+  }
+
   const handleSaveMeal = async () => {
     if (!recipeName.trim()) return
     setSaving(true)
@@ -97,10 +107,12 @@ export default function MealPlan() {
     }
   }
 
-  const handleDeleteMeal = async (id) => {
+  const handleDeleteMeal = async (id, e) => {
+    if (e) e.stopPropagation()
     try {
       await deleteMeal(id)
       setMeals(prev => prev.filter(m => m.id !== id))
+      setShowDetailModal(false)
       showToast('Meal removed')
     } catch (err) {
       showToast('Failed to remove meal', 'error')
@@ -119,11 +131,141 @@ export default function MealPlan() {
     }
   }
 
+  const handleGenerateWeek = async () => {
+    if (!window.confirm('This will replace all meals for this week with AI suggestions. Continue?')) return
+    setGeneratingWeek(true)
+    try {
+      const res = await generateWeekPlan(weekStart)
+      setMeals(res.meals || [])
+      showToast(`Generated ${res.count} meals for the week!`)
+    } catch (err) {
+      showToast('Failed to generate week plan', 'error')
+    } finally {
+      setGeneratingWeek(false)
+    }
+  }
+
   const plannedCount = meals.length
   const totalSlots = DAYS.length * MEAL_TYPES.length
 
   return (
     <div className="page-container">
+
+      {/* Meal detail modal */}
+      {showDetailModal && selectedMeal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
+              <h3 className="font-semibold text-textPrimary flex items-center gap-2">
+                <span>{selectedMeal.recipeData?.icon || MEAL_ICONS[selectedMeal.mealType]}</span>
+                <span>{selectedMeal.mealType} — {selectedMeal.day}</span>
+              </h3>
+              <button onClick={() => setShowDetailModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            </div>
+            <div className="p-6">
+              <h2 className="text-lg font-bold text-textPrimary mb-1">{selectedMeal.recipeName}</h2>
+
+              {selectedMeal.recipeData?.description && (
+                <p className="text-sm text-textMuted mb-4">{selectedMeal.recipeData.description}</p>
+              )}
+
+              <div className="flex items-center gap-4 text-xs text-textMuted mb-4 flex-wrap">
+                {selectedMeal.recipeData?.time && <span>⏱ {selectedMeal.recipeData.time}</span>}
+                {selectedMeal.recipeData?.calories && <span>🔥 {selectedMeal.recipeData.calories} kcal</span>}
+              </div>
+
+              {/* Ingredients */}
+              {selectedMeal.recipeData?.ingredients?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients in pantry</p>
+                  <div className="space-y-1">
+                    {selectedMeal.recipeData.ingredients.map((ing, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-textMuted">
+                        <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0">✓</span>
+                        {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Missing ingredients */}
+              {selectedMeal.recipeData?.missing?.length > 0 && (
+                <div className="mb-4 bg-orange-50 border border-orange-100 rounded-btn px-3 py-3">
+                  <p className="text-xs font-semibold text-orange-600 mb-2">Need to buy</p>
+                  <div className="space-y-1">
+                    {selectedMeal.recipeData.missing.map((ing, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-textMuted">
+                        <span className="w-4 h-4 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0">+</span>
+                        {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={(e) => handleDeleteMeal(selectedMeal.id, e)}
+                  className="flex-1 py-2 rounded-btn text-sm font-medium border border-red-100 text-danger hover:bg-red-50 transition-all"
+                >
+                  Remove meal
+                </button>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="flex-1 btn-primary text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add meal modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h3 className="font-semibold text-textPrimary">
+                {MEAL_ICONS[selectedSlot?.mealType]} {selectedSlot?.mealType} — {selectedSlot?.day}
+              </h3>
+              <button onClick={() => setShowAddModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            </div>
+            <div className="p-6">
+              <label className="label">Recipe name</label>
+              <input
+                className="input mb-4"
+                placeholder="e.g. Butter Chicken, Oatmeal, Salad..."
+                value={recipeName}
+                onChange={e => setRecipeName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSaveMeal()}
+                autoFocus
+              />
+              <div className="flex gap-3">
+                <button onClick={() => setShowAddModal(false)} className="btn-secondary flex-1">Cancel</button>
+                <button
+                  onClick={handleSaveMeal}
+                  disabled={!recipeName.trim() || saving}
+                  className="btn-primary flex-1 disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Add to plan'}
+                </button>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-textMuted mb-2">Or generate a recipe with AI</p>
+                <button
+                  onClick={() => { setShowAddModal(false); navigate('/app/recipes') }}
+                  className="w-full text-sm text-primary border border-blue-100 bg-blue-50 rounded-btn py-2 hover:bg-blue-100 transition-all"
+                >
+                  🤖 Go to recipe suggestions
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -131,7 +273,7 @@ export default function MealPlan() {
           <h1 className="text-2xl font-bold text-textPrimary">Meal planner</h1>
           <p className="text-textMuted mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={handleGenerateGrocery}
             disabled={generating || plannedCount === 0}
@@ -143,9 +285,24 @@ export default function MealPlan() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-                Generating...
+                Adding...
               </>
             ) : '🛒 Add to grocery'}
+          </button>
+          <button
+            onClick={handleGenerateWeek}
+            disabled={generatingWeek}
+            className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
+          >
+            {generatingWeek ? (
+              <>
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Generating week...
+              </>
+            ) : '✨ Auto-plan week'}
           </button>
           <button
             onClick={() => navigate('/app/recipes')}
@@ -228,13 +385,22 @@ export default function MealPlan() {
                           ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
                           : 'bg-surface border-border border-dashed hover:border-primary hover:bg-gray-50'
                       }`}
-                      onClick={() => !meal && handleSlotClick(day, mealType)}
+                      onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => {} }) : handleSlotClick(day, mealType)}
                     >
                       {meal ? (
                         <div className="h-full">
-                          <p className="text-xs font-medium text-primary leading-tight">{meal.recipeName}</p>
+                          <p className="text-xs font-medium text-primary leading-tight">
+                            {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+                            {meal.recipeName}
+                          </p>
+                          {meal.recipeData?.calories && (
+                            <p className="text-xs text-textMuted mt-1">🔥 {meal.recipeData.calories} kcal</p>
+                          )}
+                          {meal.recipeData?.time && (
+                            <p className="text-xs text-textMuted">⏱ {meal.recipeData.time}</p>
+                          )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id) }}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
                             className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white text-danger opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-xs border border-red-100"
                           >
                             ✕
@@ -267,11 +433,22 @@ export default function MealPlan() {
                           <span className="text-xs text-textMuted">{mealType}</span>
                         </div>
                         {meal ? (
-                          <div className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100">
-                            <p className="text-xs font-medium text-primary flex-1">{meal.recipeName}</p>
+                          <div
+                            className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all"
+                            onClick={() => handleMealClick(meal, { stopPropagation: () => {} })}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-primary truncate">
+                                {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+                                {meal.recipeName}
+                              </p>
+                              {meal.recipeData?.calories && (
+                                <p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
+                              )}
+                            </div>
                             <button
-                              onClick={() => handleDeleteMeal(meal.id)}
-                              className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
+                              className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                             >
                               ✕
                             </button>
@@ -292,50 +469,6 @@ export default function MealPlan() {
             ))}
           </div>
         </>
-      )}
-
-      {/* Add meal modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h3 className="font-semibold text-textPrimary">
-                {MEAL_ICONS[selectedSlot?.mealType]} {selectedSlot?.mealType} — {selectedSlot?.day}
-              </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
-            </div>
-            <div className="p-6">
-              <label className="label">Recipe name</label>
-              <input
-                className="input mb-4"
-                placeholder="e.g. Butter Chicken, Oatmeal, Salad..."
-                value={recipeName}
-                onChange={e => setRecipeName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSaveMeal()}
-                autoFocus
-              />
-              <div className="flex gap-3">
-                <button onClick={() => setShowAddModal(false)} className="btn-secondary flex-1">Cancel</button>
-                <button
-                  onClick={handleSaveMeal}
-                  disabled={!recipeName.trim() || saving}
-                  className="btn-primary flex-1 disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Add to plan'}
-                </button>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs text-textMuted mb-2">Or generate a recipe with AI</p>
-                <button
-                  onClick={() => { setShowAddModal(false); navigate('/app/recipes') }}
-                  className="w-full text-sm text-primary border border-blue-100 bg-blue-50 rounded-btn py-2 hover:bg-blue-100 transition-all"
-                >
-                  🤖 Go to recipe suggestions
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Toast */}
