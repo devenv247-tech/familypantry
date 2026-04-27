@@ -137,93 +137,6 @@ export default function Reports() {
         </div>
       )}
 
-      {/* Budget forecast widget */}
-      <div className="card mb-8 border-2 border-blue-100 bg-blue-50/20">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary">🔮 Budget forecast</h2>
-          <button
-            onClick={fetchForecast}
-            disabled={forecastLoading}
-            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50"
-          >
-            {forecastLoading ? 'Loading...' : 'Refresh'}
-          </button>
-        </div>
-
-        {forecastLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <svg className="animate-spin w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-            </svg>
-          </div>
-        ) : forecastError ? (
-          <p className="text-sm text-danger">{forecastError}</p>
-        ) : !forecast?.hasData ? (
-          <p className="text-sm text-textMuted">{forecast?.message || 'No spending data yet to forecast.'}</p>
-        ) : (
-          <>
-            {/* Alert banner */}
-            {forecast.forecast?.alert && (
-              <div className="bg-red-50 border border-red-100 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
-                <span className="text-lg">⚠️</span>
-                <p className="text-sm text-danger">{forecast.forecast.alert}</p>
-              </div>
-            )}
-
-            {/* Main forecast numbers */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white rounded-btn p-4 border border-blue-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Next month forecast</p>
-                <p className="text-2xl font-bold text-primary">${forecast.forecast?.nextMonthForecast}</p>
-                <div className={`flex items-center justify-center gap-1 mt-1 text-xs font-medium ${
-                  forecast.forecast?.trend === 'increasing' ? 'text-danger' :
-                  forecast.forecast?.trend === 'decreasing' ? 'text-success' : 'text-textMuted'
-                }`}>
-                  <span>
-                    {forecast.forecast?.trend === 'increasing' ? '↑' :
-                     forecast.forecast?.trend === 'decreasing' ? '↓' : '→'}
-                  </span>
-                  <span>{Math.abs(forecast.forecast?.trendPercent)}% vs last month</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-btn p-4 border border-green-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Savings opportunity</p>
-                <p className="text-2xl font-bold text-success">${forecast.forecast?.savingsOpportunity}</p>
-                <p className="text-xs text-textMuted mt-1">per month</p>
-              </div>
-
-              <div className="bg-white rounded-btn p-4 border border-purple-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Top category</p>
-                <p className="text-lg font-bold text-purple-600 truncate">{forecast.forecast?.topCategory}</p>
-                <p className="text-xs text-textMuted mt-1">highest spend</p>
-              </div>
-
-              <div className="bg-white rounded-btn p-4 border border-orange-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Total tracked</p>
-                <p className="text-2xl font-bold text-orange-500">{forecast.itemCount}</p>
-                <p className="text-xs text-textMuted mt-1">items purchased</p>
-              </div>
-            </div>
-
-            {/* Insights */}
-            {forecast.forecast?.insights?.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-textPrimary mb-2">💡 AI insights</p>
-                <div className="space-y-2">
-                  {forecast.forecast.insights.map((insight, i) => (
-                    <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-blue-100">
-                      <span className="text-primary font-bold text-xs mt-0.5">→</span>
-                      <p className="text-xs text-textMuted">{insight}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
 
       {/* Top stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -322,30 +235,103 @@ export default function Reports() {
         </div>
       )}
 
-      {/* AI savings tips */}
+      {/* Budget intelligence — forecast + tips merged */}
       <div className="card mb-6 border-2 border-yellow-100 bg-yellow-50/30">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary">💡 AI savings tips</h2>
+          <h2 className="font-semibold text-textPrimary">💡 Budget intelligence</h2>
           <button
-            onClick={fetchTips}
-            disabled={tipsLoading}
+            onClick={() => { fetchForecast(); fetchTips() }}
+            disabled={tipsLoading || forecastLoading}
             className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50"
           >
-            {tipsLoading ? (
+            {tipsLoading || forecastLoading ? (
               <span className="flex items-center gap-1">
                 <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
-                Generating...
+                Refreshing...
               </span>
-            ) : tips.length > 0 ? 'Refresh tips' : 'Generate tips'}
+            ) : tips.length > 0 ? 'Refresh all' : 'Generate insights'}
           </button>
         </div>
+
+        {/* Forecast numbers */}
+        {forecastLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <svg className="animate-spin w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+          </div>
+        ) : forecast?.hasData ? (
+          <>
+            {/* Alert */}
+            {forecast.forecast?.alert && (
+              <div className="bg-red-50 border border-red-100 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
+                <span className="text-lg">⚠️</span>
+                <p className="text-sm text-danger">{forecast.forecast.alert}</p>
+              </div>
+            )}
+
+            {/* Numbers row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div className="bg-white rounded-btn p-3 border border-blue-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Next month</p>
+                <p className="text-xl font-bold text-primary">${forecast.forecast?.nextMonthForecast}</p>
+                <p className={`text-xs font-medium mt-1 ${
+                  forecast.forecast?.trend === 'increasing' ? 'text-danger' :
+                  forecast.forecast?.trend === 'decreasing' ? 'text-success' : 'text-textMuted'
+                }`}>
+                  {forecast.forecast?.trend === 'increasing' ? '↑' :
+                   forecast.forecast?.trend === 'decreasing' ? '↓' : '→'} {Math.abs(forecast.forecast?.trendPercent)}%
+                </p>
+              </div>
+              <div className="bg-white rounded-btn p-3 border border-green-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Could save</p>
+                <p className="text-xl font-bold text-success">${forecast.forecast?.savingsOpportunity}</p>
+                <p className="text-xs text-textMuted mt-1">per month</p>
+              </div>
+              <div className="bg-white rounded-btn p-3 border border-purple-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Top category</p>
+                <p className="text-sm font-bold text-purple-600 truncate">{forecast.forecast?.topCategory}</p>
+                <p className="text-xs text-textMuted mt-1">highest spend</p>
+              </div>
+              <div className="bg-white rounded-btn p-3 border border-orange-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Tracked items</p>
+                <p className="text-xl font-bold text-orange-500">{forecast.itemCount}</p>
+                <p className="text-xs text-textMuted mt-1">purchased</p>
+              </div>
+            </div>
+
+            {/* Forecast insights */}
+            {forecast.forecast?.insights?.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-semibold text-textPrimary mb-2">🔮 Forecast insights</p>
+                <div className="space-y-2">
+                  {forecast.forecast.insights.map((insight, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-blue-100">
+                      <span className="text-primary font-bold text-xs mt-0.5">→</span>
+                      <p className="text-xs text-textMuted">{insight}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-textMuted mb-4">{forecast?.message || 'No forecast data yet.'}</p>
+        )}
+
+        {/* Divider */}
+        {forecast?.hasData && <div className="border-t border-yellow-100 mb-5" />}
+
+        {/* Savings tips */}
+        <p className="text-xs font-semibold text-textPrimary mb-2">💰 Savings tips</p>
         {tips.length > 0 ? (
           <div className="space-y-3">
             {tips.map((t, i) => (
-              <div key={i} className="flex items-start gap-3 bg-surface rounded-btn p-4 border border-border">
+              <div key={i} className="flex items-start gap-3 bg-white rounded-btn p-3 border border-yellow-100">
                 <span className="text-xl flex-shrink-0">{t.icon}</span>
                 <p className="text-sm text-textMuted leading-relaxed">{t.tip}</p>
               </div>
@@ -354,7 +340,7 @@ export default function Reports() {
         ) : (
           <p className="text-sm text-textMuted">
             {hasData
-              ? 'Click "Generate tips" to get AI-powered savings suggestions based on your spending.'
+              ? 'Click "Generate insights" to get AI-powered savings suggestions.'
               : 'Start tracking purchases to get personalized savings tips.'}
           </p>
         )}
