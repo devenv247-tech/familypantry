@@ -7,6 +7,16 @@ import { useToast } from '../hooks/useToast'
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
+const CUISINES = [
+  { label: 'Punjabi', icon: '🫓' },
+  { label: 'South Asian', icon: '🍛' },
+  { label: 'Italian', icon: '🍝' },
+  { label: 'Mexican', icon: '🌮' },
+  { label: 'Chinese', icon: '🥢' },
+  { label: 'Middle Eastern', icon: '🧆' },
+  { label: 'Japanese', icon: '🍱' },
+  { label: 'Canadian / Western', icon: '🍁' },
+]
 const MEAL_ICONS = {
   Breakfast: '🌅',
   Lunch: '☀️',
@@ -49,6 +59,7 @@ export default function MealPlan() {
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
   const [showMemberModal, setShowMemberModal] = useState(false)
+  const [selectedCuisines, setSelectedCuisines] = useState([])
 
   useEffect(() => {
     const week = getWeekStart(weekOffset)
@@ -148,7 +159,7 @@ const handleGenerateWeek = async () => {
     setShowMemberModal(false)
     setGeneratingWeek(true)
     try {
-      const res = await generateWeekPlan(weekStart, selectedMembers)
+      const res = await generateWeekPlan(weekStart, selectedMembers, selectedCuisines)
       setMeals(res.meals || [])
       showToast(`Generated ${res.count} meals for the week!`)
     } catch (err) {
@@ -165,7 +176,11 @@ const handleGenerateWeek = async () => {
       prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name]
     )
   }
-
+  const toggleCuisine = (label) => {
+    setSelectedCuisines(prev =>
+      prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]
+    )
+  }
   const plannedCount = meals.length
   const totalSlots = DAYS.length * MEAL_TYPES.length
 
@@ -194,6 +209,24 @@ const handleGenerateWeek = async () => {
                 {selectedMeal.recipeData?.time && <span>⏱ {selectedMeal.recipeData.time}</span>}
                 {selectedMeal.recipeData?.calories && <span>🔥 {selectedMeal.recipeData.calories} kcal</span>}
               </div>
+
+              {/* Nutrition macros */}
+              {selectedMeal.recipeData?.nutrition && (
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                  {[
+                    { label: 'Calories', value: selectedMeal.recipeData.nutrition.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
+                    { label: 'Protein', value: selectedMeal.recipeData.nutrition.protein, unit: 'g', color: 'bg-blue-50 text-primary' },
+                    { label: 'Carbs', value: selectedMeal.recipeData.nutrition.carbs, unit: 'g', color: 'bg-yellow-50 text-yellow-600' },
+                    { label: 'Fat', value: selectedMeal.recipeData.nutrition.fat, unit: 'g', color: 'bg-red-50 text-danger' },
+                  ].map((item, i) => (
+                    <div key={i} className={`rounded-btn p-2 text-center ${item.color}`}>
+                      <p className="text-sm font-bold">{item.value}</p>
+                      <p className="text-xs opacity-75">{item.unit}</p>
+                      <p className="text-xs font-medium mt-0.5">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Ingredients */}
               {selectedMeal.recipeData?.ingredients?.length > 0 && (
@@ -293,7 +326,25 @@ const handleGenerateWeek = async () => {
                   ))}
                 </div>
               )}
-
+              <div className="mb-6">
+                <p className="text-sm font-medium text-textPrimary mb-1">Cuisine preferences</p>
+                <p className="text-xs text-textMuted mb-3">Leave unselected to mix all cuisines</p>
+                <div className="flex flex-wrap gap-2">
+                  {CUISINES.map(c => (
+                    <button
+                      key={c.label}
+                      onClick={() => toggleCuisine(c.label)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill border text-xs font-medium transition-all ${
+                        selectedCuisines.includes(c.label)
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                      }`}
+                    >
+                      {c.icon} {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="bg-yellow-50 border border-yellow-100 rounded-btn px-4 py-3 mb-6">
                 <p className="text-xs text-yellow-700">
                   ⚠️ This will replace all existing meals for this week with AI suggestions.
