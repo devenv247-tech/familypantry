@@ -5,6 +5,7 @@ import { lookupBarcode } from '../api/barcode'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { predictExpiry, logItemRemoval, getExpiringSoon } from '../api/expiry'
+import { getPantryCO2 } from '../api/smartInsights'
 
 const UNITS = ['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
 const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
@@ -26,11 +27,14 @@ export default function Pantry() {
   const [scanLoading, setScanLoading] = useState(false)
   const [scanResult, setScanResult] = useState(null)
   const [expiringSoon, setExpiringSoon] = useState([])
+  const [co2Data, setCo2Data] = useState(null)
+  const [showCO2, setShowCO2] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
   useEffect(() => {
     fetchItems()
     fetchExpiringSoon()
+    fetchCO2()
   }, [])
 
   const fetchItems = async () => {
@@ -53,6 +57,20 @@ export default function Pantry() {
     } catch (err) {
       console.error('Failed to load expiring soon:', err)
     }
+  }
+
+  const fetchCO2 = async () => {
+    try {
+      const data = await getPantryCO2()
+      setCo2Data(data)
+    } catch (err) {
+      console.error('Failed to load CO2 data:', err)
+    }
+  }
+
+  const getItemCO2 = (itemName) => {
+    if (!co2Data?.items) return null
+    return co2Data.items.find(i => i.name.toLowerCase() === itemName.toLowerCase())
   }
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
@@ -94,6 +112,7 @@ export default function Pantry() {
       setShowForm(false)
       setScanResult(null)
       showToast('Item added to pantry!')
+      fetchCO2()
 
       // Auto-predict expiry if no manual expiry set
       if (!form.expiry) {
@@ -116,6 +135,7 @@ export default function Pantry() {
       setItems(prev => prev.filter(i => i.id !== id))
       setExpiringSoon(prev => prev.filter(i => i.id !== id))
       showToast('Item removed from pantry')
+      fetchCO2()
 
       // Log removal for self-learning
       if (existing) {
@@ -266,6 +286,60 @@ export default function Pantry() {
           </button>
         </div>
       </div>
+
+      {/* CO2 footprint summary banner */}
+      {co2Data && co2Data.totalCO2 > 0 && (
+        <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-green-800">🌍 Pantry CO2 footprint</p>
+            <button
+              onClick={() => setShowCO2(!showCO2)}
+              className="text-xs text-green-700 hover:underline font-medium"
+            >
+              {showCO2 ? 'Hide details' : 'Show details'}
+            </button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-2xl font-bold text-green-700">{co2Data.totalCO2}kg</p>
+              <p className="text-xs text-green-600">CO2 in your pantry</p>
+            </div>
+            <div className="flex-1 h-2 bg-green-200 rounded-pill overflow-hidden">
+              <div
+                className="h-full bg-green-500 rounded-pill"
+                style={{ width: `${Math.min((co2Data.totalCO2 / co2Data.canadianAvgMonthly) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="text-right">
+              <p className={`text-sm font-semibold ${co2Data.comparison <= 0 ? 'text-success' : 'text-orange-500'}`}>
+                {co2Data.comparison !== null
+                  ? co2Data.comparison <= 0
+                    ? `${Math.abs(co2Data.comparison)}% below avg`
+                    : `${co2Data.comparison}% above avg`
+                  : ''}
+              </p>
+              <p className="text-xs text-green-600">vs {co2Data.canadianAvgMonthly}kg avg</p>
+            </div>
+          </div>
+          {showCO2 && (
+            <div className="mt-3 pt-3 border-t border-green-200">
+              <p className="text-xs font-semibold text-green-800 mb-2">Top contributors</p>
+              <div className="space-y-1">
+                {co2Data.items
+                  .filter(i => i.co2Total > 0)
+                  .sort((a, b) => b.co2Total - a.co2Total)
+                  .slice(0, 5)
+                  .map((item, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="text-green-800">{item.co2Label?.icon} {item.name}</span>
+                      <span className="text-green-700 font-medium">{item.co2Total}kg CO2</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Expiring soon banner */}
       {expiringSoon.length > 0 && (
@@ -438,93 +512,103 @@ export default function Pantry() {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map(item => (
-            <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
+          {filtered.map(item => {
+            const itemCO2 = getItemCO2(item.name)
+            return (
+              <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
 
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
-              >
-                ✕
-              </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                >
+                  ✕
+                </button>
 
-              <button
-                onClick={() => {
-                  setRestockingId(item.id)
-                  setRestockQty('')
-                }}
-                className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-0 group-hover:opacity-100 transition-all font-medium hover:bg-green-100"
-              >
-                + Restock
-              </button>
+                <button
+                  onClick={() => {
+                    setRestockingId(item.id)
+                    setRestockQty('')
+                  }}
+                  className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-0 group-hover:opacity-100 transition-all font-medium hover:bg-green-100"
+                >
+                  + Restock
+                </button>
 
-              {restockingId === item.id && (
-                <div className="mt-3 pt-3 border-t border-border">
-                  <p className="text-xs text-textMuted mb-2">How much did you buy?</p>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      className="input text-sm py-1.5"
-                      placeholder={`Add ${item.unit}`}
-                      value={restockQty}
-                      onChange={e => setRestockQty(e.target.value)}
-                      autoFocus
-                    />
-                    <button
-                      onClick={() => handleRestock(item.id)}
-                      className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap"
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={() => setRestockingId(null)}
-                      className="btn-secondary text-xs px-3 py-1.5"
-                    >
-                      Cancel
-                    </button>
+                {restockingId === item.id && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs text-textMuted mb-2">How much did you buy?</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        className="input text-sm py-1.5"
+                        placeholder={`Add ${item.unit}`}
+                        value={restockQty}
+                        onChange={e => setRestockQty(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleRestock(item.id)}
+                        className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => setRestockingId(null)}
+                        className="btn-secondary text-xs px-3 py-1.5"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <p className="text-xs text-textMuted mt-1">
+                      Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}
+                    </p>
                   </div>
-                  <p className="text-xs text-textMuted mt-1">
-                    Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}
+                )}
+
+                <div className="text-3xl mb-3 mt-6">{item.icon}</div>
+                <p className="font-semibold text-textPrimary">{item.name}</p>
+                <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
+
+                {item.expirySource === 'ai_predicted' && item.predictedExpiry && (
+                  <p className="text-xs text-blue-400 mt-1">🤖 AI predicted expiry</p>
+                )}
+                {item.expirySource === 'pattern_learned' && item.predictedExpiry && (
+                  <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>
+                )}
+
+                {/* CO2 badge */}
+                {itemCO2?.co2Label && (
+                  <p className="text-xs text-green-600 mt-1">
+                    {itemCO2.co2Label.icon} {itemCO2.co2Label.label} CO2
                   </p>
+                )}
+
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">
+                    {item.category}
+                  </span>
+                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
+                    isExpired(item.expiry || item.predictedExpiry)
+                      ? 'bg-red-50 text-danger'
+                      : isExpiringSoon(item.expiry || item.predictedExpiry)
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'bg-green-50 text-success'
+                  }`}>
+                    {isExpired(item.expiry || item.predictedExpiry)
+                      ? 'Expired'
+                      : isExpiringSoon(item.expiry || item.predictedExpiry)
+                      ? 'Expiring soon'
+                      : item.expiry
+                      ? `Exp: ${item.expiry}`
+                      : item.predictedExpiry
+                      ? `~${new Date(item.predictedExpiry).toLocaleDateString('en-CA')}`
+                      : 'No expiry'}
+                  </span>
                 </div>
-              )}
 
-              <div className="text-3xl mb-3 mt-6">{item.icon}</div>
-              <p className="font-semibold text-textPrimary">{item.name}</p>
-              <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
-
-              {item.expirySource === 'ai_predicted' && item.predictedExpiry && (
-                <p className="text-xs text-blue-400 mt-1">🤖 AI predicted expiry</p>
-              )}
-              {item.expirySource === 'pattern_learned' && item.predictedExpiry && (
-                <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>
-              )}
-
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">
-                  {item.category}
-                </span>
-                <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
-                  isExpired(item.expiry || item.predictedExpiry)
-                    ? 'bg-red-50 text-danger'
-                    : isExpiringSoon(item.expiry || item.predictedExpiry)
-                    ? 'bg-orange-50 text-orange-500'
-                    : 'bg-green-50 text-success'
-                }`}>
-                  {isExpired(item.expiry || item.predictedExpiry)
-                    ? 'Expired'
-                    : isExpiringSoon(item.expiry || item.predictedExpiry)
-                    ? 'Expiring soon'
-                    : item.expiry
-                    ? `Exp: ${item.expiry}`
-                    : item.predictedExpiry
-                    ? `~${new Date(item.predictedExpiry).toLocaleDateString('en-CA')}`
-                    : 'No expiry'}
-                </span>
               </div>
-
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
