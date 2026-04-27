@@ -1,4 +1,4 @@
-import api from './axios'
+import api from './client'
 
 export const predictExpiry = (itemName, category, itemId) =>
   api.post('/expiry/predict', { itemName, category, itemId }).then(r => r.data)
