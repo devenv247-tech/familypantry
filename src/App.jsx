@@ -13,6 +13,7 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import AppShell from './components/layout/AppShell'
 import Recalls from './pages/Recalls'
+import MealPlan from './pages/MealPlan'
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
         <Route path="recalls" element={<Recalls />} />
+        <Route path="mealplan" element={<MealPlan />} />
       </Route>
     </Routes>
   )
