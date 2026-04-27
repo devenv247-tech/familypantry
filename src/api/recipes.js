@@ -16,3 +16,7 @@ export const cookRecipe = async (recipe) => {
   })
   return res.data
 }
+export const getSubstitutions = async (ingredientName, ingredientUnit, recipeContext) => {
+  const res = await client.post('/recipes/substitutions', { ingredientName, ingredientUnit, recipeContext })
+  return res.data
+}

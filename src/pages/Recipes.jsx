@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMembers } from '../api/family'
-import { suggestRecipes, generateFamilyRecipe, cookRecipe } from '../api/recipes'
+import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { Toast } from '../components/ui/PageState'
@@ -45,9 +45,12 @@ export default function Recipes() {
   const [cookingHistory, setCookingHistory] = useState([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const [ratingModal, setRatingModal] = useState(null) // { recipe, idx }
+  const [ratingModal, setRatingModal] = useState(null)
   const [pendingRating, setPendingRating] = useState(0)
   const [submittingRating, setSubmittingRating] = useState(false)
+  const [substitutions, setSubstitutions] = useState({}) // key: `${recipeIdx}-${ingName}`
+  const [substitutionLoading, setSubstitutionLoading] = useState({})
+  const [activeSubstitution, setActiveSubstitution] = useState(null) // key of active substitution panel
 
   useEffect(() => {
     fetchMembers()
@@ -86,6 +89,8 @@ export default function Recipes() {
     setLoading(true)
     setGenerated(false)
     setLimitError('')
+    setSubstitutions({})
+    setActiveSubstitution(null)
     try {
       const data = await suggestRecipes(selectedMembers, mealType, cuisine)
       setRecipes(data.recipes)
@@ -124,7 +129,6 @@ export default function Recipes() {
       await cookRecipe(recipe)
       setCookedId(idx)
       showToast('Pantry updated! Ingredients subtracted.')
-      // Open rating modal
       setRatingModal({ recipe, idx })
       setPendingRating(0)
       setTimeout(() => setCookedId(null), 3000)
@@ -188,6 +192,48 @@ export default function Recipes() {
     }
   }
 
+  const handleFindSubstitutes = async (ing, recipeIdx, recipeName) => {
+    const ingName = typeof ing === 'string' ? ing : ing.name
+    const ingUnit = typeof ing === 'string' ? '' : ing.unit
+    const key = `${recipeIdx}-${ingName}`
+
+    // Toggle off if already showing
+    if (activeSubstitution === key) {
+      setActiveSubstitution(null)
+      return
+    }
+
+    // Use cached result if available
+    if (substitutions[key]) {
+      setActiveSubstitution(key)
+      return
+    }
+
+    setSubstitutionLoading(prev => ({ ...prev, [key]: true }))
+    setActiveSubstitution(key)
+    try {
+      const result = await getSubstitutions(ingName, ingUnit, recipeName)
+      setSubstitutions(prev => ({ ...prev, [key]: result }))
+    } catch (err) {
+      showToast('Failed to find substitutes', 'error')
+      setActiveSubstitution(null)
+    } finally {
+      setSubstitutionLoading(prev => ({ ...prev, [key]: false }))
+    }
+  }
+
+  const qualityColor = (quality) => {
+    if (quality === 'perfect') return 'bg-green-50 text-success border-green-100'
+    if (quality === 'good') return 'bg-blue-50 text-primary border-blue-100'
+    return 'bg-gray-50 text-textMuted border-border'
+  }
+
+  const qualityLabel = (quality) => {
+    if (quality === 'perfect') return '✓ Perfect match'
+    if (quality === 'good') return '👍 Good substitute'
+    return '~ Works'
+  }
+
   return (
     <div className="page-container">
 
@@ -209,17 +255,8 @@ export default function Recipes() {
               ))}
             </div>
             <div className="flex gap-3">
-              <button
-                onClick={() => { setRatingModal(null); setPendingRating(0) }}
-                className="btn-secondary flex-1"
-              >
-                Skip
-              </button>
-              <button
-                onClick={handleSubmitRating}
-                disabled={submittingRating}
-                className="btn-primary flex-1"
-              >
+              <button onClick={() => { setRatingModal(null); setPendingRating(0) }} className="btn-secondary flex-1">Skip</button>
+              <button onClick={handleSubmitRating} disabled={submittingRating} className="btn-primary flex-1">
                 {submittingRating ? 'Saving...' : 'Save'}
               </button>
             </div>
@@ -246,10 +283,7 @@ export default function Recipes() {
         <div className="card mb-6 border border-purple-100 bg-purple-50/20">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-textPrimary">📖 Recently cooked</h2>
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="text-xs text-primary hover:underline font-medium"
-            >
+            <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-primary hover:underline font-medium">
               {showHistory ? 'Hide' : `Show all ${cookingHistory.length}`}
             </button>
           </div>
@@ -263,9 +297,7 @@ export default function Recipes() {
                     <p className="text-xs text-textMuted">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {meal.rating && (
-                      <span className="text-xs text-yellow-500 font-medium">{'⭐'.repeat(meal.rating)}</span>
-                    )}
+                    {meal.rating && <span className="text-xs text-yellow-500 font-medium">{'⭐'.repeat(meal.rating)}</span>}
                     <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-pill">{meal.cuisine || 'Any'}</span>
                   </div>
                 </div>
@@ -285,9 +317,7 @@ export default function Recipes() {
           {members.length === 0 ? (
             <p className="text-sm text-textMuted">
               No members yet —{' '}
-              <button onClick={() => navigate('/app/settings')} className="text-primary hover:underline">
-                add members in Settings
-              </button>
+              <button onClick={() => navigate('/app/settings')} className="text-primary hover:underline">add members in Settings</button>
             </p>
           ) : (
             <div className="flex gap-2 flex-wrap">
@@ -322,9 +352,7 @@ export default function Recipes() {
                 key={t}
                 onClick={() => setMealType(t)}
                 className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                  mealType === t
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                  mealType === t ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                 }`}
               >
                 {t === 'Breakfast' ? '🌅' : t === 'Lunch' ? '☀️' : t === 'Dinner' ? '🌙' : '🍎'} {t}
@@ -342,9 +370,7 @@ export default function Recipes() {
                 key={c.label}
                 onClick={() => setCuisine(c.label)}
                 className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                  cuisine === c.label
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                  cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                 }`}
               >
                 {c.icon} {c.label}
@@ -394,9 +420,7 @@ export default function Recipes() {
               </>
             ) : <>🤖 Generate recipes</>}
           </button>
-          {selectedMembers.length === 0 && (
-            <p className="text-sm text-textMuted">Select at least one member</p>
-          )}
+          {selectedMembers.length === 0 && <p className="text-sm text-textMuted">Select at least one member</p>}
         </div>
 
         {/* Limit error */}
@@ -404,9 +428,7 @@ export default function Recipes() {
           <div className="mt-4 bg-orange-50 border border-orange-100 rounded-card p-4">
             <p className="text-sm font-semibold text-orange-600 mb-1">Weekly limit reached</p>
             <p className="text-sm text-orange-500">{limitError}</p>
-            <button onClick={() => navigate('/app/settings')} className="btn-primary mt-3 text-sm">
-              Upgrade to Family plan
-            </button>
+            <button onClick={() => navigate('/app/settings')} className="btn-primary mt-3 text-sm">Upgrade to Family plan</button>
           </div>
         )}
 
@@ -414,10 +436,7 @@ export default function Recipes() {
         {usage?.plan === 'free' && !limitError && (
           <div className="mt-4 flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-gray-100 rounded-pill overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-pill transition-all"
-                style={{ width: `${(usage.used / usage.limit) * 100}%` }}
-              />
+              <div className="h-full bg-primary rounded-pill transition-all" style={{ width: `${(usage.used / usage.limit) * 100}%` }} />
             </div>
             <span className="text-xs text-textMuted">{usage.used}/{usage.limit} recipes this week</span>
           </div>
@@ -429,9 +448,7 @@ export default function Recipes() {
         <div className="card mb-8 border-2 border-purple-200 bg-purple-50/20">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 min-w-0 pr-3">
-              <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-pill font-medium border border-purple-200">
-                Whole family recipe
-              </span>
+              <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-pill font-medium border border-purple-200">Whole family recipe</span>
               <h2 className="text-xl font-bold text-textPrimary mt-2">{familyRecipe.name}</h2>
               <p className="text-sm text-textMuted mt-1">{familyRecipe.description}</p>
             </div>
@@ -451,9 +468,7 @@ export default function Recipes() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {familyRecipe.memberTips.map((t, i) => (
                   <div key={i} className="flex items-start gap-2 bg-gray-50 rounded-btn px-3 py-2">
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                      {t.member[0]}
-                    </div>
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{t.member[0]}</div>
                     <p className="text-xs text-textMuted">{t.member}: {t.tip}</p>
                   </div>
                 ))}
@@ -469,21 +484,18 @@ export default function Recipes() {
             </span>
           </div>
 
-          {/* Allergen warnings for family recipe */}
           {familyRecipe.allergenWarnings?.length > 0 && (
             <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-4">
               <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
               {familyRecipe.allergenWarnings.map((w, i) => (
-                <p key={i} className="text-xs text-red-600">
-                  contains {w.allergen} ({w.ingredient})
-                </p>
+                <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
               ))}
             </div>
           )}
 
           {familyRecipe.missing?.length > 0 && (
             <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-orange-600">Need to buy:</p>
                 <button
                   onClick={() => handleAddToGrocery(familyRecipe, 'family')}
@@ -495,9 +507,52 @@ export default function Recipes() {
                   {addingToGrocery['family'] ? 'Adding...' : addedToGrocery['family'] ? '✓ Added!' : '+ Add to grocery'}
                 </button>
               </div>
-              <p className="text-xs text-orange-500">
-                {familyRecipe.missing.map(m => `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
-              </p>
+              <div className="space-y-2">
+                {familyRecipe.missing.map((m, i) => {
+                  const ingName = typeof m === 'string' ? m : m.name
+                  const key = `family-${ingName}`
+                  return (
+                    <div key={i}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                        <button
+                          onClick={() => handleFindSubstitutes(m, 'family', familyRecipe.name)}
+                          className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                        >
+                          {activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                        </button>
+                      </div>
+                      {activeSubstitution === key && (
+                        <div className="mt-2 bg-white rounded-btn border border-blue-100 p-3">
+                          {substitutionLoading[key] ? (
+                            <p className="text-xs text-textMuted">Finding substitutes...</p>
+                          ) : substitutions[key] ? (
+                            <>
+                              {substitutions[key].tip && (
+                                <p className="text-xs text-textMuted mb-2 italic">{substitutions[key].tip}</p>
+                              )}
+                              <div className="space-y-2">
+                                {substitutions[key].substitutions?.map((sub, si) => (
+                                  <div key={si} className={`flex items-start justify-between rounded-btn px-2 py-1.5 border ${qualityColor(sub.quality)}`}>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        <span className="text-xs font-medium">{sub.name}</span>
+                                        {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill">✓ In pantry</span>}
+                                      </div>
+                                      <p className="text-xs opacity-75 mt-0.5">{sub.ratio} · {sub.note}</p>
+                                    </div>
+                                    <span className="text-xs font-medium ml-2 whitespace-nowrap opacity-75">{qualityLabel(sub.quality)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 
@@ -507,9 +562,7 @@ export default function Recipes() {
               <ol className="space-y-3">
                 {familyRecipe.steps.map((step, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
+                    <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                     <p className="text-sm text-textMuted leading-relaxed">{step}</p>
                   </li>
                 ))}
@@ -555,12 +608,8 @@ export default function Recipes() {
       {generated && recipes.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <h2 className="font-semibold text-textPrimary">
-              {recipes.length} recipes suggested for {mealType.toLowerCase()}
-            </h2>
-            <span className="text-xs bg-green-50 text-success border border-green-100 px-3 py-1 rounded-pill font-medium">
-              Based on your pantry
-            </span>
+            <h2 className="font-semibold text-textPrimary">{recipes.length} recipes suggested for {mealType.toLowerCase()}</h2>
+            <span className="text-xs bg-green-50 text-success border border-green-100 px-3 py-1 rounded-pill font-medium">Based on your pantry</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -581,9 +630,7 @@ export default function Recipes() {
 
                 <div className="flex gap-2 flex-wrap mb-3">
                   {recipe.tags?.map(tag => (
-                    <span key={tag} className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100">
-                      {tag}
-                    </span>
+                    <span key={tag} className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100">{tag}</span>
                   ))}
                 </div>
 
@@ -597,16 +644,15 @@ export default function Recipes() {
                   <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-3">
                     <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
                     {recipe.allergenWarnings.map((w, i) => (
-                      <p key={i} className="text-xs text-red-600">
-                        contains {w.allergen} ({w.ingredient})
-                      </p>
+                      <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
                     ))}
                   </div>
                 )}
 
+                {/* Missing ingredients with substitution buttons */}
                 {recipe.missing?.length > 0 && (
                   <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-2">
                       <p className="text-xs font-medium text-orange-600">Need to buy:</p>
                       <button
                         onClick={() => handleAddToGrocery(recipe, idx)}
@@ -618,9 +664,52 @@ export default function Recipes() {
                         {addingToGrocery[idx] ? 'Adding...' : addedToGrocery[idx] ? '✓ Added!' : '+ Add to grocery'}
                       </button>
                     </div>
-                    <p className="text-xs text-orange-500">
-                      {recipe.missing.map(m => typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
-                    </p>
+                    <div className="space-y-2">
+                      {recipe.missing.map((m, i) => {
+                        const ingName = typeof m === 'string' ? m : m.name
+                        const key = `${idx}-${ingName}`
+                        return (
+                          <div key={i}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                              <button
+                                onClick={() => handleFindSubstitutes(m, idx, recipe.name)}
+                                className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                              >
+                                {activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                              </button>
+                            </div>
+                            {activeSubstitution === key && (
+                              <div className="mt-2 bg-white rounded-btn border border-blue-100 p-3">
+                                {substitutionLoading[key] ? (
+                                  <p className="text-xs text-textMuted">Finding substitutes...</p>
+                                ) : substitutions[key] ? (
+                                  <>
+                                    {substitutions[key].tip && (
+                                      <p className="text-xs text-textMuted mb-2 italic">{substitutions[key].tip}</p>
+                                    )}
+                                    <div className="space-y-2">
+                                      {substitutions[key].substitutions?.map((sub, si) => (
+                                        <div key={si} className={`flex items-start justify-between rounded-btn px-2 py-1.5 border ${qualityColor(sub.quality)}`}>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-1 flex-wrap">
+                                              <span className="text-xs font-medium">{sub.name}</span>
+                                              {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill">✓ In pantry</span>}
+                                            </div>
+                                            <p className="text-xs opacity-75 mt-0.5">{sub.ratio} · {sub.note}</p>
+                                          </div>
+                                          <span className="text-xs font-medium ml-2 whitespace-nowrap opacity-75">{qualityLabel(sub.quality)}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </>
+                                ) : null}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -649,7 +738,6 @@ export default function Recipes() {
 
                 {expandedId === idx && (
                   <div className="mt-4 pt-4 border-t border-border">
-
                     <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
                     <ul className="space-y-1.5 mb-5">
                       {recipe.ingredients?.map(ing => (
@@ -673,9 +761,7 @@ export default function Recipes() {
                         <ol className="space-y-3">
                           {recipe.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-3">
-                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                                {i + 1}
-                              </span>
+                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                               <p className="text-sm text-textMuted leading-relaxed">{step}</p>
                             </li>
                           ))}
@@ -690,9 +776,7 @@ export default function Recipes() {
                           <button
                             onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'serving' }))}
                             className={`text-xs px-3 py-1 rounded-pill border transition-all ${
-                              (nutritionView[idx] || 'serving') === 'serving'
-                                ? 'bg-primary text-white border-primary'
-                                : 'text-textMuted border-border'
+                              (nutritionView[idx] || 'serving') === 'serving' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
                             }`}
                           >
                             Per serving
@@ -700,9 +784,7 @@ export default function Recipes() {
                           <button
                             onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'total' }))}
                             className={`text-xs px-3 py-1 rounded-pill border transition-all ${
-                              nutritionView[idx] === 'total'
-                                ? 'bg-primary text-white border-primary'
-                                : 'text-textMuted border-border'
+                              nutritionView[idx] === 'total' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
                             }`}
                           >
                             Total recipe
