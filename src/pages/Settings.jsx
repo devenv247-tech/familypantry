@@ -11,6 +11,11 @@ const PLANS = [
   { name: 'Family', price: '$7/mo', features: 'Unlimited recipes · expense reports · recall alerts' },
   { name: 'Premium', price: '$15/mo', features: 'Everything + multiple families + price comparison' },
 ]
+const ALLERGENS = [
+  'Peanuts', 'Tree nuts', 'Sesame seeds', 'Milk', 'Eggs',
+  'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Mustard',
+  'Sulphites', 'Celery', 'Lupin', 'Molluscs'
+]
 
 export default function Settings() {
   const { user, family, logout } = useAuthStore()
@@ -20,7 +25,7 @@ export default function Settings() {
   const [editingId, setEditingId] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
   const [editForm, setEditForm] = useState({})
-  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None' })
+  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None', allergens: '' })
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -198,6 +203,37 @@ export default function Settings() {
                       {DIETARY.map(d => <option key={d}>{d}</option>)}
                     </select>
                   </div>
+                  <div className="md:col-span-3">
+  <label className="label">Allergens</label>
+  <div className="flex flex-wrap gap-2">
+    {ALLERGENS.map(allergen => {
+      const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+      return (
+        <button
+          key={allergen}
+          type="button"
+          onClick={() => {
+            const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+            const updated = selected
+              ? current.filter(a => a !== allergen)
+              : [...current, allergen]
+            setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
+          }}
+          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+            selected
+              ? 'bg-danger text-white border-danger'
+              : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
+          }`}
+        >
+          {selected ? '✕ ' : '+ '}{allergen}
+        </button>
+      )
+    })}
+  </div>
+  {newMember.allergens && (
+    <p className="text-xs text-danger mt-2">⚠️ Allergens: {newMember.allergens}</p>
+  )}
+</div>
                 </div>
                 <div className="flex gap-3 justify-end">
                   <button type="button" onClick={() => setShowAddMember(false)} className="btn-secondary">Cancel</button>
@@ -248,6 +284,37 @@ export default function Settings() {
                             {DIETARY.map(d => <option key={d}>{d}</option>)}
                           </select>
                         </div>
+                        <div className="md:col-span-3">
+  <label className="label">Allergens</label>
+  <div className="flex flex-wrap gap-2">
+    {ALLERGENS.map(allergen => {
+      const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+      return (
+        <button
+          key={allergen}
+          type="button"
+          onClick={() => {
+            const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+            const updated = selected
+              ? current.filter(a => a !== allergen)
+              : [...current, allergen]
+            setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
+          }}
+          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+            selected
+              ? 'bg-danger text-white border-danger'
+              : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
+          }`}
+        >
+          {selected ? '✕ ' : '+ '}{allergen}
+        </button>
+      )
+    })}
+  </div>
+  {editForm.allergens && (
+    <p className="text-xs text-danger mt-2">⚠️ Allergens: {editForm.allergens}</p>
+  )}
+</div>
                       </div>
                       <div className="flex gap-3 justify-end">
                         <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
@@ -279,11 +346,16 @@ export default function Settings() {
                             </div>
                           ))}
                         </div>
-                        <div className="mt-3 flex items-center gap-2">
-                          <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
-                            Goal: {member.goals || '—'}
-                          </span>
-                        </div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+  <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
+    Goal: {member.goals || '—'}
+  </span>
+  {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
+    <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
+      ⚠️ {allergen}
+    </span>
+  ))}
+</div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>

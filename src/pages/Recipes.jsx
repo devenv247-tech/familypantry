@@ -462,7 +462,17 @@ export default function Recipes() {
                   <span>⏱ {recipe.time}</span>
                   <span>👥 Serves {recipe.serves}</span>
                 </div>
-
+                {/* Allergen warnings */}
+{recipe.allergenWarnings?.length > 0 && (
+  <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-3">
+    <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
+    {recipe.allergenWarnings.map((w, i) => (
+      <p key={i} className="text-xs text-red-600">
+        {w.member} — contains {w.allergen} ({w.ingredient})
+      </p>
+    ))}
+  </div>
+)}
                 {recipe.missing?.length > 0 && (
                   <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
                     <div className="flex items-center justify-between mb-1">

@@ -111,42 +111,67 @@ export default function Pantry() {
   }
 
   const handleScan = async (barcode) => {
-    setShowScanner(false)
-    setScanLoading(true)
-    try {
-      const product = await lookupBarcode(barcode)
-      if (product && product.name) {
-        let qty = 1
-        let unit = 'pcs'
-        if (product.quantity) {
-          const match = product.quantity.match(/(\d+\.?\d*)\s*(kg|g|ml|l|oz|lb)?/i)
-          if (match) {
-            qty = parseFloat(match[1])
-            unit = match[2]?.toLowerCase() || 'pcs'
-            if (unit === 'l') unit = 'L'
-          }
-        }
-        setScanResult(product)
-        setForm({
-          name: `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim(),
-          quantity: qty,
-          unit,
-          category: 'Fridge',
-          expiry: '',
-          icon: '🛒',
-          isCustomCategory: false,
+  setShowScanner(false)
+  setScanLoading(true)
+  try {
+    const product = await lookupBarcode(barcode)
+    if (product && product.name) {
+      // Check allergens against family members
+      if (product.nutrition) {
+        const members = await import('../api/family').then(m => m.getMembers())
+        const allergenWarnings = []
+
+        members.forEach(member => {
+          if (!member.allergens) return
+          const memberAllergens = member.allergens.split(',').map(a => a.trim().toLowerCase())
+          const productAllergens = Object.keys(product.nutrition).filter(k =>
+            k.toLowerCase().includes('allergen') || k.toLowerCase().includes('contains')
+          )
+
+          memberAllergens.forEach(allergen => {
+            const productText = JSON.stringify(product).toLowerCase()
+            if (productText.includes(allergen.toLowerCase())) {
+              allergenWarnings.push(`${member.name} — may contain ${allergen}`)
+            }
+          })
         })
-        setShowForm(true)
-      } else {
-        showToast('Product not found. Please add manually.', 'error')
+
+        if (allergenWarnings.length > 0) {
+          showToast(`⚠️ Allergen alert: ${allergenWarnings[0]}`, 'error')
+        }
       }
-    } catch (err) {
-      console.error(err)
-      showToast('Could not look up product. Please add manually.', 'error')
-    } finally {
-      setScanLoading(false)
+
+      let qty = 1
+      let unit = 'pcs'
+      if (product.quantity) {
+        const match = product.quantity.match(/(\d+\.?\d*)\s*(kg|g|ml|l|oz|lb)?/i)
+        if (match) {
+          qty = parseFloat(match[1])
+          unit = match[2]?.toLowerCase() || 'pcs'
+          if (unit === 'l') unit = 'L'
+        }
+      }
+      setScanResult(product)
+      setForm({
+        name: `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim(),
+        quantity: qty,
+        unit,
+        category: 'Fridge',
+        expiry: '',
+        icon: '🛒',
+        isCustomCategory: false,
+      })
+      setShowForm(true)
+    } else {
+      showToast('Product not found. Please add manually.', 'error')
     }
+  } catch (err) {
+    console.error(err)
+    showToast('Could not look up product. Please add manually.', 'error')
+  } finally {
+    setScanLoading(false)
   }
+}
 
   return (
     <div className="page-container">
