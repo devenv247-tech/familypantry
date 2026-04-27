@@ -73,7 +73,7 @@ export default function Reports() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="page-container">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
           <p className="text-textMuted mt-1">Loading your spending data...</p>
@@ -85,7 +85,7 @@ export default function Reports() {
 
   if (error) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="page-container">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
         </div>
@@ -100,7 +100,7 @@ export default function Reports() {
   : 1
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="page-container">
 
       {/* Header */}
       <div className="mb-8">

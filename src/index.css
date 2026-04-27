@@ -29,4 +29,7 @@ body {
   .label {
     @apply block text-sm font-medium text-textPrimary mb-1.5;
   }
+  .page-container {
+    @apply px-4 py-6 sm:px-6 sm:py-8 max-w-6xl mx-auto;
+  }
 }

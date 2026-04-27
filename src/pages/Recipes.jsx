@@ -142,7 +142,7 @@ export default function Recipes() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="page-container">
 
       {/* Header */}
       <div className="mb-6">

@@ -149,7 +149,7 @@ export default function Pantry() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="page-container">
 
       {/* Barcode scanner */}
       {showScanner && (

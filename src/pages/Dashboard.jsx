@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="page-container">
         <div className="mb-8">
           <div className="h-8 bg-gray-100 rounded w-64 mb-2 animate-pulse"/>
           <div className="h-4 bg-gray-100 rounded w-48 animate-pulse"/>
@@ -71,14 +71,14 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="page-container">
         <ErrorState message={error} onRetry={fetchData} />
       </div>
     )
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="page-container">
 
       {/* Header */}
       <div className="mb-8">
