@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getDashboardStats, getRecentActivity } from '../api/dashboard'
 import { getMembers } from '../api/family'
+import { getExpiringSoon } from '../api/expiry'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [activity, setActivity] = useState([])
   const [members, setMembers] = useState([])
+  const [expiringSoon, setExpiringSoon] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -33,14 +35,16 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setError('')
-      const [statsData, activityData, membersData] = await Promise.all([
+      const [statsData, activityData, membersData, expiryData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getMembers(),
+        getExpiringSoon(),
       ])
       setStats(statsData)
       setActivity(activityData)
       setMembers(membersData)
+      setExpiringSoon(expiryData)
     } catch (err) {
       console.error(err)
       setError('Failed to load dashboard data')
@@ -142,10 +146,7 @@ export default function Dashboard() {
         <div className="card mb-6 border border-blue-100 bg-blue-50/30">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-textPrimary">Free plan — recipe usage this week</p>
-            <button
-              onClick={() => navigate('/app/settings')}
-              className="text-xs text-primary hover:underline font-medium"
-            >
+            <button onClick={() => navigate('/app/settings')} className="text-xs text-primary hover:underline font-medium">
               Upgrade
             </button>
           </div>
@@ -156,6 +157,44 @@ export default function Dashboard() {
             />
           </div>
           <p className="text-xs text-textMuted mt-1">{stats.recipeCount}/5 recipes used this week</p>
+        </div>
+      )}
+
+      {/* Expiring soon widget */}
+      {expiringSoon.length > 0 && (
+        <div className="card mb-6 border border-yellow-200 bg-yellow-50/30">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-textPrimary">⏰ Expiring Soon</h2>
+            <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium">
+              View pantry
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {expiringSoon.slice(0, 6).map(item => (
+              <div key={item.id} className="flex items-center justify-between bg-white rounded-btn px-3 py-2 border border-yellow-100">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{item.icon}</span>
+                  <div>
+                    <p className="text-sm font-medium text-textPrimary">{item.name}</p>
+                    <p className="text-xs text-textMuted">{item.quantity} {item.unit}</p>
+                  </div>
+                </div>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${
+                  item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
+                  item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
+                  item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-blue-100 text-blue-700'
+                }`}>
+                  {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
+                </span>
+              </div>
+            ))}
+          </div>
+          {expiringSoon.length > 6 && (
+            <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium mt-3 block">
+              +{expiringSoon.length - 6} more items expiring soon
+            </button>
+          )}
         </div>
       )}
 
@@ -200,17 +239,13 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-
       </div>
 
       {/* Members strip */}
       <div className="card mt-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-textPrimary">Family members</h2>
-          <button
-            onClick={() => navigate('/app/settings')}
-            className="text-sm text-primary hover:underline font-medium"
-          >
+          <button onClick={() => navigate('/app/settings')} className="text-sm text-primary hover:underline font-medium">
             Manage members
           </button>
         </div>
