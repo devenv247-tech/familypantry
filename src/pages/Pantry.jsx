@@ -4,6 +4,7 @@ import BarcodeScanner from '../components/ui/BarcodeScanner'
 import { lookupBarcode } from '../api/barcode'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { predictExpiry, logItemRemoval, getExpiringSoon } from '../api/expiry'
 
 const UNITS = ['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
 const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
@@ -24,10 +25,12 @@ export default function Pantry() {
   const [showScanner, setShowScanner] = useState(false)
   const [scanLoading, setScanLoading] = useState(false)
   const [scanResult, setScanResult] = useState(null)
+  const [expiringSoon, setExpiringSoon] = useState([])
   const { toast, showToast, hideToast } = useToast()
 
   useEffect(() => {
     fetchItems()
+    fetchExpiringSoon()
   }, [])
 
   const fetchItems = async () => {
@@ -40,6 +43,15 @@ export default function Pantry() {
       setError('Failed to load pantry items')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchExpiringSoon = async () => {
+    try {
+      const data = await getExpiringSoon()
+      setExpiringSoon(data)
+    } catch (err) {
+      console.error('Failed to load expiring soon:', err)
     }
   }
 
@@ -82,6 +94,16 @@ export default function Pantry() {
       setShowForm(false)
       setScanResult(null)
       showToast('Item added to pantry!')
+
+      // Auto-predict expiry if no manual expiry set
+      if (!form.expiry) {
+        try {
+          await predictExpiry(item.name, item.category, item.id)
+          await fetchExpiringSoon()
+        } catch (e) {
+          console.log('Expiry prediction skipped:', e.message)
+        }
+      }
     } catch (err) {
       setFormError('Failed to add item. Please try again.')
     }
@@ -89,9 +111,26 @@ export default function Pantry() {
 
   const handleDelete = async (id) => {
     try {
+      const existing = items.find(i => i.id === id)
       await deletePantryItem(id)
       setItems(prev => prev.filter(i => i.id !== id))
+      setExpiringSoon(prev => prev.filter(i => i.id !== id))
       showToast('Item removed from pantry')
+
+      // Log removal for self-learning
+      if (existing) {
+        try {
+          await logItemRemoval(
+            existing.name,
+            existing.category,
+            existing.predictedExpiry,
+            existing.expiry,
+            'used'
+          )
+        } catch (e) {
+          console.log('Removal log skipped:', e.message)
+        }
+      }
     } catch (err) {
       showToast('Failed to delete item', 'error')
     }
@@ -111,67 +150,64 @@ export default function Pantry() {
   }
 
   const handleScan = async (barcode) => {
-  setShowScanner(false)
-  setScanLoading(true)
-  try {
-    const product = await lookupBarcode(barcode)
-    if (product && product.name) {
-      // Check allergens against family members
-      if (product.nutrition) {
-        const members = await import('../api/family').then(m => m.getMembers())
-        const allergenWarnings = []
+    setShowScanner(false)
+    setScanLoading(true)
+    try {
+      const product = await lookupBarcode(barcode)
+      if (product && product.name) {
+        // Check allergens against family members
+        if (product.nutrition) {
+          const members = await import('../api/family').then(m => m.getMembers())
+          const allergenWarnings = []
 
-        members.forEach(member => {
-          if (!member.allergens) return
-          const memberAllergens = member.allergens.split(',').map(a => a.trim().toLowerCase())
-          const productAllergens = Object.keys(product.nutrition).filter(k =>
-            k.toLowerCase().includes('allergen') || k.toLowerCase().includes('contains')
-          )
+          members.forEach(member => {
+            if (!member.allergens) return
+            const memberAllergens = member.allergens.split(',').map(a => a.trim().toLowerCase())
 
-          memberAllergens.forEach(allergen => {
-            const productText = JSON.stringify(product).toLowerCase()
-            if (productText.includes(allergen.toLowerCase())) {
-              allergenWarnings.push(`${member.name} — may contain ${allergen}`)
-            }
+            memberAllergens.forEach(allergen => {
+              const productText = JSON.stringify(product).toLowerCase()
+              if (productText.includes(allergen.toLowerCase())) {
+                allergenWarnings.push(`${member.name} — may contain ${allergen}`)
+              }
+            })
           })
+
+          if (allergenWarnings.length > 0) {
+            showToast(`⚠️ Allergen alert: ${allergenWarnings[0]}`, 'error')
+          }
+        }
+
+        let qty = 1
+        let unit = 'pcs'
+        if (product.quantity) {
+          const match = product.quantity.match(/(\d+\.?\d*)\s*(kg|g|ml|l|oz|lb)?/i)
+          if (match) {
+            qty = parseFloat(match[1])
+            unit = match[2]?.toLowerCase() || 'pcs'
+            if (unit === 'l') unit = 'L'
+          }
+        }
+        setScanResult(product)
+        setForm({
+          name: `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim(),
+          quantity: qty,
+          unit,
+          category: 'Fridge',
+          expiry: '',
+          icon: '🛒',
+          isCustomCategory: false,
         })
-
-        if (allergenWarnings.length > 0) {
-          showToast(`⚠️ Allergen alert: ${allergenWarnings[0]}`, 'error')
-        }
+        setShowForm(true)
+      } else {
+        showToast('Product not found. Please add manually.', 'error')
       }
-
-      let qty = 1
-      let unit = 'pcs'
-      if (product.quantity) {
-        const match = product.quantity.match(/(\d+\.?\d*)\s*(kg|g|ml|l|oz|lb)?/i)
-        if (match) {
-          qty = parseFloat(match[1])
-          unit = match[2]?.toLowerCase() || 'pcs'
-          if (unit === 'l') unit = 'L'
-        }
-      }
-      setScanResult(product)
-      setForm({
-        name: `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim(),
-        quantity: qty,
-        unit,
-        category: 'Fridge',
-        expiry: '',
-        icon: '🛒',
-        isCustomCategory: false,
-      })
-      setShowForm(true)
-    } else {
-      showToast('Product not found. Please add manually.', 'error')
+    } catch (err) {
+      console.error(err)
+      showToast('Could not look up product. Please add manually.', 'error')
+    } finally {
+      setScanLoading(false)
     }
-  } catch (err) {
-    console.error(err)
-    showToast('Could not look up product. Please add manually.', 'error')
-  } finally {
-    setScanLoading(false)
   }
-}
 
   return (
     <div className="page-container">
@@ -230,6 +266,28 @@ export default function Pantry() {
           </button>
         </div>
       </div>
+
+      {/* Expiring soon banner */}
+      {expiringSoon.length > 0 && (
+        <div className="mb-6 rounded-card border border-yellow-200 bg-yellow-50 p-4">
+          <p className="text-sm font-semibold text-yellow-800 mb-2">⚠️ Expiring Soon</p>
+          <div className="flex flex-col gap-1">
+            {expiringSoon.map(item => (
+              <div key={item.id} className="flex items-center justify-between text-xs">
+                <span className="text-yellow-900">{item.icon} {item.name}</span>
+                <span className={`font-semibold px-2 py-0.5 rounded-pill ${
+                  item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
+                  item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
+                  item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-blue-100 text-blue-700'
+                }`}>
+                  {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Add item form */}
       {showForm && (
@@ -324,7 +382,7 @@ export default function Pantry() {
                 )}
               </div>
               <div>
-                <label className="label">Expiry date</label>
+                <label className="label">Expiry date <span className="text-textMuted font-normal">(leave blank to auto-predict)</span></label>
                 <input
                   type="date"
                   className="input"
@@ -435,22 +493,33 @@ export default function Pantry() {
               <p className="font-semibold text-textPrimary">{item.name}</p>
               <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
 
+              {item.expirySource === 'ai_predicted' && item.predictedExpiry && (
+                <p className="text-xs text-blue-400 mt-1">🤖 AI predicted expiry</p>
+              )}
+              {item.expirySource === 'pattern_learned' && item.predictedExpiry && (
+                <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>
+              )}
+
               <div className="flex items-center justify-between mt-4">
                 <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">
                   {item.category}
                 </span>
                 <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
-                  isExpired(item.expiry)
+                  isExpired(item.expiry || item.predictedExpiry)
                     ? 'bg-red-50 text-danger'
-                    : isExpiringSoon(item.expiry)
+                    : isExpiringSoon(item.expiry || item.predictedExpiry)
                     ? 'bg-orange-50 text-orange-500'
                     : 'bg-green-50 text-success'
                 }`}>
-                  {isExpired(item.expiry)
+                  {isExpired(item.expiry || item.predictedExpiry)
                     ? 'Expired'
-                    : isExpiringSoon(item.expiry)
+                    : isExpiringSoon(item.expiry || item.predictedExpiry)
                     ? 'Expiring soon'
-                    : item.expiry ? `Exp: ${item.expiry}` : 'No expiry'}
+                    : item.expiry
+                    ? `Exp: ${item.expiry}`
+                    : item.predictedExpiry
+                    ? `~${new Date(item.predictedExpiry).toLocaleDateString('en-CA')}`
+                    : 'No expiry'}
                 </span>
               </div>
 
