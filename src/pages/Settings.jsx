@@ -3,7 +3,6 @@ import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
 import { deleteAccount, updateAccount } from '../api/auth'
-import { useAuthStore } from '../store/authStore'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
