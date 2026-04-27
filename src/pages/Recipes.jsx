@@ -4,6 +4,7 @@ import { getMembers } from '../api/family'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
+import { logNutrition } from '../api/healthProgress'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -124,7 +125,7 @@ export default function Recipes() {
     }
   }
 
-  const handleCook = async (recipe, idx) => {
+ const handleCook = async (recipe, idx) => {
     try {
       await cookRecipe(recipe)
       setCookedId(idx)
@@ -132,6 +133,20 @@ export default function Recipes() {
       setRatingModal({ recipe, idx })
       setPendingRating(0)
       setTimeout(() => setCookedId(null), 3000)
+
+      // Log nutrition for health progress tracking
+      if (recipe.nutritionPerServing && selectedMembers.length > 0) {
+        try {
+          await logNutrition(
+            selectedMembers,
+            recipe.name,
+            mealType,
+            recipe.nutritionPerServing
+          )
+        } catch (e) {
+          console.log('Nutrition log skipped:', e.message)
+        }
+      }
     } catch (err) {
       showToast('Failed to update pantry', 'error')
     }
