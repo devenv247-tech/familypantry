@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getReports, getAISavingsTips } from '../api/reports'
+import { getBudgetForecast } from '../api/budgetForecast'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -24,39 +25,56 @@ export default function Reports() {
   const [error, setError] = useState('')
   const [tipsLoading, setTipsLoading] = useState(false)
   const [activeMonth, setActiveMonth] = useState(null)
+  const [forecast, setForecast] = useState(null)
+  const [forecastLoading, setForecastLoading] = useState(false)
+  const [forecastError, setForecastError] = useState('')
 
   useEffect(() => {
     fetchReports()
+    fetchForecast()
   }, [])
 
   const fetchReports = async () => {
-  try {
-    setError('')
-    const reports = await getReports()
-    // Ensure all expected fields exist with defaults
-    const safeReports = {
-      monthlySpend: reports.monthlySpend || [],
-      categories: reports.categories || [],
-      stores: reports.stores || [],
-      recentTrips: reports.recentTrips || [],
-      summary: reports.summary || {
-        thisMonth: '0.00',
-        lastMonth: '0.00',
-        avg: '0.00',
-        totalItems: 0,
+    try {
+      setError('')
+      const reports = await getReports()
+      const safeReports = {
+        monthlySpend: reports.monthlySpend || [],
+        categories: reports.categories || [],
+        stores: reports.stores || [],
+        recentTrips: reports.recentTrips || [],
+        summary: reports.summary || {
+          thisMonth: '0.00',
+          lastMonth: '0.00',
+          avg: '0.00',
+          totalItems: 0,
+        }
       }
+      setData(safeReports)
+      if (safeReports.monthlySpend.length > 0) {
+        setActiveMonth(safeReports.monthlySpend[safeReports.monthlySpend.length - 1].month)
+      }
+    } catch (err) {
+      console.error(err)
+      setError('Failed to load reports')
+    } finally {
+      setLoading(false)
     }
-    setData(safeReports)
-    if (safeReports.monthlySpend.length > 0) {
-      setActiveMonth(safeReports.monthlySpend[safeReports.monthlySpend.length - 1].month)
-    }
-  } catch (err) {
-    console.error(err)
-    setError('Failed to load reports')
-  } finally {
-    setLoading(false)
   }
-}
+
+  const fetchForecast = async () => {
+    setForecastLoading(true)
+    setForecastError('')
+    try {
+      const res = await getBudgetForecast()
+      setForecast(res)
+    } catch (err) {
+      console.error('Forecast error:', err)
+      setForecastError('Failed to load forecast')
+    } finally {
+      setForecastLoading(false)
+    }
+  }
 
   const fetchTips = async () => {
     setTipsLoading(true)
@@ -95,9 +113,9 @@ export default function Reports() {
   }
 
   const hasData = data?.summary?.totalItems > 0
-  const maxSpend = data?.monthlySpend?.length > 0 
-  ? Math.max(...data.monthlySpend.map(m => m.amount), 1) 
-  : 1
+  const maxSpend = data?.monthlySpend?.length > 0
+    ? Math.max(...data.monthlySpend.map(m => m.amount), 1)
+    : 1
 
   return (
     <div className="page-container">
@@ -118,6 +136,94 @@ export default function Reports() {
           </p>
         </div>
       )}
+
+      {/* Budget forecast widget */}
+      <div className="card mb-8 border-2 border-blue-100 bg-blue-50/20">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-textPrimary">🔮 Budget forecast</h2>
+          <button
+            onClick={fetchForecast}
+            disabled={forecastLoading}
+            className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50"
+          >
+            {forecastLoading ? 'Loading...' : 'Refresh'}
+          </button>
+        </div>
+
+        {forecastLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <svg className="animate-spin w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+          </div>
+        ) : forecastError ? (
+          <p className="text-sm text-danger">{forecastError}</p>
+        ) : !forecast?.hasData ? (
+          <p className="text-sm text-textMuted">{forecast?.message || 'No spending data yet to forecast.'}</p>
+        ) : (
+          <>
+            {/* Alert banner */}
+            {forecast.forecast?.alert && (
+              <div className="bg-red-50 border border-red-100 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
+                <span className="text-lg">⚠️</span>
+                <p className="text-sm text-danger">{forecast.forecast.alert}</p>
+              </div>
+            )}
+
+            {/* Main forecast numbers */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white rounded-btn p-4 border border-blue-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Next month forecast</p>
+                <p className="text-2xl font-bold text-primary">${forecast.forecast?.nextMonthForecast}</p>
+                <div className={`flex items-center justify-center gap-1 mt-1 text-xs font-medium ${
+                  forecast.forecast?.trend === 'increasing' ? 'text-danger' :
+                  forecast.forecast?.trend === 'decreasing' ? 'text-success' : 'text-textMuted'
+                }`}>
+                  <span>
+                    {forecast.forecast?.trend === 'increasing' ? '↑' :
+                     forecast.forecast?.trend === 'decreasing' ? '↓' : '→'}
+                  </span>
+                  <span>{Math.abs(forecast.forecast?.trendPercent)}% vs last month</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-btn p-4 border border-green-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Savings opportunity</p>
+                <p className="text-2xl font-bold text-success">${forecast.forecast?.savingsOpportunity}</p>
+                <p className="text-xs text-textMuted mt-1">per month</p>
+              </div>
+
+              <div className="bg-white rounded-btn p-4 border border-purple-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Top category</p>
+                <p className="text-lg font-bold text-purple-600 truncate">{forecast.forecast?.topCategory}</p>
+                <p className="text-xs text-textMuted mt-1">highest spend</p>
+              </div>
+
+              <div className="bg-white rounded-btn p-4 border border-orange-100 text-center">
+                <p className="text-xs text-textMuted mb-1">Total tracked</p>
+                <p className="text-2xl font-bold text-orange-500">{forecast.itemCount}</p>
+                <p className="text-xs text-textMuted mt-1">items purchased</p>
+              </div>
+            </div>
+
+            {/* Insights */}
+            {forecast.forecast?.insights?.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-textPrimary mb-2">💡 AI insights</p>
+                <div className="space-y-2">
+                  {forecast.forecast.insights.map((insight, i) => (
+                    <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-blue-100">
+                      <span className="text-primary font-bold text-xs mt-0.5">→</span>
+                      <p className="text-xs text-textMuted">{insight}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Top stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
