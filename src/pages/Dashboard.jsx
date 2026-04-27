@@ -7,6 +7,20 @@ import { getExpiringSoon } from '../api/expiry'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
+const SEASONAL_DATA = {
+  spring: { icon: '🌱', color: 'border-green-200 bg-green-50/30', badge: 'bg-green-100 text-green-700', items: ['Asparagus', 'Spinach', 'Peas', 'Rhubarb', 'Radishes', 'Arugula', 'Leeks', 'Lettuce'] },
+  summer: { icon: '☀️', color: 'border-yellow-200 bg-yellow-50/30', badge: 'bg-yellow-100 text-yellow-700', items: ['Strawberries', 'Corn', 'Tomatoes', 'Zucchini', 'Peaches', 'Blueberries', 'Cucumbers', 'Bell peppers'] },
+  fall:   { icon: '🍂', color: 'border-orange-200 bg-orange-50/30', badge: 'bg-orange-100 text-orange-700', items: ['Squash', 'Apples', 'Pears', 'Beets', 'Brussels sprouts', 'Sweet potatoes', 'Cranberries', 'Cauliflower'] },
+  winter: { icon: '❄️', color: 'border-blue-200 bg-blue-50/30', badge: 'bg-blue-100 text-blue-700', items: ['Citrus', 'Oranges', 'Cabbage', 'Carrots', 'Kale', 'Potatoes', 'Grapefruit', 'Lemons'] },
+}
+
+const getCurrentSeason = () => {
+  const month = new Date().getMonth() + 1
+  if (month >= 3 && month <= 5) return 'spring'
+  if (month >= 6 && month <= 8) return 'summer'
+  if (month >= 9 && month <= 11) return 'fall'
+  return 'winter'
+}
 const quickActions = [
   { label: 'Add pantry item', icon: '➕', to: '/app/pantry' },
   { label: 'Get recipe ideas', icon: '🤖', to: '/app/recipes' },
@@ -226,6 +240,30 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Seasonal picks widget */}
+      {(() => {
+        const season = getCurrentSeason()
+        const s = SEASONAL_DATA[season]
+        const month = new Date().toLocaleString('en-CA', { month: 'long' })
+        return (
+          <div className={`card mt-6 border ${s.color}`}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-textPrimary">{s.icon} Seasonal picks — {month}</h2>
+              <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${s.badge}`}>
+                {season.charAt(0).toUpperCase() + season.slice(1)}
+              </span>
+            </div>
+            <p className="text-xs text-textMuted mb-3">These items are freshest and cheapest right now in Canada</p>
+            <div className="flex flex-wrap gap-2">
+              {s.items.map((item, i) => (
+                <span key={i} className={`text-xs px-2.5 py-1 rounded-pill border font-medium ${s.badge}`}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
       {/* Members strip */}
       <div className="card mt-6">
         <div className="flex items-center justify-between mb-4">
