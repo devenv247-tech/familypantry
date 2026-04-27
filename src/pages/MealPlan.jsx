@@ -152,7 +152,9 @@ const handleGenerateWeek = async () => {
       setMeals(res.meals || [])
       showToast(`Generated ${res.count} meals for the week!`)
     } catch (err) {
-      showToast('Failed to generate week plan', 'error')
+      console.error('Week plan error:', err)
+      const msg = err.response?.data?.error || 'Failed to generate week plan. Please try again.'
+      showToast(msg, 'error')
     } finally {
       setGeneratingWeek(false)
     }
