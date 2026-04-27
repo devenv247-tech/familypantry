@@ -70,7 +70,7 @@ const handleSubmit = async (e) => {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="label mb-0">Password</label>
-                <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
+                <Link to="/forgot-password" className="text-xs text-primary hover:underline">Forgot password?</Link>
               </div>
               <input
                 type="password"

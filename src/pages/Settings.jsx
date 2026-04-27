@@ -3,23 +3,38 @@ import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
 import { deleteAccount, updateAccount } from '../api/auth'
+import { useToast } from '../hooks/useToast'
+import { Toast } from '../components/ui/PageState'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
-const PLANS = [
-  { name: 'Free', price: '$0', features: 'Unlimited members · 5 recipes/week' },
-  { name: 'Family', price: '$7/mo', features: 'Unlimited recipes · expense reports · recall alerts' },
-  { name: 'Premium', price: '$15/mo', features: 'Everything + multiple families + price comparison' },
-]
 const ALLERGENS = [
   'Peanuts', 'Tree nuts', 'Sesame seeds', 'Milk', 'Eggs',
   'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Mustard',
   'Sulphites', 'Celery', 'Lupin', 'Molluscs'
 ]
+const PLANS = [
+  {
+    name: 'Free',
+    price: '$0',
+    features: ['Pantry tracking', 'Manual grocery list', 'Basic reports', 'Health Canada recalls', 'Manual meal planner', '5 recipes/week'],
+  },
+  {
+    name: 'Family',
+    price: '$7/mo',
+    features: ['Everything in Free', 'Unlimited recipes', 'Smart expiry predictions', 'Meal pattern learning', 'Budget forecasting', 'Price anomaly detection', 'Seasonal recommendations', 'Smart substitutions', 'Health goal tracking', 'Costco optimizer', 'CO2 footprint tracking'],
+  },
+  {
+    name: 'Premium',
+    price: '$15/mo',
+    features: ['Everything in Family', 'AI auto meal planning for whole week', 'Cuisine selector for meal plan', 'Grocery list from meal plan', 'Up to 10 family members', 'PDF export', 'Priority support'],
+  },
+]
 
 export default function Settings() {
-  const { user, family, logout } = useAuthStore()
+  const { user, family, logout, setAuth, token } = useAuthStore()
   const navigate = useNavigate()
+  const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [activeTab, setActiveTab] = useState('members')
   const [editingId, setEditingId] = useState(null)
@@ -30,12 +45,20 @@ export default function Settings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [accountForm, setAccountForm] = useState({
-  name: user?.name || '',
-  email: user?.email || '',
-  familyName: family?.name || '',
-  password: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    familyName: family?.name || '',
+    password: '',
+    confirmPassword: '',
   })
   const [savingAccount, setSavingAccount] = useState(false)
+  const [notifPrefs, setNotifPrefs] = useState({
+    recalls: true,
+    expiry: true,
+    grocery: true,
+    monthly: false,
+    recipes: false,
+  })
 
   const TABS = [
     { id: 'members', label: 'Family members', icon: '👨‍👩‍👧‍👦' },
@@ -67,8 +90,9 @@ export default function Settings() {
       const updated = await updateMember(editingId, editForm)
       setMembers(prev => prev.map(m => m.id === editingId ? updated : m))
       setEditingId(null)
+      showToast('Member updated!')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to update member', 'error')
     }
   }
 
@@ -76,8 +100,9 @@ export default function Settings() {
     try {
       await deleteMember(id)
       setMembers(prev => prev.filter(m => m.id !== id))
+      showToast('Member removed')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to remove member', 'error')
     }
   }
 
@@ -87,10 +112,11 @@ export default function Settings() {
     try {
       const member = await addMember(newMember)
       setMembers(prev => [...prev, member])
-      setNewMember({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None' })
+      setNewMember({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None', allergens: '' })
       setShowAddMember(false)
+      showToast('Member added!')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to add member', 'error')
     }
   }
 
@@ -102,34 +128,46 @@ export default function Settings() {
       logout()
       navigate('/')
     } catch (err) {
-      console.error(err)
+      showToast('Failed to delete account', 'error')
       setDeleting(false)
     }
   }
-  
+
   const handleUpdateAccount = async () => {
-  setSavingAccount(true)
-  try {
-    const updateData = {}
-    if (accountForm.name !== user?.name) updateData.name = accountForm.name
-    if (accountForm.email !== user?.email) updateData.email = accountForm.email
-    if (accountForm.familyName !== family?.name) updateData.familyName = accountForm.familyName
-    if (accountForm.password) updateData.password = accountForm.password
+    if (accountForm.password && accountForm.password !== accountForm.confirmPassword) {
+      return showToast('Passwords do not match', 'error')
+    }
+    if (accountForm.password && accountForm.password.length < 6) {
+      return showToast('Password must be at least 6 characters', 'error')
+    }
+    setSavingAccount(true)
+    try {
+      const updateData = {}
+      if (accountForm.name !== user?.name) updateData.name = accountForm.name
+      if (accountForm.email !== user?.email) updateData.email = accountForm.email
+      if (accountForm.familyName !== family?.name) updateData.familyName = accountForm.familyName
+      if (accountForm.password) updateData.password = accountForm.password
 
-    const res = await updateAccount(updateData)
+      if (Object.keys(updateData).length === 0) {
+        showToast('No changes to save')
+        setSavingAccount(false)
+        return
+      }
 
-    // Update auth store with new values
-    const { setAuth, token } = useAuthStore.getState()
-    setAuth(token, res.user, res.family || family)
-
-    setAccountForm(prev => ({ ...prev, password: '' }))
-    showToast('Account updated successfully!')
-  } catch (err) {
-    showToast(err.response?.data?.error || 'Failed to update account', 'error')
-  } finally {
-    setSavingAccount(false)
+      const res = await updateAccount(updateData)
+      setAuth(token, res.user, res.family || family)
+      setAccountForm(prev => ({ ...prev, password: '', confirmPassword: '' }))
+      showToast('Account updated successfully!')
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to update account', 'error')
+    } finally {
+      setSavingAccount(false)
+    }
   }
-}
+
+  const currentPlan = family?.plan || 'free'
+  const currentPlanName = currentPlan === 'premium' ? 'Premium' : currentPlan === 'family' ? 'Family' : 'Free'
+
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
 
@@ -140,12 +178,12 @@ export default function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-surface text-textPrimary shadow-card'
                 : 'text-textMuted hover:text-textPrimary'
@@ -204,36 +242,28 @@ export default function Settings() {
                     </select>
                   </div>
                   <div className="md:col-span-3">
-  <label className="label">Allergens</label>
-  <div className="flex flex-wrap gap-2">
-    {ALLERGENS.map(allergen => {
-      const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
-      return (
-        <button
-          key={allergen}
-          type="button"
-          onClick={() => {
-            const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
-            const updated = selected
-              ? current.filter(a => a !== allergen)
-              : [...current, allergen]
-            setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
-          }}
-          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-            selected
-              ? 'bg-danger text-white border-danger'
-              : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
-          }`}
-        >
-          {selected ? '✕ ' : '+ '}{allergen}
-        </button>
-      )
-    })}
-  </div>
-  {newMember.allergens && (
-    <p className="text-xs text-danger mt-2">⚠️ Allergens: {newMember.allergens}</p>
-  )}
-</div>
+                    <label className="label">Allergens</label>
+                    <div className="flex flex-wrap gap-2">
+                      {ALLERGENS.map(allergen => {
+                        const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+                        return (
+                          <button key={allergen} type="button"
+                            onClick={() => {
+                              const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+                              const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
+                              setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
+                            }}
+                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                              selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
+                            }`}
+                          >
+                            {selected ? '✕ ' : '+ '}{allergen}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {newMember.allergens && <p className="text-xs text-danger mt-2">⚠️ Allergens: {newMember.allergens}</p>}
+                  </div>
                 </div>
                 <div className="flex gap-3 justify-end">
                   <button type="button" onClick={() => setShowAddMember(false)} className="btn-secondary">Cancel</button>
@@ -285,36 +315,28 @@ export default function Settings() {
                           </select>
                         </div>
                         <div className="md:col-span-3">
-  <label className="label">Allergens</label>
-  <div className="flex flex-wrap gap-2">
-    {ALLERGENS.map(allergen => {
-      const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
-      return (
-        <button
-          key={allergen}
-          type="button"
-          onClick={() => {
-            const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
-            const updated = selected
-              ? current.filter(a => a !== allergen)
-              : [...current, allergen]
-            setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
-          }}
-          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-            selected
-              ? 'bg-danger text-white border-danger'
-              : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
-          }`}
-        >
-          {selected ? '✕ ' : '+ '}{allergen}
-        </button>
-      )
-    })}
-  </div>
-  {editForm.allergens && (
-    <p className="text-xs text-danger mt-2">⚠️ Allergens: {editForm.allergens}</p>
-  )}
-</div>
+                          <label className="label">Allergens</label>
+                          <div className="flex flex-wrap gap-2">
+                            {ALLERGENS.map(allergen => {
+                              const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+                              return (
+                                <button key={allergen} type="button"
+                                  onClick={() => {
+                                    const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+                                    const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
+                                    setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
+                                  }}
+                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                                    selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
+                                  }`}
+                                >
+                                  {selected ? '✕ ' : '+ '}{allergen}
+                                </button>
+                              )
+                            })}
+                          </div>
+                          {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ Allergens: {editForm.allergens}</p>}
+                        </div>
                       </div>
                       <div className="flex gap-3 justify-end">
                         <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
@@ -347,15 +369,15 @@ export default function Settings() {
                           ))}
                         </div>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
-  <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
-    Goal: {member.goals || '—'}
-  </span>
-  {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
-    <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
-      ⚠️ {allergen}
-    </span>
-  ))}
-</div>
+                          <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
+                            Goal: {member.goals || '—'}
+                          </span>
+                          {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
+                            <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
+                              ⚠️ {allergen}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
                         <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
@@ -376,136 +398,118 @@ export default function Settings() {
 
       {/* Account tab */}
       {activeTab === 'account' && (
-  <div className="card max-w-lg">
-    <h2 className="font-semibold text-textPrimary mb-6">Account details</h2>
-    <div className="space-y-5">
-      <div>
-        <label className="label">Family name</label>
-        <input
-          className="input"
-          value={accountForm.familyName}
-          onChange={e => setAccountForm(p => ({ ...p, familyName: e.target.value }))}
-        />
-      </div>
-      <div>
-        <label className="label">Your name</label>
-        <input
-          className="input"
-          value={accountForm.name}
-          onChange={e => setAccountForm(p => ({ ...p, name: e.target.value }))}
-        />
-      </div>
-      <div>
-        <label className="label">Email address</label>
-        <input
-          className="input"
-          type="email"
-          value={accountForm.email}
-          onChange={e => setAccountForm(p => ({ ...p, email: e.target.value }))}
-        />
-      </div>
-      <div>
-        <label className="label">New password</label>
-        <input
-          className="input"
-          type="password"
-          placeholder="Leave blank to keep current"
-          value={accountForm.password}
-          onChange={e => setAccountForm(p => ({ ...p, password: e.target.value }))}
-        />
-      </div>
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={handleUpdateAccount}
-          disabled={savingAccount}
-          className="btn-primary disabled:opacity-50"
-        >
-          {savingAccount ? 'Saving...' : 'Save changes'}
-        </button>
-      </div>
-    </div>
+        <div className="card max-w-lg">
+          <h2 className="font-semibold text-textPrimary mb-6">Account details</h2>
+          <div className="space-y-5">
+            <div>
+              <label className="label">Family name</label>
+              <input className="input" value={accountForm.familyName} onChange={e => setAccountForm(p => ({ ...p, familyName: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Your name</label>
+              <input className="input" value={accountForm.name} onChange={e => setAccountForm(p => ({ ...p, name: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Email address</label>
+              <input className="input" type="email" value={accountForm.email} onChange={e => setAccountForm(p => ({ ...p, email: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">New password</label>
+              <input className="input" type="password" placeholder="Leave blank to keep current" value={accountForm.password} onChange={e => setAccountForm(p => ({ ...p, password: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Confirm new password</label>
+              <input className="input" type="password" placeholder="Repeat new password" value={accountForm.confirmPassword} onChange={e => setAccountForm(p => ({ ...p, confirmPassword: e.target.value }))} />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleUpdateAccount} disabled={savingAccount} className="btn-primary disabled:opacity-50">
+                {savingAccount ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
+          </div>
 
-    <div className="mt-8 pt-6 border-t border-border">
-      <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
-      <p className="text-sm text-textMuted mb-4">
-        Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
-      </p>
-      {!showDeleteConfirm ? (
-        <button
-          onClick={() => setShowDeleteConfirm(true)}
-          className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all"
-        >
-          Delete family account
-        </button>
-      ) : (
-        <div className="bg-red-50 border border-red-100 rounded-card p-4">
-          <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
-          <p className="text-xs text-red-600 mb-3">
-            This will permanently delete everything. Type <strong>DELETE</strong> to confirm.
-          </p>
-          <input
-            className="input mb-3 text-sm"
-            placeholder="Type DELETE to confirm"
-            value={deleteConfirmText}
-            onChange={e => setDeleteConfirmText(e.target.value)}
-          />
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }}
-              className="btn-secondary text-sm flex-1"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteAccount}
-              disabled={deleteConfirmText !== 'DELETE' || deleting}
-              className="text-sm flex-1 py-2 px-4 rounded-btn font-medium transition-all bg-danger text-white hover:bg-red-600 disabled:opacity-40"
-            >
-              {deleting ? 'Deleting...' : 'Permanently delete everything'}
-            </button>
+          <div className="mt-8 pt-6 border-t border-border">
+            <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
+            <p className="text-sm text-textMuted mb-4">
+              Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
+            </p>
+            {!showDeleteConfirm ? (
+              <button onClick={() => setShowDeleteConfirm(true)} className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all">
+                Delete family account
+              </button>
+            ) : (
+              <div className="bg-red-50 border border-red-100 rounded-card p-4">
+                <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
+                <p className="text-xs text-red-600 mb-3">Type <strong>DELETE</strong> to confirm.</p>
+                <input className="input mb-3 text-sm" placeholder="Type DELETE to confirm" value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} />
+                <div className="flex gap-3">
+                  <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="btn-secondary text-sm flex-1">Cancel</button>
+                  <button onClick={handleDeleteAccount} disabled={deleteConfirmText !== 'DELETE' || deleting} className="text-sm flex-1 py-2 px-4 rounded-btn font-medium bg-danger text-white hover:bg-red-600 disabled:opacity-40 transition-all">
+                    {deleting ? 'Deleting...' : 'Permanently delete everything'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
-    </div>
-  </div>
-)}     
 
       {/* Plan tab */}
       {activeTab === 'plan' && (
         <div>
-          <h2 className="font-semibold text-textPrimary mb-6">Current plan</h2>
+          <h2 className="font-semibold text-textPrimary mb-2">Current plan</h2>
+          <p className="text-sm text-textMuted mb-6">
+            You are on the <span className="font-semibold text-textPrimary">{currentPlanName}</span> plan.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {PLANS.map((plan, i) => (
-              <div key={i} className={`card border-2 transition-all ${plan.name === 'Family' ? 'border-primary' : 'border-border'}`}>
-                {plan.name === 'Family' && (
-                  <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-blue-100">
-                    Current plan
-                  </span>
-                )}
-                <p className="font-bold text-textPrimary text-lg">{plan.name}</p>
-                <p className="text-2xl font-bold text-textPrimary my-2">{plan.price}</p>
-                <p className="text-xs text-textMuted mb-4">{plan.features}</p>
-                <button className={plan.name === 'Family' ? 'btn-secondary w-full text-sm' : 'btn-primary w-full text-sm'}>
-                  {plan.name === 'Family' ? 'Current plan' : `Switch to ${plan.name}`}
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="card max-w-lg">
-            <h3 className="font-semibold text-textPrimary mb-4">Billing history</h3>
-            {[
-              { date: 'Apr 1, 2026', amount: '$7.00', status: 'Paid' },
-              { date: 'Mar 1, 2026', amount: '$7.00', status: 'Paid' },
-              { date: 'Feb 1, 2026', amount: '$7.00', status: 'Paid' },
-            ].map((b, i) => (
-              <div key={i} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                <p className="text-sm text-textPrimary">{b.date}</p>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill font-medium">{b.status}</span>
-                  <span className="text-sm font-semibold text-textPrimary">{b.amount}</span>
+            {PLANS.map((plan, i) => {
+              const isCurrent = plan.name.toLowerCase() === currentPlanName.toLowerCase()
+              return (
+                <div key={i} className={`card border-2 transition-all ${isCurrent ? 'border-primary' : 'border-border'}`}>
+                  {isCurrent && (
+                    <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-blue-100">
+                      Current plan
+                    </span>
+                  )}
+                  {plan.name === 'Premium' && !isCurrent && (
+                    <span className="inline-block bg-purple-50 text-purple-600 text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-purple-100">
+                      Most features
+                    </span>
+                  )}
+                  <p className="font-bold text-textPrimary text-lg">{plan.name}</p>
+                  <p className="text-2xl font-bold text-textPrimary my-2">{plan.price}</p>
+                  <ul className="space-y-1.5 mb-5">
+                    {plan.features.map((f, j) => (
+                      <li key={j} className="flex items-start gap-2 text-xs text-textMuted">
+                        <span className="text-success mt-0.5 flex-shrink-0">✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    className={`w-full text-sm py-2 rounded-btn font-medium transition-all ${
+                      isCurrent
+                        ? 'bg-gray-100 text-textMuted cursor-default'
+                        : plan.name === 'Free'
+                        ? 'btn-secondary'
+                        : 'btn-primary'
+                    }`}
+                    disabled={isCurrent}
+                  >
+                    {isCurrent ? 'Current plan' : plan.name === 'Free' ? 'Downgrade' : `Upgrade to ${plan.name}`}
+                  </button>
                 </div>
-              </div>
-            ))}
+              )
+            })}
+          </div>
+
+          <div className="card max-w-lg">
+            <h3 className="font-semibold text-textPrimary mb-1">Billing history</h3>
+            <p className="text-xs text-textMuted mb-4">Stripe integration coming soon — billing history will appear here.</p>
+            <div className="text-center py-6 text-textMuted">
+              <p className="text-3xl mb-2">💳</p>
+              <p className="text-sm">No billing history yet</p>
+            </div>
           </div>
         </div>
       )}
@@ -513,46 +517,55 @@ export default function Settings() {
       {/* Notifications tab */}
       {activeTab === 'notifications' && (
         <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-6">Notification preferences</h2>
+          <h2 className="font-semibold text-textPrimary mb-2">Notification preferences</h2>
+          <p className="text-xs text-textMuted mb-6">Email notifications will be enabled once SendGrid is configured.</p>
           <div className="space-y-5">
             {[
-              { label: 'Food recall alerts', sub: 'Get notified when a recalled item matches your pantry', on: true },
-              { label: 'Expiry reminders', sub: 'Alert when pantry items are about to expire', on: true },
-              { label: 'Weekly grocery list', sub: 'Auto-generated list every Friday morning', on: true },
-              { label: 'Monthly spend report', sub: 'Summary of your grocery spending each month', on: false },
-              { label: 'Recipe suggestions', sub: 'Daily meal ideas based on your pantry', on: false },
-            ].map((n, i) => (
-              <div key={i} className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-0">
+              { key: 'recalls', label: 'Food recall alerts', sub: 'Get notified when a recalled item matches your pantry' },
+              { key: 'expiry', label: 'Expiry reminders', sub: 'Alert when pantry items are about to expire' },
+              { key: 'grocery', label: 'Weekly grocery list', sub: 'Auto-generated list every Friday morning' },
+              { key: 'monthly', label: 'Monthly spend report', sub: 'Summary of your grocery spending each month' },
+              { key: 'recipes', label: 'Recipe suggestions', sub: 'Daily meal ideas based on your pantry' },
+            ].map((n) => (
+              <div key={n.key} className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-0">
                 <div>
                   <p className="text-sm font-medium text-textPrimary">{n.label}</p>
                   <p className="text-xs text-textMuted mt-0.5">{n.sub}</p>
                 </div>
-                <ToggleSwitch defaultOn={n.on} />
+                <ToggleSwitch
+                  on={notifPrefs[n.key]}
+                  onChange={(val) => setNotifPrefs(prev => ({ ...prev, [n.key]: val }))}
+                />
               </div>
             ))}
           </div>
+          <button
+            onClick={() => showToast('Preferences saved! Email notifications coming soon.')}
+            className="btn-primary mt-6 w-full"
+          >
+            Save preferences
+          </button>
         </div>
       )}
 
       {/* Sign out */}
       <div className="mt-8">
-        <button
-          onClick={() => { logout(); navigate('/') }}
-          className="text-sm text-danger hover:underline font-medium"
-        >
+        <button onClick={() => { logout(); navigate('/') }} className="text-sm text-danger hover:underline font-medium">
           Sign out of FamilyPantry
         </button>
       </div>
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
     </div>
   )
 }
 
-function ToggleSwitch({ defaultOn }) {
-  const [on, setOn] = useState(defaultOn)
+function ToggleSwitch({ on, onChange }) {
   return (
     <button
-      onClick={() => setOn(!on)}
+      onClick={() => onChange(!on)}
       className={`relative w-11 h-6 rounded-pill transition-all flex-shrink-0 ${on ? 'bg-primary' : 'bg-gray-200'}`}
     >
       <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${on ? 'left-5' : 'left-0.5'}`} />
