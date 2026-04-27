@@ -46,12 +46,21 @@ export default function MealPlan() {
   const [selectedMeal, setSelectedMeal] = useState(null)
   const [recipeName, setRecipeName] = useState('')
   const [saving, setSaving] = useState(false)
+  const [members, setMembers] = useState([])
+  const [selectedMembers, setSelectedMembers] = useState([])
+  const [showMemberModal, setShowMemberModal] = useState(false)
 
   useEffect(() => {
     const week = getWeekStart(weekOffset)
     setWeekStart(week)
     fetchMealPlan(week)
   }, [weekOffset])
+
+  useEffect(() => {
+    import('../api/family').then(m => m.getMembers()).then(data => {
+      setMembers(data)
+    }).catch(console.error)
+  }, [])
 
   const fetchMealPlan = async (week) => {
     try {
@@ -131,11 +140,15 @@ export default function MealPlan() {
     }
   }
 
-  const handleGenerateWeek = async () => {
-    if (!window.confirm('This will replace all meals for this week with AI suggestions. Continue?')) return
+const handleGenerateWeek = async () => {
+    setShowMemberModal(true)
+  }
+
+  const handleConfirmGenerate = async () => {
+    setShowMemberModal(false)
     setGeneratingWeek(true)
     try {
-      const res = await generateWeekPlan(weekStart)
+      const res = await generateWeekPlan(weekStart, selectedMembers)
       setMeals(res.meals || [])
       showToast(`Generated ${res.count} meals for the week!`)
     } catch (err) {
@@ -143,6 +156,12 @@ export default function MealPlan() {
     } finally {
       setGeneratingWeek(false)
     }
+  }
+
+  const toggleMember = (name) => {
+    setSelectedMembers(prev =>
+      prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name]
+    )
   }
 
   const plannedCount = meals.length
@@ -222,7 +241,61 @@ export default function MealPlan() {
           </div>
         </div>
       )}
+      {/* Member selector modal for week generation */}
+      {showMemberModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h3 className="font-semibold text-textPrimary">✨ Auto-plan this week</h3>
+              <button onClick={() => setShowMemberModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-textMuted mb-4">
+                Who should this meal plan be for? Leave all unselected to plan for the whole family.
+              </p>
 
+              {members.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {members.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => toggleMember(m.name)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
+                        selectedMembers.includes(m.name)
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
+                        selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
+                      }`}>
+                        {m.name[0]}
+                      </div>
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="bg-yellow-50 border border-yellow-100 rounded-btn px-4 py-3 mb-6">
+                <p className="text-xs text-yellow-700">
+                  ⚠️ This will replace all existing meals for this week with AI suggestions.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={() => setShowMemberModal(false)} className="btn-secondary flex-1">Cancel</button>
+                <button
+                  onClick={handleConfirmGenerate}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                >
+                  ✨ Generate {selectedMembers.length > 0 ? `for ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : 'for whole family'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Add meal modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
