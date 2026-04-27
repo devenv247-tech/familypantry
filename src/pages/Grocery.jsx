@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
+import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -12,6 +13,8 @@ export default function Grocery() {
   const [form, setForm] = useState({ name: '', qty: '', store: '', price: '', category: '', isCustomStore: false })
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [priceAlerts, setPriceAlerts] = useState([])
+  const [anomalyModal, setAnomalyModal] = useState(null)
   const { toast, showToast, hideToast } = useToast()
 
   const DEFAULT_STORES = ['Superstore', 'Walmart', 'T&T Supermarket', 'Costco', 'No Frills']
@@ -23,6 +26,7 @@ export default function Grocery() {
 
   useEffect(() => {
     fetchItems()
+    fetchPriceAlerts()
   }, [])
 
   const fetchItems = async () => {
@@ -37,6 +41,15 @@ export default function Grocery() {
     }
   }
 
+  const fetchPriceAlerts = async () => {
+    try {
+      const data = await getPriceAlerts()
+      setPriceAlerts(data.alerts || [])
+    } catch (err) {
+      console.error('Failed to load price alerts:', err)
+    }
+  }
+
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
   const filtered = items.filter(i =>
@@ -46,8 +59,18 @@ export default function Grocery() {
   const toggleCheck = async (id) => {
     const item = items.find(i => i.id === id)
     try {
-      const updated = await updateGroceryItem(id, { checked: !item.checked })
+      const updated = await updateGroceryItem(id, { checked: !item.checked, purchased: !item.checked, purchasedAt: !item.checked ? new Date() : null })
       setItems(prev => prev.map(i => i.id === id ? updated : i))
+
+      // Record price when item is checked off
+      if (!item.checked && item.price && parseFloat(item.price) > 0) {
+        try {
+          await recordPrice(item.name, parseFloat(item.price), item.store)
+          await fetchPriceAlerts()
+        } catch (e) {
+          console.log('Price record skipped:', e.message)
+        }
+      }
     } catch (err) {
       showToast('Failed to update item', 'error')
     }
@@ -69,6 +92,19 @@ export default function Grocery() {
     try {
       const item = await addGroceryItem(form)
       setItems(prev => [item, ...prev])
+
+      // Check price anomaly if price is set
+      if (form.price && parseFloat(form.price) > 0) {
+        try {
+          const anomaly = await checkPriceAnomaly(form.name, parseFloat(form.price), form.store)
+          if (anomaly.hasAnomaly) {
+            setAnomalyModal(anomaly.anomaly)
+          }
+        } catch (e) {
+          console.log('Price check skipped:', e.message)
+        }
+      }
+
       setForm({ name: '', qty: '', store: '', price: '', category: '', isCustomStore: false })
       setShowForm(false)
       showToast('Item added to grocery list!')
@@ -137,6 +173,25 @@ export default function Grocery() {
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
 
+      {/* Price anomaly modal */}
+      {anomalyModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+            <div className="text-3xl mb-3 text-center">{anomalyModal.icon}</div>
+            <h3 className="font-semibold text-textPrimary text-lg mb-2 text-center">{anomalyModal.message}</h3>
+            <p className="text-sm text-textMuted text-center mb-2">{anomalyModal.detail}</p>
+            <div className={`rounded-btn px-4 py-3 mb-4 text-center ${
+              anomalyModal.type === 'high' ? 'bg-orange-50 border border-orange-100' : 'bg-green-50 border border-green-100'
+            }`}>
+              <p className={`text-sm font-medium ${anomalyModal.type === 'high' ? 'text-orange-600' : 'text-success'}`}>
+                {anomalyModal.suggestion}
+              </p>
+            </div>
+            <button onClick={() => setAnomalyModal(null)} className="btn-primary w-full">Got it</button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -152,6 +207,38 @@ export default function Grocery() {
           </button>
         </div>
       </div>
+
+      {/* Price alerts */}
+      {priceAlerts.length > 0 && (
+        <div className="card mb-6 border border-orange-100 bg-orange-50/20">
+          <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>
+          <div className="space-y-2">
+            {priceAlerts.map((alert, i) => (
+              <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${
+                alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <span>{alert.icon}</span>
+                  <div>
+                    <p className={`font-medium ${alert.type === 'high' ? 'text-orange-700' : 'text-success'}`}>
+                      {alert.itemName}
+                    </p>
+                    <p className="text-textMuted">
+                      Avg: ${alert.avgPrice} → Now: ${alert.currentPrice}
+                      {alert.store && ` at ${alert.store}`}
+                    </p>
+                  </div>
+                </div>
+                <span className={`font-bold px-2 py-0.5 rounded-pill ${
+                  alert.type === 'high' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-success'
+                }`}>
+                  {alert.percentChange > 0 ? '+' : ''}{alert.percentChange}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -186,18 +273,18 @@ export default function Grocery() {
                 <label className="label">Quantity</label>
                 <input className="input" placeholder="e.g. 2L" value={form.qty} onChange={e => update('qty', e.target.value)} />
               </div>
-             <div>
-  <label className="label">Estimated price</label>
-  <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-    <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
-    <input
-      className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
-      placeholder="0.00"
-      value={form.price?.replace('$', '') || ''}
-      onChange={e => update('price', e.target.value)}
-    />
-  </div>
-</div>
+              <div>
+                <label className="label">Estimated price <span className="text-textMuted font-normal">(for anomaly detection)</span></label>
+                <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
+                  <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+                  <input
+                    className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+                    placeholder="0.00"
+                    value={form.price?.replace('$', '') || ''}
+                    onChange={e => update('price', e.target.value)}
+                  />
+                </div>
+              </div>
               <div>
                 <label className="label">Store</label>
                 <StoreSelect
@@ -304,17 +391,17 @@ export default function Grocery() {
                           />
                         </div>
                         <div>
-  <label className="label">Price</label>
-  <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-    <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
-    <input
-      className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
-      placeholder="0.00"
-      value={editForm.price?.replace('$', '') || ''}
-      onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
-    />
-  </div>
-</div>
+                          <label className="label">Price</label>
+                          <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
+                            <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+                            <input
+                              className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+                              placeholder="0.00"
+                              value={editForm.price?.replace('$', '') || ''}
+                              onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
+                            />
+                          </div>
+                        </div>
                       </div>
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => setEditingId(null)} className="btn-secondary text-xs py-1.5">Cancel</button>
@@ -335,9 +422,23 @@ export default function Grocery() {
                       </button>
 
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
-                          {item.name}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
+                            {item.name}
+                          </p>
+                          {/* Price alert badge on item */}
+                          {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase()) && (
+                            <span className={`text-xs px-1.5 py-0.5 rounded-pill font-medium ${
+                              priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.type === 'high'
+                                ? 'bg-orange-100 text-orange-600'
+                                : 'bg-green-100 text-success'
+                            }`}>
+                              {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.icon}
+                              {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.percentChange > 0 ? '+' : ''}
+                              {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.percentChange}%
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-textMuted">{item.qty}</span>
                           {item.category && (
@@ -389,10 +490,7 @@ export default function Grocery() {
       {/* Clear checked */}
       {checkedCount > 0 && (
         <div className="mt-4 flex justify-end">
-          <button
-            onClick={handleClearChecked}
-            className="text-sm text-danger hover:underline font-medium"
-          >
+          <button onClick={handleClearChecked} className="text-sm text-danger hover:underline font-medium">
             Remove {checkedCount} checked item{checkedCount > 1 ? 's' : ''}
           </button>
         </div>
