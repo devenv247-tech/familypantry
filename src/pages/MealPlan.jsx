@@ -222,7 +222,22 @@ const handleGenerateWeek = async () => {
                   </div>
                 </div>
               )}
-
+              {/* Recipe steps */}
+              {selectedMeal.recipeData?.steps?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">How to make it</p>
+                  <ol className="space-y-2">
+                    {selectedMeal.recipeData.steps.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={(e) => handleDeleteMeal(selectedMeal.id, e)}
