@@ -1,12 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
+import Onboarding from '../ui/Onboarding'
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+
+  useEffect(() => {
+    const done = localStorage.getItem('onboarding_complete')
+    if (!done) {
+      setShowOnboarding(true)
+    }
+  }, [])
 
   return (
     <div className="flex min-h-screen bg-background">
+
+      {/* Onboarding */}
+      {showOnboarding && (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
+      )}
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -44,7 +58,6 @@ export default function AppShell() {
             <span className="font-semibold text-textPrimary">FamilyPantry</span>
           </div>
         </div>
-
         <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
