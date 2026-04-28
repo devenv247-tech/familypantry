@@ -102,6 +102,11 @@ export default function Settings() {
     try {
       const data = await getSubscription()
       setSubscription(data)
+
+      // Update auth store with latest plan from server
+      if (data?.plan && data.plan !== family?.plan) {
+        setAuth(token, user, { ...family, plan: data.plan })
+      }
     } catch (err) {
       console.error('Failed to fetch subscription:', err)
     } finally {
