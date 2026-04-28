@@ -178,6 +178,12 @@ const handleStep2 = async (e) => {
               Sign in
             </Link>
           </p>
+          <p className="text-center text-xs text-textMuted mt-3">
+            By creating an account you agree to our{' '}
+            <Link to="/terms" className="text-primary hover:underline">Terms</Link>
+            {' '}and{' '}
+            <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+          </p>
 
         </div>
       </div>
