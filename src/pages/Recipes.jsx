@@ -7,6 +7,7 @@ import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { logNutrition } from '../api/healthProgress'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAuthStore } from '../store/authStore'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
@@ -26,6 +27,8 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 
 export default function Recipes() {
   const navigate = useNavigate()
+  const { family } = useAuthStore()
+  const isPaidPlan = family?.plan === 'family' || family?.plan === 'premium'
   const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
@@ -531,10 +534,10 @@ export default function Recipes() {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                         <button
-                          onClick={() => handleFindSubstitutes(m, 'family', familyRecipe.name)}
-                          className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
-                        >
-                          {activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                          onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings')}
+                              className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                            >
+                              {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
                         </button>
                       </div>
                       {activeSubstitution === key && (
@@ -688,10 +691,10 @@ export default function Recipes() {
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                               <button
-                                onClick={() => handleFindSubstitutes(m, idx, recipe.name)}
-                                className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
-                              >
-                                {activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                                onClick={() => isPaidPlan ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings')}
+                              className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                            >
+                              {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
                               </button>
                             </div>
                             {activeSubstitution === key && (

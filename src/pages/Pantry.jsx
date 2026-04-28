@@ -287,8 +287,20 @@ export default function Pantry() {
         </div>
       </div>
 
-      {/* CO2 footprint summary banner */}
-      {co2Data && co2Data.totalCO2 > 0 && (
+    {/* CO2 footprint summary banner */}
+      {co2Data?.locked && (
+        <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-green-800">🌍 CO2 footprint tracking</p>
+            <p className="text-xs text-green-600 mt-1">Available on Family plan ($7/mo)</p>
+          </div>
+          <a href="/app/settings" className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-pill font-medium hover:bg-green-700 transition-all">
+            Upgrade →
+          </a>
+        </div>
+      )}
+
+      {co2Data && !co2Data.locked && co2Data.totalCO2 > 0 && (
         <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-green-800">🌍 Pantry CO2 footprint</p>
@@ -340,7 +352,6 @@ export default function Pantry() {
           )}
         </div>
       )}
-
       {/* Expiring soon banner */}
       {expiringSoon.length > 0 && (
         <div className="mb-6 rounded-card border border-yellow-200 bg-yellow-50 p-4">

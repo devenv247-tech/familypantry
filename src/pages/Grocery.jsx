@@ -208,8 +208,8 @@ export default function Grocery() {
         </div>
       </div>
 
-      {/* Price alerts */}
-      {priceAlerts.length > 0 && (
+    {/* Price alerts */}
+      {priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
           <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>
           <div className="space-y-2">

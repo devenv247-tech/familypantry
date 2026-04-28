@@ -264,6 +264,14 @@ export default function Reports() {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
           </div>
+        ) : co2Data?.locked ? (
+          <div className="flex items-center justify-between bg-green-50 rounded-btn px-4 py-3 border border-green-100">
+            <div>
+              <p className="text-sm font-medium text-green-800">CO2 tracking available on Family plan</p>
+              <p className="text-xs text-green-600 mt-0.5">Upgrade to see your food carbon footprint</p>
+            </div>
+            <a href="/app/settings" className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
+          </div>
         ) : co2Data && co2Data.totalCO2 > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
@@ -345,6 +353,14 @@ export default function Reports() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
+          </div>
+        ) : costcoData?.locked ? (
+          <div className="flex items-center justify-between bg-orange-50 rounded-btn px-4 py-3 border border-orange-100">
+            <div>
+              <p className="text-sm font-medium text-orange-800">Costco optimizer available on Family plan</p>
+              <p className="text-xs text-orange-600 mt-0.5">Upgrade to see bulk buying recommendations</p>
+            </div>
+            <a href="/app/settings" className="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
           </div>
         ) : costcoData?.hasData ? (
           <>
@@ -480,6 +496,14 @@ export default function Reports() {
               </div>
             )}
           </>
+        ) : forecast?.limitReached ? (
+          <div className="flex items-center justify-between bg-yellow-50 rounded-btn px-4 py-3 border border-yellow-100 mb-4">
+            <div>
+              <p className="text-sm font-medium text-yellow-800">Budget forecasting on Family plan</p>
+              <p className="text-xs text-yellow-600 mt-0.5">Upgrade to get AI spending predictions</p>
+            </div>
+            <a href="/app/settings" className="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
+          </div>
         ) : (
           <p className="text-sm text-textMuted mb-4">{forecast?.message || 'No forecast data yet.'}</p>
         )}
