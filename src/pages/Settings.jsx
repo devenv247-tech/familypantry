@@ -5,6 +5,7 @@ import { getMembers, addMember, updateMember, deleteMember } from '../api/family
 import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
+import { createCheckoutSession, createPortalSession, getSubscription } from '../api/stripe'
 
 const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
 const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
@@ -52,6 +53,9 @@ export default function Settings() {
     confirmPassword: '',
   })
   const [savingAccount, setSavingAccount] = useState(false)
+  const [subscription, setSubscription] = useState(null)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
+  const [upgradingPlan, setUpgradingPlan] = useState('')
   const [notifPrefs, setNotifPrefs] = useState({
     recalls: true,
     expiry: true,
@@ -70,6 +74,60 @@ export default function Settings() {
   useEffect(() => {
     fetchMembers()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'plan') {
+      fetchSubscription()
+    }
+  }, [activeTab])
+
+  // Handle success/cancel from Stripe redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true') {
+      showToast('🎉 Subscription activated! Welcome to your new plan.')
+      setActiveTab('plan')
+      fetchSubscription()
+      window.history.replaceState({}, '', '/app/settings')
+    }
+    if (params.get('cancelled') === 'true') {
+      showToast('Checkout cancelled.', 'error')
+      setActiveTab('plan')
+      window.history.replaceState({}, '', '/app/settings')
+    }
+  }, [])
+
+  const fetchSubscription = async () => {
+    setSubscriptionLoading(true)
+    try {
+      const data = await getSubscription()
+      setSubscription(data)
+    } catch (err) {
+      console.error('Failed to fetch subscription:', err)
+    } finally {
+      setSubscriptionLoading(false)
+    }
+  }
+
+  const handleUpgrade = async (plan) => {
+    setUpgradingPlan(plan)
+    try {
+      const { url } = await createCheckoutSession(plan.toLowerCase())
+      window.location.href = url
+    } catch (err) {
+      showToast('Failed to start checkout. Please try again.', 'error')
+      setUpgradingPlan('')
+    }
+  }
+
+  const handleManageBilling = async () => {
+    try {
+      const { url } = await createPortalSession()
+      window.location.href = url
+    } catch (err) {
+      showToast('Failed to open billing portal. Please try again.', 'error')
+    }
+  }
 
   const fetchMembers = async () => {
     try {
@@ -460,20 +518,38 @@ export default function Settings() {
           <h2 className="font-semibold text-textPrimary mb-2">Current plan</h2>
           <p className="text-sm text-textMuted mb-6">
             You are on the <span className="font-semibold text-textPrimary">{currentPlanName}</span> plan.
+            {subscription?.subscription?.currentPeriodEnd && (
+              <span className="text-textMuted"> · Renews {subscription.subscription.currentPeriodEnd}</span>
+            )}
+            {subscription?.subscription?.cancelAtPeriodEnd && (
+              <span className="text-danger"> · Cancels at end of period</span>
+            )}
           </p>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {PLANS.map((plan, i) => {
               const isCurrent = plan.name.toLowerCase() === currentPlanName.toLowerCase()
+              const isUpgrade = ['free', 'family'].includes(currentPlanName.toLowerCase()) && plan.name === 'Premium' ||
+                currentPlanName.toLowerCase() === 'free' && plan.name === 'Family'
               return (
-                <div key={i} className={`card border-2 transition-all ${isCurrent ? 'border-primary' : 'border-border'}`}>
+                <div key={i} className={`card border-2 transition-all ${
+                  isCurrent ? 'border-primary' :
+                  plan.name === 'Premium' ? 'border-purple-200' :
+                  'border-border'
+                }`}>
                   {isCurrent && (
                     <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-blue-100">
-                      Current plan
+                      ✓ Current plan
                     </span>
                   )}
                   {plan.name === 'Premium' && !isCurrent && (
                     <span className="inline-block bg-purple-50 text-purple-600 text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-purple-100">
-                      Most features
+                      ⭐ Most features
+                    </span>
+                  )}
+                  {plan.name === 'Family' && !isCurrent && currentPlanName.toLowerCase() === 'free' && (
+                    <span className="inline-block bg-green-50 text-success text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-green-100">
+                      Popular
                     </span>
                   )}
                   <p className="font-bold text-textPrimary text-lg">{plan.name}</p>
@@ -487,32 +563,75 @@ export default function Settings() {
                     ))}
                   </ul>
                   <button
-                    className={`w-full text-sm py-2 rounded-btn font-medium transition-all ${
+                    onClick={() => !isCurrent && plan.name !== 'Free' && handleUpgrade(plan.name)}
+                    disabled={isCurrent || plan.name === 'Free' || upgradingPlan === plan.name.toLowerCase()}
+                    className={`w-full text-sm py-2.5 rounded-btn font-medium transition-all ${
                       isCurrent
                         ? 'bg-gray-100 text-textMuted cursor-default'
                         : plan.name === 'Free'
-                        ? 'btn-secondary'
+                        ? 'bg-gray-100 text-textMuted cursor-default'
+                        : plan.name === 'Premium'
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
                         : 'btn-primary'
-                    }`}
-                    disabled={isCurrent}
+                    } disabled:opacity-50`}
                   >
-                    {isCurrent ? 'Current plan' : plan.name === 'Free' ? 'Downgrade' : `Upgrade to ${plan.name}`}
+                    {upgradingPlan === plan.name.toLowerCase() ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Redirecting...
+                      </span>
+                    ) : isCurrent ? 'Current plan'
+                      : plan.name === 'Free' ? 'Free plan'
+                      : `Upgrade to ${plan.name} →`}
                   </button>
                 </div>
               )
             })}
           </div>
 
+          {/* Manage subscription */}
+          {subscription?.subscription && (
+            <div className="card max-w-lg mb-6">
+              <h3 className="font-semibold text-textPrimary mb-3">Manage subscription</h3>
+              <p className="text-sm text-textMuted mb-4">
+                Change payment method, download invoices, or cancel your subscription through the Stripe billing portal.
+              </p>
+              <button onClick={handleManageBilling} className="btn-secondary text-sm">
+                Open billing portal →
+              </button>
+            </div>
+          )}
+
+          {/* Billing history placeholder */}
           <div className="card max-w-lg">
             <h3 className="font-semibold text-textPrimary mb-1">Billing history</h3>
-            <p className="text-xs text-textMuted mb-4">Stripe integration coming soon — billing history will appear here.</p>
-            <div className="text-center py-6 text-textMuted">
-              <p className="text-3xl mb-2">💳</p>
-              <p className="text-sm">No billing history yet</p>
-            </div>
+            <p className="text-xs text-textMuted mb-4">Access full billing history and invoices through the billing portal above.</p>
+            {subscriptionLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <svg className="animate-spin w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            ) : subscription?.subscription ? (
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <p className="text-sm text-textPrimary">{currentPlanName} plan — active</p>
+                <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill font-medium border border-green-100">
+                  {subscription.subscription.status}
+                </span>
+              </div>
+            ) : (
+              <div className="text-center py-6 text-textMuted">
+                <p className="text-3xl mb-2">💳</p>
+                <p className="text-sm">No billing history yet</p>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      )}      
 
       {/* Notifications tab */}
       {activeTab === 'notifications' && (
