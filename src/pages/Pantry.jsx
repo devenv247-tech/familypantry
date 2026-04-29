@@ -6,6 +6,8 @@ import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/
 import { useToast } from '../hooks/useToast'
 import { predictExpiry, logItemRemoval, getExpiringSoon } from '../api/expiry'
 import { getPantryCO2 } from '../api/smartInsights'
+import { useAppConfigStore } from '../store/appConfigStore'
+import { useAuthStore } from '../store/authStore'
 
 const UNITS = ['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
 const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
@@ -30,6 +32,9 @@ export default function Pantry() {
   const [co2Data, setCo2Data] = useState(null)
   const [showCO2, setShowCO2] = useState(false)
   const { toast, showToast, hideToast } = useToast()
+  const { family } = useAuthStore()
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
 
   useEffect(() => {
     fetchItems()
@@ -288,7 +293,7 @@ export default function Pantry() {
       </div>
 
     {/* CO2 footprint summary banner */}
-      {co2Data?.locked && (
+      {isFeatureEnabled('co2_tracking', plan) && co2Data?.locked && (
         <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-green-800">🌍 CO2 footprint tracking</p>
@@ -300,7 +305,7 @@ export default function Pantry() {
         </div>
       )}
 
-      {co2Data && !co2Data.locked && co2Data.totalCO2 > 0 && (
+      {isFeatureEnabled('co2_tracking', plan) && co2Data && !co2Data.locked && co2Data.totalCO2 > 0 && (
         <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-green-800">🌍 Pantry CO2 footprint</p>

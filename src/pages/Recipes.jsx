@@ -9,6 +9,7 @@ import { saveRecipe, checkSaved } from '../api/savedRecipes'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
@@ -29,7 +30,10 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 export default function Recipes() {
   const navigate = useNavigate()
   const { family } = useAuthStore()
-  const isPaidPlan = family?.plan === 'family' || family?.plan === 'premium' || family?.plan === 'Family' || family?.plan === 'Premium'
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
+  const isPaidPlan = plan === 'family' || plan === 'premium'
+  const canUseSubstitutions = isFeatureEnabled('smart_substitutions', plan)
   const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
@@ -768,10 +772,10 @@ const handleCook = async (recipe, idx) => {
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                               <button
-                                onClick={() => isPaidPlan ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings')}
+                                onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings')}
                               className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
                             >
-                              {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                              {!canUseSubstitutions ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
                               </button>
                             </div>
                             {activeSubstitution === key && (

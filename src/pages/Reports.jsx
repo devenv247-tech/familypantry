@@ -4,6 +4,8 @@ import { getBudgetForecast } from '../api/budgetForecast'
 import { getPantryCO2, getCostcoRecommendations } from '../api/smartInsights'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAuthStore } from '../store/authStore'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 const CATEGORY_COLORS = [
   'bg-primary', 'bg-success', 'bg-yellow-400',
@@ -20,6 +22,9 @@ const STORE_ICONS = {
 
 export default function Reports() {
   const { toast, showToast, hideToast } = useToast()
+  const { family } = useAuthStore()
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
   const [data, setData] = useState(null)
   const [tips, setTips] = useState([])
   const [loading, setLoading] = useState(true)
@@ -249,6 +254,7 @@ export default function Reports() {
       </div>
 
       {/* CO2 Footprint widget */}
+      {isFeatureEnabled('co2_tracking', plan) && (
       <div className="card mb-6 border border-green-200 bg-green-50/20">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-textPrimary">🌍 CO2 Food Footprint</h2>
@@ -331,7 +337,10 @@ export default function Reports() {
         )}
       </div>
 
+      )}
+
       {/* Costco bulk optimizer */}
+      {isFeatureEnabled('costco_optimizer', plan) && (
       <div className="card mb-6 border border-orange-100 bg-orange-50/20">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-textPrimary">📦 Costco bulk optimizer</h2>
@@ -402,6 +411,8 @@ export default function Reports() {
         )}
       </div>
 
+      )}
+
       {/* Store breakdown */}
       {data?.stores?.length > 0 && (
         <div className="card mb-6">
@@ -418,7 +429,8 @@ export default function Reports() {
         </div>
       )}
 
-      {/* Budget intelligence */}
+     {/* Budget intelligence */}
+      {isFeatureEnabled('budget_forecast', plan) && (
       <div className="card mb-6 border-2 border-yellow-100 bg-yellow-50/30">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-textPrimary">💡 Budget intelligence</h2>
@@ -526,6 +538,8 @@ export default function Reports() {
           </p>
         )}
       </div>
+
+      )}
 
       {/* Recent shopping trips */}
       <div className="card p-0 overflow-hidden">
