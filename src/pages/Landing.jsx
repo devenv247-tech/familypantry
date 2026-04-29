@@ -34,13 +34,18 @@ export default function Landing() {
         </p>
         <div className="flex items-center gap-4 flex-wrap justify-center">
           <button onClick={() => navigate('/register')} className="btn-primary text-base px-8 py-3">Start for free</button>
-          <button className="btn-secondary text-base px-8 py-3">See how it works</button>
+          <button
+            onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+            className="btn-secondary text-base px-8 py-3"
+          >
+            See how it works
+          </button>
         </div>
         <p className="text-xs text-textMuted mt-4">No credit card required · Free plan available</p>
       </section>
 
       {/* Features */}
-      <section className="px-6 pb-24 max-w-6xl mx-auto w-full">
+      <section id="features" className="px-6 pb-24 max-w-6xl mx-auto w-full">
         <h2 className="text-3xl font-bold text-textPrimary text-center mb-4">Everything your family needs</h2>
         <p className="text-textMuted text-center mb-12 text-lg">One app. Every family member. Zero stress.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,9 +73,18 @@ export default function Landing() {
           <p className="text-textMuted text-center mb-12 text-lg">Start free. Upgrade when you're ready.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: 'Free', price: '$0', period: 'forever', features: ['Unlimited family members', 'Pantry tracking', '5 AI recipes / week', 'Basic grocery list'], highlight: false },
-{ name: 'Family', price: '$7', period: '/month', features: ['Everything in Free', 'Unlimited AI recipes', 'Expense reports', 'Food recall alerts', 'Weekly grocery planner'], highlight: true },
-{ name: 'Premium', price: '$15', period: '/month', features: ['Everything in Family', 'Multiple family accounts', 'Store price comparison', 'Nutrition analysis', 'Priority support'], highlight: false },
+              {
+                name: 'Free', price: '$0', period: 'forever', highlight: false,
+                features: ['Pantry tracking', 'Manual grocery list', 'Basic reports', 'Manual meal planner', '5 AI recipes/week']
+              },
+              {
+                name: 'Family', price: '$7', period: '/month', highlight: true,
+                features: ['Everything in Free', 'Unlimited AI recipes', 'Health Canada recall alerts', 'Smart expiry predictions', 'Budget forecasting', 'CO2 footprint tracking', 'Costco bulk optimizer']
+              },
+              {
+                name: 'Premium', price: '$15', period: '/month', highlight: false,
+                features: ['Everything in Family', 'AI auto meal planning', 'Full week meal generator', 'Cuisine selector', 'Grocery list from meal plan', 'Priority support']
+              },
             ].map((plan, i) => (
               <div key={i} className={`rounded-card p-8 border-2 transition-all ${plan.highlight ? 'border-primary shadow-dropdown' : 'border-border bg-surface'}`}>
                 {plan.highlight && (
