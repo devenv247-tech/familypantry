@@ -33,12 +33,13 @@ const quickActions = [
 export default function Dashboard() {
   const { user, family } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
   const navigate = useNavigate()
   const { toast, showToast, hideToast } = useToast()
   const [stats, setStats] = useState(null)
   const [activity, setActivity] = useState([])
   const [members, setMembers] = useState([])
- const [expiringSoon, setExpiringSoon] = useState([])
+  const [expiringSoon, setExpiringSoon] = useState([])
   const [healthProgress, setHealthProgress] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -166,7 +167,7 @@ export default function Dashboard() {
       )}
 
       {/* Expiring soon widget */}
-      {expiringSoon.length > 0 && (
+      {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
         <div className="card mb-6 border border-yellow-200 bg-yellow-50/30">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">⏰ Expiring Soon <span className="text-sm font-normal text-textMuted">({expiringSoon.length} item{expiringSoon.length > 1 ? 's' : ''})</span></h2>
@@ -246,7 +247,7 @@ export default function Dashboard() {
         </div>
       </div>
       {/* Health goal progress widget */}
-      {healthProgress?.hasData && (
+      {isFeatureEnabled('health_progress', plan) && healthProgress?.hasData && (
         <div className="card mt-6 border border-green-100 bg-green-50/20">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">💪 Health goal progress</h2>
