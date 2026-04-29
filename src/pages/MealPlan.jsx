@@ -48,8 +48,8 @@ export default function MealPlan() {
   const { family } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
-  const canAutoplan = isFeatureEnabled('ai_meal_planner', plan)
-  const canGroceryFromPlan = isFeatureEnabled('grocery_from_plan', plan)
+  const canAutoplan = isFeatureEnabled('ai_meal_planner', plan) && plan === 'premium'
+  const canGroceryFromPlan = isFeatureEnabled('grocery_from_plan', plan) && plan === 'premium'
   const [weekOffset, setWeekOffset] = useState(0)
   const [weekStart, setWeekStart] = useState(getWeekStart(0))
   const [meals, setMeals] = useState([])
@@ -447,36 +447,40 @@ const handleGenerateWeek = async () => {
           <p className="text-textMuted mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-         <button
-            onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings?tab=plan')}
-            disabled={generating || plannedCount === 0}
-            className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50"
-          >
-            {generating ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                </svg>
-                Adding...
-              </>
-            ) : canGroceryFromPlan ? '🛒 Add to grocery' : '⭐ Upgrade to Premium'}
-          </button>
-         <button
-            onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
-            disabled={generatingWeek}
-            className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
-          >
-            {generatingWeek ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                </svg>
-                Generating week...
-              </>
-            ) : canAutoplan ? '✨ Auto-plan week 👑' : '⭐ Upgrade to Premium'}
-          </button>
+       {isFeatureEnabled('grocery_from_plan', plan) && (
+            <button
+              onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings?tab=plan')}
+              disabled={generating || plannedCount === 0}
+              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              {generating ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                  Adding...
+                </>
+              ) : canGroceryFromPlan ? '🛒 Add to grocery' : '⭐ Upgrade to Premium'}
+            </button>
+          )}
+       {isFeatureEnabled('ai_meal_planner', plan) && (
+            <button
+              onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
+              disabled={generatingWeek}
+              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
+            >
+              {generatingWeek ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                  Generating week...
+                </>
+              ) : canAutoplan ? '✨ Auto-plan week 👑' : '⭐ Upgrade to Premium'}
+            </button>
+          )}
           <button
             onClick={() => navigate('/app/recipes')}
             className="btn-primary text-sm"

@@ -33,7 +33,7 @@ export default function Recipes() {
  const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
   const isPaidPlan = plan === 'family' || plan === 'premium'
-  const canUseSubstitutions = isFeatureEnabled('smart_substitutions', plan)
+  const canUseSubstitutions = isFeatureEnabled('smart_substitutions', plan) && isPaidPlan
   const canSaveRecipes = isFeatureEnabled('recipe_saving', plan)
   const canUseMealPatterns = isFeatureEnabled('meal_patterns', plan)
   const { toast, showToast, hideToast } = useToast()
@@ -775,12 +775,15 @@ const handleCook = async (recipe, idx) => {
                           <div key={i}>
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
-                              <button
-                                onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
-                              className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
-                            >
-                              {!canUseSubstitutions ? '⭐ Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
-                              </button>
+                            {isFeatureEnabled('smart_substitutions', plan) && (
+                        <button
+                          onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
+                          className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                        >
+                          {!canUseSubstitutions ? '⭐ Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                        </button>
+                      )}
+                      
                             </div>
                             {activeSubstitution === key && (
                               <div className="mt-2 bg-white rounded-btn border border-blue-100 p-3">
