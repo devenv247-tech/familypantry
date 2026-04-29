@@ -18,6 +18,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import NotFound from './pages/NotFound'
 import SessionExpired from './pages/SessionExpired'
+import SavedRecipes from './pages/SavedRecipes'
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="settings" element={<Settings />} />
         <Route path="recalls" element={<Recalls />} />
         <Route path="mealplan" element={<MealPlan />} />
+        <Route path="cookbook" element={<SavedRecipes />} />
       </Route>
     </Routes>
   )

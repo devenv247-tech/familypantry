@@ -5,6 +5,7 @@ import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } fr
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { logNutrition } from '../api/healthProgress'
+import { saveRecipe, checkSaved } from '../api/savedRecipes'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
@@ -55,6 +56,8 @@ export default function Recipes() {
   const [substitutions, setSubstitutions] = useState({}) // key: `${recipeIdx}-${ingName}`
   const [substitutionLoading, setSubstitutionLoading] = useState({})
   const [activeSubstitution, setActiveSubstitution] = useState(null) // key of active substitution panel
+  const [savedRecipes, setSavedRecipes] = useState({})
+  const [savingRecipe, setSavingRecipe] = useState({})
 
   useEffect(() => {
     fetchMembers()
@@ -239,7 +242,36 @@ export default function Recipes() {
       setSubstitutionLoading(prev => ({ ...prev, [key]: false }))
     }
   }
-
+  const handleSaveRecipe = async (recipe, idx) => {
+    setSavingRecipe(prev => ({ ...prev, [idx]: true }))
+    try {
+      await saveRecipe({
+        name: recipe.name,
+        description: recipe.description,
+        icon: recipe.icon,
+        time: recipe.time,
+        difficulty: recipe.difficulty,
+        serves: recipe.serves,
+        tags: recipe.tags,
+        ingredients: recipe.ingredients,
+        missing: recipe.missing,
+        steps: recipe.steps,
+        nutrition: recipe.nutrition,
+        nutritionPerServing: recipe.nutritionPerServing,
+        allergenWarnings: recipe.allergenWarnings,
+      })
+      setSavedRecipes(prev => ({ ...prev, [idx]: true }))
+      showToast('Recipe saved to cookbook! 📖')
+    } catch (err) {
+      if (err.response?.data?.alreadySaved) {
+        showToast('Recipe already in cookbook!', 'error')
+      } else {
+        showToast('Failed to save recipe', 'error')
+      }
+    } finally {
+      setSavingRecipe(prev => ({ ...prev, [idx]: false }))
+    }
+  }
   const qualityColor = (quality) => {
     if (quality === 'perfect') return 'bg-green-50 text-success border-green-100'
     if (quality === 'good') return 'bg-blue-50 text-primary border-blue-100'
@@ -611,14 +643,27 @@ export default function Recipes() {
             </div>
           )}
 
-          <button
-            onClick={() => handleCook(familyRecipe, 'family')}
-            className={`w-full py-3 rounded-btn text-sm font-medium transition-all mt-4 ${
-              cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
-            }`}
-          >
-            {cookedId === 'family' ? '✓ Cooked! Pantry updated' : '🍳 I cooked this — update pantry'}
-          </button>
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => handleCook(familyRecipe, 'family')}
+              className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${
+                cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
+              }`}
+            >
+              {cookedId === 'family' ? '✓ Cooked! Pantry updated' : '🍳 I cooked this — update pantry'}
+            </button>
+            <button
+              onClick={() => handleSaveRecipe(familyRecipe, 'family')}
+              disabled={savingRecipe['family'] || savedRecipes['family']}
+              className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${
+                savedRecipes['family']
+                  ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                  : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+              } disabled:opacity-50`}
+            >
+              {savingRecipe['family'] ? '...' : savedRecipes['family'] ? '🔖 Saved' : '🔖 Save'}
+            </button>
+          </div>
         </div>
       )}
 
@@ -737,7 +782,7 @@ export default function Recipes() {
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setExpandedId(expandedId === idx ? null : idx)}
                     className="btn-secondary flex-1 text-sm"
@@ -751,6 +796,17 @@ export default function Recipes() {
                     }`}
                   >
                     {cookedId === idx ? '✓ Pantry updated!' : '🍳 I cooked this'}
+                  </button>
+                  <button
+                    onClick={() => handleSaveRecipe(recipe, idx)}
+                    disabled={savingRecipe[idx] || savedRecipes[idx]}
+                    className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${
+                      savedRecipes[idx]
+                        ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                        : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+                    } disabled:opacity-50`}
+                  >
+                    {savingRecipe[idx] ? '...' : savedRecipes[idx] ? '🔖 Saved' : '🔖 Save'}
                   </button>
                 </div>
 
