@@ -12,10 +12,14 @@ export default function AppShell() {
   const { setConfig, announcements, dismissAnnouncement } = useAppConfigStore()
   const { token } = useAuthStore()
 
+  const { user } = useAuthStore()
+
   useEffect(() => {
-    const done = localStorage.getItem('onboarding_complete')
-    if (!done) setShowOnboarding(true)
-  }, [])
+    if (user?.id) {
+      const done = localStorage.getItem(`onboarding_complete_${user.id}`)
+      if (!done) setShowOnboarding(true)
+    }
+  }, [user?.id])
 
   // Fetch feature flags and announcements on every app load
   useEffect(() => {

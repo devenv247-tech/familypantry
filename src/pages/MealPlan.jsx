@@ -448,7 +448,7 @@ const handleGenerateWeek = async () => {
         </div>
         <div className="flex gap-2 flex-wrap">
          <button
-            onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings')}
+            onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings?tab=plan')}
             disabled={generating || plannedCount === 0}
             className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50"
           >
@@ -460,10 +460,10 @@ const handleGenerateWeek = async () => {
                 </svg>
                 Adding...
               </>
-            ) : canGroceryFromPlan ? '🛒 Add to grocery' : '🔒 Add to grocery'}
+            ) : canGroceryFromPlan ? '🛒 Add to grocery' : '⭐ Upgrade to Premium'}
           </button>
          <button
-            onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings')}
+            onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
             disabled={generatingWeek}
             className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
           >
@@ -475,7 +475,7 @@ const handleGenerateWeek = async () => {
                 </svg>
                 Generating week...
               </>
-            ) : canAutoplan ? '✨ Auto-plan week 👑' : '🔒 Auto-plan week'}
+            ) : canAutoplan ? '✨ Auto-plan week 👑' : '⭐ Upgrade to Premium'}
           </button>
           <button
             onClick={() => navigate('/app/recipes')}

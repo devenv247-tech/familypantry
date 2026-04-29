@@ -70,7 +70,7 @@ export default function Onboarding({ onComplete }) {
   }
 
   const handleComplete = () => {
-    localStorage.setItem('onboarding_complete', 'true')
+    localStorage.setItem(`onboarding_complete_${user?.id}`, 'true')
     onComplete()
   }
 

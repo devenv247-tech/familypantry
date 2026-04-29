@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
 import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
@@ -35,6 +35,7 @@ const PLANS = [
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [activeTab, setActiveTab] = useState('members')
@@ -95,6 +96,11 @@ export default function Settings() {
       setActiveTab('plan')
       window.history.replaceState({}, '', '/app/settings')
     }
+  }, [])
+
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab) setActiveTab(tab)
   }, [])
 
   const fetchSubscription = async () => {

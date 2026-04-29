@@ -776,10 +776,10 @@ const handleCook = async (recipe, idx) => {
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                               <button
-                                onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings')}
+                                onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
                               className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
                             >
-                              {!canUseSubstitutions ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                              {!canUseSubstitutions ? '⭐ Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
                               </button>
                             </div>
                             {activeSubstitution === key && (
