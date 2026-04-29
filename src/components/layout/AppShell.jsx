@@ -34,24 +34,28 @@ export default function AppShell() {
         <Onboarding onComplete={() => setShowOnboarding(false)} />
       )}
 
-      {/* Announcements banner */}
+    {/* Announcements banner — centered modal style */}
       {announcements.length > 0 && (
-        <div className="fixed top-0 left-0 right-0 z-50 space-y-0">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           {announcements.slice(0, 1).map(announcement => (
-            <div key={announcement.id} className="bg-primary text-white px-4 py-3 flex items-center justify-between shadow-md">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">{announcement.icon}</span>
-                <div>
-                  <p className="text-sm font-semibold">{announcement.title}</p>
-                  <p className="text-xs opacity-90">{announcement.message}</p>
-                </div>
-              </div>
+            <div key={announcement.id} className="bg-white rounded-card shadow-xl w-full max-w-md p-6 relative">
               <button
                 onClick={() => dismissAnnouncement(announcement.id)}
-                className="text-white/70 hover:text-white text-xl ml-4 flex-shrink-0"
+                className="absolute top-4 right-4 text-textMuted hover:text-textPrimary text-xl"
               >
                 ✕
               </button>
+              <div className="text-center">
+                <div className="text-5xl mb-4">{announcement.icon}</div>
+                <h3 className="text-xl font-bold text-textPrimary mb-2">{announcement.title}</h3>
+                <p className="text-sm text-textMuted leading-relaxed mb-6">{announcement.message}</p>
+                <button
+                  onClick={() => dismissAnnouncement(announcement.id)}
+                  className="btn-primary w-full py-2.5"
+                >
+                  Got it! 🎉
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -93,7 +97,7 @@ export default function AppShell() {
             <span className="font-semibold text-textPrimary">FamilyPantry</span>
           </div>
         </div>
-        <main className={`flex-1 overflow-auto ${announcements.length > 0 ? 'mt-14' : ''}`}>
+        <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
       </div>
