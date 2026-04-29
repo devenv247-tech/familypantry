@@ -30,10 +30,12 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 export default function Recipes() {
   const navigate = useNavigate()
   const { family } = useAuthStore()
-  const { isFeatureEnabled } = useAppConfigStore()
+ const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
   const isPaidPlan = plan === 'family' || plan === 'premium'
   const canUseSubstitutions = isFeatureEnabled('smart_substitutions', plan)
+  const canSaveRecipes = isFeatureEnabled('recipe_saving', plan)
+  const canUseMealPatterns = isFeatureEnabled('meal_patterns', plan)
   const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
@@ -365,7 +367,7 @@ const handleCook = async (recipe, idx) => {
       </div>
 
       {/* Cooking history */}
-      {cookingHistory.length > 0 && (
+      {canUseMealPatterns && cookingHistory.length > 0 && (
         <div className="card mb-6 border border-purple-100 bg-purple-50/20">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-textPrimary">📖 Recently cooked</h2>
@@ -688,6 +690,7 @@ const handleCook = async (recipe, idx) => {
             >
               {cookedId === 'family' ? '✓ Cooked! Pantry updated' : '🍳 I cooked this — update pantry'}
             </button>
+            {canSaveRecipes && (
             <button
               onClick={() => handleSaveRecipe(familyRecipe, 'family')}
               disabled={savingRecipe['family'] || savedRecipes['family']}
@@ -699,6 +702,7 @@ const handleCook = async (recipe, idx) => {
             >
               {savingRecipe['family'] ? '...' : savedRecipes['family'] ? '🔖 Saved' : '🔖 Save'}
             </button>
+            )}
           </div>
         </div>
       )}
@@ -833,6 +837,7 @@ const handleCook = async (recipe, idx) => {
                   >
                     {cookedId === idx ? '✓ Pantry updated!' : '🍳 I cooked this'}
                   </button>
+                 {canSaveRecipes && (
                   <button
                     onClick={() => handleSaveRecipe(recipe, idx)}
                     disabled={savingRecipe[idx] || savedRecipes[idx]}
@@ -844,6 +849,7 @@ const handleCook = async (recipe, idx) => {
                   >
                     {savingRecipe[idx] ? '...' : savedRecipes[idx] ? '🔖 Saved' : '🔖 Save'}
                   </button>
+                  )}
                 </div>
 
                 {expandedId === idx && (

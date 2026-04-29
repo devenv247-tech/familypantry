@@ -358,7 +358,7 @@ export default function Pantry() {
         </div>
       )}
       {/* Expiring soon banner */}
-      {expiringSoon.length > 0 && (
+      {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
         <div className="mb-6 rounded-card border border-yellow-200 bg-yellow-50 p-4">
           <p className="text-sm font-semibold text-yellow-800 mb-2">⚠️ Expiring Soon</p>
           <div className="flex flex-col gap-1">

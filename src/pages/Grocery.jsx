@@ -3,6 +3,8 @@ import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, 
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAuthStore } from '../store/authStore'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 export default function Grocery() {
   const [items, setItems] = useState([])
@@ -16,6 +18,9 @@ export default function Grocery() {
   const [priceAlerts, setPriceAlerts] = useState([])
   const [anomalyModal, setAnomalyModal] = useState(null)
   const { toast, showToast, hideToast } = useToast()
+  const { family } = useAuthStore()
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
 
   const DEFAULT_STORES = ['Superstore', 'Walmart', 'T&T Supermarket', 'Costco', 'No Frills']
 
@@ -209,7 +214,7 @@ export default function Grocery() {
       </div>
 
     {/* Price alerts */}
-      {priceAlerts.length > 0 && !priceAlerts.locked && (
+      {isFeatureEnabled('price_anomaly', plan) && priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
           <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>
           <div className="space-y-2">

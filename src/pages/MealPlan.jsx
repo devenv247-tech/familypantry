@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan } from '../api/mealplan'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAuthStore } from '../store/authStore'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
@@ -43,6 +45,11 @@ const formatWeekLabel = (weekStart) => {
 export default function MealPlan() {
   const navigate = useNavigate()
   const { toast, showToast, hideToast } = useToast()
+  const { family } = useAuthStore()
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
+  const canAutoplan = isFeatureEnabled('ai_meal_planner', plan)
+  const canGroceryFromPlan = isFeatureEnabled('grocery_from_plan', plan)
   const [weekOffset, setWeekOffset] = useState(0)
   const [weekStart, setWeekStart] = useState(getWeekStart(0))
   const [meals, setMeals] = useState([])
@@ -440,8 +447,8 @@ const handleGenerateWeek = async () => {
           <p className="text-textMuted mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={handleGenerateGrocery}
+         <button
+            onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings')}
             disabled={generating || plannedCount === 0}
             className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50"
           >
@@ -453,10 +460,10 @@ const handleGenerateWeek = async () => {
                 </svg>
                 Adding...
               </>
-            ) : '🛒 Add to grocery'}
+            ) : canGroceryFromPlan ? '🛒 Add to grocery' : '🔒 Add to grocery'}
           </button>
-          <button
-            onClick={handleGenerateWeek}
+         <button
+            onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings')}
             disabled={generatingWeek}
             className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
           >
@@ -468,7 +475,7 @@ const handleGenerateWeek = async () => {
                 </svg>
                 Generating week...
               </>
-            ) : '✨ Auto-plan week'}
+            ) : canAutoplan ? '✨ Auto-plan week 👑' : '🔒 Auto-plan week'}
           </button>
           <button
             onClick={() => navigate('/app/recipes')}

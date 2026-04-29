@@ -4,6 +4,7 @@ import { checkPantryMatches, getRecentRecalls } from '../api/recalls'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 export default function Recalls() {
   const { toast, showToast, hideToast } = useToast()
@@ -18,7 +19,9 @@ export default function Recalls() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [locked, setLocked] = useState(false)
 
-  const isPaidPlan = ['family', 'premium', 'Family', 'Premium'].includes(family?.plan)
+ const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
+  const isPaidPlan = isFeatureEnabled('recall_alerts', plan)
 
   useEffect(() => {
     if (isPaidPlan) {
