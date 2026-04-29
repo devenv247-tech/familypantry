@@ -1,0 +1,508 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/authStore'
+import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats } from '../api/admin'
+import { Toast } from '../components/ui/PageState'
+import { useToast } from '../hooks/useToast'
+
+const TABS = [
+  { id: 'overview', label: '📊 Overview', },
+  { id: 'families', label: '👨‍👩‍👧‍👦 Families', },
+  { id: 'features', label: '🚩 Feature flags', },
+  { id: 'usage', label: '📈 Usage stats', },
+  { id: 'costs', label: '💰 Costs & revenue', },
+]
+
+export default function Admin() {
+  const { user } = useAuthStore()
+  const navigate = useNavigate()
+  const { toast, showToast, hideToast } = useToast()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [stats, setStats] = useState(null)
+  const [families, setFamilies] = useState([])
+  const [familiesTotal, setFamiliesTotal] = useState(0)
+  const [flags, setFlags] = useState([])
+  const [usage, setUsage] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [planFilter, setPlanFilter] = useState('all')
+  const [deletingId, setDeletingId] = useState(null)
+  const [updatingPlan, setUpdatingPlan] = useState(null)
+  const [updatingFlag, setUpdatingFlag] = useState(null)
+
+  useEffect(() => {
+    // Check admin access
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    fetchAll()
+  }, [])
+
+  const fetchAll = async () => {
+    setLoading(true)
+    try {
+      const [statsData, familiesData, flagsData, usageData] = await Promise.all([
+        getAdminStats(),
+        getAdminFamilies(),
+        getFeatureFlags(),
+        getUsageStats(),
+      ])
+      setStats(statsData)
+      setFamilies(familiesData.families || [])
+      setFamiliesTotal(familiesData.total || 0)
+      setFlags(flagsData)
+      setUsage(usageData)
+    } catch (err) {
+      if (err.response?.status === 403) {
+        showToast('Access denied — admin only', 'error')
+        navigate('/app')
+      } else {
+        showToast('Failed to load admin data', 'error')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchFamilies = async () => {
+    try {
+      const data = await getAdminFamilies({ search, plan: planFilter })
+      setFamilies(data.families || [])
+      setFamiliesTotal(data.total || 0)
+    } catch (err) {
+      showToast('Failed to load families', 'error')
+    }
+  }
+
+  const handleUpdatePlan = async (familyId, plan) => {
+    setUpdatingPlan(familyId)
+    try {
+      await updateFamilyPlan(familyId, plan)
+      setFamilies(prev => prev.map(f => f.id === familyId ? { ...f, plan } : f))
+      showToast(`Plan updated to ${plan}!`)
+    } catch (err) {
+      showToast('Failed to update plan', 'error')
+    } finally {
+      setUpdatingPlan(null)
+    }
+  }
+
+  const handleDeleteFamily = async (id, name) => {
+    if (!window.confirm(`Permanently delete "${name}" and all their data? This cannot be undone.`)) return
+    setDeletingId(id)
+    try {
+      await deleteFamily(id)
+      setFamilies(prev => prev.filter(f => f.id !== id))
+      showToast('Family deleted')
+    } catch (err) {
+      showToast('Failed to delete family', 'error')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleUpdateFlag = async (id, data) => {
+    setUpdatingFlag(id)
+    try {
+      const updated = await updateFeatureFlag(id, data)
+      setFlags(prev => prev.map(f => f.id === id ? updated.flag : f))
+      showToast('Feature flag updated!')
+    } catch (err) {
+      showToast('Failed to update flag', 'error')
+    } finally {
+      setUpdatingFlag(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4 animate-pulse">🔐</div>
+          <p className="text-textMuted">Loading admin panel...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Admin navbar */}
+      <nav className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+            <span className="text-white text-sm font-bold">A</span>
+          </div>
+          <div>
+            <p className="font-semibold text-sm">FamilyPantry Admin</p>
+            <p className="text-xs text-gray-400">Signed in as {user?.email}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate('/app')}
+          className="text-sm text-gray-300 hover:text-white transition-colors"
+        >
+          ← Back to app
+        </button>
+      </nav>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+
+        {/* Tabs */}
+        <div className="flex gap-1 bg-white p-1 rounded-xl border border-gray-200 mb-8 w-fit overflow-x-auto">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Overview tab */}
+        {activeTab === 'overview' && stats && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Platform overview</h2>
+
+            {/* Key metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Total families', value: stats.families.total, icon: '👨‍👩‍👧‍👦', color: 'bg-blue-50 border-blue-100' },
+                { label: 'New this week', value: stats.families.newThisWeek, icon: '✨', color: 'bg-green-50 border-green-100' },
+                { label: 'New this month', value: stats.families.newThisMonth, icon: '📅', color: 'bg-purple-50 border-purple-100' },
+                { label: 'Total users', value: stats.users.total, icon: '👤', color: 'bg-orange-50 border-orange-100' },
+              ].map((s, i) => (
+                <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
+                  <div className="text-2xl mb-2">{s.icon}</div>
+                  <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Plan breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { plan: 'Free', count: stats.families.byPlan.free || 0, color: 'bg-gray-50 border-gray-200', badge: 'bg-gray-100 text-gray-600' },
+                { plan: 'Family', count: stats.families.byPlan.family || 0, color: 'bg-blue-50 border-blue-200', badge: 'bg-blue-100 text-blue-700' },
+                { plan: 'Premium', count: stats.families.byPlan.premium || 0, color: 'bg-purple-50 border-purple-200', badge: 'bg-purple-100 text-purple-700' },
+              ].map((p, i) => (
+                <div key={i} className={`bg-white rounded-xl border p-5 ${p.color}`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${p.badge}`}>{p.plan}</span>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900">{p.count}</p>
+                  <p className="text-xs text-gray-500 mt-1">families on {p.plan} plan</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Content stats */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <h3 className="font-semibold text-gray-900 mb-4">Platform content</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Pantry items', value: stats.content.pantryItems, icon: '🧺' },
+                  { label: 'Grocery items', value: stats.content.groceryItems, icon: '🛒' },
+                  { label: 'Meal plans', value: stats.content.mealPlans, icon: '📅' },
+                  { label: 'Saved recipes', value: stats.content.savedRecipes, icon: '📖' },
+                  { label: 'Cooked meals', value: stats.content.cookedMeals, icon: '🍳' },
+                  { label: 'Family members', value: stats.members.total, icon: '👥' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                    <span className="text-xl">{s.icon}</span>
+                    <div>
+                      <p className="font-bold text-gray-900">{s.value}</p>
+                      <p className="text-xs text-gray-500">{s.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Families tab */}
+        {activeTab === 'families' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Families ({familiesTotal})</h2>
+              <button onClick={fetchFamilies} className="text-sm text-gray-500 hover:text-gray-900">↻ Refresh</button>
+            </div>
+
+            {/* Search and filter */}
+            <div className="flex gap-3 flex-wrap">
+              <input
+                className="flex-1 min-w-48 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400"
+                placeholder="Search by family name or email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && fetchFamilies()}
+              />
+              <select
+                className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none"
+                value={planFilter}
+                onChange={e => { setPlanFilter(e.target.value); fetchFamilies() }}
+              >
+                <option value="all">All plans</option>
+                <option value="free">Free</option>
+                <option value="family">Family</option>
+                <option value="premium">Premium</option>
+              </select>
+              <button
+                onClick={fetchFamilies}
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-700"
+              >
+                Search
+              </button>
+            </div>
+
+            {/* Families table */}
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Family</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Email</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Plan</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Members</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Pantry</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Joined</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {families.map(family => (
+                    <tr key={family.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-gray-900">{family.name}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">{family.users?.[0]?.email || '—'}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={family.plan}
+                          onChange={e => handleUpdatePlan(family.id, e.target.value)}
+                          disabled={updatingPlan === family.id}
+                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${
+                            family.plan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                            family.plan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-gray-100 text-gray-600 border-gray-200'
+                          }`}
+                        >
+                          <option value="free">Free</option>
+                          <option value="family">Family</option>
+                          <option value="premium">Premium</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500">{family.members?.length || 0}</td>
+                      <td className="px-4 py-3 text-gray-500">{family._count?.pantryItems || 0}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {new Date(family.createdAt).toLocaleDateString('en-CA')}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleDeleteFamily(family.id, family.name)}
+                          disabled={deletingId === family.id || family.users?.some(u => u.isAdmin)}
+                          className="text-xs text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          {deletingId === family.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {families.length === 0 && (
+                <div className="text-center py-12 text-gray-400">
+                  <p>No families found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Feature flags tab */}
+        {activeTab === 'features' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-900">Feature flags</h2>
+            <p className="text-sm text-gray-500">Toggle features on/off and control which plan is required to access them.</p>
+
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Feature</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Description</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Required plan</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {flags.map(flag => (
+                    <tr key={flag.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-gray-900 font-mono text-xs">{flag.name}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">{flag.description || '—'}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={flag.requiredPlan}
+                          onChange={e => handleUpdateFlag(flag.id, { requiredPlan: e.target.value })}
+                          disabled={updatingFlag === flag.id}
+                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${
+                            flag.requiredPlan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                            flag.requiredPlan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                            'bg-gray-100 text-gray-600 border-gray-200'
+                          }`}
+                        >
+                          <option value="free">Free</option>
+                          <option value="family">Family</option>
+                          <option value="premium">Premium</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
+                          disabled={updatingFlag === flag.id}
+                          className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${
+                            flag.enabled ? 'bg-green-500' : 'bg-gray-200'
+                          } disabled:opacity-50`}
+                        >
+                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${
+                            flag.enabled ? 'left-5' : 'left-0.5'
+                          }`} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Usage stats tab */}
+        {activeTab === 'usage' && usage && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Usage statistics</h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Meals cooked (7d)', value: usage.meals.cooked7Days, icon: '🍳' },
+                { label: 'Meals cooked (30d)', value: usage.meals.cooked30Days, icon: '📅' },
+                { label: 'Recipes logged (7d)', value: usage.recipes.last7Days, icon: '📖' },
+                { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: '🤖' },
+              ].map((s, i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="text-2xl mb-2">{s.icon}</div>
+                  <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Top cuisines */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="font-semibold text-gray-900 mb-4">Top cuisines</h3>
+                {usage.topCuisines.length > 0 ? (
+                  <div className="space-y-3">
+                    {usage.topCuisines.map((c, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700">{c.cuisine}</span>
+                        <span className="text-sm font-semibold text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-full">{c.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No data yet</p>
+                )}
+              </div>
+
+              {/* Top meal types */}
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 className="font-semibold text-gray-900 mb-4">Top meal types</h3>
+                {usage.topMealTypes.length > 0 ? (
+                  <div className="space-y-3">
+                    {usage.topMealTypes.map((m, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700">{m.type}</span>
+                        <span className="text-sm font-semibold text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-full">{m.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No data yet</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Costs & revenue tab */}
+        {activeTab === 'costs' && stats && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Costs & revenue</h2>
+
+            {/* Revenue */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">💰 Revenue</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Monthly recurring revenue', value: `$${stats.revenue.mrr}`, sub: 'Active subscriptions', color: 'text-green-600' },
+                  { label: 'Revenue this month', value: `$${stats.revenue.thisMonth}`, sub: 'Stripe payments', color: 'text-blue-600' },
+                  { label: 'Active subscriptions', value: stats.revenue.activeSubscriptions, sub: 'Paying customers', color: 'text-purple-600' },
+                ].map((s, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <p className="text-xs text-gray-500 mb-1">{s.label}</p>
+                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-gray-400 mt-1">{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Costs */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">💸 Monthly costs</h3>
+              <div className="space-y-3">
+                {[
+                  { service: 'DigitalOcean', cost: '$12.00', note: 'Backend server — fixed monthly', status: '🟢 Active' },
+                  { service: 'Supabase', cost: '$0.00', note: 'Database — free tier', status: '🟢 Active' },
+                  { service: 'Vercel', cost: '$0.00', note: 'Frontend hosting — free tier', status: '🟢 Active' },
+                  { service: 'Anthropic API', cost: 'Variable', note: 'AI recipe + meal generation — pay per use', status: '🟢 Active' },
+                  { service: 'Stripe', cost: '2.9% + 30¢', note: 'Per transaction fee only', status: '🟢 Active' },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{s.service}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{s.note}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-gray-900">{s.cost}</p>
+                      <p className="text-xs text-gray-400">{s.status}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-900">Fixed costs total</p>
+                <p className="text-lg font-bold text-gray-900">$12.00/month</p>
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-sm font-semibold text-green-600">Net profit (MRR - Fixed)</p>
+                <p className="text-lg font-bold text-green-600">${(parseFloat(stats.revenue.mrr) - 12).toFixed(2)}/month</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
+    </div>
+  )
+}

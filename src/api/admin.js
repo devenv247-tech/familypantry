@@ -1,0 +1,22 @@
+import api from './client'
+
+export const getAdminStats = () =>
+  api.get('/admin/stats').then(r => r.data)
+
+export const getAdminFamilies = (params) =>
+  api.get('/admin/families', { params }).then(r => r.data)
+
+export const updateFamilyPlan = (id, plan) =>
+  api.put(`/admin/families/${id}/plan`, { plan }).then(r => r.data)
+
+export const deleteFamily = (id) =>
+  api.delete(`/admin/families/${id}`).then(r => r.data)
+
+export const getFeatureFlags = () =>
+  api.get('/admin/flags').then(r => r.data)
+
+export const updateFeatureFlag = (id, data) =>
+  api.put(`/admin/flags/${id}`, data).then(r => r.data)
+
+export const getUsageStats = () =>
+  api.get('/admin/usage').then(r => r.data)
