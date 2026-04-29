@@ -131,7 +131,7 @@ export default function Recipes() {
     }
   }
 
- const handleCook = async (recipe, idx) => {
+const handleCook = async (recipe, idx) => {
     try {
       await cookRecipe(recipe)
       setCookedId(idx)
@@ -140,11 +140,15 @@ export default function Recipes() {
       setPendingRating(0)
       setTimeout(() => setCookedId(null), 3000)
 
-      // Log nutrition for health progress tracking
-      if (recipe.nutritionPerServing && selectedMembers.length > 0) {
+      // Log nutrition — use selectedMembers or all members for family recipe
+      const membersToLog = idx === 'family'
+        ? members.map(m => m.name)
+        : selectedMembers
+
+      if (recipe.nutritionPerServing && membersToLog.length > 0) {
         try {
           await logNutrition(
-            selectedMembers,
+            membersToLog,
             recipe.name,
             mealType,
             recipe.nutritionPerServing
