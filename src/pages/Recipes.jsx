@@ -286,7 +286,35 @@ export default function Recipes() {
 
   return (
     <div className="page-container">
-
+      {/* Full screen loading overlay — prevents navigation during generation */}
+      {(loading || familyLoading) && (
+        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-6">
+          <div className="text-6xl animate-bounce">🤖</div>
+          <div className="text-center">
+            <p className="text-xl font-bold text-textPrimary mb-2">
+              {familyLoading ? 'Creating your family recipe...' : 'Finding the best recipes...'}
+            </p>
+            <p className="text-sm text-textMuted max-w-xs text-center">
+              {familyLoading
+                ? 'AI is crafting one perfect recipe balancing everyone\'s health goals and pantry items.'
+                : 'AI is analyzing your pantry, health goals and preferences to suggest the best meals.'}
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-2 w-64">
+            <div className="w-full h-2 bg-gray-100 rounded-pill overflow-hidden">
+              <div className="h-full bg-primary rounded-pill animate-pulse" style={{ width: '100%' }} />
+            </div>
+            <p className="text-xs text-textMuted">Please stay on this page</p>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-xs text-textMuted mt-2">
+            {['🧺 Checking pantry', '💪 Health goals', '🍽️ Generating meals'].map((item, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-gray-50 rounded-btn px-3 py-2">
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Rating modal */}
       {ratingModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
