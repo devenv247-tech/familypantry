@@ -271,7 +271,27 @@ export default function Grocery() {
               </div>
               <div>
                 <label className="label">Quantity</label>
-                <input className="input" placeholder="e.g. 2L" value={form.qty} onChange={e => update('qty', e.target.value)} />
+                <div className="flex gap-2">
+                  <input
+                    className="input"
+                    placeholder="e.g. 2"
+                    value={form.qty}
+                    onChange={e => update('qty', e.target.value)}
+                    style={{ width: '60%' }}
+                  />
+                  <select
+                    className="input"
+                    style={{ width: '40%' }}
+                    onChange={e => {
+                      const numPart = (form.qty || '').replace(/[^0-9.]/g, '')
+                      update('qty', `${numPart} ${e.target.value}`.trim())
+                    }}
+                  >
+                    {['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon'].map(u => (
+                      <option key={u}>{u}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="label">Estimated price <span className="text-textMuted font-normal">(for anomaly detection)</span></label>
@@ -372,13 +392,29 @@ export default function Grocery() {
                             onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
                           />
                         </div>
-                        <div>
+                       <div>
                           <label className="label">Quantity</label>
-                          <input
-                            className="input text-sm py-1.5"
-                            value={editForm.qty || ''}
-                            onChange={e => setEditForm(p => ({ ...p, qty: e.target.value }))}
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              className="input text-sm py-1.5"
+                              placeholder="e.g. 2"
+                              value={editForm.qty || ''}
+                              onChange={e => setEditForm(p => ({ ...p, qty: e.target.value }))}
+                              style={{ width: '60%' }}
+                            />
+                            <select
+                              className="input text-sm py-1.5"
+                              style={{ width: '40%' }}
+                              onChange={e => {
+                                const numPart = (editForm.qty || '').replace(/[^0-9.]/g, '')
+                                setEditForm(p => ({ ...p, qty: `${numPart} ${e.target.value}`.trim() }))
+                              }}
+                            >
+                              {['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon'].map(u => (
+                                <option key={u}>{u}</option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                         <div>
                           <label className="label">Store</label>
