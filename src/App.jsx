@@ -48,8 +48,8 @@ export default function App() {
         <Route path="recalls" element={<Recalls />} />
         <Route path="mealplan" element={<MealPlan />} />
         <Route path="cookbook" element={<SavedRecipes />} />
-        <Route path="/admin" element={<Admin />} />
       </Route>
+      <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
     </Routes>
   )
 }
