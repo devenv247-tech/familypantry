@@ -20,3 +20,11 @@ export const updateFeatureFlag = (id, data) =>
 
 export const getUsageStats = () =>
   api.get('/admin/usage').then(r => r.data)
+export const getAnnouncements = () =>
+  api.get('/admin/announcements').then(r => r.data)
+
+export const createAnnouncement = (data) =>
+  api.post('/admin/announcements', data).then(r => r.data)
+
+export const deleteAnnouncement = (id) =>
+  api.delete(`/admin/announcements/${id}`).then(r => r.data)

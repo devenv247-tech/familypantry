@@ -5,6 +5,7 @@ import { getDashboardStats, getRecentActivity } from '../api/dashboard'
 import { getMembers } from '../api/family'
 import { getExpiringSoon } from '../api/expiry'
 import { getHealthProgress } from '../api/healthProgress'
+import { useAppConfigStore } from '../store/appConfigStore'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -31,6 +32,7 @@ const quickActions = [
 
 export default function Dashboard() {
   const { user, family } = useAuthStore()
+  const { isFeatureEnabled } = useAppConfigStore()
   const navigate = useNavigate()
   const { toast, showToast, hideToast } = useToast()
   const [stats, setStats] = useState(null)
@@ -295,7 +297,7 @@ export default function Dashboard() {
         </div>
       )}
       {/* Seasonal picks widget */}
-      {(() => {
+      {isFeatureEnabled('seasonal_recommendations', family?.plan) && (() => {
         const season = getCurrentSeason()
         const s = SEASONAL_DATA[season]
         const month = new Date().toLocaleString('en-CA', { month: 'long' })

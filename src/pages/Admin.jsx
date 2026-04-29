@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats } from '../api/admin'
+import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats, getAnnouncements, createAnnouncement, deleteAnnouncement } from '../api/admin'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
 const TABS = [
-  { id: 'overview', label: '📊 Overview', },
-  { id: 'families', label: '👨‍👩‍👧‍👦 Families', },
-  { id: 'features', label: '🚩 Feature flags', },
-  { id: 'usage', label: '📈 Usage stats', },
-  { id: 'costs', label: '💰 Costs & revenue', },
+  { id: 'overview', label: '📊 Overview' },
+  { id: 'families', label: '👨‍👩‍👧‍👦 Families' },
+  { id: 'features', label: '🚩 Feature flags' },
+  { id: 'announcements', label: '📣 Announcements' },
+  { id: 'usage', label: '📈 Usage stats' },
+  { id: 'costs', label: '💰 Costs & revenue' },
 ]
 
 export default function Admin() {
@@ -29,6 +30,9 @@ export default function Admin() {
   const [deletingId, setDeletingId] = useState(null)
   const [updatingPlan, setUpdatingPlan] = useState(null)
   const [updatingFlag, setUpdatingFlag] = useState(null)
+  const [announcements, setAnnouncements] = useState([])
+  const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', icon: '🎉' })
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false)
 
   useEffect(() => {
     // Check admin access
@@ -42,17 +46,19 @@ export default function Admin() {
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const [statsData, familiesData, flagsData, usageData] = await Promise.all([
+      const [statsData, familiesData, flagsData, usageData, announcementsData] = await Promise.all([
         getAdminStats(),
         getAdminFamilies(),
         getFeatureFlags(),
         getUsageStats(),
+        getAnnouncements(),
       ])
       setStats(statsData)
       setFamilies(familiesData.families || [])
       setFamiliesTotal(familiesData.total || 0)
       setFlags(flagsData)
       setUsage(usageData)
+      setAnnouncements(announcementsData)
     } catch (err) {
       if (err.response?.status === 403) {
         showToast('Access denied — admin only', 'error')
@@ -101,7 +107,30 @@ export default function Admin() {
       setDeletingId(null)
     }
   }
+  const handleCreateAnnouncement = async () => {
+    if (!newAnnouncement.title || !newAnnouncement.message) return
+    setSavingAnnouncement(true)
+    try {
+      const created = await createAnnouncement(newAnnouncement)
+      setAnnouncements(prev => [created, ...prev])
+      setNewAnnouncement({ title: '', message: '', icon: '🎉' })
+      showToast('Announcement created! Users will see it on next page load.')
+    } catch (err) {
+      showToast('Failed to create announcement', 'error')
+    } finally {
+      setSavingAnnouncement(false)
+    }
+  }
 
+  const handleDeleteAnnouncement = async (id) => {
+    try {
+      await deleteAnnouncement(id)
+      setAnnouncements(prev => prev.filter(a => a.id !== id))
+      showToast('Announcement removed')
+    } catch (err) {
+      showToast('Failed to remove announcement', 'error')
+    }
+  }
   const handleUpdateFlag = async (id, data) => {
     setUpdatingFlag(id)
     try {
@@ -384,7 +413,100 @@ export default function Admin() {
             </div>
           </div>
         )}
+        {/* Announcements tab */}
+        {activeTab === 'announcements' && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Announcements</h2>
+            <p className="text-sm text-gray-500">Send in-app notifications to all users. They'll see a banner at the top of the app until they dismiss it.</p>
 
+            {/* Create announcement */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Create new announcement</h3>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-20">
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Icon</label>
+                    <input
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-center"
+                      value={newAnnouncement.icon}
+                      onChange={e => setNewAnnouncement(p => ({ ...p, icon: e.target.value }))}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Title</label>
+                    <input
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400"
+                      placeholder="e.g. New feature: CO2 tracking!"
+                      value={newAnnouncement.title}
+                      onChange={e => setNewAnnouncement(p => ({ ...p, title: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">Message</label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400 resize-none"
+                    placeholder="e.g. You can now track the CO2 footprint of your pantry items. Check it out in the Pantry page!"
+                    rows={3}
+                    value={newAnnouncement.message}
+                    onChange={e => setNewAnnouncement(p => ({ ...p, message: e.target.value }))}
+                  />
+                </div>
+
+                {/* Preview */}
+                {newAnnouncement.title && (
+                  <div className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{newAnnouncement.icon}</span>
+                      <div>
+                        <p className="text-sm font-semibold">{newAnnouncement.title}</p>
+                        <p className="text-xs opacity-90">{newAnnouncement.message}</p>
+                      </div>
+                    </div>
+                    <span className="text-white/70 text-xl ml-4">✕</span>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleCreateAnnouncement}
+                  disabled={!newAnnouncement.title || !newAnnouncement.message || savingAnnouncement}
+                  className="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {savingAnnouncement ? 'Sending...' : 'Send to all users'}
+                </button>
+              </div>
+            </div>
+
+            {/* Active announcements */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Active announcements ({announcements.length})</h3>
+              {announcements.length === 0 ? (
+                <p className="text-sm text-gray-400">No active announcements</p>
+              ) : (
+                <div className="space-y-3">
+                  {announcements.map(a => (
+                    <div key={a.id} className="flex items-start justify-between bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl">{a.icon}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{a.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{a.message}</p>
+                          <p className="text-xs text-gray-400 mt-1">{new Date(a.createdAt).toLocaleDateString('en-CA')}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteAnnouncement(a.id)}
+                        className="text-xs text-red-500 hover:text-red-700 ml-4 flex-shrink-0"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {/* Usage stats tab */}
         {activeTab === 'usage' && usage && (
           <div className="space-y-6">
