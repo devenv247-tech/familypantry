@@ -29,7 +29,7 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 export default function Recipes() {
   const navigate = useNavigate()
   const { family } = useAuthStore()
-  const isPaidPlan = family?.plan === 'family' || family?.plan === 'premium'
+  const isPaidPlan = family?.plan === 'family' || family?.plan === 'premium' || family?.plan === 'Family' || family?.plan === 'Premium'
   const { toast, showToast, hideToast } = useToast()
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
