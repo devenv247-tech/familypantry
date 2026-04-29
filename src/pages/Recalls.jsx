@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { checkPantryMatches, getRecentRecalls } from '../api/recalls'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAuthStore } from '../store/authStore'
 
 export default function Recalls() {
   const { toast, showToast, hideToast } = useToast()
+  const { family } = useAuthStore()
+  const navigate = useNavigate()
   const [matches, setMatches] = useState([])
   const [recentRecalls, setRecentRecalls] = useState([])
   const [loading, setLoading] = useState(true)
@@ -12,10 +16,18 @@ export default function Recalls() {
   const [checking, setChecking] = useState(false)
   const [lastChecked, setLastChecked] = useState(null)
   const [activeCategory, setActiveCategory] = useState('All')
+  const [locked, setLocked] = useState(false)
+
+  const isPaidPlan = ['family', 'premium', 'Family', 'Premium'].includes(family?.plan)
 
   useEffect(() => {
-    checkMatches()
-    fetchRecentRecalls()
+    if (isPaidPlan) {
+      checkMatches()
+      fetchRecentRecalls()
+    } else {
+      setLocked(true)
+      setLoading(false)
+    }
   }, [])
 
   const checkMatches = async () => {
@@ -30,7 +42,11 @@ export default function Recalls() {
         showToast('Pantry scanned — no recalled items found', 'success')
       }
     } catch (err) {
-      showToast('Failed to check pantry. Please try again.', 'error')
+      if (err.response?.status === 403) {
+        setLocked(true)
+      } else {
+        showToast('Failed to check pantry. Please try again.', 'error')
+      }
     } finally {
       setChecking(false)
     }
@@ -42,7 +58,11 @@ export default function Recalls() {
       const data = await getRecentRecalls()
       setRecentRecalls(data)
     } catch (err) {
-      setError('Failed to load recent recalls')
+      if (err.response?.status === 403) {
+        setLocked(true)
+      } else {
+        setError('Failed to load recent recalls')
+      }
     } finally {
       setLoading(false)
     }
@@ -63,6 +83,45 @@ export default function Recalls() {
     if (activeCategory === 'Food') return r.isFood
     return (r.category || '').toLowerCase().includes(activeCategory.toLowerCase())
   })
+
+  // Locked state for free users
+  if (locked) {
+    return (
+      <div className="page-container">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-textPrimary">Recall alerts</h1>
+          <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
+        </div>
+        <div className="card text-center py-16 border-2 border-orange-100 bg-orange-50/20">
+          <div className="text-6xl mb-4">🚨</div>
+          <h2 className="text-xl font-bold text-textPrimary mb-2">Health Canada Recall Alerts</h2>
+          <p className="text-textMuted max-w-sm mx-auto mb-2">
+            Get notified when recalled food products match items in your pantry. Stay safe with live Health Canada data.
+          </p>
+          <div className="flex flex-col items-center gap-2 mb-8 mt-6">
+            {[
+              'Live Health Canada recall data',
+              'Automatic pantry matching',
+              'Instant alerts for your family',
+              'All recent Canadian food recalls',
+            ].map((f, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                <span className="text-success">✓</span>
+                {f}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => navigate('/app/settings')}
+            className="btn-primary px-8 py-3 text-base"
+          >
+            Upgrade to Family plan — $7/mo
+          </button>
+          <p className="text-xs text-textMuted mt-3">Cancel anytime</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="page-container">
