@@ -643,7 +643,8 @@ export default function Pantry() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="label">Item name</label>
-                <input className="input" placeholder="e.g. Basmati rice" value={form.name} onChange={e => update('name', e.target.value)} />
+                <input className="input" placeholder="e.g. Natrel 2% Milk, Dempster's Bread..." value={form.name} onChange={e => update('name', e.target.value)} />
+                <p className="text-xs text-textMuted mt-1.5">💡 Include brand name for more accurate recall alerts</p>
               </div>
               <div>
                 <label className="label">Quantity</label>
