@@ -398,8 +398,16 @@ export default function Pantry() {
                       {selectedScannedItems.includes(i) && <span className="text-white text-xs">✓</span>}
                     </div>
                     <span className="text-xl">{item.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-textPrimary">{item.name}</p>
+                    <div className="flex-1 min-w-0" onClick={e => e.stopPropagation()}>
+                      <input
+                        className="text-sm font-medium text-textPrimary bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-full"
+                        value={item.name}
+                        onChange={e => {
+                          const updated = [...scannedItems]
+                          updated[i] = { ...updated[i], name: e.target.value }
+                          setScannedItems(updated)
+                        }}
+                      />
                       <p className="text-xs text-textMuted">{item.quantity} {item.unit} · {item.category}</p>
                     </div>
                   </div>
