@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
+import { useAppConfigStore } from '../../store/appConfigStore'
 
-const links = [
+const getLinks = (showHealth) => [
   { to: '/app', label: 'Dashboard', icon: '🏠', end: true },
   { to: '/app/pantry', label: 'Pantry', icon: '🧺' },
   { to: '/app/recipes', label: 'Recipes', icon: '🍽️' },
   { to: '/app/cookbook', label: 'Cookbook', icon: '📖' },
   { to: '/app/mealplan', label: 'Meal planner', icon: '📅' },
+  ...(showHealth ? [{ to: '/app/health', label: 'Health tracker', icon: '❤️' }] : []),
   { to: '/app/grocery', label: 'Grocery list', icon: '🛒' },
   { to: '/app/recalls', label: 'Recall alerts', icon: '🚨' },
   { to: '/app/reports', label: 'Reports', icon: '📊' },
@@ -16,6 +18,9 @@ const links = [
 export default function Sidebar({ onClose }) {
   const { user, family, logout } = useAuthStore()
   const navigate = useNavigate()
+  const { isFeatureEnabled } = useAppConfigStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
+  const showHealth = isFeatureEnabled('health_tracker', plan)
 
   const handleLogout = () => {
     logout()
@@ -54,7 +59,7 @@ export default function Sidebar({ onClose }) {
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {links.map(link => (
+        {getLinks(showHealth).map(link => (
           <NavLink
             key={link.to}
             to={link.to}

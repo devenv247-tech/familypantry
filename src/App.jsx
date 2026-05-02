@@ -20,6 +20,7 @@ import NotFound from './pages/NotFound'
 import SessionExpired from './pages/SessionExpired'
 import SavedRecipes from './pages/SavedRecipes'
 import Admin from './pages/Admin'
+import Health from './pages/Health'
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="recalls" element={<Recalls />} />
         <Route path="mealplan" element={<MealPlan />} />
         <Route path="cookbook" element={<SavedRecipes />} />
+        <Route path="health" element={<Health />} />
       </Route>
       <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
     </Routes>
