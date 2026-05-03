@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog } from '../api/healthTracker'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -16,6 +16,9 @@ export default function Health() {
   const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '' })
   const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '' })
   const [saving, setSaving] = useState(false)
+  const [lookingUp, setLookingUp] = useState(false)
+  const [lookupResult, setLookupResult] = useState(null)
+  const [servings, setServings] = useState(1)
 
   useEffect(() => {
     fetchData()
@@ -68,7 +71,28 @@ export default function Health() {
       setSaving(false)
     }
   }
-
+  const handleLookupNutrition = async (mealName) => {
+    if (!mealName || mealName.length < 3) return
+    setLookingUp(true)
+    setLookupResult(null)
+    try {
+      const result = await lookupNutrition(mealName, servings)
+      if (result.found) {
+        setMealForm(p => ({
+          ...p,
+          calories: result.calories || '',
+          protein: result.protein || '',
+          carbs: result.carbs || '',
+          fat: result.fat || '',
+        }))
+        setLookupResult(result)
+      }
+    } catch (err) {
+      console.error('Nutrition lookup failed:', err)
+    } finally {
+      setLookingUp(false)
+    }
+  }
   const handleLogMeal = async () => {
     if (!mealForm.recipeName) return
     setSaving(true)
@@ -495,14 +519,64 @@ export default function Health() {
             <div className="space-y-3 mb-4">
               <div>
                 <label className="label">Meal name</label>
-                <input className="input" placeholder="e.g. Oatmeal with berries" value={mealForm.recipeName} onChange={e => setMealForm(p => ({ ...p, recipeName: e.target.value }))} autoFocus />
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    placeholder="e.g. Junior Chicken McDonald's"
+                    value={mealForm.recipeName}
+                    onChange={e => setMealForm(p => ({ ...p, recipeName: e.target.value }))}
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleLookupNutrition(mealForm.recipeName)}
+                    disabled={lookingUp || mealForm.recipeName.length < 3}
+                    className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {lookingUp ? (
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                    ) : '🔍 Lookup'}
+                  </button>
+                </div>
+                <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
               </div>
+
+              {lookupResult && (
+                <div className={`rounded-btn px-3 py-2 border text-xs ${
+                  lookupResult.confidence === 'high' ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'
+                }`}>
+                  <p className="font-medium text-textPrimary">✓ Found: {lookupResult.mealName}</p>
+                  <p className="text-textMuted mt-0.5">
+                    {lookupResult.servingSize} · Source: {lookupResult.source}
+                    {lookupResult.confidence === 'low' && ' · Estimated'}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="label">Meal type</label>
                 <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
                   {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map(t => <option key={t}>{t}</option>)}
                 </select>
               </div>
+
+              <div>
+                <label className="label">Servings</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    className="input w-24"
+                    type="number"
+                    step="0.5"
+                    min="0.5"
+                    value={servings}
+                    onChange={e => setServings(parseFloat(e.target.value) || 1)}
+                  />
+                  <p className="text-xs text-textMuted">Change servings then lookup again to recalculate</p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">Calories</label>
@@ -521,6 +595,7 @@ export default function Health() {
                   <input className="input" type="number" placeholder="g" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
                 </div>
               </div>
+              <p className="text-xs text-textMuted">💡 Use lookup to auto-fill nutrition, or enter manually</p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setShowMealModal(false)} className="btn-secondary flex-1">Cancel</button>

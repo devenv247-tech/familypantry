@@ -14,3 +14,6 @@ export const updateMemberGoal = (data) =>
 
 export const deleteNutritionLog = (id) =>
   api.delete(`/health-tracker/log/${id}`).then(r => r.data)
+
+export const lookupNutrition = (mealName, servings) =>
+  api.post('/health-tracker/lookup', { mealName, servings }).then(r => r.data)
