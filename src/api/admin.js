@@ -28,3 +28,6 @@ export const createAnnouncement = (data) =>
 
 export const deleteAnnouncement = (id) =>
   api.delete(`/admin/announcements/${id}`).then(r => r.data)
+
+export const getApiStatus = () =>
+  api.get('/admin/api-status').then(r => r.data)

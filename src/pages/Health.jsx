@@ -88,7 +88,11 @@ export default function Health() {
         setLookupResult(result)
       }
     } catch (err) {
-      console.error('Nutrition lookup failed:', err)
+      if (err.response?.data?.creditsExhausted) {
+        showToast('AI service temporarily unavailable. Please try again later.', 'error')
+      } else {
+        showToast('Could not find nutrition info. Please enter manually.', 'error')
+      }
     } finally {
       setLookingUp(false)
     }

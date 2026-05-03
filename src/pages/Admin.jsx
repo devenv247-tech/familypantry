@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats, getAnnouncements, createAnnouncement, deleteAnnouncement } from '../api/admin'
+import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats, getAnnouncements, createAnnouncement, deleteAnnouncement, getApiStatus } from '../api/admin'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -33,6 +33,7 @@ export default function Admin() {
   const [announcements, setAnnouncements] = useState([])
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', icon: '🎉' })
   const [savingAnnouncement, setSavingAnnouncement] = useState(false)
+  const [apiStatus, setApiStatus] = useState(null)
 
   useEffect(() => {
     // Check admin access
@@ -46,12 +47,13 @@ export default function Admin() {
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const [statsData, familiesData, flagsData, usageData, announcementsData] = await Promise.all([
+      const [statsData, familiesData, flagsData, usageData, announcementsData, apiStatusData] = await Promise.all([
         getAdminStats(),
         getAdminFamilies(),
         getFeatureFlags(),
         getUsageStats(),
         getAnnouncements(),
+        getApiStatus(),
       ])
       setStats(statsData)
       setFamilies(familiesData.families || [])
@@ -59,6 +61,7 @@ export default function Admin() {
       setFlags(flagsData)
       setUsage(usageData)
       setAnnouncements(announcementsData)
+      setApiStatus(apiStatusData)
     } catch (err) {
       if (err.response?.status === 403) {
         showToast('Access denied — admin only', 'error')
@@ -198,8 +201,33 @@ export default function Admin() {
 
         {/* Overview tab */}
         {activeTab === 'overview' && stats && (
-          <div className="space-y-6">
+         <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900">Platform overview</h2>
+
+            {/* API Status Alert */}
+            {apiStatus && !apiStatus.anthropic.alive && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                <span className="text-2xl">🚨</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-red-800">Anthropic API is down!</p>
+                  <p className="text-sm text-red-600 mt-1">{apiStatus.anthropic.error}</p>
+                  {apiStatus.anthropic.lastError && (
+                    <p className="text-xs text-red-500 mt-1">{apiStatus.anthropic.lastError}</p>
+                  )}
+                  <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="text-xs text-red-700 hover:underline font-medium mt-2 inline-block">
+                    Top up credits at console.anthropic.com →
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {apiStatus?.anthropic.alive && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
+                <span className="text-green-500">✓</span>
+                <p className="text-sm text-green-700 font-medium">Anthropic API is healthy</p>
+                <span className="text-xs text-green-500 ml-auto">Last checked: {new Date(apiStatus.anthropic.lastChecked).toLocaleTimeString()}</span>
+             </div>
+            )}
 
             {/* Key metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

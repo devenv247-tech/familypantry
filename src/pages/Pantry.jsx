@@ -270,6 +270,8 @@ export default function Pantry() {
             } else {
               navigate('/app/settings?tab=plan')
             }
+          } else if (err.response?.data?.creditsExhausted) {
+            showToast('AI service temporarily unavailable. Please try again later.', 'error')
           } else {
             showToast('Failed to scan photo. Please try again.', 'error')
           }
