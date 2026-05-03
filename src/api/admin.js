@@ -31,3 +31,15 @@ export const deleteAnnouncement = (id) =>
 
 export const getApiStatus = () =>
   api.get('/admin/api-status').then(r => r.data)
+
+export const getCacheStats = () =>
+  api.get('/health-tracker/cache/stats').then(r => r.data)
+
+export const deleteCacheItem = (id) =>
+  api.delete(`/health-tracker/cache/${id}`).then(r => r.data)
+
+export const clearExpiredCache = () =>
+  api.delete('/health-tracker/cache/expired').then(r => r.data)
+
+export const clearAllCache = () =>
+  api.delete('/health-tracker/cache/all').then(r => r.data)

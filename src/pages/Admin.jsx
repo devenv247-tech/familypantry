@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats, getAnnouncements, createAnnouncement, deleteAnnouncement, getApiStatus } from '../api/admin'
+import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFeatureFlags, updateFeatureFlag, getUsageStats, getAnnouncements, createAnnouncement, deleteAnnouncement, getApiStatus, getCacheStats, deleteCacheItem, clearExpiredCache, clearAllCache } from '../api/admin'
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -12,6 +12,7 @@ const TABS = [
   { id: 'announcements', label: '📣 Announcements' },
   { id: 'usage', label: '📈 Usage stats' },
   { id: 'costs', label: '💰 Costs & revenue' },
+  { id: 'cache', label: '🗄️ Nutrition cache' },
 ]
 
 export default function Admin() {
@@ -34,6 +35,8 @@ export default function Admin() {
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', icon: '🎉' })
   const [savingAnnouncement, setSavingAnnouncement] = useState(false)
   const [apiStatus, setApiStatus] = useState(null)
+  const [cacheStats, setCacheStats] = useState(null)
+  const [clearingCache, setClearingCache] = useState(false)
 
   useEffect(() => {
     // Check admin access
@@ -73,7 +76,60 @@ export default function Admin() {
       setLoading(false)
     }
   }
+  useEffect(() => {
+    if (activeTab === 'cache') fetchCacheStats()
+  }, [activeTab])
 
+  const fetchCacheStats = async () => {
+    try {
+      const data = await getCacheStats()
+      setCacheStats(data)
+    } catch (err) {
+      showToast('Failed to load cache stats', 'error')
+    }
+  }
+
+  const handleClearExpired = async () => {
+    setClearingCache(true)
+    try {
+      const result = await clearExpiredCache()
+      showToast(`Cleared ${result.deleted} expired items`)
+      fetchCacheStats()
+    } catch (err) {
+      showToast('Failed to clear cache', 'error')
+    } finally {
+      setClearingCache(false)
+    }
+  }
+
+  const handleClearAll = async () => {
+    if (!window.confirm('Clear ALL cached nutrition data? Users will trigger new API calls.')) return
+    setClearingCache(true)
+    try {
+      const result = await clearAllCache()
+      showToast(`Cleared all ${result.deleted} cached items`)
+      fetchCacheStats()
+    } catch (err) {
+      showToast('Failed to clear cache', 'error')
+    } finally {
+      setClearingCache(false)
+    }
+  }
+
+  const handleDeleteCacheItem = async (id) => {
+    try {
+      await deleteCacheItem(id)
+      setCacheStats(prev => ({
+        ...prev,
+        total: prev.total - 1,
+        active: prev.active - 1,
+        topItems: prev.topItems.filter(i => i.id !== id)
+      }))
+      showToast('Cache item deleted')
+    } catch (err) {
+      showToast('Failed to delete item', 'error')
+    }
+  }
   const fetchFamilies = async () => {
     try {
       const data = await getAdminFamilies({ search, plan: planFilter })
@@ -592,7 +648,133 @@ export default function Admin() {
             </div>
           </div>
         )}
+        {/* Nutrition cache tab */}
+        {activeTab === 'cache' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Nutrition cache</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={fetchCacheStats}
+                  className="text-sm text-gray-500 hover:text-gray-900"
+                >
+                  ↻ Refresh
+                </button>
+                <button
+                  onClick={handleClearExpired}
+                  disabled={clearingCache}
+                  className="text-sm px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Clear expired
+                </button>
+                <button
+                  onClick={handleClearAll}
+                  disabled={clearingCache}
+                  className="text-sm px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-50"
+                >
+                  Clear all
+                </button>
+              </div>
+            </div>
 
+            {cacheStats ? (
+              <>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: 'Total cached items', value: cacheStats.total, icon: '🗄️', color: 'bg-blue-50 border-blue-100' },
+                    { label: 'Active (not expired)', value: cacheStats.active, icon: '✅', color: 'bg-green-50 border-green-100' },
+                    { label: 'Expired items', value: cacheStats.expired, icon: '⏰', color: 'bg-orange-50 border-orange-100' },
+                  ].map((s, i) => (
+                    <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
+                      <div className="text-2xl mb-2">{s.icon}</div>
+                      <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                      <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Top cached items */}
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900">Top cached items</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Most looked up nutrition items — served from cache</p>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Meal</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Source</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Calories</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Hits</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Expires</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {cacheStats.topItems.map((item, i) => (
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-gray-900 text-xs">{item.mealName}</p>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                              item.confidence === 'high' ? 'bg-green-100 text-green-700' :
+                              item.confidence === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-gray-100 text-gray-600'
+                            }`}>
+                              {item.confidence}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">{item.source}</td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">{item.calories ? `${Math.round(item.calories)} kcal` : '—'}</td>
+                          <td className="px-4 py-3">
+                            <span className="text-xs font-semibold text-primary bg-blue-50 px-2 py-0.5 rounded-full">
+                              {item.hitCount}x
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">
+                            {new Date(item.expiresAt) < new Date() ? (
+                              <span className="text-orange-500">Expired</span>
+                            ) : (
+                              new Date(item.expiresAt).toLocaleDateString('en-CA')
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => handleDeleteCacheItem(item.id)}
+                              className="text-xs text-red-500 hover:text-red-700"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {cacheStats.topItems.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
+                            No cached items yet. Users will populate the cache as they look up nutrition info.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                  <p className="text-sm font-medium text-blue-800 mb-1">💡 How caching works</p>
+                  <p className="text-xs text-blue-600 leading-relaxed">
+                    When a user looks up nutrition for a meal, the result is cached for 90 days. 
+                    Any other user searching for the same meal gets the cached result instantly — no API call made. 
+                    Hit count shows how many times each item was served from cache instead of calling Claude.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <p>Loading cache stats...</p>
+              </div>
+            )}
+          </div>
+        )}
         {/* Costs & revenue tab */}
         {activeTab === 'costs' && stats && (
           <div className="space-y-6">
