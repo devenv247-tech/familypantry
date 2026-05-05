@@ -3,8 +3,47 @@ import { useAuthStore } from '../../store/authStore'
 import { addMember } from '../../api/family'
 import { addPantryItem } from '../../api/pantry'
 
-const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
-const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
+const GOALS = [
+  'Lose weight',
+  'Gain muscle',
+  'Maintain weight',
+  'Healthy growth',
+  'High protein',
+  'Low carb',
+  'Heart healthy',
+  'Manage diabetes',
+  'Manage cholesterol',
+  'Manage blood pressure',
+  'Improve gut health',
+  'Boost energy',
+  'Anti-inflammatory',
+  'Build endurance',
+  'Postpartum recovery',
+  'Healthy aging',
+]
+
+const DIETARY = [
+  'Vegetarian',
+  'Vegan',
+  'Gluten free',
+  'Dairy free',
+  'Halal',
+  'Kosher',
+  'Keto',
+  'Paleo',
+  'Low sodium',
+  'Low sugar',
+  'Low fat',
+  'High fiber',
+  'Nut free',
+  'Egg free',
+  'Soy free',
+  'Shellfish free',
+  'Raw food',
+  'Whole food plant based',
+  'Mediterranean',
+  'Intermittent fasting',
+]
 const ALLERGENS = ['Peanuts', 'Tree nuts', 'Milk', 'Eggs', 'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Sesame seeds']
 
 export default function Onboarding({ onComplete }) {
@@ -15,9 +54,10 @@ export default function Onboarding({ onComplete }) {
     name: user?.name || '',
     age: '',
     weight: '',
+    weightUnit: 'kg',
     height: '',
-    goals: 'Maintain weight',
-    dietary: 'None',
+    goals: [],
+    dietary: [],
     allergens: '',
   })
   const [pantryItem, setPantryItem] = useState({
@@ -41,7 +81,11 @@ export default function Onboarding({ onComplete }) {
     if (!member.name.trim()) return
     setLoading(true)
     try {
-      await addMember(member)
+      await addMember({
+        ...member,
+        goals: member.goals.join(', '),
+        dietary: member.dietary.join(', '),
+      })
     } catch (err) {
       console.error(err)
     } finally {
@@ -149,25 +193,69 @@ export default function Onboarding({ onComplete }) {
                     <input className="input" type="number" placeholder="28" value={member.age} onChange={e => setMember(p => ({ ...p, age: e.target.value }))} />
                   </div>
                   <div>
+                    <div>
                     <label className="label">Weight</label>
-                    <input className="input" placeholder="70kg" value={member.weight} onChange={e => setMember(p => ({ ...p, weight: e.target.value }))} />
+                    <div className="flex gap-2">
+                      <input className="input flex-1" type="number" step="0.1" placeholder="e.g. 70" value={member.weight} onChange={e => setMember(p => ({ ...p, weight: e.target.value }))} />
+                      <select className="input w-20" value={member.weightUnit} onChange={e => setMember(p => ({ ...p, weightUnit: e.target.value }))}>
+                        <option value="kg">kg</option>
+                        <option value="lbs">lbs</option>
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="label">Height</label>
-                    <input className="input" placeholder="5'8&quot;" value={member.height} onChange={e => setMember(p => ({ ...p, height: e.target.value }))} />
+                    <input
+                      className="input"
+                      placeholder="Type 54 for 5'4&quot;"
+                      value={member.height}
+                      onChange={e => setMember(p => ({ ...p, height: e.target.value }))}
+                      onBlur={e => {
+                        const raw = e.target.value.replace(/\D/g, '')
+                        if (raw && !e.target.value.includes("'")) {
+                          const formatted = raw.length === 1 ? `${raw}'0"` : raw.length === 2 ? `${raw[0]}'${raw[1]}"` : `${raw[0]}'${raw.slice(1, 3)}"`
+                          setMember(p => ({ ...p, height: formatted }))
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-textMuted mt-1">Type 54 → auto formats to 5'4"</p>
                   </div>
                 </div>
-                <div>
-                  <label className="label">Health goal</label>
-                  <select className="input" value={member.goals} onChange={e => setMember(p => ({ ...p, goals: e.target.value }))}>
-                    {GOALS.map(g => <option key={g}>{g}</option>)}
-                  </select>
+                <div className="col-span-2 md:col-span-3">
+                  <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {GOALS.map(goal => {
+                      const selected = member.goals.includes(goal)
+                      return (
+                        <button key={goal} type="button"
+                          onClick={() => setMember(p => ({ ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...p.goals, goal] }))}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {selected ? '✓ ' : '+ '}{goal}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div>
-                  <label className="label">Dietary preference</label>
-                  <select className="input" value={member.dietary} onChange={e => setMember(p => ({ ...p, dietary: e.target.value }))}>
-                    {DIETARY.map(d => <option key={d}>{d}</option>)}
-                  </select>
+                <div className="col-span-2 md:col-span-3">
+                  <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {DIETARY.map(diet => {
+                      const selected = member.dietary.includes(diet)
+                      return (
+                        <button key={diet} type="button"
+                          onClick={() => setMember(p => ({ ...p, dietary: selected ? p.dietary.filter(d => d !== diet) : [...p.dietary, diet] }))}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
+                          }`}
+                        >
+                          {selected ? '✓ ' : '+ '}{diet}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
                 <div>
                   <label className="label">Allergens <span className="text-textMuted font-normal">(select all that apply)</span></label>

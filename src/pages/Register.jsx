@@ -101,7 +101,7 @@ const handleStep2 = async (e) => {
                 <input
                   type="text"
                   className="input"
-                  placeholder="e.g. The Sangha Family"
+                  placeholder="Family name"
                   value={form.familyName}
                   onChange={e => update('familyName', e.target.value)}
                 />

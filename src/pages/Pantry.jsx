@@ -441,7 +441,7 @@ export default function Pantry() {
                 <button onClick={() => setShowTemplates(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
               </div>
               <p className="text-sm text-textMuted mb-6">
-                Choose a template to quickly populate your pantry with common staples. Existing items won't be duplicated.
+                Choose a grocery template to quickly populate your pantry with common staples. Existing items won't be duplicated.
               </p>
               <div className="space-y-3">
                 {templates.map(template => (
@@ -543,7 +543,7 @@ export default function Pantry() {
               onClick={() => setShowTemplates(true)}
               className="btn-secondary flex items-center gap-2 text-sm border-orange-200 text-orange-600 hover:bg-orange-50"
             >
-              🗂️ Templates
+              🗂️ Grocery Templates
             </button>
           )}
 

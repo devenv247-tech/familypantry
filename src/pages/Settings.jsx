@@ -7,8 +7,47 @@ import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
 import { createCheckoutSession, createPortalSession, getSubscription } from '../api/stripe'
 
-const GOALS = ['Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth', 'Manage diabetes', 'Heart healthy', 'High protein']
-const DIETARY = ['None', 'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher', 'Keto']
+const GOALS = [
+  'Lose weight',
+  'Gain muscle',
+  'Maintain weight',
+  'Healthy growth',
+  'High protein',
+  'Low carb',
+  'Heart healthy',
+  'Manage diabetes',
+  'Manage cholesterol',
+  'Manage blood pressure',
+  'Improve gut health',
+  'Boost energy',
+  'Anti-inflammatory',
+  'Build endurance',
+  'Postpartum recovery',
+  'Healthy aging',
+]
+
+const DIETARY = [
+  'Vegetarian',
+  'Vegan',
+  'Gluten free',
+  'Dairy free',
+  'Halal',
+  'Kosher',
+  'Keto',
+  'Paleo',
+  'Low sodium',
+  'Low sugar',
+  'Low fat',
+  'High fiber',
+  'Nut free',
+  'Egg free',
+  'Soy free',
+  'Shellfish free',
+  'Raw food',
+  'Whole food plant based',
+  'Mediterranean',
+  'Intermittent fasting',
+]
 const ALLERGENS = [
   'Peanuts', 'Tree nuts', 'Sesame seeds', 'Milk', 'Eggs',
   'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Mustard',
@@ -42,7 +81,7 @@ export default function Settings() {
   const [editingId, setEditingId] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
   const [editForm, setEditForm] = useState({})
-  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None', allergens: '' })
+  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '' })
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -149,14 +188,23 @@ export default function Settings() {
     }
   }
 
-  const startEdit = (member) => {
+ const startEdit = (member) => {
     setEditingId(member.id)
-    setEditForm({ ...member })
+    setEditForm({
+      ...member,
+      goals: member.goals ? member.goals.split(',').map(g => g.trim()).filter(Boolean) : [],
+      dietary: member.dietary ? member.dietary.split(',').map(d => d.trim()).filter(Boolean) : [],
+      weightUnit: member.weightUnit || 'kg',
+    })
   }
 
-  const saveEdit = async () => {
+ const saveEdit = async () => {
     try {
-      const updated = await updateMember(editingId, editForm)
+      const updated = await updateMember(editingId, {
+        ...editForm,
+        goals: Array.isArray(editForm.goals) ? editForm.goals.join(', ') : editForm.goals,
+        dietary: Array.isArray(editForm.dietary) ? editForm.dietary.join(', ') : editForm.dietary,
+      })
       setMembers(prev => prev.map(m => m.id === editingId ? updated : m))
       setEditingId(null)
       showToast('Member updated!')
@@ -179,9 +227,13 @@ export default function Settings() {
     e.preventDefault()
     if (!newMember.name.trim()) return
     try {
-      const member = await addMember(newMember)
+      const member = await addMember({
+        ...newMember,
+        goals: newMember.goals.join(', '),
+        dietary: newMember.dietary.join(', '),
+      })
       setMembers(prev => [...prev, member])
-      setNewMember({ name: '', age: '', weight: '', height: '', goals: 'Maintain weight', dietary: 'None', allergens: '' })
+      setNewMember({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '' })
       setShowAddMember(false)
       showToast('Member added!')
     } catch (err) {
@@ -292,24 +344,96 @@ export default function Settings() {
                   </div>
                   <div>
                     <label className="label">Weight</label>
-                    <input className="input" placeholder="e.g. 70kg" value={newMember.weight} onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))} />
+                    <div className="flex gap-2">
+                      <input
+                        className="input flex-1"
+                        type="number"
+                        step="0.1"
+                        placeholder="e.g. 70"
+                        value={newMember.weight}
+                        onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
+                      />
+                      <select
+                        className="input w-20"
+                        value={newMember.weightUnit}
+                        onChange={e => setNewMember(p => ({ ...p, weightUnit: e.target.value }))}
+                      >
+                        <option value="kg">kg</option>
+                        <option value="lbs">lbs</option>
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="label">Height</label>
-                    <input className="input" placeholder="e.g. 5'8&quot;" value={newMember.height} onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))} />
+                    <input
+                      className="input"
+                      placeholder="Type 54 for 5'4&quot;"
+                      value={newMember.height}
+                      onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))}
+                      onBlur={e => {
+                        const raw = e.target.value.replace(/\D/g, '')
+                        if (raw && !e.target.value.includes("'")) {
+                          setNewMember(p => ({ ...p, height: formatHeight(raw) }))
+                        }
+                      }}
+                    />
+                    <p className="text-xs text-textMuted mt-1">Type 54 → auto formats to 5'4"</p>
                   </div>
-                  <div>
-                    <label className="label">Health goal</label>
-                    <select className="input" value={newMember.goals} onChange={e => setNewMember(p => ({ ...p, goals: e.target.value }))}>
-                      {GOALS.map(g => <option key={g}>{g}</option>)}
-                    </select>
+                </div>
+
+                {/* Health goals — multi select */}
+                <div className="mb-4">
+                  <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {GOALS.map(goal => {
+                      const selected = (newMember.goals || []).includes(goal)
+                      return (
+                        <button key={goal} type="button"
+                          onClick={() => setNewMember(p => ({
+                            ...p,
+                            goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
+                          }))}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {selected ? '✓ ' : '+ '}{goal}
+                        </button>
+                      )
+                    })}
                   </div>
-                  <div>
-                    <label className="label">Dietary preference</label>
-                    <select className="input" value={newMember.dietary} onChange={e => setNewMember(p => ({ ...p, dietary: e.target.value }))}>
-                      {DIETARY.map(d => <option key={d}>{d}</option>)}
-                    </select>
+                  {(newMember.goals || []).length > 0 && (
+                    <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
+                  )}
+                </div>
+
+                {/* Dietary preferences — multi select */}
+                <div className="mb-4">
+                  <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {DIETARY.map(diet => {
+                      const selected = (newMember.dietary || []).includes(diet)
+                      return (
+                        <button key={diet} type="button"
+                          onClick={() => setNewMember(p => ({
+                            ...p,
+                            dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
+                          }))}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
+                          }`}
+                        >
+                          {selected ? '✓ ' : '+ '}{diet}
+                        </button>
+                      )
+                    })}
                   </div>
+                  {(newMember.dietary || []).length > 0 && (
+                    <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div className="md:col-span-3">
                     <label className="label">Allergens</label>
                     <div className="flex flex-wrap gap-2">
@@ -369,20 +493,89 @@ export default function Settings() {
                         </div>
                         <div>
                           <label className="label">Height</label>
-                          <input className="input" value={editForm.height || ''} onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))} />
+                          <input
+                            className="input"
+                            placeholder="e.g. 54 → 5'4&quot;"
+                            value={editForm.height || ''}
+                            onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))}
+                            onBlur={e => {
+                              const raw = e.target.value.replace(/\D/g, '')
+                              if (raw && !e.target.value.includes("'")) {
+                                setEditForm(p => ({ ...p, height: formatHeight(raw) }))
+                              }
+                            }}
+                          />
+                          <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
                         </div>
-                        <div>
-                          <label className="label">Health goal</label>
-                          <select className="input" value={editForm.goals || ''} onChange={e => setEditForm(p => ({ ...p, goals: e.target.value }))}>
-                            {GOALS.map(g => <option key={g}>{g}</option>)}
-                          </select>
+                       <div>
+                          <label className="label">Weight</label>
+                          <div className="flex gap-2">
+                            <input
+                              className="input flex-1"
+                              type="number"
+                              step="0.1"
+                              value={editForm.weight || ''}
+                              onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
+                            />
+                            <select
+                              className="input w-20"
+                              value={editForm.weightUnit || 'kg'}
+                              onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
+                            >
+                              <option value="kg">kg</option>
+                              <option value="lbs">lbs</option>
+                            </select>
+                          </div>
                         </div>
-                        <div>
-                          <label className="label">Dietary preference</label>
-                          <select className="input" value={editForm.dietary || ''} onChange={e => setEditForm(p => ({ ...p, dietary: e.target.value }))}>
-                            {DIETARY.map(d => <option key={d}>{d}</option>)}
-                          </select>
+                      </div>
+
+                      {/* Health goals multi-select */}
+                      <div className="mb-4">
+                        <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                        <div className="flex flex-wrap gap-2">
+                          {GOALS.map(goal => {
+                            const selected = (Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)).includes(goal)
+                            return (
+                              <button key={goal} type="button"
+                                onClick={() => {
+                                  const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
+                                  setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))
+                                }}
+                                className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                                  selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                                }`}
+                              >
+                                {selected ? '✓ ' : '+ '}{goal}
+                              </button>
+                            )
+                          })}
                         </div>
+                      </div>
+
+                      {/* Dietary preferences multi-select */}
+                      <div className="mb-4">
+                        <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                        <div className="flex flex-wrap gap-2">
+                          {DIETARY.map(diet => {
+                            const selected = (Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)).includes(diet)
+                            return (
+                              <button key={diet} type="button"
+                                onClick={() => {
+                                  const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
+                                  setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))
+                                }}
+                                className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                                  selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
+                                }`}
+                              >
+                                {selected ? '✓ ' : '+ '}{diet}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                         <div className="md:col-span-3">
                           <label className="label">Allergens</label>
                           <div className="flex flex-wrap gap-2">
