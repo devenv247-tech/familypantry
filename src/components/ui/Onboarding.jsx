@@ -70,7 +70,12 @@ export default function Onboarding({ onComplete }) {
   })
   const [skippedMember, setSkippedMember] = useState(false)
   const [skippedPantry, setSkippedPantry] = useState(false)
-
+  const formatHeight = (raw) => {
+    if (!raw) return ''
+    if (raw.length === 1) return `${raw}'0"`
+    if (raw.length === 2) return `${raw[0]}'${raw[1]}"`
+    return `${raw[0]}'${raw.slice(1, 3)}"`
+  }
   const toggleAllergen = (allergen) => {
     const current = (member.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
     const selected = current.includes(allergen)
