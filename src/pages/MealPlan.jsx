@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import CookingLoader from '../components/ui/CookingLoader'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan } from '../api/mealplan'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -299,30 +300,7 @@ const handleGenerateWeek = async () => {
         </div>
       )}
       {/* Full screen generation overlay — prevents navigation */}
-      {generatingWeek && (
-        <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-6">
-          <div className="text-6xl animate-bounce">🫧</div>
-          <div className="text-center">
-            <p className="text-xl font-bold text-textPrimary mb-2">Planning your week...</p>
-            <p className="text-sm text-textMuted max-w-xs text-center">
-              AI is generating 28 personalized meals based on your pantry, health goals and preferences. This takes about 20-30 seconds.
-            </p>
-          </div>
-          <div className="flex flex-col items-center gap-2 w-64">
-            <div className="w-full h-2 bg-gray-100 rounded-pill overflow-hidden">
-              <div className="h-full bg-primary rounded-pill animate-pulse" style={{ width: '100%' }} />
-            </div>
-            <p className="text-xs text-textMuted">Please stay on this page</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-xs text-textMuted mt-4">
-            {['🌅 Breakfasts', '☀️ Lunches', '🌙 Dinners', '🍎 Snacks'].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 bg-gray-50 rounded-btn px-3 py-2">
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <CookingLoader mode="weekplan" visible={generatingWeek} />
       {/* Member selector modal for week generation */}
       {showMemberModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
