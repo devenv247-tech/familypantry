@@ -41,11 +41,11 @@ export default function Reports() {
   const [showCostco, setShowCostco] = useState(false)
 
   useEffect(() => {
-    fetchReports()
-    fetchForecast()
-    fetchCO2()
-    fetchCostco()
-  }, [])
+  fetchReports()
+  if (isFeatureEnabled('budget_forecast', plan)) fetchForecast()
+  if (isFeatureEnabled('co2_tracking', plan)) fetchCO2()
+  if (isFeatureEnabled('costco_optimizer', plan)) fetchCostco()
+}, [])
 
   const fetchReports = async () => {
     try {
