@@ -10,6 +10,14 @@ export const login = async (data) => {
   return res.data
 }
 
+export const logoutApi = async () => {
+  try {
+    await client.post('/auth/logout')
+  } catch (err) {
+    // Logout always succeeds on frontend
+  }
+}
+
 export const deleteAccount = async () => {
   const res = await client.delete('/auth/account')
   return res.data
