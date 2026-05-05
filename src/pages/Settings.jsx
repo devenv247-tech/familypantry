@@ -6,6 +6,7 @@ import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
 import { createCheckoutSession, createPortalSession, getSubscription } from '../api/stripe'
+import { useAppConfigStore } from '../store/appConfigStore'
 
 const GOALS = [
   'Lose weight',
@@ -53,26 +54,29 @@ const ALLERGENS = [
   'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Mustard',
   'Sulphites', 'Celery', 'Lupin', 'Molluscs'
 ]
-const PLANS = [
-  {
-    name: 'Free',
-    price: '$0',
-    features: ['Pantry tracking', 'Manual grocery list', 'Basic reports', 'Health Canada recalls', 'Manual meal planner', '5 recipes/week'],
-  },
-  {
-    name: 'Family',
-    price: '$7/mo',
-    features: ['Everything in Free', 'Unlimited recipes', 'Smart expiry predictions', 'Meal pattern learning', 'Budget forecasting', 'Price anomaly detection', 'Seasonal recommendations', 'Smart substitutions', 'Health goal tracking', 'Costco optimizer', 'CO2 footprint tracking'],
-  },
-  {
-    name: 'Premium',
-    price: '$15/mo',
-    features: ['Everything in Family', 'AI auto meal planning for whole week', 'Cuisine selector for meal plan', 'Grocery list from meal plan', 'Up to 10 family members', 'PDF export', 'Priority support'],
-  },
-]
+
 
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
+  const { flags, isFeatureEnabled } = useAppConfigStore()
+
+const buildPlanFeatures = (planKey) => {
+  const base = {
+    free: ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week'],
+    family: ['Everything in Free'],
+    premium: ['Everything in Family'],
+  }
+  const fromFlags = Object.values(flags)
+    .filter(f => f.enabled && f.requiredPlan === planKey)
+    .map(f => f.description || f.name)
+  return [...(base[planKey] || []), ...fromFlags]
+}
+
+const PLANS = [
+  { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
+  { name: 'Family',  price: '$7/mo',  features: buildPlanFeatures('family') },
+  { name: 'Premium', price: '$15/mo', features: buildPlanFeatures('premium') },
+]
   const formatHeight = (raw) => {
     if (!raw) return ''
     if (raw.length === 1) return `${raw}'0"`

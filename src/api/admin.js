@@ -12,6 +12,9 @@ export const updateFamilyPlan = (id, plan) =>
 export const deleteFamily = (id) =>
   api.delete(`/admin/families/${id}`).then(r => r.data)
 
+export const getPublicConfig = () =>
+  axios.get(`${API_URL}/admin/public/config`).then(r => r.data)
+
 export const getFeatureFlags = () =>
   api.get('/admin/flags').then(r => r.data)
 
