@@ -5,7 +5,7 @@ const client = axios.create({
 })
 
 client.interceptors.request.use((config) => {
-  const auth = JSON.parse(localStorage.getItem('familypantry-auth') || '{}')
+  const auth = JSON.parse(localStorage.getItem('nooka-auth') || '{}')
   const token = auth?.state?.token
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
@@ -15,7 +15,7 @@ client.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('familypantry-auth')
+      localStorage.removeItem('nooka-auth')
       window.location.href = '/session-expired'
     }
     return Promise.reject(error)

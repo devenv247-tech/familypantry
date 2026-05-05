@@ -44,7 +44,7 @@ export const useAppConfigStore = create(
       }
     }),
     {
-      name: 'familypantry-config',
+      name: 'nooka-config',
       partialize: (state) => ({
         flags: state.flags,
         announcements: state.announcements,

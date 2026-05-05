@@ -138,7 +138,7 @@ export default function Onboarding({ onComplete }) {
             <div className="text-center py-4">
               <div className="text-6xl mb-4">👋</div>
               <h2 className="text-2xl font-bold text-textPrimary mb-2">
-                Welcome to FamilyPantry, {user?.name?.split(' ')[0]}!
+                Welcome to Nooka, {user?.name?.split(' ')[0]}!
               </h2>
               <p className="text-textMuted mb-2">
                 You're setting up <span className="font-semibold text-textPrimary">{family?.name}</span>
@@ -330,7 +330,7 @@ export default function Onboarding({ onComplete }) {
               <div className="text-6xl mb-4">🎉</div>
               <h2 className="text-2xl font-bold text-textPrimary mb-2">You're all set!</h2>
               <p className="text-textMuted mb-8 max-w-sm mx-auto">
-                FamilyPantry is ready to use. Here's what you can do next:
+                Nooka is ready to use. Here's what you can do next:
               </p>
               <div className="grid grid-cols-1 gap-3 mb-8 text-left">
                 {[

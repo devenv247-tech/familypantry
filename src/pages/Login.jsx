@@ -34,7 +34,7 @@ const handleSubmit = async (e) => {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">FP</span>
           </div>
-          <span className="font-semibold text-textPrimary text-lg">FamilyPantry</span>
+          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
         </Link>
       </nav>
 

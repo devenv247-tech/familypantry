@@ -10,6 +10,6 @@ export const useAuthStore = create(
       setAuth: (token, user, family) => set({ token, user, family }),
       logout: () => set({ token: null, user: null, family: null }),
     }),
-    { name: 'familypantry-auth' }
+    { name: 'nooka-auth' }
   )
 )

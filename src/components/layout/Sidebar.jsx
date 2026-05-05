@@ -40,7 +40,7 @@ export default function Sidebar({ onClose }) {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">FP</span>
           </div>
-          <span className="font-semibold text-textPrimary">FamilyPantry</span>
+          <span className="font-semibold text-textPrimary">Nooka</span>
         </div>
         {/* Close button mobile only */}
         <button

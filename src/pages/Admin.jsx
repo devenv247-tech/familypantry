@@ -224,7 +224,7 @@ export default function Admin() {
             <span className="text-white text-sm font-bold">A</span>
           </div>
           <div>
-            <p className="font-semibold text-sm">FamilyPantry Admin</p>
+            <p className="font-semibold text-sm">Nooka Admin</p>
             <p className="text-xs text-gray-400">Signed in as {user?.email}</p>
           </div>
         </div>

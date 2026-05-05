@@ -880,7 +880,7 @@ export default function Settings() {
       {/* Sign out */}
       <div className="mt-8">
         <button onClick={() => { logout(); navigate('/') }} className="text-sm text-danger hover:underline font-medium">
-          Sign out of FamilyPantry
+          Sign out of Nooka
         </button>
       </div>
 

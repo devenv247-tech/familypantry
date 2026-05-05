@@ -12,7 +12,7 @@ export default function Landing() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">FP</span>
           </div>
-          <span className="font-semibold text-textPrimary text-lg">FamilyPantry</span>
+          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/login')} className="btn-secondary">Log in</button>
@@ -30,7 +30,7 @@ export default function Landing() {
           <span className="text-primary">Healthier families.</span>
         </h1>
         <p className="text-xl text-textMuted max-w-2xl mb-10 leading-relaxed">
-          FamilyPantry tracks your pantry, suggests AI-powered recipes based on each member's health goals, plans your weekly meals, and alerts you to food recalls — all in one place.
+          Nooka tracks your pantry, suggests AI-powered recipes based on each member's health goals, plans your weekly meals, and alerts you to food recalls — all in one place.
         </p>
         <div className="flex items-center gap-4 flex-wrap justify-center">
           <button onClick={() => navigate('/register')} className="btn-primary text-base px-8 py-3">Start for free</button>
@@ -293,7 +293,7 @@ export default function Landing() {
       <section className="px-6 py-24 text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-textPrimary mb-4">Ready to simplify family meals?</h2>
-          <p className="text-textMuted text-lg mb-8">Join Canadian families using FamilyPantry to eat smarter, waste less, and stay safe.</p>
+          <p className="text-textMuted text-lg mb-8">Join Canadian families using Nooka to eat smarter, waste less, and stay safe.</p>
           <button onClick={() => navigate('/register')} className="btn-primary text-base px-10 py-3">
             Get started free — no credit card needed
           </button>
@@ -306,10 +306,10 @@ export default function Landing() {
           <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
             <span className="text-white text-xs font-bold">FP</span>
           </div>
-          <span className="font-semibold text-textPrimary">FamilyPantry</span>
+          <span className="font-semibold text-textPrimary">Nooka</span>
         </div>
         <p>
-          © 2026 FamilyPantry · Built for Canadian families ·{' '}
+          © 2026 Nooka · Built for Canadian families ·{' '}
           <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
           {' · '}
           <Link to="/terms" className="hover:underline">Terms of Service</Link>

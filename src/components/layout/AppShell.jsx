@@ -98,7 +98,7 @@ export default function AppShell() {
             <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white text-xs font-bold">FP</span>
             </div>
-            <span className="font-semibold text-textPrimary">FamilyPantry</span>
+            <span className="font-semibold text-textPrimary">Nooka</span>
           </div>
         </div>
         <main className="flex-1 overflow-auto">
