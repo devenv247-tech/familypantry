@@ -355,7 +355,7 @@ export default function Settings() {
                         className="input flex-1"
                         type="number"
                         step="0.1"
-                        placeholder="Weight"
+                        placeholder="weight"
                         value={newMember.weight}
                         onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
                       />
