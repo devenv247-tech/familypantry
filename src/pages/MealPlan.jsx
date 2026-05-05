@@ -301,7 +301,7 @@ const handleGenerateWeek = async () => {
       {/* Full screen generation overlay — prevents navigation */}
       {generatingWeek && (
         <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-6">
-          <div className="text-6xl animate-bounce">🤖</div>
+          <div className="text-6xl animate-bounce">🫧</div>
           <div className="text-center">
             <p className="text-xl font-bold text-textPrimary mb-2">Planning your week...</p>
             <p className="text-sm text-textMuted max-w-xs text-center">
@@ -432,7 +432,7 @@ const handleGenerateWeek = async () => {
                   onClick={() => { setShowAddModal(false); navigate('/app/recipes') }}
                   className="w-full text-sm text-primary border border-blue-100 bg-blue-50 rounded-btn py-2 hover:bg-blue-100 transition-all"
                 >
-                  🤖 Go to recipe suggestions
+                  🫧 Go to recipe suggestions
                 </button>
               </div>
             </div>
@@ -485,7 +485,7 @@ const handleGenerateWeek = async () => {
             onClick={() => navigate('/app/recipes')}
             className="btn-primary text-sm"
           >
-            🤖 Get recipes
+            🫧 Get recipes
           </button>
         </div>
       </div>

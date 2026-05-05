@@ -150,7 +150,7 @@ export default function Onboarding({ onComplete }) {
                 {[
                   { icon: '👨‍👩‍👧‍👦', title: 'Add a family member', desc: 'Health goals and allergens for personalized recipes' },
                   { icon: '🧺', title: 'Add a pantry item', desc: 'Start tracking what you have at home' },
-                  { icon: '🤖', title: 'Get AI recipes', desc: 'Personalized meals based on your pantry and health goals' },
+                  { icon: '🫧', title: 'Get AI recipes', desc: 'Personalized meals based on your pantry and health goals' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3">
                     <span className="text-2xl flex-shrink-0">{item.icon}</span>
@@ -335,7 +335,7 @@ export default function Onboarding({ onComplete }) {
               <div className="grid grid-cols-1 gap-3 mb-8 text-left">
                 {[
                   { icon: '🧺', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
-                  { icon: '🤖', title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes' },
+                  { icon: '🫧', title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes' },
                   { icon: '🛒', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
                   { icon: '📊', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
                 ].map((item, i) => (

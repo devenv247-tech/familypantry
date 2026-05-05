@@ -208,7 +208,7 @@ export default function Grocery() {
             + Add item
           </button>
           <button className="btn-primary flex items-center gap-2">
-            🤖 Auto-generate
+            🫧 Auto-generate
           </button>
         </div>
       </div>

@@ -299,7 +299,7 @@ const handleCook = async (recipe, idx) => {
       {/* Full screen loading overlay — prevents navigation during generation */}
       {(loading || familyLoading) && (
         <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-6">
-          <div className="text-6xl animate-bounce">🤖</div>
+          <div className="text-6xl animate-bounce">🫧</div>
           <div className="text-center">
             <p className="text-xl font-bold text-textPrimary mb-2">
               {familyLoading ? 'Creating your family recipe...' : 'Finding the best recipes...'}
@@ -506,7 +506,7 @@ const handleCook = async (recipe, idx) => {
                 </svg>
                 Generating...
               </>
-            ) : <>🤖 Generate recipes</>}
+            ) : <>🫧 Generate recipes</>}
           </button>
           {selectedMembers.length === 0 && <p className="text-sm text-textMuted">Select at least one member</p>}
         </div>

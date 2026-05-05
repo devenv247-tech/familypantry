@@ -526,7 +526,7 @@ export default function Pantry() {
                 </>
               ) : (
                 <>
-                  🤖 AI photo scan
+                  🫧 AI photo scan
                   {scanStatus?.scansRemaining !== null && scanStatus?.scansRemaining !== undefined && (
                     <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-pill">
                       {scanStatus.scansRemaining} left
@@ -738,7 +738,7 @@ export default function Pantry() {
                 <div className="text-3xl mb-3 mt-6">{item.icon}</div>
                 <p className="font-semibold text-textPrimary">{item.name}</p>
                 <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
-                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1">🤖 AI predicted expiry</p>}
+                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1">🫧 AI predicted expiry</p>}
                 {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>}
                 {itemCO2?.co2Label && <p className="text-xs text-green-600 mt-1">{itemCO2.co2Label.icon} {itemCO2.co2Label.label} CO2</p>}
                 <div className="flex items-center justify-between mt-4">

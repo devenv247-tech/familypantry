@@ -601,7 +601,7 @@ export default function Admin() {
                 { label: 'Meals cooked (7d)', value: usage.meals.cooked7Days, icon: '🍳' },
                 { label: 'Meals cooked (30d)', value: usage.meals.cooked30Days, icon: '📅' },
                 { label: 'Recipes logged (7d)', value: usage.recipes.last7Days, icon: '📖' },
-                { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: '🤖' },
+                { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: '🫧' },
               ].map((s, i) => (
                 <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
                   <div className="text-2xl mb-2">{s.icon}</div>

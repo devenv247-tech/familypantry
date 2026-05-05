@@ -25,7 +25,7 @@ const getCurrentSeason = () => {
 }
 const quickActions = [
   { label: 'Add pantry item', icon: '➕', to: '/app/pantry' },
-  { label: 'Get recipe ideas', icon: '🤖', to: '/app/recipes' },
+  { label: 'Get recipe ideas', icon: '🫧', to: '/app/recipes' },
   { label: 'View grocery list', icon: '🛒', to: '/app/grocery' },
   { label: 'See reports', icon: '📊', to: '/app/reports' },
 ]
