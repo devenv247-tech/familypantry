@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition } from '../api/healthTracker'
+import { useState, useEffect, useRef } from 'react'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -19,6 +19,10 @@ export default function Health() {
   const [lookingUp, setLookingUp] = useState(false)
   const [lookupResult, setLookupResult] = useState(null)
   const [servings, setServings] = useState(1)
+  const [suggestions, setSuggestions] = useState([])
+const [showSuggestions, setShowSuggestions] = useState(false)
+const [searchingCache, setSearchingCache] = useState(false)
+const debounceRef = useRef(null)
 
   useEffect(() => {
     fetchData()
@@ -136,6 +140,57 @@ export default function Health() {
       showToast('Failed to remove entry', 'error')
     }
   }
+
+  const handleMealNameChange = (value) => {
+  setMealForm(p => ({ ...p, recipeName: value }))
+  setLookupResult(null)
+
+  if (debounceRef.current) clearTimeout(debounceRef.current)
+
+  if (value.length < 2) {
+    setSuggestions([])
+    setShowSuggestions(false)
+    return
+  }
+
+  debounceRef.current = setTimeout(async () => {
+    setSearchingCache(true)
+    try {
+      const res = await searchNutritionCache(value)
+      if (res.results?.length > 0) {
+        setSuggestions(res.results)
+        setShowSuggestions(true)
+      } else {
+        setSuggestions([])
+        setShowSuggestions(false)
+      }
+    } catch {
+      setSuggestions([])
+    } finally {
+      setSearchingCache(false)
+    }
+  }, 300)
+}
+
+const handleSelectSuggestion = (item) => {
+  setMealForm(p => ({
+    ...p,
+    recipeName: item.mealName,
+    calories: item.calories || '',
+    protein: item.protein || '',
+    carbs: item.carbs || '',
+    fat: item.fat || '',
+  }))
+  setLookupResult({
+    found: true,
+    mealName: item.mealName,
+    servingSize: item.servingSize || '1 serving',
+    source: item.source || 'Nooka cache',
+    confidence: 'high',
+  })
+  setSuggestions([])
+  setShowSuggestions(false)
+}
 
   if (loading) return <div className="page-container"><LoadingSpinner /></div>
 
@@ -522,30 +577,55 @@ export default function Health() {
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
             <div className="space-y-3 mb-4">
               <div>
-                <label className="label">Meal name</label>
-                <div className="flex gap-2">
-                  <input
-                    className="input flex-1"
-                    placeholder="e.g. Junior Chicken McDonald's"
-                    value={mealForm.recipeName}
-                    onChange={e => setMealForm(p => ({ ...p, recipeName: e.target.value }))}
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => handleLookupNutrition(mealForm.recipeName)}
-                    disabled={lookingUp || mealForm.recipeName.length < 3}
-                    className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
-                  >
-                    {lookingUp ? (
-                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                      </svg>
-                    ) : '🔍 Lookup'}
-                  </button>
-                </div>
-                <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
-              </div>
+  <label className="label">Meal name</label>
+  <div className="flex gap-2 relative">
+    <div className="flex-1 relative">
+      <input
+        className="input w-full"
+        placeholder="e.g. Junior Chicken McDonald's"
+        value={mealForm.recipeName}
+        onChange={e => handleMealNameChange(e.target.value)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+        autoFocus
+      />
+      {/* Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
+          {searchingCache && (
+            <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>
+          )}
+          {suggestions.map((item, i) => (
+            <button
+              key={i}
+              type="button"
+              onMouseDown={() => handleSelectSuggestion(item)}
+              className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
+            >
+              <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
+              <p className="text-xs text-textMuted">
+                {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+    <button
+      onClick={() => handleLookupNutrition(mealForm.recipeName)}
+      disabled={lookingUp || mealForm.recipeName.length < 3}
+      className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
+    >
+      {lookingUp || searchingCache ? (
+        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+      ) : '🔍 Lookup'}
+    </button>
+  </div>
+  <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
+</div>
 
               {lookupResult && (
                 <div className={`rounded-btn px-3 py-2 border text-xs ${
