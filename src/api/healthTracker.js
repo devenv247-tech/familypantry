@@ -19,6 +19,6 @@ export const lookupNutrition = (mealName, servings) =>
   api.post('/health-tracker/lookup', { mealName, servings }).then(r => r.data)
 
 export const searchNutritionCache = async (query) => {
-  const res = await api.get(`/health/nutrition/search?q=${encodeURIComponent(query)}`)
+  const res = await api.get(`/health-tracker/nutrition/search?q=${encodeURIComponent(query)}`)
   return res.data
 }
