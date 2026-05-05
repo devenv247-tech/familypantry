@@ -1,3 +1,4 @@
+import NookaIcon from '../components/ui/NookaIcon'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
@@ -220,9 +221,7 @@ export default function Admin() {
       {/* Admin navbar */}
       <nav className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">A</span>
-          </div>
+          <NookaIcon size={32} />
           <div>
             <p className="font-semibold text-sm">Nooka Admin</p>
             <p className="text-xs text-gray-400">Signed in as {user?.email}</p>

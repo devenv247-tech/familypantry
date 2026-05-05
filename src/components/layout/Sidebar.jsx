@@ -1,3 +1,4 @@
+import NookaIcon from '../ui/NookaIcon'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useAppConfigStore } from '../../store/appConfigStore'
@@ -37,9 +38,7 @@ export default function Sidebar({ onClose }) {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">NK</span>
-          </div>
+          <NookaIcon size={32} />
           <span className="font-semibold text-textPrimary">Nooka</span>
         </div>
         {/* Close button mobile only */}

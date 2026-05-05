@@ -1,3 +1,4 @@
+import NookaIcon from '../ui/NookaIcon'
 import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
@@ -95,9 +96,7 @@ export default function AppShell() {
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">NK</span>
-            </div>
+            <NookaIcon size={28} />
             <span className="font-semibold text-textPrimary">Nooka</span>
           </div>
         </div>
