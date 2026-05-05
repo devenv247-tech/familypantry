@@ -26,8 +26,8 @@ export default function Landing() {
           🇨🇦 Built for Canadian families
         </div>
         <h1 className="text-5xl font-bold text-textPrimary leading-tight mb-6">
-          Smarter groceries.<br />
-          <span className="text-primary">Healthier families.</span>
+          Less time planning,<br />
+          <span className="text-primary">more time living.</span>
         </h1>
         <p className="text-xl text-textMuted max-w-2xl mb-10 leading-relaxed">
           Nooka tracks your pantry, suggests AI-powered recipes based on each member's health goals, plans your weekly meals, and alerts you to food recalls — all in one place.
