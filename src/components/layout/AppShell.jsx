@@ -96,7 +96,7 @@ export default function AppShell() {
           </button>
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">FP</span>
+              <span className="text-white text-xs font-bold">NK</span>
             </div>
             <span className="font-semibold text-textPrimary">Nooka</span>
           </div>

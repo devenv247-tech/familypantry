@@ -10,7 +10,7 @@ export default function Landing() {
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">FP</span>
+            <span className="text-white text-sm font-bold">NK</span>
           </div>
           <span className="font-semibold text-textPrimary text-lg">Nooka</span>
         </div>
@@ -304,7 +304,7 @@ export default function Landing() {
       <footer className="border-t border-border px-6 py-8 text-center text-sm text-textMuted">
         <div className="flex items-center justify-center gap-2 mb-3">
           <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-            <span className="text-white text-xs font-bold">FP</span>
+            <span className="text-white text-xs font-bold">NK</span>
           </div>
           <span className="font-semibold text-textPrimary">Nooka</span>
         </div>
