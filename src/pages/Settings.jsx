@@ -73,6 +73,12 @@ const PLANS = [
 
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
+  const formatHeight = (raw) => {
+    if (!raw) return ''
+    if (raw.length === 1) return `${raw}'0"`
+    if (raw.length === 2) return `${raw[0]}'${raw[1]}"`
+    return `${raw[0]}'${raw.slice(1, 3)}"`
+  }
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { toast, showToast, hideToast } = useToast()
