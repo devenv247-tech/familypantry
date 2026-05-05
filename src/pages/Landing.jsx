@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 
 // ─── Public API call (no auth needed) ────────────────────────────────────────
 // Calls /admin/public/config which you added to the backend in Step 2
-const getPublicConfig = async () => {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/public/config`)
-  if (!res.ok) throw new Error('Failed to fetch config')
-  return res.json()
-}
+import axios from 'axios'
+
+const getPublicConfig = () =>
+  axios.get(`${import.meta.env.VITE_API_URL}/app/config`)
+    .then(r => r.data)
 
 // ─── Plan metadata (prices/badges never change — only features change) ────────
 const PLAN_META = [
