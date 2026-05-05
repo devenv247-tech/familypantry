@@ -83,13 +83,6 @@ export default function Onboarding({ onComplete }) {
     setMember(p => ({ ...p, allergens: updated.join(', ') }))
   }
 
-  const formatHeight = (raw) => {
-    if (!raw) return ''
-    if (raw.length === 1) return `${raw}'0"`
-    if (raw.length === 2) return `${raw[0]}'${raw[1]}"`
-    return `${raw[0]}'${raw.slice(1, 3)}"`
-  }
-
   const handleAddMember = async () => {
     if (!member.name.trim()) return
     setLoading(true)
