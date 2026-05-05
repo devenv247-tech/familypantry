@@ -342,11 +342,11 @@ export default function Settings() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div>
                     <label className="label">Name</label>
-                    <input className="input" placeholder="e.g. Raj" value={newMember.name} onChange={e => setNewMember(p => ({ ...p, name: e.target.value }))} />
+                    <input className="input" placeholder="name" value={newMember.name} onChange={e => setNewMember(p => ({ ...p, name: e.target.value }))} />
                   </div>
                   <div>
                     <label className="label">Age</label>
-                    <input className="input" type="number" placeholder="e.g. 28" value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
+                    <input className="input" type="number" placeholder="age" value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
                   </div>
                   <div>
                     <label className="label">Weight</label>
@@ -355,7 +355,7 @@ export default function Settings() {
                         className="input flex-1"
                         type="number"
                         step="0.1"
-                        placeholder="e.g. 70"
+                        placeholder="Weight"
                         value={newMember.weight}
                         onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
                       />

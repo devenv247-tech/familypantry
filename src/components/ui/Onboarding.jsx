@@ -180,7 +180,7 @@ export default function Onboarding({ onComplete }) {
                   <label className="label">Name</label>
                   <input
                     className="input"
-                    placeholder="e.g. Jas, Mom, Dad..."
+                    placeholder="name"
                     value={member.name}
                     onChange={e => setMember(p => ({ ...p, name: e.target.value }))}
                   />
@@ -189,12 +189,12 @@ export default function Onboarding({ onComplete }) {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="label">Age</label>
-                    <input className="input" type="number" placeholder="28" value={member.age} onChange={e => setMember(p => ({ ...p, age: e.target.value }))} />
+                    <input className="input" type="number" placeholder="age" value={member.age} onChange={e => setMember(p => ({ ...p, age: e.target.value }))} />
                   </div>
                   <div>
                     <label className="label">Weight</label>
                     <div className="flex gap-1">
-                      <input className="input flex-1 min-w-0" type="number" step="0.1" placeholder="70" value={member.weight} onChange={e => setMember(p => ({ ...p, weight: e.target.value }))} />
+                      <input className="input flex-1 min-w-0" type="number" step="0.1" placeholder="weight" value={member.weight} onChange={e => setMember(p => ({ ...p, weight: e.target.value }))} />
                       <select className="input w-16" value={member.weightUnit} onChange={e => setMember(p => ({ ...p, weightUnit: e.target.value }))}>
                         <option value="kg">kg</option>
                         <option value="lbs">lbs</option>
@@ -205,7 +205,7 @@ export default function Onboarding({ onComplete }) {
                     <label className="label">Height</label>
                     <input
                       className="input"
-                      placeholder="e.g. 54"
+                      placeholder="height"
                       value={member.height}
                       onChange={e => setMember(p => ({ ...p, height: e.target.value }))}
                       onBlur={e => {
