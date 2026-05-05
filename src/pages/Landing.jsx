@@ -1,15 +1,20 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-
-// ─── Public API call (no auth needed) ────────────────────────────────────────
-// Calls /admin/public/config which you added to the backend in Step 2
 import axios from 'axios'
 
+// ─── Public API call (no auth needed) ────────────────────────────────────────
 const getPublicConfig = () =>
-  axios.get(`${import.meta.env.VITE_API_URL}/app/config`)
+  axios.get(`${import.meta.env.VITE_API_URL}/app/config/public`)
     .then(r => r.data)
 
-// ─── Plan metadata (prices/badges never change — only features change) ────────
+// ─── Clean up flag descriptions (ai_recipes stores JSON in description) ───────
+const cleanDescription = (flag) => {
+  if (!flag.description) return flag.name
+  if (flag.description.startsWith('{')) return 'AI recipe generation'
+  return flag.description
+}
+
+// ─── Plan metadata ────────────────────────────────────────────────────────────
 const PLAN_META = [
   {
     key: 'free',
@@ -19,8 +24,6 @@ const PLAN_META = [
     highlight: false,
     badge: null,
     cta: 'Get started free',
-    // These are hardcoded free-tier items that don't come from feature flags
-    // because they are always included and not flag-controlled
     baseFeatures: [
       'Pantry tracking',
       'Barcode scanner',
@@ -66,11 +69,10 @@ function DynamicPricingCards() {
       .finally(() => setLoading(false))
   }, [])
 
-  // Build feature list for a plan: baseFeatures + any enabled flags for that plan
   const getFeatures = (plan) => {
     const flagFeatures = flags
       .filter(f => f.requiredPlan === plan.key)
-      .map(f => f.description || f.name)
+      .map(f => cleanDescription(f))
     return [...plan.baseFeatures, ...flagFeatures]
   }
 
@@ -104,13 +106,11 @@ function DynamicPricingCards() {
             }`}
           >
             {plan.badge && (
-              <div
-                className={`inline-block text-xs font-semibold px-3 py-1 rounded-pill mb-4 border w-fit ${
-                  plan.highlight
-                    ? 'bg-blue-50 text-primary border-blue-100'
-                    : 'bg-purple-50 text-purple-600 border-purple-100'
-                }`}
-              >
+              <div className={`inline-block text-xs font-semibold px-3 py-1 rounded-pill mb-4 border w-fit ${
+                plan.highlight
+                  ? 'bg-blue-50 text-primary border-blue-100'
+                  : 'bg-purple-50 text-purple-600 border-purple-100'
+              }`}>
                 {plan.badge}
               </div>
             )}
@@ -309,17 +309,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── Pricing — fully dynamic from DB ──────────────────────────────────── */}
+      {/* Pricing — fully dynamic from DB */}
       <section className="px-6 py-24">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-textPrimary text-center mb-4">Simple, transparent pricing</h2>
           <p className="text-textMuted text-center mb-12 text-lg">
             Start free. Upgrade when you're ready. Cancel anytime.
           </p>
-
-          {/* DynamicPricingCards fetches flags from DB and builds cards live */}
           <DynamicPricingCards />
-
           <p className="text-center text-xs text-textMuted mt-6">
             All prices in CAD · No hidden fees · Cancel anytime · Powered by Stripe
           </p>

@@ -58,6 +58,31 @@ const ALLERGENS = [
 
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
+  const { flags } = useAppConfigStore()
+
+const cleanDescription = (flag) => {
+  if (!flag.description) return flag.name
+  if (flag.description.startsWith('{')) return 'AI recipe generation'
+  return flag.description
+}
+
+const buildPlanFeatures = (planKey) => {
+  const base = {
+    free: ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week'],
+    family: ['Everything in Free'],
+    premium: ['Everything in Family'],
+  }
+  const fromFlags = Object.values(flags)
+    .filter(f => f.enabled && f.requiredPlan === planKey)
+    .map(f => cleanDescription(f))
+  return [...(base[planKey] || []), ...fromFlags]
+}
+
+const PLANS = [
+  { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
+  { name: 'Family',  price: '$7/mo',  features: buildPlanFeatures('family') },
+  { name: 'Premium', price: '$15/mo', features: buildPlanFeatures('premium') },
+]
   const { flags, isFeatureEnabled } = useAppConfigStore()
 
 const buildPlanFeatures = (planKey) => {
