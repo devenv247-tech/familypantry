@@ -38,7 +38,7 @@ const PLAN_META = [
   {
     key: 'family',
     name: 'Family',
-    price: '$7',
+    price: '$9.99',
     period: '/month',
     highlight: true,
     badge: 'Most popular',
@@ -48,7 +48,7 @@ const PLAN_META = [
   {
     key: 'premium',
     name: 'Premium',
-    price: '$15',
+    price: '$17.99',
     period: '/month',
     highlight: false,
     badge: '⭐ Most features',

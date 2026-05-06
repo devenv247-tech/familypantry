@@ -79,8 +79,8 @@ const buildPlanFeatures = (planKey) => {
 
 const PLANS = [
   { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
-  { name: 'Family',  price: '$7/mo',  features: buildPlanFeatures('family') },
-  { name: 'Premium', price: '$15/mo', features: buildPlanFeatures('premium') },
+  { name: 'Family',  price: '$9.99/mo',  features: buildPlanFeatures('family') },
+  { name: 'Premium', price: '$17.99/mo', features: buildPlanFeatures('premium') },
 ]
   const formatHeight = (raw) => {
     if (!raw) return ''
