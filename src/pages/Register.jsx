@@ -57,7 +57,7 @@ const handleStep2 = async (e) => {
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">NK</span>
+            <NookaIcon size={32} />
           </div>
           <span className="font-semibold text-textPrimary text-lg">Nooka</span>
         </Link>
