@@ -47,7 +47,7 @@ const handleSubmit = async (e) => {
               <span className="text-white font-bold text-lg">NK</span>
             </div>
             <h1 className="text-2xl font-bold text-textPrimary">Welcome back</h1>
-            <p className="text-textMuted text-sm mt-1">Sign in to your family account</p>
+            <p className="text-textMuted text-sm mt-1">Sign in to your account</p>
           </div>
 
           {error && (
