@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { login } from '../api/auth'
+import NookaIcon from '../components/ui/NookaIcon'
 
 export default function Login() {
   const navigate = useNavigate()
