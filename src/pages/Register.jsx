@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { register } from '../api/auth'
+import NookaIcon from '../components/ui/NookaIcon'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -73,7 +74,7 @@ const handleStep2 = async (e) => {
 
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-lg">NK</span>
+              <NookaIcon size={32} />
             </div>
             {step === 1 ? (
               <>

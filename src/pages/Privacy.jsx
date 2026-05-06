@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import NookaIcon from '../components/ui/NookaIcon'
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-background">
@@ -6,7 +7,7 @@ export default function Privacy() {
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">NK</span>
+            <NookaIcon size={32} />
           </div>
           <span className="font-semibold text-textPrimary text-lg">Nooka</span>
         </Link>

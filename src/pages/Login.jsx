@@ -43,7 +43,7 @@ const handleSubmit = async (e) => {
 
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-lg">NK</span>
+              <NookaIcon size={32} />
             </div>
             <h1 className="text-2xl font-bold text-textPrimary">Welcome back</h1>
             <p className="text-textMuted text-sm mt-1">Sign in to your account</p>
