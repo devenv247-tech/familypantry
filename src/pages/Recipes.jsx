@@ -491,7 +491,7 @@ const handleCook = async (recipe, idx) => {
           <div className="mt-4 bg-orange-50 border border-orange-100 rounded-card p-4">
             <p className="text-sm font-semibold text-orange-600 mb-1">Weekly limit reached</p>
             <p className="text-sm text-orange-500">{limitError}</p>
-            <button onClick={() => navigate('/app/settings')} className="btn-primary mt-3 text-sm">Upgrade to Family plan</button>
+            <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary mt-3 text-sm">Upgrade to Family plan</button>
           </div>
         )}
 
@@ -579,7 +579,7 @@ const handleCook = async (recipe, idx) => {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                         <button
-                          onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings')}
+                          onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings?tab=plan')}
                               className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
                             >
                               {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}

@@ -894,8 +894,14 @@ const { isFeatureEnabled } = useAppConfigStore()
         </div>
       )}
 
-      {/* Sign out */}
-      <div className="mt-8">
+     {/* Support + Sign out */}
+      <div className="mt-8 flex items-center justify-between">
+        <p className="text-xs text-textMuted">
+          Need help?{' '}
+          <a href="mailto:support@nooka.ca" className="text-primary hover:underline font-medium">
+            support@nooka.ca
+          </a>
+        </p>
         <button onClick={() => { logout(); navigate('/') }} className="text-sm text-danger hover:underline font-medium">
           Sign out of Nooka
         </button>
