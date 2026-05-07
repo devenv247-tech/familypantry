@@ -14,7 +14,7 @@ export default function Health() {
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [weightForm, setWeightForm] = useState({ weight: '', unit: 'kg', note: '' })
   const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '' })
-  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '' })
+  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg' })
   const [saving, setSaving] = useState(false)
   const [lookingUp, setLookingUp] = useState(false)
   const [lookupResult, setLookupResult] = useState(null)
@@ -120,7 +120,10 @@ const debounceRef = useRef(null)
   const handleUpdateGoal = async () => {
     setSaving(true)
     try {
-      await updateMemberGoal({ memberId: activeMemberId, ...goalForm })
+      const weightInKg = goalForm.goalWeight && goalForm.goalWeightUnit === 'lbs'
+  ? (parseFloat(goalForm.goalWeight) / 2.205).toFixed(1)
+  : goalForm.goalWeight
+await updateMemberGoal({ memberId: activeMemberId, ...goalForm, goalWeight: weightInKg })
       showToast('Goal updated!')
       setShowGoalModal(false)
       fetchData()
@@ -710,9 +713,26 @@ const handleSelectSuggestion = (item) => {
                 <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal</p>
               </div>
               <div>
-                <label className="label">Goal weight (kg)</label>
-                <input className="input" type="number" step="0.1" placeholder="e.g. 65" value={goalForm.goalWeight} onChange={e => setGoalForm(p => ({ ...p, goalWeight: e.target.value }))} />
-              </div>
+  <label className="label">Goal weight</label>
+  <div className="flex gap-2">
+    <input 
+      className="input flex-1" 
+      type="number" 
+      step="0.1" 
+      placeholder={goalForm.goalWeightUnit === 'lbs' ? 'e.g. 145' : 'e.g. 65'} 
+      value={goalForm.goalWeight} 
+      onChange={e => setGoalForm(p => ({ ...p, goalWeight: e.target.value }))} 
+    />
+    <select 
+      className="input w-24" 
+      value={goalForm.goalWeightUnit || 'kg'} 
+      onChange={e => setGoalForm(p => ({ ...p, goalWeightUnit: e.target.value }))}
+    >
+      <option value="kg">kg</option>
+      <option value="lbs">lbs</option>
+    </select>
+  </div>
+</div>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setShowGoalModal(false)} className="btn-secondary flex-1">Cancel</button>
