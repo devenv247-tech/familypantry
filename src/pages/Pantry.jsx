@@ -410,7 +410,21 @@ export default function Pantry() {
                           setScannedItems(updated)
                         }}
                       />
-                      <p className="text-xs text-textMuted">{item.quantity} {item.unit} · {item.category}</p>
+                      <div className="flex items-center gap-1 mt-0.5" onClick={e => e.stopPropagation()}>
+  <input
+    className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-16"
+    type="number"
+    min="0.1"
+    step="0.1"
+    value={item.quantity}
+    onChange={e => {
+      const updated = [...scannedItems]
+      updated[i] = { ...updated[i], quantity: parseFloat(e.target.value) || 1 }
+      setScannedItems(updated)
+    }}
+  />
+  <span className="text-xs text-textMuted">{item.unit} · {item.category}</span>
+</div>
                     </div>
                   </div>
                 ))}
