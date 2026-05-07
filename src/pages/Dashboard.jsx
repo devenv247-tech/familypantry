@@ -152,7 +152,7 @@ export default function Dashboard() {
         <div className="card mb-6 border border-blue-100 bg-blue-50/30">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-textPrimary">Free plan — recipe usage this week</p>
-            <button onClick={() => navigate('/app/settings')} className="text-xs text-primary hover:underline font-medium">
+            <button onClick={() => navigate('/app/settings?tab=plan')} className="text-xs text-primary hover:underline font-medium">
               Upgrade
             </button>
           </div>
