@@ -471,26 +471,30 @@ const handleSelectSuggestion = (item) => {
               </div>
 
               {activeMember.goalWeight && (
-                <div className="bg-blue-50 border border-blue-100 rounded-btn px-4 py-3 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-primary">Goal weight: {activeMember.goalWeight} kg</p>
-                      {activeMember.currentWeight && (
-                        <p className="text-xs text-textMuted mt-0.5">
-                          {activeMember.currentWeight > activeMember.goalWeight
-                            ? `${(activeMember.currentWeight - activeMember.goalWeight).toFixed(1)} kg to lose`
-                            : activeMember.currentWeight < activeMember.goalWeight
-                            ? `${(activeMember.goalWeight - activeMember.currentWeight).toFixed(1)} kg to gain`
-                            : '🎉 Goal reached!'}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-2xl">
-                      {activeMember.currentWeight && activeMember.currentWeight <= activeMember.goalWeight ? '🎉' : '🎯'}
-                    </div>
-                  </div>
-                </div>
-              )}
+  <div className="bg-blue-50 border border-blue-100 rounded-btn px-4 py-3 mb-4">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm font-medium text-primary">Goal weight: {activeMember.goalWeight} kg</p>
+        {activeMember.currentWeight && (
+          <p className="text-xs text-textMuted mt-0.5">
+            {(() => {
+              const currentKg = activeMember.weightUnit === 'lbs'
+                ? activeMember.currentWeight / 2.205
+                : activeMember.currentWeight
+              const diff = Math.abs(currentKg - activeMember.goalWeight).toFixed(1)
+              if (currentKg > activeMember.goalWeight) return `${diff} kg to lose`
+              if (currentKg < activeMember.goalWeight) return `${diff} kg to gain`
+              return '🎉 Goal reached!'
+            })()}
+          </p>
+        )}
+      </div>
+      <div className="text-2xl">
+        {activeMember.currentWeight && activeMember.currentWeight <= activeMember.goalWeight ? '🎉' : '🎯'}
+      </div>
+    </div>
+  </div>
+)}
 
               {activeMember.weightHistory.length === 0 ? (
                 <div className="text-center py-8">
