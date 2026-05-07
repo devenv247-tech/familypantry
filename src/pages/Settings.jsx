@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
@@ -59,29 +60,36 @@ const ALLERGENS = [
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
   
-  const { flags, isFeatureEnabled } = useAppConfigStore()
+const { isFeatureEnabled } = useAppConfigStore()
+  const [flags, setFlags] = useState([])
 
-const buildPlanFeatures = (planKey) => {
-  const base = {
-    free: ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week'],
-    family: ['Everything in Free'],
-    premium: ['Everything in Family'],
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/app/config/public`)
+      .then(r => setFlags(r.data.flags || []))
+      .catch(() => setFlags([]))
+  }, [])
+
+  const buildPlanFeatures = (planKey) => {
+    const base = {
+      free: ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week', 'Up to 5 family members'],
+      family: ['Everything in Free'],
+      premium: ['Everything in Family'],
+    }
+    const fromFlags = flags
+      .filter(f => f.requiredPlan === planKey)
+      .map(f => {
+        if (!f.description) return f.name
+        if (f.description.startsWith('{')) return 'AI recipe generation'
+        return f.description
+      })
+    return [...(base[planKey] || []), ...fromFlags]
   }
-  const fromFlags = Object.values(flags)
-    .filter(f => f.requiredPlan === planKey)
-    .map(f => {
-      if (!f.description) return f.name
-      if (f.description.startsWith('{')) return 'AI recipe generation'
-      return f.description
-    })
-  return [...(base[planKey] || []), ...fromFlags]
-}
 
-const PLANS = [
-  { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
-  { name: 'Family',  price: '$9.99/mo',  features: buildPlanFeatures('family') },
-  { name: 'Premium', price: '$17.99/mo', features: buildPlanFeatures('premium') },
-]
+  const PLANS = [
+    { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
+    { name: 'Family',  price: '$9.99/mo',  features: buildPlanFeatures('family') },
+    { name: 'Premium', price: '$17.99/mo', features: buildPlanFeatures('premium') },
+  ]
   const formatHeight = (raw) => {
     if (!raw) return ''
     if (raw.length === 1) return `${raw}'0"`

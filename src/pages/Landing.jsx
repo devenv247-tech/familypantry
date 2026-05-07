@@ -196,7 +196,7 @@ export default function Landing() {
             { value: '15+', label: 'Smart features' },
             { value: 'AI', label: 'Powered recipes' },
             { value: '🇨🇦', label: 'PIPEDA compliant' },
-            { value: '$7', label: 'Starting per month' },
+            { value: '$9.99', label: 'Starting per month' },
           ].map((s, i) => (
             <div key={i}>
               <p className="text-2xl font-bold text-primary">{s.value}</p>
