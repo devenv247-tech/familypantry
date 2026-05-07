@@ -104,7 +104,7 @@ export default function Terms() {
           <section>
             <h2 className="text-xl font-semibold text-textPrimary mb-3">10. Contact</h2>
             <p className="text-textMuted leading-relaxed">
-              For questions about these terms, contact us at legal@nooka.ca
+              For questions about these terms, contact us at <a href="mailto:support@nooka.ca" className="text-primary hover:underline">support@nooka.ca</a>
             </p>
           </section>
 

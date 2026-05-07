@@ -86,7 +86,7 @@ export default function Privacy() {
               <li className="flex gap-2"><span className="text-primary font-bold">·</span> File a complaint with the Office of the Information and Privacy Commissioner of BC</li>
             </ul>
             <p className="text-textMuted leading-relaxed mt-3">
-              To exercise any of these rights, email us at privacy@nooka.ca
+              To exercise any of these rights, email us at <a href="mailto:support@nooka.ca" className="text-primary hover:underline">support@nooka.ca</a>
             </p>
           </section>
 
@@ -114,7 +114,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-xl font-semibold text-textPrimary mb-3">10. Contact us</h2>
             <p className="text-textMuted leading-relaxed">
-              For privacy questions or concerns, contact us at privacy@nooka.ca or write to us at Nooka, British Columbia, Canada.
+              For privacy questions or concerns, reach us at <a href="mailto:support@nooka.ca" className="text-primary hover:underline">support@nooka.ca</a>. You can also write to us at Nooka, British Columbia, Canada.
             </p>
           </section>
 
