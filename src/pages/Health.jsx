@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache } from '../api/healthTracker'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -23,10 +23,27 @@ export default function Health() {
 const [showSuggestions, setShowSuggestions] = useState(false)
 const [searchingCache, setSearchingCache] = useState(false)
 const debounceRef = useRef(null)
+const [kidsData, setKidsData] = useState(null)
+const [kidsLoading, setKidsLoading] = useState(false)
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  useEffect(() => {
+    if (!activeMemberId || !data) return
+    const member = data.members?.find(m => m.id === activeMemberId)
+    if (member?.age && member.age < 18) {
+      setKidsData(null)
+      setKidsLoading(true)
+      getKidsNutritionSummary(activeMemberId)
+        .then(setKidsData)
+        .catch(() => {})
+        .finally(() => setKidsLoading(false))
+    } else {
+      setKidsData(null)
+    }
+  }, [activeMemberId, data])
 
   const fetchData = async () => {
     try {
@@ -257,6 +274,107 @@ const handleSelectSuggestion = (item) => {
 
       {activeMember && (
         <>
+          {/* 👶 Kids Nutrition Mode */}
+          {(kidsLoading || kidsData) && (
+            <div className="card mb-6 border-2 border-purple-100 bg-gradient-to-br from-purple-50/50 to-blue-50/30">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">👶</span>
+                  <div>
+                    <h2 className="font-semibold text-textPrimary">Kids nutrition check</h2>
+                    <p className="text-xs text-textMuted">Weekly targets based on Health Canada guidelines</p>
+                  </div>
+                </div>
+                {kidsData && (
+                  <div className={`text-center px-3 py-1.5 rounded-pill text-sm font-semibold border ${
+                    kidsData.overallPct >= 75 ? 'bg-green-50 text-green-700 border-green-200' :
+                    kidsData.overallPct >= 45 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                    'bg-purple-50 text-purple-700 border-purple-200'
+                  }`}>
+                    {kidsData.overallPct >= 75 ? '✨ Looking great!' :
+                     kidsData.overallPct >= 45 ? '👍 Getting there' :
+                     '🌱 Room to grow'}
+                  </div>
+                )}
+              </div>
+
+              {kidsLoading ? (
+                <div className="flex items-center gap-3 py-4">
+                  <div className="w-5 h-5 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" />
+                  <p className="text-sm text-textMuted">Checking {activeMember?.name}'s nutrition…</p>
+                </div>
+              ) : kidsData && (
+                <>
+                  {!kidsData.hasData && (
+                    <div className="bg-white/70 rounded-btn p-4 mb-4 text-center">
+                      <p className="text-sm text-textMuted">No meals logged yet this week for {kidsData.member.name}.</p>
+                      <p className="text-xs text-textMuted mt-1">Cook a recipe and click "I cooked this" to start tracking!</p>
+                    </div>
+                  )}
+
+                  {/* Nutrient bars */}
+                  <div className="space-y-4 mb-4">
+                    {kidsData.nutrients.map((nutrient) => (
+                      <div key={nutrient.key}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{nutrient.emoji}</span>
+                            <div>
+                              <p className="text-sm font-medium text-textPrimary">{nutrient.label}</p>
+                              <p className="text-xs text-textMuted">{nutrient.why}</p>
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm font-semibold text-textPrimary">
+                              {nutrient.consumed}<span className="text-xs font-normal text-textMuted"> / {nutrient.target}{nutrient.unit} wk</span>
+                            </p>
+                            <p className={`text-xs font-medium ${
+                              nutrient.pct >= 80 ? 'text-green-600' :
+                              nutrient.pct >= 50 ? 'text-yellow-600' :
+                              'text-purple-600'
+                            }`}>{nutrient.pct}%</p>
+                          </div>
+                        </div>
+                        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              nutrient.pct >= 80 ? 'bg-green-400' :
+                              nutrient.pct >= 50 ? 'bg-yellow-400' :
+                              'bg-purple-400'
+                            }`}
+                            style={{ width: `${Math.max(nutrient.pct, 2)}%` }}
+                          />
+                        </div>
+                        {nutrient.pct < 70 && (
+                          <p className="text-xs text-textMuted mt-1">
+                            Try: {nutrient.foods.slice(0, 3).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* AI tip */}
+                  {kidsData.aiTip ? (
+                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
+                      <span className="text-lg flex-shrink-0">🫧</span>
+                      <p className="text-sm text-textPrimary leading-relaxed">{kidsData.aiTip}</p>
+                    </div>
+                  ) : kidsData.hasData && (
+                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
+                      <span className="text-lg flex-shrink-0">🫧</span>
+                      <p className="text-sm text-textMuted">Log more meals this week to get personalized nutrition tips for {kidsData.member.name}.</p>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-textMuted mt-3 text-center">
+                    Based on Health Canada DRI for age {kidsData.member.age} · Micronutrient data from AI-enriched meal logs
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Member overview cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[

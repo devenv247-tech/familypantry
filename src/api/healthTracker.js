@@ -22,3 +22,6 @@ export const searchNutritionCache = async (query) => {
   const res = await api.get(`/health-tracker/nutrition/search?q=${encodeURIComponent(query)}`)
   return res.data
 }
+
+export const getKidsNutritionSummary = (memberId) =>
+  api.get(`/health-tracker/kids-summary/${memberId}`).then(r => r.data)
