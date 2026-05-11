@@ -16,7 +16,7 @@ export default function AppShell() {
   const { user } = useAuthStore()
 
   useEffect(() => {
-    if (user?.id && user?.role !== 'member') {
+    if (user?.id && user?.role === 'admin') {
   const done = localStorage.getItem(`onboarding_complete_${user.id}`)
   if (!done) setShowOnboarding(true)
 }
