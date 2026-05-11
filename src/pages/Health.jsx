@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -20,11 +21,11 @@ export default function Health() {
   const [lookupResult, setLookupResult] = useState(null)
   const [servings, setServings] = useState(1)
   const [suggestions, setSuggestions] = useState([])
-const [showSuggestions, setShowSuggestions] = useState(false)
-const [searchingCache, setSearchingCache] = useState(false)
-const debounceRef = useRef(null)
-const [kidsData, setKidsData] = useState(null)
-const [kidsLoading, setKidsLoading] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [searchingCache, setSearchingCache] = useState(false)
+  const debounceRef = useRef(null)
+  const [kidsData, setKidsData] = useState(null)
+  const [kidsLoading, setKidsLoading] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -92,6 +93,7 @@ const [kidsLoading, setKidsLoading] = useState(false)
       setSaving(false)
     }
   }
+
   const handleLookupNutrition = async (mealName) => {
     if (!mealName || mealName.length < 3) return
     setLookingUp(true)
@@ -100,14 +102,14 @@ const [kidsLoading, setKidsLoading] = useState(false)
       const result = await lookupNutrition(mealName, servings)
       if (result.found) {
         setMealForm(p => ({
-  ...p,
-  calories: result.calories || '',
-  protein: result.protein || '',
-  carbs: result.carbs || '',
-  fat: result.fat || '',
-  calcium: result.calcium || '',
-  iron: result.iron || '',
-  vitaminD: result.vitaminD || '',
+          ...p,
+          calories: result.calories || '',
+          protein: result.protein || '',
+          carbs: result.carbs || '',
+          fat: result.fat || '',
+          calcium: result.calcium || '',
+          iron: result.iron || '',
+          vitaminD: result.vitaminD || '',
         }))
         setLookupResult(result)
       }
@@ -121,14 +123,17 @@ const [kidsLoading, setKidsLoading] = useState(false)
       setLookingUp(false)
     }
   }
+
   const handleLogMeal = async () => {
     if (!mealForm.recipeName) return
     setSaving(true)
     try {
-      await logMeal({ memberName: activeMember?.name, ...mealForm })
+      await logMeal({ memberName: activeMember?.name, memberId: activeMemberId, ...mealForm })
       showToast('Meal logged!')
       setShowMealModal(false)
-      setMealForm({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '' })
+      setMealForm({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
+      setServings(1)
+      setLookupResult(null)
       fetchData()
     } catch (err) {
       showToast('Failed to log meal', 'error')
@@ -141,9 +146,9 @@ const [kidsLoading, setKidsLoading] = useState(false)
     setSaving(true)
     try {
       const weightInKg = goalForm.goalWeight && goalForm.goalWeightUnit === 'lbs'
-  ? (parseFloat(goalForm.goalWeight) / 2.205).toFixed(1)
-  : goalForm.goalWeight
-await updateMemberGoal({ memberId: activeMemberId, ...goalForm, goalWeight: weightInKg })
+        ? (parseFloat(goalForm.goalWeight) / 2.205).toFixed(1)
+        : goalForm.goalWeight
+      await updateMemberGoal({ memberId: activeMemberId, ...goalForm, goalWeight: weightInKg })
       showToast('Goal updated!')
       setShowGoalModal(false)
       fetchData()
@@ -165,58 +170,55 @@ await updateMemberGoal({ memberId: activeMemberId, ...goalForm, goalWeight: weig
   }
 
   const handleMealNameChange = (value) => {
-  setMealForm(p => ({ ...p, recipeName: value }))
-  setLookupResult(null)
-
-  if (debounceRef.current) clearTimeout(debounceRef.current)
-
-  if (value.length < 2) {
-    setSuggestions([])
-    setShowSuggestions(false)
-    return
+    setMealForm(p => ({ ...p, recipeName: value }))
+    setLookupResult(null)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (value.length < 2) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSearchingCache(true)
+      try {
+        const res = await searchNutritionCache(value)
+        if (res.results?.length > 0) {
+          setSuggestions(res.results)
+          setShowSuggestions(true)
+        } else {
+          setSuggestions([])
+          setShowSuggestions(false)
+        }
+      } catch {
+        setSuggestions([])
+      } finally {
+        setSearchingCache(false)
+      }
+    }, 300)
   }
 
-  debounceRef.current = setTimeout(async () => {
-    setSearchingCache(true)
-    try {
-      const res = await searchNutritionCache(value)
-      if (res.results?.length > 0) {
-        setSuggestions(res.results)
-        setShowSuggestions(true)
-      } else {
-        setSuggestions([])
-        setShowSuggestions(false)
-      }
-    } catch {
-      setSuggestions([])
-    } finally {
-      setSearchingCache(false)
-    }
-  }, 300)
-}
-
-const handleSelectSuggestion = (item) => {
-  setMealForm(p => ({
-    ...p,
-    recipeName: item.mealName,
-    calories: item.calories || '',
-    protein: item.protein || '',
-    carbs: item.carbs || '',
-    fat: item.fat || '',
-    calcium: item.calcium || '',
-    iron: item.iron || '',
-    vitaminD: item.vitaminD || '',
-  }))
-  setLookupResult({
-    found: true,
-    mealName: item.mealName,
-    servingSize: item.servingSize || '1 serving',
-    source: item.source || 'Nooka cache',
-    confidence: 'high',
-  })
-  setSuggestions([])
-  setShowSuggestions(false)
-}
+  const handleSelectSuggestion = (item) => {
+    setMealForm(p => ({
+      ...p,
+      recipeName: item.mealName,
+      calories: item.calories || '',
+      protein: item.protein || '',
+      carbs: item.carbs || '',
+      fat: item.fat || '',
+      calcium: item.calcium || '',
+      iron: item.iron || '',
+      vitaminD: item.vitaminD || '',
+    }))
+    setLookupResult({
+      found: true,
+      mealName: item.mealName,
+      servingSize: item.servingSize || '1 serving',
+      source: item.source || 'Nooka cache',
+      confidence: 'high',
+    })
+    setSuggestions([])
+    setShowSuggestions(false)
+  }
 
   if (loading) return <div className="page-container"><LoadingSpinner /></div>
 
@@ -242,8 +244,14 @@ const handleSelectSuggestion = (item) => {
           <h1 className="text-2xl font-bold text-textPrimary">❤️ Health tracker</h1>
           <p className="text-textMuted mt-1">Nutrition, weight and goal tracking</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => { setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '' }); setShowGoalModal(true) }} className="btn-secondary text-sm">
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => {
+              setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg' })
+              setShowGoalModal(true)
+            }}
+            className="btn-secondary text-sm"
+          >
             🎯 Set goals
           </button>
           <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm">
@@ -271,9 +279,8 @@ const handleSelectSuggestion = (item) => {
               {member.name[0]}
             </span>
             {member.name}
-            {member.streak > 0 && (
-              <span className="text-xs">🔥{member.streak}</span>
-            )}
+            {member.age && member.age < 18 && <span className="text-xs">👶</span>}
+            {member.streak > 0 && <span className="text-xs">🔥{member.streak}</span>}
           </button>
         ))}
       </div>
@@ -330,7 +337,7 @@ const handleSelectSuggestion = (item) => {
                               <p className="text-xs text-textMuted">{nutrient.why}</p>
                             </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
+                          <div className="text-right flex-shrink-0 ml-2">
                             <p className="text-sm font-semibold text-textPrimary">
                               {nutrient.consumed}<span className="text-xs font-normal text-textMuted"> / {nutrient.target}{nutrient.unit} wk</span>
                             </p>
@@ -560,12 +567,6 @@ const handleSelectSuggestion = (item) => {
                         }`}
                         style={{ width: day.goal ? `${Math.min((day.calories / day.goal) * 100, 100)}%` : `${Math.min(day.calories / 30, 100)}%` }}
                       />
-                      {day.goal && (
-                        <div
-                          className="absolute top-0 bottom-0 w-0.5 bg-gray-400 opacity-50"
-                          style={{ left: '100%' }}
-                        />
-                      )}
                     </div>
                     <div className="text-right w-28 flex-shrink-0">
                       <p className="text-xs font-semibold text-textPrimary">{day.calories} kcal</p>
@@ -576,7 +577,7 @@ const handleSelectSuggestion = (item) => {
                 ))}
               </div>
               {activeMember.dailyCalorieGoal && (
-                <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-textMuted">
+                <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-textMuted flex-wrap">
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-primary"/><span>On track</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-orange-400"/><span>Near goal</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-danger"/><span>Over goal</span></div>
@@ -595,30 +596,30 @@ const handleSelectSuggestion = (item) => {
               </div>
 
               {activeMember.goalWeight && (
-  <div className="bg-blue-50 border border-blue-100 rounded-btn px-4 py-3 mb-4">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-primary">Goal weight: {activeMember.goalWeight} kg</p>
-        {activeMember.currentWeight && (
-          <p className="text-xs text-textMuted mt-0.5">
-            {(() => {
-              const currentKg = activeMember.weightUnit === 'lbs'
-                ? activeMember.currentWeight / 2.205
-                : activeMember.currentWeight
-              const diff = Math.abs(currentKg - activeMember.goalWeight).toFixed(1)
-              if (currentKg > activeMember.goalWeight) return `${diff} kg to lose`
-              if (currentKg < activeMember.goalWeight) return `${diff} kg to gain`
-              return '🎉 Goal reached!'
-            })()}
-          </p>
-        )}
-      </div>
-      <div className="text-2xl">
-        {activeMember.currentWeight && activeMember.currentWeight <= activeMember.goalWeight ? '🎉' : '🎯'}
-      </div>
-    </div>
-  </div>
-)}
+                <div className="bg-blue-50 border border-blue-100 rounded-btn px-4 py-3 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-primary">Goal weight: {activeMember.goalWeight} kg</p>
+                      {activeMember.currentWeight && (
+                        <p className="text-xs text-textMuted mt-0.5">
+                          {(() => {
+                            const currentKg = activeMember.weightUnit === 'lbs'
+                              ? activeMember.currentWeight / 2.205
+                              : activeMember.currentWeight
+                            const diff = Math.abs(currentKg - activeMember.goalWeight).toFixed(1)
+                            if (currentKg > activeMember.goalWeight) return `${diff} kg to lose`
+                            if (currentKg < activeMember.goalWeight) return `${diff} kg to gain`
+                            return '🎉 Goal reached!'
+                          })()}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-2xl">
+                      {activeMember.currentWeight && activeMember.currentWeight <= activeMember.goalWeight ? '🎉' : '🎯'}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {activeMember.weightHistory.length === 0 ? (
                 <div className="text-center py-8">
@@ -659,13 +660,13 @@ const handleSelectSuggestion = (item) => {
         </>
       )}
 
-      {/* Log weight modal */}
-      {showWeightModal && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm" style={{ marginLeft: 0, left: 0 }}>
-<div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+      {/* ── Log weight modal ── */}
+      {showWeightModal && createPortal(
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">⚖️ Log weight</h3>
-              <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>
+              <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
             <div className="space-y-3 mb-4">
@@ -694,70 +695,71 @@ const handleSelectSuggestion = (item) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Log meal modal */}
-      {showMealModal && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm" style={{ marginLeft: 0, left: 0 }}>
-<div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+      {/* ── Log meal modal ── */}
+      {showMealModal && createPortal(
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">🍽️ Log meal</h3>
-              <button onClick={() => setShowMealModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>
+              <button onClick={() => setShowMealModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
             <div className="space-y-3 mb-4">
-              <div>
-  <label className="label">Meal name</label>
-  <div className="flex gap-2 relative">
-    <div className="flex-1 relative">
-      <input
-        className="input w-full"
-        placeholder="e.g. Junior Chicken McDonald's"
-        value={mealForm.recipeName}
-        onChange={e => handleMealNameChange(e.target.value)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-        onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-        autoFocus
-      />
-      {/* Dropdown */}
-      {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
-          {searchingCache && (
-            <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>
-          )}
-          {suggestions.map((item, i) => (
-            <button
-              key={i}
-              type="button"
-              onMouseDown={() => handleSelectSuggestion(item)}
-              className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
-            >
-              <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
-              <p className="text-xs text-textMuted">
-                {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
-              </p>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-    <button
-      onClick={() => handleLookupNutrition(mealForm.recipeName)}
-      disabled={lookingUp || mealForm.recipeName.length < 3}
-      className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
-    >
-      {lookingUp || searchingCache ? (
-        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-        </svg>
-      ) : '🔍 Lookup'}
-    </button>
-  </div>
-  <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
-</div>
 
+              {/* Meal name + lookup */}
+              <div>
+                <label className="label">Meal name</label>
+                <div className="flex gap-2 relative">
+                  <div className="flex-1 relative">
+                    <input
+                      className="input w-full"
+                      placeholder="e.g. Junior Chicken McDonald's"
+                      value={mealForm.recipeName}
+                      onChange={e => handleMealNameChange(e.target.value)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                      autoFocus
+                    />
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
+                        {searchingCache && <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>}
+                        {suggestions.map((item, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onMouseDown={() => handleSelectSuggestion(item)}
+                            className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
+                          >
+                            <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
+                            <p className="text-xs text-textMuted">
+                              {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleLookupNutrition(mealForm.recipeName)}
+                    disabled={lookingUp || mealForm.recipeName.length < 3}
+                    className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {lookingUp || searchingCache ? (
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                    ) : '🔍 Lookup'}
+                  </button>
+                </div>
+                <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
+              </div>
+
+              {/* Lookup result badge */}
               {lookupResult && (
                 <div className={`rounded-btn px-3 py-2 border text-xs ${
                   lookupResult.confidence === 'high' ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'
@@ -770,6 +772,7 @@ const handleSelectSuggestion = (item) => {
                 </div>
               )}
 
+              {/* Meal type */}
               <div>
                 <label className="label">Meal type</label>
                 <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
@@ -777,6 +780,7 @@ const handleSelectSuggestion = (item) => {
                 </select>
               </div>
 
+              {/* Servings */}
               <div>
                 <label className="label">Servings</label>
                 <div className="flex items-center gap-3">
@@ -792,6 +796,7 @@ const handleSelectSuggestion = (item) => {
                 </div>
               </div>
 
+              {/* Macros */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">Calories</label>
@@ -810,8 +815,10 @@ const handleSelectSuggestion = (item) => {
                   <input className="input" type="number" placeholder="g" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
                 </div>
               </div>
+
               <p className="text-xs text-textMuted">💡 Use lookup to auto-fill nutrition, or enter manually</p>
             </div>
+
             <div className="flex gap-3">
               <button onClick={() => setShowMealModal(false)} className="btn-secondary flex-1">Cancel</button>
               <button onClick={handleLogMeal} disabled={!mealForm.recipeName || saving} className="btn-primary flex-1 disabled:opacity-50">
@@ -819,16 +826,17 @@ const handleSelectSuggestion = (item) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Set goals modal */}
-      {showGoalModal && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm" style={{ marginLeft: 0, left: 0 }}>
-<div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+      {/* ── Set goals modal ── */}
+      {showGoalModal && createPortal(
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">🎯 Set goals</h3>
-              <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>
+              <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-1">Setting goals for <strong>{activeMember?.name}</strong></p>
             {activeMember?.dailyCalorieGoal && (
@@ -837,30 +845,36 @@ const handleSelectSuggestion = (item) => {
             <div className="space-y-3 mb-4">
               <div>
                 <label className="label">Daily calorie goal</label>
-                <input className="input" type="number" placeholder={`Auto: ${activeMember?.dailyCalorieGoal || '2000'} kcal`} value={goalForm.dailyCalorieGoal} onChange={e => setGoalForm(p => ({ ...p, dailyCalorieGoal: e.target.value }))} />
+                <input
+                  className="input"
+                  type="number"
+                  placeholder={`Auto: ${activeMember?.dailyCalorieGoal || '2000'} kcal`}
+                  value={goalForm.dailyCalorieGoal}
+                  onChange={e => setGoalForm(p => ({ ...p, dailyCalorieGoal: e.target.value }))}
+                />
                 <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal</p>
               </div>
               <div>
-  <label className="label">Goal weight</label>
-  <div className="flex gap-2">
-    <input 
-      className="input flex-1" 
-      type="number" 
-      step="0.1" 
-      placeholder={goalForm.goalWeightUnit === 'lbs' ? 'e.g. 145' : 'e.g. 65'} 
-      value={goalForm.goalWeight} 
-      onChange={e => setGoalForm(p => ({ ...p, goalWeight: e.target.value }))} 
-    />
-    <select 
-      className="input w-24" 
-      value={goalForm.goalWeightUnit || 'kg'} 
-      onChange={e => setGoalForm(p => ({ ...p, goalWeightUnit: e.target.value }))}
-    >
-      <option value="kg">kg</option>
-      <option value="lbs">lbs</option>
-    </select>
-  </div>
-</div>
+                <label className="label">Goal weight</label>
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    type="number"
+                    step="0.1"
+                    placeholder={goalForm.goalWeightUnit === 'lbs' ? 'e.g. 145' : 'e.g. 65'}
+                    value={goalForm.goalWeight}
+                    onChange={e => setGoalForm(p => ({ ...p, goalWeight: e.target.value }))}
+                  />
+                  <select
+                    className="input w-24"
+                    value={goalForm.goalWeightUnit || 'kg'}
+                    onChange={e => setGoalForm(p => ({ ...p, goalWeightUnit: e.target.value }))}
+                  >
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                  </select>
+                </div>
+              </div>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setShowGoalModal(false)} className="btn-secondary flex-1">Cancel</button>
@@ -869,7 +883,8 @@ const handleSelectSuggestion = (item) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
