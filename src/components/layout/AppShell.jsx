@@ -1,7 +1,6 @@
 import NookaIcon from '../ui/NookaIcon'
-import { NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Onboarding from '../ui/Onboarding'
 import { useAppConfigStore } from '../../store/appConfigStore'
@@ -107,12 +106,19 @@ export default function AppShell() {
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-around px-2"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '56px' }}>
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-around"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom, 12px)',
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+          minHeight: '56px',
+        }}
+      >
         {[
           { to: '/app', icon: '🏠', label: 'Home', end: true },
           { to: '/app/pantry', icon: '🧺', label: 'Pantry' },
-          { to: '/app/mealplan', icon: '📅', label: 'Meals' },
+          { to: '/app/recipes',  icon: '🍽️', label: 'Recipes' },
           { to: '/app/grocery', icon: '🛒', label: 'Grocery' },
           { to: '/app/settings', icon: '⚙️', label: 'More' },
         ].map(item => (
@@ -121,7 +127,7 @@ export default function AppShell() {
             to={item.to}
             end={item.end}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all ${
+              `flex flex-col items-center justify-center gap-0.5 py-2 flex-1 transition-all ${
                 isActive ? 'text-primary' : 'text-textMuted'
               }`
             }
