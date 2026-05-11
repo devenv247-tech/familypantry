@@ -125,8 +125,8 @@ export default function Onboarding({ onComplete }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+      <div className="bg-white w-full sm:w-auto sm:min-w-[520px] max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
 
         <div className="h-1.5 bg-gray-100 rounded-t-card overflow-hidden">
           <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / 4) * 100}%` }} />
