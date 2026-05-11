@@ -13,7 +13,7 @@ export default function Health() {
   const [showMealModal, setShowMealModal] = useState(false)
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [weightForm, setWeightForm] = useState({ weight: '', unit: 'kg', note: '' })
-  const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '' })
+  const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
   const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg' })
   const [saving, setSaving] = useState(false)
   const [lookingUp, setLookingUp] = useState(false)
@@ -100,11 +100,14 @@ const [kidsLoading, setKidsLoading] = useState(false)
       const result = await lookupNutrition(mealName, servings)
       if (result.found) {
         setMealForm(p => ({
-          ...p,
-          calories: result.calories || '',
-          protein: result.protein || '',
-          carbs: result.carbs || '',
-          fat: result.fat || '',
+  ...p,
+  calories: result.calories || '',
+  protein: result.protein || '',
+  carbs: result.carbs || '',
+  fat: result.fat || '',
+  calcium: result.calcium || '',
+  iron: result.iron || '',
+  vitaminD: result.vitaminD || '',
         }))
         setLookupResult(result)
       }
@@ -200,6 +203,9 @@ const handleSelectSuggestion = (item) => {
     protein: item.protein || '',
     carbs: item.carbs || '',
     fat: item.fat || '',
+    calcium: item.calcium || '',
+    iron: item.iron || '',
+    vitaminD: item.vitaminD || '',
   }))
   setLookupResult({
     found: true,
