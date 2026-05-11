@@ -33,6 +33,8 @@ body {
     @apply px-4 py-6 sm:px-6 sm:py-8 max-w-6xl mx-auto;
   }
 }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Safe area insets for notched phones (iPhone notch, Dynamic Island) */
 :root {

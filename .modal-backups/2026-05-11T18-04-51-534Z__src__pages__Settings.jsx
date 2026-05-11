@@ -715,8 +715,8 @@ const handleAddMember = async (e) => {
 
       {/* Invite modal */}
       {inviteModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
               <button onClick={() => { setInviteModal(null); setInviteEmail('') }} className="text-textMuted hover:text-textPrimary text-xl">✕</button>

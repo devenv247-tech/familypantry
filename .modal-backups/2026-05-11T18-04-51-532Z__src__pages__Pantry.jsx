@@ -354,8 +354,8 @@ export default function Pantry() {
 
       {/* Photo scan results modal */}
       {showPhotoResults && scannedItems.length > 0 && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-bold text-textPrimary">📸 Photo scan results</h3>
@@ -447,8 +447,8 @@ export default function Pantry() {
 
       {/* Templates modal */}
       {showTemplates && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-bold text-textPrimary">🗂️ Pantry starter templates</h3>

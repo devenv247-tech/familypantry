@@ -537,8 +537,8 @@ const handleSelectSuggestion = (item) => {
 
       {/* Log weight modal */}
       {showWeightModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">⚖️ Log weight</h3>
               <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>
@@ -575,8 +575,8 @@ const handleSelectSuggestion = (item) => {
 
       {/* Log meal modal */}
       {showMealModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">🍽️ Log meal</h3>
               <button onClick={() => setShowMealModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>
@@ -700,8 +700,8 @@ const handleSelectSuggestion = (item) => {
 
       {/* Set goals modal */}
       {showGoalModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">🎯 Set goals</h3>
               <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary">✕</button>

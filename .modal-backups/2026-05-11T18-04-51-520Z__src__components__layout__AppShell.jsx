@@ -44,7 +44,7 @@ export default function AppShell() {
       {announcements.length > 0 && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           {announcements.slice(0, 1).map(announcement => (
-            <div key={announcement.id} className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-card shadow-xl p-6 relative">
+            <div key={announcement.id} className="bg-white rounded-card shadow-xl w-full max-w-md p-6 relative">
               <button
                 onClick={() => dismissAnnouncement(announcement.id)}
                 className="absolute top-4 right-4 text-textMuted hover:text-textPrimary text-xl"
