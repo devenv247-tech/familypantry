@@ -16,10 +16,10 @@ export default function AppShell() {
   const { user } = useAuthStore()
 
   useEffect(() => {
-    if (user?.id) {
-      const done = localStorage.getItem(`onboarding_complete_${user.id}`)
-      if (!done) setShowOnboarding(true)
-    }
+    if (user?.id && user?.role !== 'member') {
+  const done = localStorage.getItem(`onboarding_complete_${user.id}`)
+  if (!done) setShowOnboarding(true)
+}
   }, [user?.id])
 
   // Fetch feature flags and announcements on every app load
