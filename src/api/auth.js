@@ -32,3 +32,6 @@ export const forgotPassword = async (email) =>
 
 export const resetPassword = async (token, password) =>
   client.post('/auth/reset-password', { token, password }).then(r => r.data)
+
+export const acceptInvite = async (token, password) =>
+  client.post('/auth/accept-invite', { token, password }).then(r => r.data)

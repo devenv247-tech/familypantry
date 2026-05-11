@@ -21,6 +21,7 @@ import SessionExpired from './pages/SessionExpired'
 import SavedRecipes from './pages/SavedRecipes'
 import Admin from './pages/Admin'
 import Health from './pages/Health'
+import AcceptInvite from './pages/AcceptInvite'
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -36,7 +37,8 @@ export default function App() {
       <Route path="/terms" element={<Terms />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} /> 
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/session-expired" element={<SessionExpired />} />
       <Route path="*" element={<NotFound />} />
       <Route path="/app" element={<PrivateRoute><AppShell /></PrivateRoute>}>

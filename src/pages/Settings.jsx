@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getMembers, addMember, updateMember, deleteMember } from '../api/family'
+import { getMembers, addMember, updateMember, deleteMember, inviteMember } from '../api/family'
 import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
@@ -116,6 +116,9 @@ const { isFeatureEnabled } = useAppConfigStore()
     confirmPassword: '',
   })
   const [savingAccount, setSavingAccount] = useState(false)
+  const [inviteModal, setInviteModal] = useState(null) // holds member object
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteSending, setInviteSending] = useState(false)
   const [subscription, setSubscription] = useState(null)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState('')
@@ -246,7 +249,23 @@ const { isFeatureEnabled } = useAppConfigStore()
     }
   }
 
-  const handleAddMember = async (e) => {
+  const handleInvite = async () => {
+  if (!inviteEmail.trim()) return
+  setInviteSending(true)
+  try {
+    await inviteMember(inviteModal.id, inviteEmail)
+    setMembers(prev => prev.map(m => m.id === inviteModal.id ? { ...m, email: inviteEmail } : m))
+    setInviteModal(null)
+    setInviteEmail('')
+    showToast('Invite sent!')
+  } catch (err) {
+    showToast(err.response?.data?.error || 'Failed to send invite', 'error')
+  } finally {
+    setInviteSending(false)
+  }
+}
+
+const handleAddMember = async (e) => {
     e.preventDefault()
     if (!newMember.name.trim()) return
     try {
@@ -665,19 +684,73 @@ const { isFeatureEnabled } = useAppConfigStore()
                         </div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
-                        <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
-                        {member.role !== 'Admin' && (
-                          <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
-                            Remove
-                          </button>
-                        )}
-                      </div>
+  <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
+  {member.role !== 'Admin' && !member.inviteAccepted && (
+    <button
+      onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
+      className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all"
+    >
+      {member.email ? 'Resend invite' : 'Invite to login'}
+    </button>
+  )}
+  {member.inviteAccepted && (
+    <span className="text-xs px-3 py-1.5 rounded-btn bg-green-50 text-success border border-green-100 font-medium">
+      ✓ Has login
+    </span>
+  )}
+  {member.role !== 'Admin' && (
+    <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
+      Remove
+    </button>
+  )}
+</div>
                     </div>
                   )}
                 </div>
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Invite modal */}
+      {inviteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
+              <button onClick={() => { setInviteModal(null); setInviteEmail('') }} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            </div>
+            <p className="text-sm text-textMuted mb-4">
+              They'll receive an email to set their password and log in to your family account.
+            </p>
+            <div className="mb-4">
+              <label className="label">Email address</label>
+              <input
+                className="input"
+                type="email"
+                placeholder="their@email.com"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setInviteModal(null); setInviteEmail('') }}
+                className="btn-secondary flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleInvite}
+                disabled={!inviteEmail.trim() || inviteSending}
+                className="btn-primary flex-1 disabled:opacity-50"
+              >
+                {inviteSending ? 'Sending...' : 'Send invite'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

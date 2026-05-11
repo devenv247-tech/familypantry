@@ -19,3 +19,6 @@ export const deleteMember = async (id) => {
   const res = await client.delete(`/family/members/${id}`)
   return res.data
 }
+
+export const inviteMember = async (id, email) =>
+  client.post(`/family/members/${id}/invite`, { email }).then(r => r.data)
