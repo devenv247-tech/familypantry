@@ -204,6 +204,47 @@ export default function Dashboard() {
         </div>
       )}
 
+     {/* Cook what's expiring hero prompt */}
+      {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
+        <div className="card mb-6 border border-orange-200 bg-gradient-to-r from-orange-50/40 to-yellow-50/40">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-lg">🫧</span>
+                <h2 className="font-semibold text-textPrimary">Use what's expiring</h2>
+                <span className="text-xs bg-orange-100 text-orange-700 font-medium px-2 py-0.5 rounded-pill">
+                  {expiringSoon.filter(i => !i.isExpired).length} item{expiringSoon.filter(i => !i.isExpired).length !== 1 ? 's' : ''} soon
+                </span>
+              </div>
+              <p className="text-sm text-textMuted mb-3">
+                AI will prioritise recipes that use these before they go to waste.
+              </p>
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {expiringSoon.filter(i => !i.isExpired).slice(0, 6).map((item, i) => (
+                  <span key={i} className="text-xs bg-white border border-orange-200 text-orange-700 font-medium px-2.5 py-1 rounded-pill">
+                    {item.icon || '🥘'} {item.name}
+                    <span className="text-orange-400 ml-1">
+                      {item.daysLeft === 0 ? '· today' : `· ${item.daysLeft}d`}
+                    </span>
+                  </span>
+                ))}
+                {expiringSoon.filter(i => !i.isExpired).length > 6 && (
+                  <span className="text-xs text-textMuted px-2 py-1">
+                    +{expiringSoon.filter(i => !i.isExpired).length - 6} more
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => navigate('/app/recipes?expiring=true')}
+                className="btn-primary text-sm px-5 py-2"
+              >
+                🫧 Find recipes for expiring items
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quick actions + activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 

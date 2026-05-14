@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } from '../api/recipes'
@@ -30,8 +31,10 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 
 export default function Recipes() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const isExpiringMode = searchParams.get('expiring') === 'true'
   const { family } = useAuthStore()
- const { isFeatureEnabled } = useAppConfigStore()
+  const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
   const isPaidPlan = plan === 'family' || plan === 'premium'
   const canUseSubstitutions = isFeatureEnabled('smart_substitutions', plan) && isPaidPlan
@@ -65,11 +68,24 @@ export default function Recipes() {
   const [activeSubstitution, setActiveSubstitution] = useState(null) // key of active substitution panel
   const [savedRecipes, setSavedRecipes] = useState({})
   const [savingRecipe, setSavingRecipe] = useState({})
+  const [expiringItems, setExpiringItems] = useState([])
+  const [expiringBannerDismissed, setExpiringBannerDismissed] = useState(false)
 
   useEffect(() => {
     fetchMembers()
     fetchCookingHistory()
+    if (isExpiringMode) fetchExpiringItems()
   }, [])
+
+  const fetchExpiringItems = async () => {
+    try {
+      const data = await getExpiringSoon()
+      const nonExpired = data.filter(i => !i.isExpired).map(i => i.name)
+      setExpiringItems(nonExpired)
+    } catch (err) {
+      console.error('Failed to load expiring items', err)
+    }
+  }
 
   const fetchMembers = async () => {
     try {
@@ -106,7 +122,7 @@ export default function Recipes() {
     setSubstitutions({})
     setActiveSubstitution(null)
     try {
-      const data = await suggestRecipes(selectedMembers, mealType, cuisine)
+      const data = await suggestRecipes(selectedMembers, mealType, cuisine, isExpiringMode ? expiringItems : [])
       setRecipes(data.recipes)
       setUsage(data.usage)
       setGenerated(true)
@@ -324,6 +340,26 @@ const handleCook = async (recipe, idx) => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+     {isExpiringMode && !expiringBannerDismissed && expiringItems.length > 0 && (
+        <div className="mb-5 bg-orange-50 border border-orange-200 rounded-card px-5 py-4 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">⏰</span>
+            <div>
+              <p className="text-sm font-semibold text-orange-800">Prioritising expiring items</p>
+              <p className="text-sm text-orange-700 mt-0.5">
+                AI will focus on using: <span className="font-medium">{expiringItems.slice(0, 4).join(', ')}{expiringItems.length > 4 ? ` +${expiringItems.length - 4} more` : ''}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setExpiringBannerDismissed(true)}
+            className="text-orange-400 hover:text-orange-600 text-lg leading-none flex-shrink-0"
+          >
+            ✕
+          </button>
         </div>
       )}
 
