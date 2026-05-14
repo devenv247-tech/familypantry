@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useVoiceInput } from '../hooks/useVoiceInput'
 import { parseVoiceItem } from '../api/pantry'
+import VoiceOverlay from '../components/ui/VoiceOverlay'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
@@ -60,7 +61,7 @@ export default function Grocery() {
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
- const { state: voiceState, supported: voiceSupported, start: startVoice, setIdle: setVoiceIdle } = useVoiceInput({
+const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
       try {
         const parsed = await parseVoiceItem(transcript, 'grocery')
@@ -198,8 +199,9 @@ export default function Grocery() {
     </>
   )
 
-  return (
+ return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
+      <VoiceOverlay state={voiceState} onCancel={() => { stopVoice(); setVoiceIdle() }} />
 
       {/* Price anomaly modal */}
       {anomalyModal && (

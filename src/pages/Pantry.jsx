@@ -1,6 +1,7 @@
 import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem, parseVoiceItem } from '../api/pantry'
 import { useState, useEffect, useRef } from 'react'
 import { useVoiceInput } from '../hooks/useVoiceInput'
+import VoiceOverlay from '../components/ui/VoiceOverlay'
 import BarcodeScanner from '../components/ui/BarcodeScanner'
 import { lookupBarcode } from '../api/barcode'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
@@ -50,7 +51,7 @@ export default function Pantry() {
   const [applyingTemplate, setApplyingTemplate] = useState(null)
 
   const { toast, showToast, hideToast } = useToast()
- const { state: voiceState, supported: voiceSupported, start: startVoice, setIdle: setVoiceIdle } = useVoiceInput({
+ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
       try {
         const parsed = await parseVoiceItem(transcript, 'pantry')
@@ -360,8 +361,9 @@ export default function Pantry() {
     }
   }
 
-  return (
+return (
     <div className="page-container">
+      <VoiceOverlay state={voiceState} onCancel={() => { stopVoice(); setVoiceIdle() }} />
 
       {/* Barcode scanner */}
       {showScanner && (
