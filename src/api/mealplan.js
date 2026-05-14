@@ -21,3 +21,8 @@ export const generateGroceryFromPlan = async (weekStart) => {
 }
 export const generateWeekPlan = async (weekStart, selectedMembers = [], selectedCuisines = []) =>
   client.post('/mealplan/generate-week', { weekStart, selectedMembers, selectedCuisines }).then(r => r.data)
+
+export const markMealCooked = async (id) => {
+  const res = await client.patch(`/mealplan/${id}/cooked`)
+  return res.data
+}

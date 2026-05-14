@@ -6,6 +6,7 @@ import CookingLoader from '../components/ui/CookingLoader'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
+import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { logNutrition } from '../api/healthProgress'
 import { saveRecipe, checkSaved } from '../api/savedRecipes'
 import { Toast } from '../components/ui/PageState'
@@ -68,6 +69,7 @@ export default function Recipes() {
   const [activeSubstitution, setActiveSubstitution] = useState(null) // key of active substitution panel
   const [savedRecipes, setSavedRecipes] = useState({})
   const [savingRecipe, setSavingRecipe] = useState({})
+  const [cookedModal, setCookedModal] = useState(null) // { recipe, membersLogged, pantryUpdated }
   const [expiringItems, setExpiringItems] = useState([])
   const [expiringBannerDismissed, setExpiringBannerDismissed] = useState(false)
 
@@ -156,30 +158,66 @@ export default function Recipes() {
 
 const handleCook = async (recipe, idx) => {
     try {
+      // 1. Decrement pantry
       await cookRecipe(recipe)
       setCookedId(idx)
-      showToast('Pantry updated! Ingredients subtracted.')
-      setRatingModal({ recipe, idx })
-      setPendingRating(0)
       setTimeout(() => setCookedId(null), 3000)
 
-      // Log nutrition — use selectedMembers or all members for family recipe
+      // 2. Log nutrition
       const membersToLog = idx === 'family'
         ? members.map(m => m.name)
         : selectedMembers
 
+      let nutritionLogged = false
       if (recipe.nutritionPerServing && membersToLog.length > 0) {
         try {
-          await logNutrition(
-            membersToLog,
-            recipe.name,
-            mealType,
-            recipe.nutritionPerServing
-          )
+          await logNutrition(membersToLog, recipe.name, mealType, recipe.nutritionPerServing)
+          nutritionLogged = true
         } catch (e) {
           console.log('Nutrition log skipped:', e.message)
         }
       }
+
+      // 3. Mark today's matching meal plan slot as cooked
+      let mealPlanMarked = false
+      try {
+        const today = new Date()
+        const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+        const todayName = days[today.getDay()]
+        const weekStart = new Date(today)
+        const dayOfWeek = today.getDay()
+        const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
+        weekStart.setDate(diff)
+        weekStart.setHours(0,0,0,0)
+        const weekStartStr = weekStart.toISOString().split('T')[0]
+
+        const planData = await getMealPlan(weekStartStr)
+        const matchingSlot = planData.meals?.find(m =>
+          m.day === todayName &&
+          m.mealType === mealType &&
+          m.recipeName.toLowerCase() === recipe.name.toLowerCase() &&
+          !m.cooked
+        )
+        if (matchingSlot) {
+          await markMealCooked(matchingSlot.id)
+          mealPlanMarked = true
+        }
+      } catch (e) {
+        console.log('Meal plan mark skipped:', e.message)
+      }
+
+      // 4. Show confirmation modal instead of silent toast
+      setCookedModal({
+        recipe,
+        membersLogged: nutritionLogged ? membersToLog : [],
+        mealPlanMarked,
+        pantryUpdated: true,
+      })
+
+      // 5. Still show rating modal after confirmation
+      setRatingModal({ recipe, idx })
+      setPendingRating(0)
+
     } catch (err) {
       showToast('Failed to update pantry', 'error')
     }
@@ -950,6 +988,76 @@ const handleCook = async (recipe, idx) => {
             ))}
           </div>
         </>
+      )}
+
+      {/* I cooked this — confirmation modal */}
+      {cookedModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+            <div className="text-5xl text-center mb-3">🍳</div>
+            <h3 className="font-bold text-textPrimary text-center text-lg mb-1">
+              Nice cook!
+            </h3>
+            <p className="text-sm text-textMuted text-center mb-5">
+              Here's what Nooka updated for you
+            </p>
+            <div className="space-y-2.5 mb-6">
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
+                cookedModal.pantryUpdated ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <span className="text-lg">🧺</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
+                  <p className="text-xs text-textMuted">Ingredients subtracted from your pantry</p>
+                </div>
+                <span className="text-success text-lg">✓</span>
+              </div>
+
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
+                cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <span className="text-lg">❤️</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
+                  <p className="text-xs text-textMuted">
+                    {cookedModal.membersLogged.length > 0
+                      ? `For ${cookedModal.membersLogged.join(', ')}`
+                      : 'No members selected'}
+                  </p>
+                </div>
+                {cookedModal.membersLogged.length > 0
+                  ? <span className="text-success text-lg">✓</span>
+                  : <span className="text-textMuted text-lg">—</span>
+                }
+              </div>
+
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
+                cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <span className="text-lg">📅</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Meal plan</p>
+                  <p className="text-xs text-textMuted">
+                    {cookedModal.mealPlanMarked
+                      ? "Today's slot marked as done"
+                      : 'No matching slot found for today'}
+                  </p>
+                </div>
+                {cookedModal.mealPlanMarked
+                  ? <span className="text-success text-lg">✓</span>
+                  : <span className="text-textMuted text-lg">—</span>
+                }
+              </div>
+            </div>
+
+            <button
+              onClick={() => setCookedModal(null)}
+              className="btn-primary w-full"
+            >
+              Done
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Toast */}

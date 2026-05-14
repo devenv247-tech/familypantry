@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CookingLoader from '../components/ui/CookingLoader'
-import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan } from '../api/mealplan'
+import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
@@ -545,10 +545,13 @@ const handleGenerateWeek = async () => {
                     >
                       {meal ? (
                         <div className="h-full">
-                          <p className="text-xs font-medium text-primary leading-tight">
-                            {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
-                            {meal.recipeName}
-                          </p>
+<p className="text-xs font-medium text-primary leading-tight">
+{meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+{meal.recipeName}
+</p>
+{meal.cooked && (
+  <span className="text-xs text-success font-medium">✓ Cooked</span>
+)}
                           {meal.recipeData?.calories && (
                             <p className="text-xs text-textMuted mt-1">🔥 {meal.recipeData.calories} kcal</p>
                           )}
@@ -613,13 +616,16 @@ const handleGenerateWeek = async () => {
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-primary truncate">
-                                {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
-                                {meal.recipeName}
-                              </p>
-                              {meal.recipeData?.calories && (
-                                <p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
+{meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+{meal.recipeName}
+</p>
+{meal.cooked && (
+  <span className="text-xs text-success font-medium">✓ Cooked</span>
+)}
+{meal.recipeData?.calories && (
+<p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
                               )}
-                            </div>
+</div>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
                               className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
