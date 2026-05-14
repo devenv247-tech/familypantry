@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
-import { getDashboardStats, getRecentActivity, getWasteSavings } from '../api/dashboard'
+import { getDashboardStats, getRecentActivity, getWasteSavings, getNudges } from '../api/dashboard'
 import { getMembers } from '../api/family'
 import { getExpiringSoon } from '../api/expiry'
 import { getHealthProgress } from '../api/healthProgress'
@@ -41,7 +41,9 @@ export default function Dashboard() {
   const [members, setMembers] = useState([])
   const [expiringSoon, setExpiringSoon] = useState([])
   const [healthProgress, setHealthProgress] = useState(null)
-  const [wasteSavings, setWasteSavings] = useState(null)
+const [wasteSavings, setWasteSavings] = useState(null)
+  const [nudges, setNudges] = useState([])
+  const [dismissedNudges, setDismissedNudges] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -55,13 +57,14 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setError('')
-   const [statsData, activityData, membersData, expiryData, healthData, wasteSavingsData] = await Promise.all([
+   const [statsData, activityData, membersData, expiryData, healthData, wasteSavingsData, nudgesData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getMembers(),
         getExpiringSoon(),
         getHealthProgress(),
         getWasteSavings(),
+        getNudges(),
       ])
       setStats(statsData)
       setActivity(activityData)
@@ -69,6 +72,7 @@ export default function Dashboard() {
       setExpiringSoon(expiryData)
       setHealthProgress(healthData)
       setWasteSavings(wasteSavingsData)
+      setNudges(nudgesData?.nudges || [])
     } catch (err) {
       console.error(err)
       setError('Failed to load dashboard data')
@@ -279,6 +283,43 @@ export default function Dashboard() {
               🎉 You rescued {wasteSavings.wasteAvoided}kg of food from going to waste this month!
             </p>
           )}
+        </div>
+      )}
+
+      {/* Nooka notices — household pattern nudges */}
+      {isFeatureEnabled('meal_patterns', plan) && nudges.filter(n => !dismissedNudges.includes(n.message)).length > 0 && (
+        <div className="card mb-6 border border-purple-100 bg-purple-50/20">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🧠</span>
+            <h2 className="font-semibold text-textPrimary">Nooka notices</h2>
+            <span className="text-xs text-textMuted ml-auto">Based on your habits</span>
+          </div>
+          <div className="space-y-2">
+            {nudges.filter(n => !dismissedNudges.includes(n.message)).map((nudge, i) => (
+              <div key={i} className="flex items-start justify-between bg-white rounded-btn border border-purple-100 px-4 py-3 gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <span className="text-lg flex-shrink-0">{nudge.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-textPrimary">{nudge.message}</p>
+                    {nudge.action && (
+                      <button
+                        onClick={() => navigate(nudge.action.url)}
+                        className="text-xs text-primary font-medium hover:underline mt-1"
+                      >
+                        {nudge.action.label} →
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDismissedNudges(prev => [...prev, nudge.message])}
+                  className="text-textMuted hover:text-textPrimary text-sm flex-shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

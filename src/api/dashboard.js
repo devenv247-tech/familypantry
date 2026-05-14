@@ -14,3 +14,8 @@ export const getWasteSavings = async () => {
   const res = await client.get('/dashboard/waste-savings')
   return res.data
 }
+
+export const getNudges = async () => {
+  const res = await client.get('/dashboard/nudges')
+  return res.data
+}
