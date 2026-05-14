@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CookingLoader from '../components/ui/CookingLoader'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
+import { cookRecipe } from '../api/recipes'
+import { logNutrition } from '../api/healthProgress'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
@@ -65,8 +67,10 @@ export default function MealPlan() {
   const [selectedMeal, setSelectedMeal] = useState(null)
   const [recipeName, setRecipeName] = useState('')
   const [saving, setSaving] = useState(false)
-  const [members, setMembers] = useState([])
+const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
+  const [cooking, setCooking] = useState(false)
+  const [cookedModal, setCookedModal] = useState(null)
   const [showMemberModal, setShowMemberModal] = useState(false)
   const [selectedCuisines, setSelectedCuisines] = useState([])
 
@@ -180,6 +184,47 @@ const handleGenerateWeek = async () => {
     }
   }
 
+  const handleCookFromPlan = async (meal) => {
+    if (!meal.recipeData?.ingredients) {
+      showToast('No recipe data available for this meal', 'error')
+      return
+    }
+    setCooking(true)
+    try {
+      // 1. Decrement pantry
+      await cookRecipe({ ingredients: meal.recipeData.ingredients })
+
+      // 2. Log nutrition for all members
+      const membersToLog = members.map(m => m.name)
+      let nutritionLogged = false
+      if (meal.recipeData.nutritionPerServing && membersToLog.length > 0) {
+        try {
+          await logNutrition(membersToLog, meal.recipeName, meal.mealType, meal.recipeData.nutritionPerServing)
+          nutritionLogged = true
+        } catch (e) {
+          console.log('Nutrition log skipped:', e.message)
+        }
+      }
+
+      // 3. Mark slot as cooked
+      await markMealCooked(meal.id)
+      setMeals(prev => prev.map(m => m.id === meal.id ? { ...m, cooked: true, cookedAt: new Date() } : m))
+      setShowDetailModal(false)
+
+      // 4. Show confirmation
+      setCookedModal({
+        recipe: meal,
+        membersLogged: nutritionLogged ? membersToLog : [],
+        mealPlanMarked: true,
+        pantryUpdated: true,
+      })
+    } catch (err) {
+      showToast('Failed to cook meal', 'error')
+    } finally {
+      setCooking(false)
+    }
+  }
+
   const toggleMember = (name) => {
     setSelectedMembers(prev =>
       prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name]
@@ -282,16 +327,45 @@ const handleGenerateWeek = async () => {
                   </ol>
                 </div>
               )}
+             {/* Already cooked badge */}
+              {selectedMeal.cooked && (
+                <div className="mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-3 flex items-center gap-2">
+                  <span className="text-success text-lg">✓</span>
+                  <p className="text-sm font-medium text-success">
+                    Cooked {selectedMeal.cookedAt
+                      ? new Date(selectedMeal.cookedAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })
+                      : 'already'}
+                  </p>
+                </div>
+              )}
+
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={(e) => handleDeleteMeal(selectedMeal.id, e)}
-                  className="flex-1 py-2 rounded-btn text-sm font-medium border border-red-100 text-danger hover:bg-red-50 transition-all"
+                  className="py-2 px-4 rounded-btn text-sm font-medium border border-red-100 text-danger hover:bg-red-50 transition-all"
                 >
-                  Remove meal
+                  Remove
                 </button>
+                {!selectedMeal.cooked && (
+                  <button
+                    onClick={() => handleCookFromPlan(selectedMeal)}
+                    disabled={cooking}
+                    className="flex-1 btn-primary text-sm flex items-center justify-center gap-2"
+                  >
+                    {cooking ? (
+                      <>
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Cooking...
+                      </>
+                    ) : '🍳 I cooked this'}
+                  </button>
+                )}
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="flex-1 btn-primary text-sm"
+                  className={`${selectedMeal.cooked ? 'flex-1' : ''} btn-secondary text-sm`}
                 >
                   Close
                 </button>
@@ -650,6 +724,54 @@ const handleGenerateWeek = async () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* I cooked this — confirmation modal */}
+      {cookedModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+            <div className="text-5xl text-center mb-3">🍳</div>
+            <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
+            <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
+            <div className="space-y-2.5 mb-6">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">
+                <span className="text-lg">🧺</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
+                  <p className="text-xs text-textMuted">Ingredients subtracted from your pantry</p>
+                </div>
+                <span className="text-success text-lg">✓</span>
+              </div>
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
+                cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <span className="text-lg">❤️</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
+                  <p className="text-xs text-textMuted">
+                    {cookedModal.membersLogged.length > 0
+                      ? `For ${cookedModal.membersLogged.join(', ')}`
+                      : 'No nutrition data available'}
+                  </p>
+                </div>
+                {cookedModal.membersLogged.length > 0
+                  ? <span className="text-success text-lg">✓</span>
+                  : <span className="text-textMuted text-lg">—</span>}
+              </div>
+              <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">
+                <span className="text-lg">📅</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-textPrimary">Meal plan</p>
+                  <p className="text-xs text-textMuted">Slot marked as done</p>
+                </div>
+                <span className="text-success text-lg">✓</span>
+              </div>
+            </div>
+            <button onClick={() => setCookedModal(null)} className="btn-primary w-full">
+              Done
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Toast */}
