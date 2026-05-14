@@ -51,22 +51,27 @@ export default function Pantry() {
   const [applyingTemplate, setApplyingTemplate] = useState(null)
 
   const { toast, showToast, hideToast } = useToast()
- const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
+ const [voiceConfirm, setVoiceConfirm] = useState(null) // { existing, parsed }
+
+  const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
       try {
         const parsed = await parseVoiceItem(transcript, 'pantry')
         if (!parsed.name) throw new Error('Could not parse item')
 
-        // Check if item already exists in pantry (case-insensitive)
-        const existing = items.find(i =>
-          i.name.toLowerCase() === parsed.name.toLowerCase()
-        )
+        // Check if item already exists — exact or fuzzy match (handles plurals, partial names)
+        const normalize = str => str.toLowerCase().replace(/s$/, '').trim()
+        const parsedNorm = normalize(parsed.name)
+        const existing = items.find(i => {
+          const itemNorm = normalize(i.name)
+          return itemNorm === parsedNorm ||
+            itemNorm.includes(parsedNorm) ||
+            parsedNorm.includes(itemNorm)
+        })
 
         if (existing) {
-          // Restock existing item instead of creating a duplicate
-          const updated = await restockPantryItem(existing.id, parseFloat(parsed.quantity) || 1)
-          setItems(prev => prev.map(i => i.id === existing.id ? updated : i))
-          showToast(`🎙️ Restocked ${existing.name} — now ${updated.quantity} ${updated.unit}`)
+          // Show confirmation before restocking
+          setVoiceConfirm({ existing, parsed })
         } else {
           // New item — open the form pre-filled for confirmation
           setForm({
@@ -856,6 +861,59 @@ return (
               </div>
             )
           })}
+        </div>
+      )}
+
+     {/* Voice restock confirmation */}
+      {voiceConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+            <div className="text-3xl mb-3 text-center">{voiceConfirm.existing.icon}</div>
+            <h3 className="font-bold text-textPrimary text-center mb-1">Restock this item?</h3>
+            <p className="text-sm text-textMuted text-center mb-5">
+              Add <span className="font-semibold text-textPrimary">{voiceConfirm.parsed.quantity} {voiceConfirm.parsed.unit}</span> to{' '}
+              <span className="font-semibold text-textPrimary">{voiceConfirm.existing.name}</span>?
+              <br />
+              <span className="text-xs">Current stock: {voiceConfirm.existing.quantity} {voiceConfirm.existing.unit}</span>
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  // Treat as new item instead
+                  setForm({
+                    name: voiceConfirm.parsed.name,
+                    quantity: voiceConfirm.parsed.quantity || 1,
+                    unit: voiceConfirm.parsed.unit || 'pcs',
+                    category: voiceConfirm.parsed.category || 'Fridge',
+                    expiry: '',
+                    icon: voiceConfirm.parsed.icon || '🛒',
+                    isCustomCategory: false,
+                  })
+                  setShowForm(true)
+                  setVoiceConfirm(null)
+                }}
+                className="flex-1 btn-secondary text-sm"
+              >
+                Add as new
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const updated = await restockPantryItem(voiceConfirm.existing.id, parseFloat(voiceConfirm.parsed.quantity) || 1)
+                    setItems(prev => prev.map(i => i.id === voiceConfirm.existing.id ? updated : i))
+                    showToast(`✓ ${updated.name} restocked — now ${updated.quantity} ${updated.unit}`)
+                  } catch (err) {
+                    showToast('Failed to restock', 'error')
+                  } finally {
+                    setVoiceConfirm(null)
+                  }
+                }}
+                className="flex-1 btn-primary text-sm"
+              >
+                Yes, restock
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
