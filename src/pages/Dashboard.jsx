@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getDashboardStats, getRecentActivity, getWasteSavings, getNudges } from '../api/dashboard'
+import { getMealPlan, markMealCooked } from '../api/mealplan'
+import { cookRecipe } from '../api/recipes'
+import { logNutrition } from '../api/healthProgress'
 import { getMembers } from '../api/family'
 import { getExpiringSoon } from '../api/expiry'
 import { getHealthProgress } from '../api/healthProgress'
@@ -41,9 +44,14 @@ export default function Dashboard() {
   const [members, setMembers] = useState([])
   const [expiringSoon, setExpiringSoon] = useState([])
   const [healthProgress, setHealthProgress] = useState(null)
-const [wasteSavings, setWasteSavings] = useState(null)
+  const [wasteSavings, setWasteSavings] = useState(null)
   const [nudges, setNudges] = useState([])
   const [dismissedNudges, setDismissedNudges] = useState([])
+  const [tonightMeal, setTonightMeal] = useState(null) // null = loading, false = empty
+  const [cookAlong, setCookAlong] = useState(false)
+  const [cookStep, setCookStep] = useState(0)
+  const [cooking, setCooking] = useState(false)
+  const [cookDone, setCookDone] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -52,7 +60,64 @@ const [wasteSavings, setWasteSavings] = useState(null)
 
   useEffect(() => {
     fetchData()
+    fetchTonightMeal()
   }, [])
+
+  const fetchTonightMeal = async () => {
+    try {
+      const today = new Date()
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+      const todayName = days[today.getDay()]
+      const weekStart = new Date(today)
+      const dayOfWeek = today.getDay()
+      const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
+      weekStart.setDate(diff)
+      weekStart.setHours(0,0,0,0)
+      const weekStartStr = weekStart.toISOString().split('T')[0]
+
+      const data = await getMealPlan(weekStartStr)
+      const dinner = data.meals?.find(m => m.day === todayName && m.mealType === 'Dinner')
+      setTonightMeal(dinner || false)
+    } catch (err) {
+      setTonightMeal(false)
+    }
+  }
+
+  const handleCookAlong = () => {
+    setCookStep(0)
+    setCookDone(false)
+    setCookAlong(true)
+  }
+
+  const handleFinishCooking = async () => {
+    if (!tonightMeal) return
+    setCooking(true)
+    try {
+      // Decrement pantry
+      if (tonightMeal.recipeData?.ingredients?.length) {
+        await cookRecipe({ ingredients: tonightMeal.recipeData.ingredients })
+      }
+      // Log nutrition
+      if (tonightMeal.recipeData?.nutrition && members.length > 0) {
+        try {
+          await logNutrition(
+            members.map(m => m.name),
+            tonightMeal.recipeName,
+            'Dinner',
+            tonightMeal.recipeData.nutritionPerServing || tonightMeal.recipeData.nutrition
+          )
+        } catch (e) { /* silent */ }
+      }
+      // Mark cooked
+      await markMealCooked(tonightMeal.id)
+      setTonightMeal(prev => prev ? { ...prev, cooked: true } : prev)
+      setCookDone(true)
+    } catch (err) {
+      showToast('Something went wrong', 'error')
+    } finally {
+      setCooking(false)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -285,6 +350,172 @@ const [wasteSavings, setWasteSavings] = useState(null)
           )}
         </div>
       )}
+
+      {/* Cook-along modal */}
+      {cookAlong && tonightMeal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white">
+              <div>
+                <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
+                <h3 className="font-bold text-textPrimary">
+                  {tonightMeal.recipeData?.icon} {tonightMeal.recipeName}
+                </h3>
+              </div>
+              <button onClick={() => setCookAlong(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            </div>
+
+            <div className="p-6">
+              {cookDone ? (
+                /* Done state */
+                <div className="text-center py-6">
+                  <div className="text-6xl mb-4">🍳</div>
+                  <h3 className="text-xl font-bold text-textPrimary mb-2">Nice cook!</h3>
+                  <p className="text-sm text-textMuted mb-6">Pantry updated and nutrition logged for everyone.</p>
+                  <button onClick={() => setCookAlong(false)} className="btn-primary w-full">Done</button>
+                </div>
+              ) : tonightMeal.recipeData?.steps?.length > 0 ? (
+                /* Step by step */
+                <>
+                  {/* Progress */}
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-pill overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-pill transition-all duration-300"
+                        style={{ width: `${((cookStep + 1) / tonightMeal.recipeData.steps.length) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-textMuted whitespace-nowrap">
+                      {cookStep + 1} / {tonightMeal.recipeData.steps.length}
+                    </span>
+                  </div>
+
+                  {/* Step */}
+                  <div className="bg-blue-50 border border-blue-100 rounded-card px-5 py-6 mb-6 min-h-[120px] flex items-center">
+                    <div className="flex items-start gap-4">
+                      <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {cookStep + 1}
+                      </span>
+                      <p className="text-base text-textPrimary leading-relaxed">
+                        {tonightMeal.recipeData.steps[cookStep]}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick info */}
+                  <div className="flex gap-3 mb-6 text-xs text-textMuted">
+                    {tonightMeal.recipeData?.time && <span>⏱ {tonightMeal.recipeData.time}</span>}
+                    {tonightMeal.recipeData?.calories && <span>🔥 {tonightMeal.recipeData.calories} kcal</span>}
+                    {tonightMeal.recipeData?.serves && <span>👥 Serves {tonightMeal.recipeData.serves}</span>}
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setCookStep(prev => Math.max(0, prev - 1))}
+                      disabled={cookStep === 0}
+                      className="btn-secondary flex-1 disabled:opacity-30"
+                    >
+                      ← Back
+                    </button>
+                    {cookStep < tonightMeal.recipeData.steps.length - 1 ? (
+                      <button
+                        onClick={() => setCookStep(prev => prev + 1)}
+                        className="btn-primary flex-1 text-base"
+                      >
+                        Next step →
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleFinishCooking}
+                        disabled={cooking}
+                        className="btn-primary flex-1 text-base bg-green-600 hover:bg-green-700"
+                      >
+                        {cooking ? 'Saving...' : '🍳 Done cooking!'}
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* No steps — just finish */
+                <div className="text-center py-4">
+                  <p className="text-sm text-textMuted mb-6">No step-by-step available for this recipe.</p>
+                  <button
+                    onClick={handleFinishCooking}
+                    disabled={cooking}
+                    className="btn-primary w-full"
+                  >
+                    {cooking ? 'Saving...' : '🍳 Mark as cooked'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tonight's dinner card */}
+      <div className="card mb-6 border border-indigo-100 bg-indigo-50/20">
+        {tonightMeal === null ? (
+          /* Loading */
+          <div className="flex items-center gap-3 animate-pulse">
+            <div className="w-10 h-10 bg-gray-100 rounded-xl" />
+            <div className="flex-1">
+              <div className="h-4 bg-gray-100 rounded w-32 mb-1" />
+              <div className="h-3 bg-gray-100 rounded w-48" />
+            </div>
+          </div>
+        ) : tonightMeal === false ? (
+          /* No meal planned */
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🌙</span>
+              <div>
+                <p className="text-sm font-semibold text-textPrimary">Nothing planned for tonight</p>
+                <p className="text-xs text-textMuted">Want AI to suggest a quick dinner?</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/app/recipes')}
+              className="btn-primary text-sm whitespace-nowrap"
+            >
+              🫧 Get ideas
+            </button>
+          </div>
+        ) : tonightMeal.cooked ? (
+          /* Already cooked */
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✅</span>
+            <div>
+              <p className="text-sm font-semibold text-success">Dinner's done!</p>
+              <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook 🍳</p>
+            </div>
+          </div>
+        ) : (
+          /* Meal planned — show cook card */
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <span className="text-2xl">{tonightMeal.recipeData?.icon || '🌙'}</span>
+              <div className="min-w-0">
+                <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
+                <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>
+                <div className="flex gap-2 mt-0.5">
+                  {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted">⏱ {tonightMeal.recipeData.time}</span>}
+                  {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted">🔥 {tonightMeal.recipeData.calories} kcal</span>}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleCookAlong}
+              className="btn-primary text-sm whitespace-nowrap flex items-center gap-2"
+            >
+              👨‍🍳 Start cooking
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Nooka notices — household pattern nudges */}
       {isFeatureEnabled('meal_patterns', plan) && nudges.filter(n => !dismissedNudges.includes(n.message)).length > 0 && (
