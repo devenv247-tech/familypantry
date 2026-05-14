@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
-import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions } from '../api/recipes'
+import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions, estimateRecipeCosts } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
@@ -70,6 +70,8 @@ export default function Recipes() {
   const [savedRecipes, setSavedRecipes] = useState({})
  const [savingRecipe, setSavingRecipe] = useState({})
   const [activeFilter, setActiveFilter] = useState('all')
+  const [budgetMode, setBudgetMode] = useState(false)
+  const [recipeCosts, setRecipeCosts] = useState({})
   const [cookedModal, setCookedModal] = useState(null) // { recipe, membersLogged, pantryUpdated }
   const [expiringItems, setExpiringItems] = useState([])
   const [expiringBannerDismissed, setExpiringBannerDismissed] = useState(false)
@@ -130,6 +132,17 @@ export default function Recipes() {
       setUsage(data.usage)
       setGenerated(true)
       setActiveFilter('all')
+      setRecipeCosts({})
+      // Fetch cost estimates in background (family+ only)
+      if (isPaidPlan) {
+        estimateRecipeCosts(data.recipes)
+          .then(({ costs }) => {
+            const costMap = {}
+            costs.forEach(c => { if (c.cost) costMap[c.name] = c.cost })
+            setRecipeCosts(costMap)
+          })
+          .catch(() => {}) // silent fail — cost is non-critical
+      }
     } catch (err) {
       if (err.response?.data?.limitReached) {
         setLimitError(err.response.data.message)
@@ -766,6 +779,23 @@ const handleCook = async (recipe, idx) => {
             <span className="text-xs bg-green-50 text-success border border-green-100 px-3 py-1 rounded-pill font-medium">Based on your pantry</span>
           </div>
 
+          {/* Budget mode toggle */}
+          {isPaidPlan && Object.keys(recipeCosts).length > 0 && (
+            <div className="flex items-center justify-between mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💰</span>
+                <span className="text-sm font-medium text-textPrimary">Budget mode</span>
+                <span className="text-xs text-textMuted">Sort by cheapest first</span>
+              </div>
+              <button
+                onClick={() => setBudgetMode(prev => !prev)}
+                className={`relative w-10 h-5 rounded-full transition-all ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${budgetMode ? 'left-5' : 'left-0.5'}`} />
+              </button>
+            </div>
+          )}
+
           {/* Ingredient tier filter */}
           {(() => {
             const cookNow = recipes.filter(r => !r.missing || r.missing.length === 0)
@@ -802,6 +832,11 @@ const handleCook = async (recipe, idx) => {
               if (activeFilter === 'tonight') return r.missing?.length === 1
               if (activeFilter === 'planAhead') return r.missing?.length >= 2
               return true
+            }).sort((a, b) => {
+              if (!budgetMode) return 0
+              const costA = recipeCosts[a.name]?.costPerServing ?? 999
+              const costB = recipeCosts[b.name]?.costPerServing ?? 999
+              return costA - costB
             }).map((recipe, idx) => (
               <div key={idx} className="card hover:shadow-md transition-all">
 
@@ -815,6 +850,16 @@ const handleCook = async (recipe, idx) => {
                 </div>
 
                 <h3 className="font-semibold text-textPrimary text-lg mb-1">{recipe.name}</h3>
+                {recipeCosts[recipe.name] && (
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-pill font-medium">
+                      💰 ~${recipeCosts[recipe.name].costPerServing}/serving
+                    </span>
+                    {recipeCosts[recipe.name].isEstimate && (
+                      <span className="text-xs text-textMuted">estimated</span>
+                    )}
+                  </div>
+                )}
                 <p className="text-sm text-textMuted mb-3 leading-relaxed">{recipe.description}</p>
 
                 <div className="flex gap-2 flex-wrap mb-3">

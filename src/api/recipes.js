@@ -21,3 +21,8 @@ export const getSubstitutions = async (ingredientName, ingredientUnit, recipeCon
   const res = await client.post('/recipes/substitutions', { ingredientName, ingredientUnit, recipeContext })
   return res.data
 }
+
+export const estimateRecipeCosts = async (recipes) => {
+  const res = await client.post('/recipes/estimate-costs', { recipes })
+  return res.data
+}
