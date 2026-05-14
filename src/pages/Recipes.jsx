@@ -68,7 +68,8 @@ export default function Recipes() {
   const [substitutionLoading, setSubstitutionLoading] = useState({})
   const [activeSubstitution, setActiveSubstitution] = useState(null) // key of active substitution panel
   const [savedRecipes, setSavedRecipes] = useState({})
-  const [savingRecipe, setSavingRecipe] = useState({})
+ const [savingRecipe, setSavingRecipe] = useState({})
+  const [activeFilter, setActiveFilter] = useState('all')
   const [cookedModal, setCookedModal] = useState(null) // { recipe, membersLogged, pantryUpdated }
   const [expiringItems, setExpiringItems] = useState([])
   const [expiringBannerDismissed, setExpiringBannerDismissed] = useState(false)
@@ -128,6 +129,7 @@ export default function Recipes() {
       setRecipes(data.recipes)
       setUsage(data.usage)
       setGenerated(true)
+      setActiveFilter('all')
     } catch (err) {
       if (err.response?.data?.limitReached) {
         setLimitError(err.response.data.message)
@@ -756,7 +758,7 @@ const handleCook = async (recipe, idx) => {
         </div>
       )}
 
-      {/* Results */}
+    {/* Results */}
       {generated && recipes.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -764,8 +766,43 @@ const handleCook = async (recipe, idx) => {
             <span className="text-xs bg-green-50 text-success border border-green-100 px-3 py-1 rounded-pill font-medium">Based on your pantry</span>
           </div>
 
+          {/* Ingredient tier filter */}
+          {(() => {
+            const cookNow = recipes.filter(r => !r.missing || r.missing.length === 0)
+            const tonight = recipes.filter(r => r.missing?.length === 1)
+            const planAhead = recipes.filter(r => r.missing?.length >= 2)
+            return (
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { key: 'cookNow', label: 'Cook now', sublabel: '100% in pantry', icon: '🟢', count: cookNow.length, color: activeFilter === 'cookNow' ? 'border-green-400 bg-green-50' : 'border-green-100 bg-green-50/40 hover:border-green-300' },
+                  { key: 'tonight', label: 'Tonight', sublabel: 'Need 1 item', icon: '🟡', count: tonight.length, color: activeFilter === 'tonight' ? 'border-yellow-400 bg-yellow-50' : 'border-yellow-100 bg-yellow-50/40 hover:border-yellow-300' },
+                  { key: 'planAhead', label: 'Plan ahead', sublabel: 'Need a shop', icon: '🔵', count: planAhead.length, color: activeFilter === 'planAhead' ? 'border-blue-400 bg-blue-50' : 'border-blue-100 bg-blue-50/40 hover:border-blue-300' },
+                ].map(tier => (
+                  <button
+                    key={tier.key}
+                    onClick={() => setActiveFilter(activeFilter === tier.key ? 'all' : tier.key)}
+                    className={`rounded-card border-2 px-3 py-3 text-center transition-all ${tier.color} ${tier.count === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+                    disabled={tier.count === 0}
+                  >
+                    <div className="text-xl mb-1">{tier.icon}</div>
+                    <p className="text-sm font-semibold text-textPrimary">{tier.label}</p>
+                    <p className="text-xs text-textMuted">{tier.sublabel}</p>
+                    <p className="text-lg font-bold text-textPrimary mt-1">{tier.count}</p>
+                  </button>
+                ))}
+              </div>
+            )
+          })()}
+
+          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {recipes.map((recipe, idx) => (
+            {recipes.filter(r => {
+              if (activeFilter === 'cookNow') return !r.missing || r.missing.length === 0
+              if (activeFilter === 'tonight') return r.missing?.length === 1
+              if (activeFilter === 'planAhead') return r.missing?.length >= 2
+              return true
+            }).map((recipe, idx) => (
               <div key={idx} className="card hover:shadow-md transition-all">
 
                 <div className="flex items-start justify-between mb-3">
