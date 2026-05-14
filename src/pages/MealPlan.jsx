@@ -194,12 +194,13 @@ const handleGenerateWeek = async () => {
       // 1. Decrement pantry
       await cookRecipe({ ingredients: meal.recipeData.ingredients })
 
-      // 2. Log nutrition for all members
+     // 2. Log nutrition for all members — fall back to nutrition if nutritionPerServing missing
       const membersToLog = members.map(m => m.name)
       let nutritionLogged = false
-      if (meal.recipeData.nutritionPerServing && membersToLog.length > 0) {
+      const nutritionData = meal.recipeData.nutritionPerServing || meal.recipeData.nutrition
+      if (nutritionData && membersToLog.length > 0) {
         try {
-          await logNutrition(membersToLog, meal.recipeName, meal.mealType, meal.recipeData.nutritionPerServing)
+          await logNutrition(membersToLog, meal.recipeName, meal.mealType, nutritionData)
           nutritionLogged = true
         } catch (e) {
           console.log('Nutrition log skipped:', e.message)
