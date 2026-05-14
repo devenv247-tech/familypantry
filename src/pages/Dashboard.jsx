@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
-import { getDashboardStats, getRecentActivity } from '../api/dashboard'
+import { getDashboardStats, getRecentActivity, getWasteSavings } from '../api/dashboard'
 import { getMembers } from '../api/family'
 import { getExpiringSoon } from '../api/expiry'
 import { getHealthProgress } from '../api/healthProgress'
@@ -41,6 +41,7 @@ export default function Dashboard() {
   const [members, setMembers] = useState([])
   const [expiringSoon, setExpiringSoon] = useState([])
   const [healthProgress, setHealthProgress] = useState(null)
+  const [wasteSavings, setWasteSavings] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -54,18 +55,20 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setError('')
-     const [statsData, activityData, membersData, expiryData, healthData] = await Promise.all([
+   const [statsData, activityData, membersData, expiryData, healthData, wasteSavingsData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getMembers(),
         getExpiringSoon(),
         getHealthProgress(),
+        getWasteSavings(),
       ])
       setStats(statsData)
       setActivity(activityData)
       setMembers(membersData)
       setExpiringSoon(expiryData)
       setHealthProgress(healthData)
+      setWasteSavings(wasteSavingsData)
     } catch (err) {
       console.error(err)
       setError('Failed to load dashboard data')
@@ -242,6 +245,40 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Waste savings widget */}
+      {wasteSavings && wasteSavings.mealsCooked > 0 && (
+        <div className="card mb-6 border border-green-200 bg-gradient-to-r from-green-50/40 to-emerald-50/40">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">💚</span>
+              <h2 className="font-semibold text-textPrimary">Your impact this month</h2>
+            </div>
+            <span className="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-pill">
+              {wasteSavings.mealsCooked} meal{wasteSavings.mealsCooked !== 1 ? 's' : ''} cooked
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+              <p className="text-xl font-bold text-green-600">${wasteSavings.moneySaved}</p>
+              <p className="text-xs text-textMuted mt-0.5">estimated saved</p>
+            </div>
+            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+              <p className="text-xl font-bold text-emerald-600">{wasteSavings.co2Saved}kg</p>
+              <p className="text-xs text-textMuted mt-0.5">CO₂ avoided</p>
+            </div>
+            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+              <p className="text-xl font-bold text-teal-600">{wasteSavings.foodRescued}</p>
+              <p className="text-xs text-textMuted mt-0.5">items rescued</p>
+            </div>
+          </div>
+          {wasteSavings.foodRescued > 0 && (
+            <p className="text-xs text-green-700 mt-3 text-center">
+              🎉 You rescued {wasteSavings.wasteAvoided}kg of food from going to waste this month!
+            </p>
+          )}
         </div>
       )}
 
