@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useVoiceInput } from '../hooks/useVoiceInput'
+import { parseVoiceItem } from '../api/pantry'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
@@ -56,6 +58,28 @@ export default function Grocery() {
   }
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
+
+  const [voiceParsing, setVoiceParsing] = useState(false)
+  const { listening, supported: voiceSupported, start: startVoice } = useVoiceInput({
+    onResult: async (transcript) => {
+      setVoiceParsing(true)
+      try {
+        const parsed = await parseVoiceItem(transcript, 'grocery')
+        setForm(p => ({
+          ...p,
+          name: parsed.name || '',
+          qty: parsed.quantity ? `${parsed.quantity} ${parsed.unit || 'pcs'}`.trim() : '',
+        }))
+        setShowForm(true)
+        showToast(`🎙️ Heard: "${transcript}"`)
+      } catch (err) {
+        showToast('Could not understand. Please try again.', 'error')
+      } finally {
+        setVoiceParsing(false)
+      }
+    },
+    onError: (msg) => showToast(msg, 'error'),
+  })
 
   const filtered = items.filter(i =>
     activeStore === 'All stores' || i.store === activeStore
@@ -204,6 +228,27 @@ export default function Grocery() {
           <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex gap-3">
+         {voiceSupported && (
+            <button
+              onClick={startVoice}
+              disabled={listening || voiceParsing}
+              title="Add item by voice"
+              className={`btn-secondary flex items-center gap-2 text-sm transition-all ${
+                listening ? 'border-red-300 text-red-600 bg-red-50 animate-pulse' : ''
+              }`}
+            >
+              {voiceParsing ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                  Parsing...
+                </>
+              ) : listening ? '🔴 Listening...' : '🎙️ Voice add'}
+            </button>
+          )}
+
           <button onClick={() => setShowForm(true)} className="btn-secondary flex items-center gap-2">
             + Add item
           </button>

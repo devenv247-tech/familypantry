@@ -23,3 +23,8 @@ export const restockPantryItem = async (id, quantity) => {
   const res = await client.post(`/pantry/${id}/restock`, { quantity })
   return res.data
 }
+
+export const parseVoiceItem = async (transcript, mode = 'pantry') => {
+  const res = await client.post('/pantry/voice-parse', { transcript, mode })
+  return res.data
+}

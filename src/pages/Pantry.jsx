@@ -1,5 +1,6 @@
-import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem } from '../api/pantry'
+import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem, parseVoiceItem } from '../api/pantry'
 import { useState, useEffect, useRef } from 'react'
+import { useVoiceInput } from '../hooks/useVoiceInput'
 import BarcodeScanner from '../components/ui/BarcodeScanner'
 import { lookupBarcode } from '../api/barcode'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
@@ -49,6 +50,31 @@ export default function Pantry() {
   const [applyingTemplate, setApplyingTemplate] = useState(null)
 
   const { toast, showToast, hideToast } = useToast()
+  const [voiceParsing, setVoiceParsing] = useState(false)
+  const { listening, supported: voiceSupported, start: startVoice } = useVoiceInput({
+    onResult: async (transcript) => {
+      setVoiceParsing(true)
+      try {
+        const parsed = await parseVoiceItem(transcript, 'pantry')
+        setForm({
+          name: parsed.name || '',
+          quantity: parsed.quantity || 1,
+          unit: parsed.unit || 'pcs',
+          category: parsed.category || 'Fridge',
+          expiry: '',
+          icon: parsed.icon || '🛒',
+          isCustomCategory: false,
+        })
+        setShowForm(true)
+        showToast(`🎙️ Heard: "${transcript}"`)
+      } catch (err) {
+        showToast('Could not understand. Please try again.', 'error')
+      } finally {
+        setVoiceParsing(false)
+      }
+    },
+    onError: (msg) => showToast(msg, 'error'),
+  })
   const { family } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
@@ -558,6 +584,28 @@ export default function Pantry() {
               className="btn-secondary flex items-center gap-2 text-sm border-orange-200 text-orange-600 hover:bg-orange-50"
             >
               🗂️ Grocery Templates
+            </button>
+          )}
+
+         {/* Voice input */}
+          {voiceSupported && (
+            <button
+              onClick={startVoice}
+              disabled={listening || voiceParsing}
+              title="Add item by voice"
+              className={`btn-secondary flex items-center gap-2 text-sm transition-all ${
+                listening ? 'border-red-300 text-red-600 bg-red-50 animate-pulse' : ''
+              }`}
+            >
+              {voiceParsing ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                  Parsing...
+                </>
+              ) : listening ? '🔴 Listening...' : '🎙️ Voice add'}
             </button>
           )}
 
