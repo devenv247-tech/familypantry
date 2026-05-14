@@ -1,6 +1,6 @@
 import client from './client'
 
-export const suggestRecipes = (members, mealType, cuisine, expiringItems = []) => {
+export const suggestRecipes = async (members, mealType, cuisine, expiringItems = []) => {
   const res = await client.post('/recipes/suggest', { members, mealType, cuisine, expiringItems })
   return res.data
 }
@@ -16,6 +16,7 @@ export const cookRecipe = async (recipe) => {
   })
   return res.data
 }
+
 export const getSubstitutions = async (ingredientName, ingredientUnit, recipeContext) => {
   const res = await client.post('/recipes/substitutions', { ingredientName, ingredientUnit, recipeContext })
   return res.data
