@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 
 export function useVoiceInput({ onResult, onError }) {
-  const [listening, setListening] = useState(false)
+  const [state, setState] = useState('idle') // 'idle' | 'listening' | 'parsing'
   const recognitionRef = useRef(null)
 
   const supported = typeof window !== 'undefined' &&
@@ -18,10 +18,10 @@ export function useVoiceInput({ onResult, onError }) {
     recognition.interimResults = false
     recognition.maxAlternatives = 1
 
-    recognition.onstart = () => setListening(true)
-    recognition.onend = () => setListening(false)
+    recognition.onstart = () => setState('listening')
+    recognition.onend = () => setState(s => s === 'listening' ? 'idle' : s)
     recognition.onerror = (e) => {
-      setListening(false)
+      setState('idle')
       if (e.error === 'not-allowed') {
         onError?.('Microphone access denied. Please allow mic access and try again.')
       } else if (e.error !== 'no-speech') {
@@ -30,6 +30,7 @@ export function useVoiceInput({ onResult, onError }) {
     }
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript
+      setState('parsing')
       onResult?.(transcript)
     }
 
@@ -39,7 +40,13 @@ export function useVoiceInput({ onResult, onError }) {
 
   const stop = useCallback(() => {
     recognitionRef.current?.stop()
+    setState('idle')
   }, [])
 
-  return { listening, supported, start, stop }
+  const setIdle = useCallback(() => setState('idle'), [])
+
+  // keep legacy booleans for any existing usage
+  const listening = state === 'listening'
+
+  return { state, listening, supported, start, stop, setIdle }
 }

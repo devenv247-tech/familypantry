@@ -12,7 +12,7 @@ import { useAuthStore } from '../store/authStore'
 import { scanPantryPhoto, getScanStatus, getTemplates, applyTemplate } from '../api/pantryTools'
 import { useNavigate } from 'react-router-dom'
 
-const UNITS = ['pcs', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
+const UNITS = ['pcs', 'dozen', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
 const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
 const CATEGORIES = ['All', 'Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks']
 const ICONS = ['🥛', '🍗', '🍚', '🥚', '🌿', '🫛', '🌾', '🥣', '🧀', '🥦', '🍎', '🥕', '🧅', '🫙', '🥩', '🍞', '🛒']
@@ -50,10 +50,8 @@ export default function Pantry() {
   const [applyingTemplate, setApplyingTemplate] = useState(null)
 
   const { toast, showToast, hideToast } = useToast()
-  const [voiceParsing, setVoiceParsing] = useState(false)
-  const { listening, supported: voiceSupported, start: startVoice } = useVoiceInput({
+ const { state: voiceState, supported: voiceSupported, start: startVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
-      setVoiceParsing(true)
       try {
         const parsed = await parseVoiceItem(transcript, 'pantry')
         setForm({
@@ -70,7 +68,7 @@ export default function Pantry() {
       } catch (err) {
         showToast('Could not understand. Please try again.', 'error')
       } finally {
-        setVoiceParsing(false)
+        setVoiceIdle()
       }
     },
     onError: (msg) => showToast(msg, 'error'),
@@ -81,6 +79,7 @@ export default function Pantry() {
 
   const canPhotoScan = isFeatureEnabled('pantry_photo_scan', plan)
   const canUseTemplates = isFeatureEnabled('pantry_templates', plan)
+  const canUseVoice = isFeatureEnabled('voice_input', plan)
 
   useEffect(() => {
     fetchItems()
@@ -587,25 +586,46 @@ export default function Pantry() {
             </button>
           )}
 
-         {/* Voice input */}
-          {voiceSupported && (
+        {/* Voice input */}
+          {voiceSupported && canUseVoice && (
             <button
               onClick={startVoice}
-              disabled={listening || voiceParsing}
+              disabled={voiceState !== 'idle'}
               title="Add item by voice"
-              className={`btn-secondary flex items-center gap-2 text-sm transition-all ${
-                listening ? 'border-red-300 text-red-600 bg-red-50 animate-pulse' : ''
+              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${
+                voiceState === 'listening'
+                  ? 'border-red-300 text-red-600 bg-red-50'
+                  : voiceState === 'parsing'
+                  ? 'border-blue-200 text-primary bg-blue-50'
+                  : 'btn-secondary'
               }`}
             >
-              {voiceParsing ? (
+              {/* Ripple ring when listening */}
+              {voiceState === 'listening' && (
+                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="w-full h-full rounded-btn border-2 border-red-400 opacity-40 animate-ping absolute" />
+                </span>
+              )}
+
+              {voiceState === 'parsing' ? (
                 <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                   </svg>
-                  Parsing...
+                  <span>Parsing...</span>
                 </>
-              ) : listening ? '🔴 Listening...' : '🎙️ Voice add'}
+              ) : voiceState === 'listening' ? (
+                <>
+                  <span className="relative flex h-3 w-3 flex-shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                  </span>
+                  <span>Listening...</span>
+                </>
+              ) : (
+                <>🎙️ <span>Voice add</span></>
+              )}
             </button>
           )}
 

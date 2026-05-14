@@ -23,6 +23,7 @@ export default function Grocery() {
   const { family } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
+  const canUseVoice = isFeatureEnabled('voice_input', plan)
 
   const DEFAULT_STORES = ['Superstore', 'Walmart', 'T&T Supermarket', 'Costco', 'No Frills']
 
@@ -59,10 +60,8 @@ export default function Grocery() {
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
 
-  const [voiceParsing, setVoiceParsing] = useState(false)
-  const { listening, supported: voiceSupported, start: startVoice } = useVoiceInput({
+ const { state: voiceState, supported: voiceSupported, start: startVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
-      setVoiceParsing(true)
       try {
         const parsed = await parseVoiceItem(transcript, 'grocery')
         setForm(p => ({
@@ -75,7 +74,7 @@ export default function Grocery() {
       } catch (err) {
         showToast('Could not understand. Please try again.', 'error')
       } finally {
-        setVoiceParsing(false)
+        setVoiceIdle()
       }
     },
     onError: (msg) => showToast(msg, 'error'),
@@ -228,24 +227,43 @@ export default function Grocery() {
           <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex gap-3">
-         {voiceSupported && (
+        {voiceSupported && canUseVoice && (
             <button
               onClick={startVoice}
-              disabled={listening || voiceParsing}
+              disabled={voiceState !== 'idle'}
               title="Add item by voice"
-              className={`btn-secondary flex items-center gap-2 text-sm transition-all ${
-                listening ? 'border-red-300 text-red-600 bg-red-50 animate-pulse' : ''
+              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${
+                voiceState === 'listening'
+                  ? 'border-red-300 text-red-600 bg-red-50'
+                  : voiceState === 'parsing'
+                  ? 'border-blue-200 text-primary bg-blue-50'
+                  : 'btn-secondary'
               }`}
             >
-              {voiceParsing ? (
+              {voiceState === 'listening' && (
+                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="w-full h-full rounded-btn border-2 border-red-400 opacity-40 animate-ping absolute" />
+                </span>
+              )}
+              {voiceState === 'parsing' ? (
                 <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                   </svg>
-                  Parsing...
+                  <span>Parsing...</span>
                 </>
-              ) : listening ? '🔴 Listening...' : '🎙️ Voice add'}
+              ) : voiceState === 'listening' ? (
+                <>
+                  <span className="relative flex h-3 w-3 flex-shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                  </span>
+                  <span>Listening...</span>
+                </>
+              ) : (
+                <>🎙️ <span>Voice add</span></>
+              )}
             </button>
           )}
 
