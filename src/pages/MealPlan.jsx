@@ -243,7 +243,7 @@ const handleGenerateWeek = async () => {
 
       {/* Meal detail modal */}
       {showDetailModal && selectedMeal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4">
           <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
               <h3 className="font-semibold text-textPrimary flex items-center gap-2">
@@ -451,7 +451,7 @@ const handleGenerateWeek = async () => {
       )}
       {/* Add meal modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4">
           <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h3 className="font-semibold text-textPrimary">
