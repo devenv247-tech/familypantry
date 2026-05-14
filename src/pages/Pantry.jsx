@@ -55,17 +55,32 @@ export default function Pantry() {
     onResult: async (transcript) => {
       try {
         const parsed = await parseVoiceItem(transcript, 'pantry')
-        setForm({
-          name: parsed.name || '',
-          quantity: parsed.quantity || 1,
-          unit: parsed.unit || 'pcs',
-          category: parsed.category || 'Fridge',
-          expiry: '',
-          icon: parsed.icon || '🛒',
-          isCustomCategory: false,
-        })
-        setShowForm(true)
-        showToast(`🎙️ Heard: "${transcript}"`)
+        if (!parsed.name) throw new Error('Could not parse item')
+
+        // Check if item already exists in pantry (case-insensitive)
+        const existing = items.find(i =>
+          i.name.toLowerCase() === parsed.name.toLowerCase()
+        )
+
+        if (existing) {
+          // Restock existing item instead of creating a duplicate
+          const updated = await restockPantryItem(existing.id, parseFloat(parsed.quantity) || 1)
+          setItems(prev => prev.map(i => i.id === existing.id ? updated : i))
+          showToast(`🎙️ Restocked ${existing.name} — now ${updated.quantity} ${updated.unit}`)
+        } else {
+          // New item — open the form pre-filled for confirmation
+          setForm({
+            name: parsed.name,
+            quantity: parsed.quantity || 1,
+            unit: parsed.unit || 'pcs',
+            category: parsed.category || 'Fridge',
+            expiry: '',
+            icon: parsed.icon || '🛒',
+            isCustomCategory: false,
+          })
+          setShowForm(true)
+          showToast(`🎙️ Heard: "${transcript}"`)
+        }
       } catch (err) {
         showToast('Could not understand. Please try again.', 'error')
       } finally {
