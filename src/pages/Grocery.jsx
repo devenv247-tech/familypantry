@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useVoiceInput } from '../hooks/useVoiceInput'
 import { parseVoiceItem } from '../api/pantry'
 import VoiceOverlay from '../components/ui/VoiceOverlay'
-import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems } from '../api/grocery'
+import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems, getGroceryPredictions } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -19,8 +20,11 @@ export default function Grocery() {
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [priceAlerts, setPriceAlerts] = useState([])
+  const [predictions, setPredictions] = useState([])
+  const [addingPrediction, setAddingPrediction] = useState({})
   const [anomalyModal, setAnomalyModal] = useState(null)
   const { toast, showToast, hideToast } = useToast()
+  const navigate = useNavigate()
   const { family } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
@@ -36,7 +40,17 @@ export default function Grocery() {
   useEffect(() => {
     fetchItems()
     fetchPriceAlerts()
+    if (isFeatureEnabled('predictive_grocery', plan)) fetchPredictions()
   }, [])
+
+  const fetchPredictions = async () => {
+    try {
+      const data = await getGroceryPredictions()
+      setPredictions(data.predictions || [])
+    } catch (err) {
+      console.error('Failed to load predictions:', err)
+    }
+  }
 
   const fetchItems = async () => {
     try {
@@ -60,6 +74,20 @@ export default function Grocery() {
   }
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }))
+
+  const handleAddPrediction = async (prediction) => {
+    setAddingPrediction(prev => ({ ...prev, [prediction.name]: true }))
+    try {
+      const item = await addGroceryItem({ name: prediction.name, qty: '', store: '', price: '', category: '' })
+      setItems(prev => [item, ...prev])
+      setPredictions(prev => prev.filter(p => p.name !== prediction.name))
+      showToast(`${prediction.name} added to grocery list!`)
+    } catch (err) {
+      showToast('Failed to add item', 'error')
+    } finally {
+      setAddingPrediction(prev => ({ ...prev, [prediction.name]: false }))
+    }
+  }
 
 const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
@@ -278,7 +306,64 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
         </div>
       </div>
 
-    {/* Price alerts */}
+    {/* Predictive suggestions — family+ only */}
+      {isFeatureEnabled('predictive_grocery', plan) ? (
+        predictions.length > 0 && (
+          <div className="card mb-6 border border-blue-100 bg-blue-50/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🔮</span>
+                <h2 className="font-semibold text-textPrimary">You might need these soon</h2>
+              </div>
+              <span className="text-xs text-textMuted">Based on your history</span>
+            </div>
+            <div className="space-y-2">
+              {predictions.map((p, i) => (
+                <div key={i} className="flex items-center justify-between bg-white rounded-btn border border-blue-100 px-3 py-2.5">
+                  <div>
+                    <p className="text-sm font-medium text-textPrimary">{p.name}</p>
+                    <p className="text-xs text-textMuted">
+                      {p.overdue
+                        ? `Every ${p.avgIntervalDays}d — overdue by ${Math.abs(p.daysUntilDue)}d`
+                        : p.daysUntilDue === 0
+                        ? `Every ${p.avgIntervalDays}d — due today`
+                        : `Every ${p.avgIntervalDays}d — due in ${p.daysUntilDue}d`
+                      }
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleAddPrediction(p)}
+                    disabled={addingPrediction[p.name]}
+                    className="text-xs bg-primary text-white px-3 py-1.5 rounded-btn font-medium hover:bg-blue-600 transition-all disabled:opacity-50 whitespace-nowrap ml-3"
+                  >
+                    {addingPrediction[p.name] ? '...' : '+ Add'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      ) : plan === 'free' && (
+        <div className="card mb-6 border border-dashed border-blue-200 bg-blue-50/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🔮</span>
+              <div>
+                <p className="text-sm font-semibold text-textPrimary">Predictive grocery list</p>
+                <p className="text-xs text-textMuted">Nooka learns your habits and reminds you before you run out</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/app/settings?tab=plan')}
+              className="text-xs bg-primary text-white px-3 py-1.5 rounded-btn font-medium whitespace-nowrap ml-3"
+            >
+              Upgrade
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Price alerts */}
       {isFeatureEnabled('price_anomaly', plan) && priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
           <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>

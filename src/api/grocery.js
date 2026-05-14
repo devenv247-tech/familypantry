@@ -24,3 +24,8 @@ export const clearCheckedItems = async () => {
   const res = await client.delete('/grocery/clear-checked')
   return res.data
 }
+
+export const getGroceryPredictions = async () => {
+  const res = await client.get('/grocery/predictions')
+  return res.data
+}
