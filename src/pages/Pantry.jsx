@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useVoiceInput } from '../hooks/useVoiceInput'
 import VoiceOverlay from '../components/ui/VoiceOverlay'
 import BarcodeScanner from '../components/ui/BarcodeScanner'
+import PhotoScanOverlay from '../components/ui/PhotoScanOverlay'
 import { lookupBarcode } from '../api/barcode'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -44,6 +45,9 @@ export default function Pantry() {
   const [scanStatus, setScanStatus] = useState(null)
   const [selectedScannedItems, setSelectedScannedItems] = useState([])
   const photoInputRef = useRef(null)
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const [addingScanned, setAddingScanned] = useState(false)
+  const [addProgress, setAddProgress] = useState(0)
 
   // Templates state
   const [showTemplates, setShowTemplates] = useState(false)
@@ -291,11 +295,14 @@ export default function Pantry() {
     setPhotoScanning(true)
     setShowPhotoResults(false)
     setScannedItems([])
+    setPhotoPreview(null)
 
     try {
       const reader = new FileReader()
       reader.onload = async (event) => {
-        const base64 = event.target.result.split(',')[1]
+        const dataUrl = event.target.result
+        setPhotoPreview(dataUrl) // show preview in overlay
+        const base64 = dataUrl.split(',')[1]
         const mimeType = file.type
 
         try {
@@ -316,12 +323,16 @@ export default function Pantry() {
             } else {
               navigate('/app/settings?tab=plan')
             }
+          } else if (err.response?.status === 429) {
+            showToast('Too many scan attempts — please wait 10 minutes and try again.', 'error')
+          } else if (err.response?.data?.notFood) {
+            showToast('📸 No food detected — please photograph your fridge, pantry, or groceries.', 'error')
           } else if (err.response?.data?.creditsExhausted) {
             showToast('AI service temporarily unavailable. Please try again later.', 'error')
           } else {
             showToast('Failed to scan photo. Please try again.', 'error')
           }
-        } finally {
+        }finally {
           setPhotoScanning(false)
         }
       }
@@ -339,8 +350,12 @@ export default function Pantry() {
     const itemsToAdd = scannedItems.filter((_, i) => selectedScannedItems.includes(i))
     if (itemsToAdd.length === 0) return
 
+    setAddingScanned(true)
+    setAddProgress(0)
     let added = 0
-    for (const item of itemsToAdd) {
+
+    for (let idx = 0; idx < itemsToAdd.length; idx++) {
+      const item = itemsToAdd[idx]
       try {
         const newItem = await addPantryItem({
           name: item.name,
@@ -354,12 +369,16 @@ export default function Pantry() {
       } catch (err) {
         console.error('Failed to add item:', item.name)
       }
+      setAddProgress(Math.round(((idx + 1) / itemsToAdd.length) * 100))
     }
 
     showToast(`Added ${added} items to pantry!`)
     setShowPhotoResults(false)
     setScannedItems([])
     setSelectedScannedItems([])
+    setAddingScanned(false)
+    setAddProgress(0)
+    setPhotoPreview(null)
     fetchCO2()
   }
 
@@ -384,6 +403,9 @@ export default function Pantry() {
 return (
     <div className="page-container">
       <VoiceOverlay state={voiceState} onCancel={() => { stopVoice(); setVoiceIdle() }} />
+
+      {/* Photo scan overlay */}
+      <PhotoScanOverlay visible={photoScanning} imagePreview={photoPreview} />
 
       {/* Barcode scanner */}
       {showScanner && (
@@ -457,34 +479,78 @@ return (
                           setScannedItems(updated)
                         }}
                       />
-                      <div className="flex items-center gap-1 mt-0.5" onClick={e => e.stopPropagation()}>
-  <input
-    className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-16"
-    type="number"
-    min="0.1"
-    step="0.1"
-    value={item.quantity}
-    onChange={e => {
-      const updated = [...scannedItems]
-      updated[i] = { ...updated[i], quantity: parseFloat(e.target.value) || 1 }
-      setScannedItems(updated)
-    }}
-  />
-  <span className="text-xs text-textMuted">{item.unit} · {item.category}</span>
-</div>
+                      <div className="flex items-center gap-1 mt-0.5 flex-wrap" onClick={e => e.stopPropagation()}>
+                        <input
+                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-14"
+                          type="number"
+                          min="0.1"
+                          step="0.1"
+                          value={item.quantity}
+                          onChange={e => {
+                            const updated = [...scannedItems]
+                            updated[i] = { ...updated[i], quantity: parseFloat(e.target.value) || 1 }
+                            setScannedItems(updated)
+                          }}
+                        />
+                        <select
+                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none"
+                          value={item.unit}
+                          onChange={e => {
+                            const updated = [...scannedItems]
+                            updated[i] = { ...updated[i], unit: e.target.value }
+                            setScannedItems(updated)
+                          }}
+                        >
+                          {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                        </select>
+                        <span className="text-xs text-textMuted">·</span>
+                        <select
+                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none"
+                          value={item.category}
+                          onChange={e => {
+                            const updated = [...scannedItems]
+                            updated[i] = { ...updated[i], category: e.target.value }
+                            setScannedItems(updated)
+                          }}
+                        >
+                          {['Fridge','Freezer','Dry goods','Spices','Snacks','Drinks','Condiments','Produce'].map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
 
+              {addingScanned && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs text-textMuted">Adding items...</p>
+                    <p className="text-xs font-medium text-primary">{addProgress}%</p>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-pill overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-pill transition-all duration-300"
+                      style={{ width: `${addProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="flex gap-3">
-                <button onClick={() => setShowPhotoResults(false)} className="btn-secondary flex-1">Cancel</button>
+                <button
+                  onClick={() => setShowPhotoResults(false)}
+                  disabled={addingScanned}
+                  className="btn-secondary flex-1 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={handleAddScannedItems}
-                  disabled={selectedScannedItems.length === 0}
+                  disabled={selectedScannedItems.length === 0 || addingScanned}
                   className="btn-primary flex-1 disabled:opacity-50"
                 >
-                  Add {selectedScannedItems.length} items to pantry
+                  {addingScanned ? `Adding... ${addProgress}%` : `Add ${selectedScannedItems.length} items to pantry`}
                 </button>
               </div>
             </div>
