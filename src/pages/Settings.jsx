@@ -531,8 +531,27 @@ const handleAddMember = async (e) => {
                         </div>
                         <div>
                           <label className="label">Weight</label>
-                          <input className="input" value={editForm.weight || ''} onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))} />
+                          <div className="flex gap-2">
+                            <input
+                              className="input flex-1"
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              placeholder="e.g. 70.5"
+                              value={editForm.weight || ''}
+                              onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
+                            />
+                            <select
+                              className="input w-20"
+                              value={editForm.weightUnit || 'kg'}
+                              onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
+                            >
+                              <option value="kg">kg</option>
+                              <option value="lbs">lbs</option>
+                            </select>
+                          </div>
                         </div>
+
                         <div>
                           <label className="label">Height</label>
                           <input
