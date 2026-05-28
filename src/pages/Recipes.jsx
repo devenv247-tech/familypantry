@@ -16,16 +16,40 @@ import { useAppConfigStore } from '../store/appConfigStore'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
-const CUISINES = [
-  { label: 'Any cuisine', icon: '🌍' },
-  { label: 'Punjabi', icon: '🫓' },
-  { label: 'South Asian', icon: '🍛' },
-  { label: 'Italian', icon: '🍝' },
-  { label: 'Mexican', icon: '🌮' },
-  { label: 'Chinese', icon: '🥢' },
-  { label: 'Middle Eastern', icon: '🧆' },
-  { label: 'Japanese', icon: '🍱' },
-  { label: 'Canadian / Western', icon: '🍁' },
+const CUISINE_CATEGORIES = [
+  {
+    label: 'Cuisine / Culture',
+    options: [
+      { label: 'Any cuisine', icon: '🌍' },
+      { label: 'Punjabi', icon: '🫓' },
+      { label: 'South Indian', icon: '🥘' },
+      { label: 'Bengali', icon: '🐟' },
+      { label: 'Gujarati', icon: '🫘' },
+      { label: 'Italian', icon: '🍝' },
+      { label: 'Mexican', icon: '🌮' },
+      { label: 'Chinese', icon: '🥢' },
+      { label: 'Middle Eastern', icon: '🧆' },
+      { label: 'Japanese', icon: '🍱' },
+      { label: 'Canadian / Western', icon: '🍁' },
+      { label: 'Thai', icon: '🥜' },
+      { label: 'Mediterranean', icon: '🫒' },
+    ],
+  },
+  {
+    label: 'Dish type',
+    options: [
+      { label: 'Burger', icon: '🍔' },
+      { label: 'Wrap / Burrito', icon: '🌯' },
+      { label: 'Salad', icon: '🥗' },
+      { label: 'Pasta', icon: '🍝' },
+      { label: 'Soup / Stew', icon: '🍲' },
+      { label: 'Stir Fry', icon: '🥘' },
+      { label: 'Sandwich', icon: '🥪' },
+      { label: 'Rice Bowl', icon: '🍚' },
+      { label: 'Pizza', icon: '🍕' },
+      { label: 'Grilled / BBQ', icon: '🔥' },
+    ],
+  },
 ]
 
 const STAR_RATINGS = [1, 2, 3, 4, 5]
@@ -515,20 +539,25 @@ const handleCook = async (recipe, idx) => {
 
         {/* Cuisine selector */}
         <div className="mb-6">
-          <label className="label">Cuisine preference</label>
-       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {CUISINES.map(c => (
-              <button
-                key={c.label}
-                onClick={() => setCuisine(c.label)}
-                className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                  cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                }`}
-              >
-                {c.icon} {c.label}
-              </button>
-            ))}
-          </div>
+          <label className="label">What are you in the mood for?</label>
+          {CUISINE_CATEGORIES.map(cat => (
+            <div key={cat.label} className="mb-3">
+              <p className="text-xs text-textMuted mb-2">{cat.label}</p>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                {cat.options.map(c => (
+                  <button
+                    key={c.label}
+                    onClick={() => setCuisine(c.label)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
+                      cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                    }`}
+                  >
+                    {c.icon} {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Family recipe button */}
