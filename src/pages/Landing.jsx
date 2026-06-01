@@ -207,7 +207,7 @@ export default function Landing() {
           <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { value: '15+', label: 'Smart features' },
-              { value: '🫧', label: 'AI-powered recipes' },
+              { value: '100+', label: 'Recipe suggestions' },
               { value: '🇨🇦', label: 'PIPEDA compliant' },
               { value: '$9.99', label: 'Starting per month' },
             ].map((s, i) => (
