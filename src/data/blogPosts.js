@@ -1,0 +1,38 @@
+export const blogPosts = [
+  {
+    slug: 'how-to-reduce-food-waste-canada',
+    title: 'How to Reduce Food Waste at Home — 10 Simple Tips for Canadian Families',
+    description: 'Canadian families throw away an average of $1,300 worth of food every year. Here are 10 practical tips to cut waste, save money, and eat smarter.',
+    date: 'June 1, 2026',
+    readTime: '5 min read',
+    category: 'Food Waste',
+    image: '🗑️',
+  },
+  {
+    slug: 'best-meal-planning-apps-canada-2026',
+    title: 'Best Meal Planning Apps in Canada 2026',
+    description: 'We compared the top meal planning apps available to Canadian families in 2026 — features, pricing, privacy, and what makes each one worth trying.',
+    date: 'June 1, 2026',
+    readTime: '7 min read',
+    category: 'Meal Planning',
+    image: '📱',
+  },
+  {
+    slug: 'eat-healthy-on-a-budget-canada',
+    title: 'How to Eat Healthy on a Budget in Canada',
+    description: 'Groceries are expensive. Here is how Canadian families can eat nutritious, balanced meals without breaking the bank — practical tips that actually work.',
+    date: 'June 1, 2026',
+    readTime: '6 min read',
+    category: 'Budget',
+    image: '🛒',
+  },
+  {
+    slug: 'what-is-pipeda-and-why-it-matters',
+    title: 'What is PIPEDA and Why It Matters for Your Family\'s Data',
+    description: 'Most Canadians have never heard of PIPEDA — but it protects your family\'s personal data every day. Here is what it means and why you should care.',
+    date: 'June 1, 2026',
+    readTime: '4 min read',
+    category: 'Privacy',
+    image: '🔒',
+  },
+]

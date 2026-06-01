@@ -15,6 +15,8 @@ const Terms = lazy(() => import('./pages/Terms'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const AcceptInvite = lazy(() => import('./pages/AcceptInvite'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
 const AppShell = lazy(() => import('./components/layout/AppShell'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Pantry = lazy(() => import('./pages/Pantry'))
@@ -52,6 +54,8 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/accept-invite" element={<AcceptInvite />} />
       <Route path="/session-expired" element={<SessionExpired />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="*" element={<NotFound />} />
       <Route path="/app" element={<PrivateRoute><AppShell /></PrivateRoute>}>
         <Route index element={<Dashboard />} />

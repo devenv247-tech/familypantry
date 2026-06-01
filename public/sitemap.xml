@@ -25,10 +25,40 @@
     <priority>0.3</priority>
   </url>
 
-  <url>
+ <url>
     <loc>https://nooka.ca/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://nooka.ca/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://nooka.ca/blog/how-to-reduce-food-waste-canada</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nooka.ca/blog/best-meal-planning-apps-canada-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nooka.ca/blog/eat-healthy-on-a-budget-canada</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://nooka.ca/blog/what-is-pipeda-and-why-it-matters</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 
 </urlset>
