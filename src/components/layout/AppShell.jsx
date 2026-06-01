@@ -1,6 +1,6 @@
 import NookaIcon from '../ui/NookaIcon'
 import { useState, useEffect } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Onboarding from '../ui/Onboarding'
 import { useAppConfigStore } from '../../store/appConfigStore'
@@ -11,6 +11,8 @@ export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showMoreDrawer, setShowMoreDrawer] = useState(false)
+  const location = useLocation()
+  useEffect(() => { setShowMoreDrawer(false) }, [location.pathname])
   const { setConfig, announcements, dismissAnnouncement, isFeatureEnabled } = useAppConfigStore()
   const { token, user, family } = useAuthStore()
   const plan = family?.plan?.toLowerCase() || 'free'
