@@ -1,27 +1,37 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, lazy, Suspense } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
-import Privacy from './pages/Privacy'
-import Terms from './pages/Terms'
+
+// Eagerly loaded (public, fast-path pages)
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import Pantry from './pages/Pantry'
-import Recipes from './pages/Recipes'
-import Grocery from './pages/Grocery'
-import Reports from './pages/Reports'
-import Settings from './pages/Settings'
-import AppShell from './components/layout/AppShell'
-import Recalls from './pages/Recalls'
-import MealPlan from './pages/MealPlan'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
 import NotFound from './pages/NotFound'
 import SessionExpired from './pages/SessionExpired'
-import SavedRecipes from './pages/SavedRecipes'
-import Admin from './pages/Admin'
-import Health from './pages/Health'
-import AcceptInvite from './pages/AcceptInvite'
+
+// Lazily loaded (only fetched when needed)
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Terms = lazy(() => import('./pages/Terms'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
+const AcceptInvite = lazy(() => import('./pages/AcceptInvite'))
+const AppShell = lazy(() => import('./components/layout/AppShell'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Pantry = lazy(() => import('./pages/Pantry'))
+const Recipes = lazy(() => import('./pages/Recipes'))
+const Grocery = lazy(() => import('./pages/Grocery'))
+const Reports = lazy(() => import('./pages/Reports'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Recalls = lazy(() => import('./pages/Recalls'))
+const MealPlan = lazy(() => import('./pages/MealPlan'))
+const SavedRecipes = lazy(() => import('./pages/SavedRecipes'))
+const Health = lazy(() => import('./pages/Health'))
+const Admin = lazy(() => import('./pages/Admin'))
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+)
 
 function PrivateRoute({ children }) {
   const { token } = useAuthStore()
@@ -30,6 +40,7 @@ function PrivateRoute({ children }) {
 
 export default function App() {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
@@ -54,6 +65,7 @@ export default function App() {
         <Route path="health" element={<Health />} />
       </Route>
       <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-    </Routes>
+</Routes>
+    </Suspense>
   )
 }
