@@ -10,10 +10,11 @@ import { getAppConfig } from '../../api/appConfig'
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const { setConfig, announcements, dismissAnnouncement } = useAppConfigStore()
-  const { token } = useAuthStore()
-
-  const { user } = useAuthStore()
+  const [showMoreDrawer, setShowMoreDrawer] = useState(false)
+  const { setConfig, announcements, dismissAnnouncement, isFeatureEnabled } = useAppConfigStore()
+  const { token, user, family } = useAuthStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
+  const showHealth = isFeatureEnabled('health_tracker', plan)
 
   useEffect(() => {
     if (user?.id && user?.role === 'admin') {
@@ -105,6 +106,47 @@ export default function AppShell() {
         </main>
       </div>
 
+     {/* More drawer — shown when More tab tapped */}
+      {showMoreDrawer && (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 bg-black/40 z-40"
+            onClick={() => setShowMoreDrawer(false)}
+          />
+          <div
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-2xl shadow-xl"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
+          >
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-3 mb-4" />
+            <p className="text-xs text-textMuted font-medium px-5 mb-3">More pages</p>
+            <div className="grid grid-cols-3 gap-px bg-border">
+              {[
+                { to: '/app/mealplan', icon: '📅', label: 'Meal plan' },
+                { to: '/app/cookbook', icon: '📖', label: 'Cookbook' },
+                ...(showHealth ? [{ to: '/app/health', icon: '❤️', label: 'Health' }] : []),
+                { to: '/app/recalls', icon: '🚨', label: 'Recalls' },
+                { to: '/app/reports', icon: '📊', label: 'Reports' },
+                { to: '/app/settings', icon: '⚙️', label: 'Settings' },
+              ].map(item => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setShowMoreDrawer(false)}
+                  className={({ isActive }) =>
+                    `flex flex-col items-center justify-center gap-1.5 py-4 bg-surface transition-all ${
+                      isActive ? 'text-primary' : 'text-textMuted'
+                    }`
+                  }
+                >
+                  <span className="text-2xl leading-none">{item.icon}</span>
+                  <span className="text-[11px] font-medium">{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Mobile bottom nav */}
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-around"
@@ -118,9 +160,8 @@ export default function AppShell() {
         {[
           { to: '/app', icon: '🏠', label: 'Home', end: true },
           { to: '/app/pantry', icon: '🧺', label: 'Pantry' },
-          { to: '/app/recipes',  icon: '🍽️', label: 'Recipes' },
+          { to: '/app/recipes', icon: '🍽️', label: 'Recipes' },
           { to: '/app/grocery', icon: '🛒', label: 'Grocery' },
-          { to: '/app/settings', icon: '⚙️', label: 'More' },
         ].map(item => (
           <NavLink
             key={item.to}
@@ -136,6 +177,15 @@ export default function AppShell() {
             <span className="text-[10px] font-medium">{item.label}</span>
           </NavLink>
         ))}
+        <button
+          onClick={() => setShowMoreDrawer(prev => !prev)}
+          className={`flex flex-col items-center justify-center gap-0.5 py-2 flex-1 transition-all ${
+            showMoreDrawer ? 'text-primary' : 'text-textMuted'
+          }`}
+        >
+          <span className="text-xl leading-none">⋯</span>
+          <span className="text-[10px] font-medium">More</span>
+        </button>
       </nav>
     </div>
   )

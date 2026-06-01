@@ -658,14 +658,14 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             isCustomStore: false,
                           })
                         }}
-                        className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                        className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm"
                       >
                         ✎
                       </button>
 
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm"
+                        className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm"
                       >
                         ✕
                       </button>

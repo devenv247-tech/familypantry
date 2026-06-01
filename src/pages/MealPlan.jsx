@@ -655,7 +655,8 @@ const handleGenerateWeek = async () => {
           {/* Mobile calendar */}
           <div className="md:hidden">
             {/* Day selector tabs */}
-            <div className="flex gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+            <div className="relative mb-4">
+            <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
               {DAYS.map(day => (
                 <button
                   key={day}
@@ -669,6 +670,8 @@ const handleGenerateWeek = async () => {
                   {day.slice(0, 3)}
                 </button>
               ))}
+            </div>
+            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-background to-transparent" />
             </div>
 
             <div className="space-y-4">

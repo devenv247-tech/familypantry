@@ -198,7 +198,8 @@ export default function Reports() {
             <span className="text-xs text-textMuted">Last 6 months</span>
           </div>
           {hasData ? (
-            <div className="flex items-end gap-3 h-40">
+            <div className="overflow-x-auto -mx-1">
+            <div className="flex items-end gap-3 h-40" style={{ minWidth: `${Math.max(data.monthlySpend.length * 56, 280)}px` }}>
               {data.monthlySpend.map((m, i) => (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
                   <span className="text-xs text-textMuted font-medium">
@@ -218,6 +219,7 @@ export default function Reports() {
                   </span>
                 </div>
               ))}
+            </div>
             </div>
           ) : (
             <div className="h-40 flex items-center justify-center text-textMuted text-sm">

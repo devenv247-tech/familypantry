@@ -618,7 +618,7 @@ return (
           <h1 className="text-2xl font-bold text-textPrimary">Pantry</h1>
           <p className="text-textMuted mt-1">{items.length} items tracked across your home</p>
         </div>
-        <div className="flex gap-2 flex-wrap sm:flex-nowrap overflow-x-auto pb-1">
+        <div className="flex gap-2 flex-wrap">
           {/* Barcode scan */}
           <button
             onClick={() => setShowScanner(true)}
@@ -887,11 +887,11 @@ return (
             return (
               <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
                 <button onClick={() => handleDelete(item.id)}
-                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm">
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm">
                   ✕
                 </button>
                 <button onClick={() => { setRestockingId(item.id); setRestockQty('') }}
-                  className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-0 group-hover:opacity-100 transition-all font-medium hover:bg-green-100">
+                  className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-all font-medium hover:bg-green-100">
                   + Restock
                 </button>
                 {restockingId === item.id && (

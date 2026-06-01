@@ -244,20 +244,20 @@ export default function Health() {
           <h1 className="text-2xl font-bold text-textPrimary">❤️ Health tracker</h1>
           <p className="text-textMuted mt-1">Nutrition, weight and goal tracking</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => {
               setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg' })
               setShowGoalModal(true)
             }}
-            className="btn-secondary text-sm"
+            className="btn-secondary text-sm flex-1 sm:flex-none"
           >
             🎯 Set goals
           </button>
-          <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm">
+          <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm flex-1 sm:flex-none">
             ⚖️ Log weight
           </button>
-          <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm">
+          <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm flex-1 sm:flex-none">
             + Log meal
           </button>
         </div>

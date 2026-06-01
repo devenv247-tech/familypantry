@@ -194,8 +194,8 @@ export default function Dashboard() {
           <p className="text-sm font-semibold text-danger">Health Canada Recall Alert</p>
           <p className="text-sm text-red-600 mt-0.5">
             Check the Recall alerts page for items that may match your pantry.
-            <button onClick={() => navigate('/app/recalls')} className="ml-2 underline font-medium">View recalls</button>
           </p>
+          <button onClick={() => navigate('/app/recalls')} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-danger underline py-1">View recalls →</button>
         </div>
       </div>
 
