@@ -8,6 +8,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
 import SessionExpired from './pages/SessionExpired'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 
 // Lazily loaded (only fetched when needed)
 const Privacy = lazy(() => import('./pages/Privacy'))
@@ -15,8 +17,7 @@ const Terms = lazy(() => import('./pages/Terms'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const AcceptInvite = lazy(() => import('./pages/AcceptInvite'))
-const Blog = lazy(() => import('./pages/Blog'))
-const BlogPost = lazy(() => import('./pages/BlogPost'))
+// Blog eagerly loaded for now
 const AppShell = lazy(() => import('./components/layout/AppShell'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Pantry = lazy(() => import('./pages/Pantry'))
