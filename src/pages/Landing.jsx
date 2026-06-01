@@ -233,14 +233,14 @@ export default function Landing() {
                 desc: 'Take a photo of your fridge or pantry and Nooka automatically detects and adds all items instantly. Add 20 items in one photo!'
               },
               {
-                icon: '🫧',
-                title: 'AI recipe suggestions',
+                icon: '🍽️',
+                title: 'Smart recipe suggestions',
                 badge: null,
                 desc: "Get personalized meal ideas based on what you already have and each family member's health goals, allergens, and dietary preferences."
               },
               {
                 icon: '📅',
-                title: 'AI weekly meal planner',
+                title: 'Weekly meal planner',
                 badge: '👑 Premium',
                 badgeColor: 'bg-yellow-50 text-yellow-600 border-yellow-100',
                 desc: 'Generate a full week of personalized meals with one click. Choose cuisines, filter by family member, and get detailed recipes with nutrition.'
@@ -306,7 +306,7 @@ export default function Landing() {
               {[
                 { step: '1', icon: '📸', title: 'Scan or add your pantry', desc: 'Take a photo of your fridge or manually add items. Nooka handles the rest.' },
                 { step: '2', icon: '👨‍👩‍👧‍👦', title: 'Add your family', desc: 'Set up health profiles for each family member — allergens, goals, dietary needs.' },
-                { step: '3', icon: '🫧', title: 'Get personalized meals', desc: "Smart recipes using what you have, tailored to everyone's needs." },
+                { step: '3', icon: '✨', title: 'Get personalized meals', desc: "Smart recipes using what you have, tailored to everyone's needs." },
               ].map((s, i) => (
                 <div key={i} className="text-center">
                   <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
@@ -343,7 +343,7 @@ export default function Landing() {
               {[
                 { icon: '🔒', title: 'PIPEDA compliant', desc: 'Your data stays in Canada. We follow BC PIPA and federal PIPEDA privacy laws.' },
                 { icon: '🇨🇦', title: 'Canadian data storage', desc: "Database and servers hosted in Canada. Your family's data never leaves the country." },
-                { icon: '🫧', title: 'Privacy-first design', desc: 'We never send your name or personal details to any AI model. Only anonymous health preferences.' },
+                { icon: '🔐', title: 'Privacy-first design', desc: 'We never send your name or personal details to any AI model. Only anonymous health preferences.' },
               ].map((t, i) => (
                 <div key={i} className="flex flex-col items-center text-center p-6 rounded-card border border-border">
                   <div className="text-3xl mb-3">{t.icon}</div>
