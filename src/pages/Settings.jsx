@@ -667,11 +667,12 @@ const handleAddMember = async (e) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {member.name?.[0]?.toUpperCase() || '?'}
-                      </div>
-                      <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+  <div className="flex items-start gap-3 flex-1 min-w-0">
+  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+    {member.name?.[0]?.toUpperCase() || '?'}
+  </div>
+  <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-semibold text-textPrimary">{member.name}</p>
                           <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
@@ -702,7 +703,8 @@ const handleAddMember = async (e) => {
                           ))}
                         </div>
                       </div>
-                      <div className="flex gap-2 flex-shrink-0">
+  </div>{/* end flex items-start */}
+      <div className="flex gap-2 flex-shrink-0 flex-wrap sm:mt-0">
   <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
   {member.role !== 'Admin' && !member.inviteAccepted && (
     <button

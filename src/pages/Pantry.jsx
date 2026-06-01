@@ -863,12 +863,12 @@ return (
       )}
 
       {/* Search + filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 mt-4">
+      <div className="flex flex-col gap-3 mb-6 mt-4">
         <input className="input flex-1" placeholder="Search pantry items..." value={search} onChange={e => setSearch(e.target.value)} />
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-pill text-sm font-medium border transition-all ${
+              className={`px-4 py-2 rounded-pill text-sm font-medium border transition-all whitespace-nowrap flex-shrink-0 ${
                 activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
               }`}>
               {cat}
