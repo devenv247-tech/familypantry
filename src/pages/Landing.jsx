@@ -154,6 +154,27 @@ function DynamicPricingCards() {
   )
 }
 
+// ─── FAQ Item ────────────────────────────────────────────────────────────────
+function FAQItem({ question, answer }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border border-border rounded-card overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-6 py-4 text-left bg-surface hover:bg-gray-50 transition-colors"
+      >
+        <span className="font-medium text-textPrimary text-base">{question}</span>
+        <span className={`text-primary text-xl transition-transform duration-200 flex-shrink-0 ml-4 ${open ? 'rotate-45' : ''}`}>+</span>
+      </button>
+      {open && (
+        <div className="px-6 py-4 bg-white border-t border-border">
+          <p className="text-gray-600 text-sm leading-relaxed">{answer}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main Landing Page ────────────────────────────────────────────────────────
 export default function Landing() {
   const navigate = useNavigate()
@@ -352,6 +373,50 @@ export default function Landing() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="px-6 py-24 max-w-3xl mx-auto w-full">
+          <h2 className="text-3xl font-bold text-textPrimary text-center mb-4">Frequently asked questions</h2>
+          <p className="text-gray-600 text-center mb-12 text-lg">Everything you need to know before getting started.</p>
+          <div className="space-y-4">
+            {[
+              {
+                q: 'Is Nooka free to use?',
+                a: 'Yes! Nooka has a free plan that never expires. You get pantry tracking, a barcode scanner, manual grocery lists, and 5 smart recipe suggestions per week — no credit card needed. Paid plans start at $9.99/month when you\'re ready for more.'
+              },
+              {
+                q: 'Is my family\'s data stored in Canada?',
+                a: 'Always. Your data lives on Canadian servers and never crosses the border. We follow federal PIPEDA and BC PIPA privacy laws — because your family\'s information should stay where you are.'
+              },
+              {
+                q: 'How does the recipe suggestion work?',
+                a: 'Nooka looks at what\'s already in your pantry, checks each family member\'s dietary needs and health goals, and suggests meals you can actually make tonight. No random recipes you don\'t have ingredients for.'
+              },
+              {
+                q: 'Can I track allergens for my kids?',
+                a: 'Yes — each family member gets their own profile where you can set allergens, dietary restrictions, and health goals. Nooka filters every recipe suggestion around those automatically. Nothing slips through.'
+              },
+              {
+                q: 'Does Nooka work for the whole family?',
+                a: 'Yep. You can add up to 5 family members on the free plan. Each person gets their own health profile, and Nooka balances everyone\'s needs when suggesting meals — picky eaters, allergies, and all.'
+              },
+              {
+                q: 'How do food recall alerts work?',
+                a: 'Nooka checks your pantry against live Health Canada recall notices automatically. If something you have gets recalled, you\'ll get an alert right away. No more finding out from the news three days later.'
+              },
+              {
+                q: 'Can I cancel my subscription anytime?',
+                a: 'Absolutely — no contracts, no cancellation fees. Cancel from your account settings in seconds. You keep access until the end of your billing period and your data stays safe either way.'
+              },
+              {
+                q: 'What\'s the difference between Family and Premium?',
+                a: 'Family adds smart grocery lists, predictive shopping, and pantry pattern insights on top of the free plan. Premium goes further with a full weekly meal planner, voice input, photo scanning, kids nutrition tracking, and more. Both are month-to-month with no commitment.'
+              },
+            ].map((item, i) => (
+              <FAQItem key={i} question={item.q} answer={item.a} />
+            ))}
           </div>
         </section>
 
