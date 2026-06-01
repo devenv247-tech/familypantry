@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /admin/
+
+Sitemap: https://nooka.ca/sitemap.xml
