@@ -12,8 +12,9 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (!post) return
-import(`../blog/${slug}.md`)
-      .then(mod => setContent(mod.default))
+    fetch(`/blog/${slug}.md`)
+      .then(res => res.text())
+      .then(text => setContent(text))
       .catch(() => setContent('# Post not found'))
   }, [slug, post])
 
