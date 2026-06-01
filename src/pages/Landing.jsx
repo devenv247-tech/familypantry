@@ -1,6 +1,6 @@
 import NookaIcon from '../components/ui/NookaIcon'
 import { useNavigate, Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 
 // ─── Public API call (no auth needed) ────────────────────────────────────────
@@ -62,12 +62,23 @@ function DynamicPricingCards() {
   const navigate = useNavigate()
   const [flags, setFlags] = useState([])
   const [loading, setLoading] = useState(true)
+  const ref = useRef(null)
 
   useEffect(() => {
-    getPublicConfig()
-      .then(data => setFlags(data.flags || []))
-      .catch(() => setFlags([]))
-      .finally(() => setLoading(false))
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          getPublicConfig()
+            .then(data => setFlags(data.flags || []))
+            .catch(() => setFlags([]))
+            .finally(() => setLoading(false))
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
   }, [])
 
   const getFeatures = (plan) => {
@@ -79,7 +90,7 @@ function DynamicPricingCards() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[1, 2, 3].map(i => (
           <div key={i} className="rounded-card p-8 border-2 border-border bg-surface animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-16 mb-4" />
@@ -94,7 +105,7 @@ function DynamicPricingCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {PLAN_META.map((plan, i) => {
         const features = getFeatures(plan)
         return (
@@ -163,6 +174,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
+      <main>
       <section className="flex flex-col items-center text-center px-6 py-24 max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-blue-50 text-primary text-xs font-medium px-4 py-1.5 rounded-pill mb-6 border border-blue-100">
           🇨🇦 Built for Canadian families
@@ -354,6 +366,8 @@ export default function Landing() {
           </button>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-border px-6 py-8 text-center text-sm text-textMuted">
