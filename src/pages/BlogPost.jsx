@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import Markdown from 'react-markdown'
+import ReactMarkdown from 'react-markdown'
 import NookaIcon from '../components/ui/NookaIcon'
 import { blogPosts } from '../data/blogPosts'
 
@@ -76,7 +76,7 @@ export default function BlogPost() {
           prose-li:text-gray-600 prose-li:leading-relaxed
           prose-strong:text-textPrimary
           prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
-          <Markdown>{content}</Markdown>
+          <ReactMarkdown>{content}</ReactMarkdown>
         </div>
 
         {/* CTA at bottom of post */}
