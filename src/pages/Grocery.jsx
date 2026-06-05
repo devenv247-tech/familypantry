@@ -315,26 +315,34 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 <span className="text-lg">🔮</span>
                 <h2 className="font-semibold text-textPrimary">You might need these soon</h2>
               </div>
-              <span className="text-xs text-textMuted">Based on your history</span>
+              <span className="text-xs text-textMuted">Stock levels & purchase history</span>
             </div>
             <div className="space-y-2">
               {predictions.map((p, i) => (
-                <div key={i} className="flex items-center justify-between bg-white rounded-btn border border-blue-100 px-3 py-2.5">
-                  <div>
-                    <p className="text-sm font-medium text-textPrimary">{p.name}</p>
-                    <p className="text-xs text-textMuted">
-                      {p.overdue
-                        ? `Every ${p.avgIntervalDays}d — overdue by ${Math.abs(p.daysUntilDue)}d`
-                        : p.daysUntilDue === 0
-                        ? `Every ${p.avgIntervalDays}d — due today`
-                        : `Every ${p.avgIntervalDays}d — due in ${p.daysUntilDue}d`
-                      }
-                    </p>
+                <div key={i} className={`flex items-center justify-between rounded-btn border px-3 py-2.5 ${
+                  p.urgent
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-white border-blue-100'
+                }`}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base flex-shrink-0">
+                      {p.urgent ? '🚨' : p.source === 'low_stock' ? '📉' : '🔁'}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-textPrimary truncate">{p.name}</p>
+                      <p className={`text-xs truncate ${p.urgent ? 'text-red-500' : 'text-textMuted'}`}>
+                        {p.reason}
+                      </p>
+                    </div>
                   </div>
                   <button
                     onClick={() => handleAddPrediction(p)}
                     disabled={addingPrediction[p.name]}
-                    className="text-xs bg-primary text-white px-3 py-1.5 rounded-btn font-medium hover:bg-blue-600 transition-all disabled:opacity-50 whitespace-nowrap ml-3"
+                    className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 whitespace-nowrap ml-3 ${
+                      p.urgent
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-primary text-white hover:bg-blue-600'
+                    }`}
                   >
                     {addingPrediction[p.name] ? '...' : '+ Add'}
                   </button>

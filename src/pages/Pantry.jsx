@@ -55,7 +55,7 @@ export default function Pantry() {
   const [applyingTemplate, setApplyingTemplate] = useState(null)
 
   const { toast, showToast, hideToast } = useToast()
- const [voiceConfirm, setVoiceConfirm] = useState(null) // { existing, parsed }
+  const [voiceConfirm, setVoiceConfirm] = useState(null) // { existing, parsed }
 
   const { state: voiceState, supported: voiceSupported, start: startVoice, stop: stopVoice, setIdle: setVoiceIdle } = useVoiceInput({
     onResult: async (transcript) => {
@@ -231,7 +231,7 @@ export default function Pantry() {
       if (existing) {
         try {
           await logItemRemoval(existing.name, existing.category, existing.predictedExpiry, existing.expiry, 'used')
-        } catch (e) {}
+        } catch (e) { }
       }
     } catch (err) {
       showToast('Failed to delete item', 'error')
@@ -332,7 +332,7 @@ export default function Pantry() {
           } else {
             showToast('Failed to scan photo. Please try again.', 'error')
           }
-        }finally {
+        } finally {
           setPhotoScanning(false)
         }
       }
@@ -400,7 +400,7 @@ export default function Pantry() {
     }
   }
 
-return (
+  return (
     <div className="page-container">
       <VoiceOverlay state={voiceState} onCancel={() => { stopVoice(); setVoiceIdle() }} />
 
@@ -457,15 +457,13 @@ return (
                     onClick={() => setSelectedScannedItems(prev =>
                       prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
                     )}
-                    className={`flex items-center gap-3 p-3 rounded-btn border cursor-pointer transition-all ${
-                      selectedScannedItems.includes(i)
+                    className={`flex items-center gap-3 p-3 rounded-btn border cursor-pointer transition-all ${selectedScannedItems.includes(i)
                         ? 'border-primary bg-blue-50'
                         : 'border-border hover:border-gray-300'
-                    }`}
+                      }`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                      selectedScannedItems.includes(i) ? 'border-primary bg-primary' : 'border-gray-300'
-                    }`}>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedScannedItems.includes(i) ? 'border-primary bg-primary' : 'border-gray-300'
+                      }`}>
                       {selectedScannedItems.includes(i) && <span className="text-white text-xs">✓</span>}
                     </div>
                     <span className="text-xl">{item.icon}</span>
@@ -513,7 +511,7 @@ return (
                             setScannedItems(updated)
                           }}
                         >
-                          {['Fridge','Freezer','Dry goods','Spices','Snacks','Drinks','Condiments','Produce'].map(c => (
+                          {['Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks', 'Drinks', 'Condiments', 'Produce'].map(c => (
                             <option key={c} value={c}>{c}</option>
                           ))}
                         </select>
@@ -613,7 +611,7 @@ return (
       )}
 
       {/* Header */}
-     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-textPrimary">Pantry</h1>
           <p className="text-textMuted mt-1">{items.length} items tracked across your home</p>
@@ -628,8 +626,8 @@ return (
             {scanLoading ? (
               <>
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 Looking up...
               </>
@@ -646,8 +644,8 @@ return (
               {photoScanning ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Scanning photo...
                 </>
@@ -674,19 +672,18 @@ return (
             </button>
           )}
 
-        {/* Voice input */}
+          {/* Voice input */}
           {voiceSupported && canUseVoice && (
             <button
               onClick={startVoice}
               disabled={voiceState !== 'idle'}
               title="Add item by voice"
-              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${
-                voiceState === 'listening'
+              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${voiceState === 'listening'
                   ? 'border-red-300 text-red-600 bg-red-50'
                   : voiceState === 'parsing'
-                  ? 'border-blue-200 text-primary bg-blue-50'
-                  : 'btn-secondary'
-              }`}
+                    ? 'border-blue-200 text-primary bg-blue-50'
+                    : 'btn-secondary'
+                }`}
             >
               {/* Ripple ring when listening */}
               {voiceState === 'listening' && (
@@ -698,8 +695,8 @@ return (
               {voiceState === 'parsing' ? (
                 <>
                   <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   <span>Parsing...</span>
                 </>
@@ -784,12 +781,11 @@ return (
             {expiringSoon.map(item => (
               <div key={item.id} className="flex items-center justify-between text-xs">
                 <span className="text-yellow-900">{item.icon} {item.name}</span>
-                <span className={`font-semibold px-2 py-0.5 rounded-pill ${
-                  item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
-                  item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
-                  item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>
+                <span className={`font-semibold px-2 py-0.5 rounded-pill ${item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
+                    item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
+                      item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-blue-100 text-blue-700'
+                  }`}>
                   {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
                 </span>
               </div>
@@ -868,9 +864,8 @@ return (
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-pill text-sm font-medium border transition-all whitespace-nowrap flex-shrink-0 ${
-                activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-              }`}>
+              className={`px-4 py-2 rounded-pill text-sm font-medium border transition-all whitespace-nowrap flex-shrink-0 ${activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                }`}>
               {cat}
             </button>
           ))}
@@ -908,20 +903,28 @@ return (
                 <div className="text-3xl mb-3 mt-6">{item.icon}</div>
                 <p className="font-semibold text-textPrimary">{item.name}</p>
                 <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
+                {item.maxQuantity > 0 && item.normalizedQty != null && (() => {
+                  const pct = Math.min(100, Math.round((item.normalizedQty / item.maxQuantity) * 100))
+                  const color = pct <= 10 ? 'bg-red-500' : pct <= 25 ? 'bg-orange-400' : 'bg-green-400'
+                  return (
+                    <div className="mt-1.5 w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  )
+                })()}
                 {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1">🫧 AI predicted expiry</p>}
                 {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>}
                 {itemCO2?.co2Label && <p className="text-xs text-green-600 mt-1">{itemCO2.co2Label.icon} {itemCO2.co2Label.label} CO2</p>}
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">{item.category}</span>
-                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
-                    isExpired(item.expiry || item.predictedExpiry) ? 'bg-red-50 text-danger' :
-                    isExpiringSoon(item.expiry || item.predictedExpiry) ? 'bg-orange-50 text-orange-500' :
-                    'bg-green-50 text-success'
-                  }`}>
+                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${isExpired(item.expiry || item.predictedExpiry) ? 'bg-red-50 text-danger' :
+                      isExpiringSoon(item.expiry || item.predictedExpiry) ? 'bg-orange-50 text-orange-500' :
+                        'bg-green-50 text-success'
+                    }`}>
                     {isExpired(item.expiry || item.predictedExpiry) ? 'Expired' :
-                     isExpiringSoon(item.expiry || item.predictedExpiry) ? 'Expiring soon' :
-                     item.expiry ? `Exp: ${item.expiry}` :
-                     item.predictedExpiry ? `~${new Date(item.predictedExpiry).toLocaleDateString('en-CA')}` : 'No expiry'}
+                      isExpiringSoon(item.expiry || item.predictedExpiry) ? 'Expiring soon' :
+                        item.expiry ? `Exp: ${item.expiry}` :
+                          item.predictedExpiry ? `~${new Date(item.predictedExpiry).toLocaleDateString('en-CA')}` : 'No expiry'}
                   </span>
                 </div>
               </div>
@@ -930,7 +933,7 @@ return (
         </div>
       )}
 
-     {/* Voice restock confirmation */}
+      {/* Voice restock confirmation */}
       {voiceConfirm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
