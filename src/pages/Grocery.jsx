@@ -22,6 +22,7 @@ export default function Grocery() {
   const [priceAlerts, setPriceAlerts] = useState([])
   const [predictions, setPredictions] = useState([])
   const [addingPrediction, setAddingPrediction] = useState({})
+  const [autoGenerating, setAutoGenerating] = useState(false)
   const [anomalyModal, setAnomalyModal] = useState(null)
   const { toast, showToast, hideToast } = useToast()
   const navigate = useNavigate()
@@ -86,6 +87,39 @@ export default function Grocery() {
       showToast('Failed to add item', 'error')
     } finally {
       setAddingPrediction(prev => ({ ...prev, [prediction.name]: false }))
+    }
+  }
+
+  const handleAutoGenerate = async () => {
+    if (!isFeatureEnabled('predictive_grocery', plan)) {
+      navigate('/app/settings?tab=plan')
+      return
+    }
+    if (predictions.length === 0) {
+      showToast('No predictions yet — check back after a few grocery trips', 'info')
+      return
+    }
+    setAutoGenerating(true)
+    let added = 0
+    const remaining = []
+    for (const p of predictions) {
+      try {
+        const existing = items.find(i => i.name.toLowerCase() === p.name.toLowerCase())
+        if (!existing) {
+          const item = await addGroceryItem({ name: p.name, qty: '', store: '', price: '', category: '' })
+          setItems(prev => [item, ...prev])
+          added++
+        }
+      } catch (err) {
+        remaining.push(p)
+      }
+    }
+    setPredictions(remaining)
+    setAutoGenerating(false)
+    if (added > 0) {
+      showToast(`🫧 Added ${added} predicted item${added > 1 ? 's' : ''} to your list!`)
+    } else {
+      showToast('All predictions are already on your list')
     }
   }
 
@@ -227,7 +261,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
     </>
   )
 
- return (
+  return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
       <VoiceOverlay state={voiceState} onCancel={() => { stopVoice(); setVoiceIdle() }} />
 
@@ -238,9 +272,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <div className="text-3xl mb-3 text-center">{anomalyModal.icon}</div>
             <h3 className="font-semibold text-textPrimary text-lg mb-2 text-center">{anomalyModal.message}</h3>
             <p className="text-sm text-textMuted text-center mb-2">{anomalyModal.detail}</p>
-            <div className={`rounded-btn px-4 py-3 mb-4 text-center ${
-              anomalyModal.type === 'high' ? 'bg-orange-50 border border-orange-100' : 'bg-green-50 border border-green-100'
-            }`}>
+            <div className={`rounded-btn px-4 py-3 mb-4 text-center ${anomalyModal.type === 'high' ? 'bg-orange-50 border border-orange-100' : 'bg-green-50 border border-green-100'
+              }`}>
               <p className={`text-sm font-medium ${anomalyModal.type === 'high' ? 'text-orange-600' : 'text-success'}`}>
                 {anomalyModal.suggestion}
               </p>
@@ -257,18 +290,17 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex gap-3">
-        {voiceSupported && canUseVoice && (
+          {voiceSupported && canUseVoice && (
             <button
               onClick={startVoice}
               disabled={voiceState !== 'idle'}
               title="Add item by voice"
-              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${
-                voiceState === 'listening'
+              className={`relative flex items-center gap-2 text-sm px-3 py-2 rounded-btn border font-medium transition-all overflow-hidden ${voiceState === 'listening'
                   ? 'border-red-300 text-red-600 bg-red-50'
                   : voiceState === 'parsing'
-                  ? 'border-blue-200 text-primary bg-blue-50'
-                  : 'btn-secondary'
-              }`}
+                    ? 'border-blue-200 text-primary bg-blue-50'
+                    : 'btn-secondary'
+                }`}
             >
               {voiceState === 'listening' && (
                 <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -278,8 +310,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
               {voiceState === 'parsing' ? (
                 <>
                   <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   <span>Parsing...</span>
                 </>
@@ -300,13 +332,25 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <button onClick={() => setShowForm(true)} className="btn-secondary flex items-center gap-2">
             + Add item
           </button>
-          <button className="btn-primary flex items-center gap-2">
-            🫧 Auto-generate
+          <button
+            onClick={handleAutoGenerate}
+            disabled={autoGenerating}
+            className="btn-primary flex items-center gap-2 disabled:opacity-60"
+          >
+            {autoGenerating ? (
+              <>
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Adding...
+              </>
+            ) : <>🫧 Auto-generate</>}
           </button>
         </div>
       </div>
 
-    {/* Predictive suggestions — family+ only */}
+      {/* Predictive suggestions — family+ only */}
       {isFeatureEnabled('predictive_grocery', plan) ? (
         predictions.length > 0 && (
           <div className="card mb-6 border border-blue-100 bg-blue-50/20">
@@ -319,11 +363,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             </div>
             <div className="space-y-2">
               {predictions.map((p, i) => (
-                <div key={i} className={`flex items-center justify-between rounded-btn border px-3 py-2.5 ${
-                  p.urgent
+                <div key={i} className={`flex items-center justify-between rounded-btn border px-3 py-2.5 ${p.urgent
                     ? 'bg-red-50 border-red-200'
                     : 'bg-white border-blue-100'
-                }`}>
+                  }`}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-base flex-shrink-0">
                       {p.urgent ? '🚨' : p.source === 'low_stock' ? '📉' : '🔁'}
@@ -338,11 +381,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                   <button
                     onClick={() => handleAddPrediction(p)}
                     disabled={addingPrediction[p.name]}
-                    className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 whitespace-nowrap ml-3 ${
-                      p.urgent
+                    className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 whitespace-nowrap ml-3 ${p.urgent
                         ? 'bg-red-500 text-white hover:bg-red-600'
                         : 'bg-primary text-white hover:bg-blue-600'
-                    }`}
+                      }`}
                   >
                     {addingPrediction[p.name] ? '...' : '+ Add'}
                   </button>
@@ -377,9 +419,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>
           <div className="space-y-2">
             {priceAlerts.map((alert, i) => (
-              <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${
-                alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
-              }`}>
+              <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
+                }`}>
                 <div className="flex items-center gap-2">
                   <span>{alert.icon}</span>
                   <div>
@@ -392,9 +433,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     </p>
                   </div>
                 </div>
-                <span className={`font-bold px-2 py-0.5 rounded-pill ${
-                  alert.type === 'high' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-success'
-                }`}>
+                <span className={`font-bold px-2 py-0.5 rounded-pill ${alert.type === 'high' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-success'
+                  }`}>
                   {alert.percentChange > 0 ? '+' : ''}{alert.percentChange}%
                 </span>
               </div>
@@ -499,11 +539,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <button
             key={store}
             onClick={() => setActiveStore(store)}
-            className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-              activeStore === store
+            className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${activeStore === store
                 ? 'bg-primary text-white border-primary'
                 : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-            }`}
+              }`}
           >
             {store}
           </button>
@@ -555,7 +594,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
                           />
                         </div>
-                       <div>
+                        <div>
                           <label className="label">Quantity</label>
                           <div className="flex gap-2">
                             <input
@@ -611,11 +650,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     <div className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}>
                       <button
                         onClick={() => toggleCheck(item.id)}
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                          item.checked
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${item.checked
                             ? 'bg-success border-success text-white'
                             : 'border-border hover:border-primary'
-                        }`}
+                          }`}
                       >
                         {item.checked && <span className="text-xs">✓</span>}
                       </button>
@@ -627,11 +665,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                           </p>
                           {/* Price alert badge on item */}
                           {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase()) && (
-                            <span className={`text-xs px-1.5 py-0.5 rounded-pill font-medium ${
-                              priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.type === 'high'
+                            <span className={`text-xs px-1.5 py-0.5 rounded-pill font-medium ${priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.type === 'high'
                                 ? 'bg-orange-100 text-orange-600'
                                 : 'bg-green-100 text-success'
-                            }`}>
+                              }`}>
                               {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.icon}
                               {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.percentChange > 0 ? '+' : ''}
                               {priceAlerts.find(a => a.itemName.toLowerCase() === item.name.toLowerCase())?.percentChange}%
