@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getMembers, addMember, updateMember, deleteMember, inviteMember } from '../api/family'
+import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold } from '../api/family'
 import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
@@ -122,6 +122,8 @@ const { isFeatureEnabled } = useAppConfigStore()
   const [subscription, setSubscription] = useState(null)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState('')
+  const [restockThreshold, setRestockThreshold] = useState(family?.restockThresholdPercent ?? 20)
+  const [savingThreshold, setSavingThreshold] = useState(false)
   const [notifPrefs, setNotifPrefs] = useState({
     recalls: true,
     expiry: true,
@@ -185,7 +187,20 @@ const { isFeatureEnabled } = useAppConfigStore()
     }
   }
 
-  const handleUpgrade = async (plan) => {
+  const handleSaveThreshold = async () => {
+    setSavingThreshold(true)
+    try {
+      await updateRestockThreshold(restockThreshold)
+      setAuth(token, user, { ...family, restockThresholdPercent: restockThreshold })
+      showToast('Restock threshold saved!')
+    } catch (err) {
+      showToast('Failed to save threshold', 'error')
+    } finally {
+      setSavingThreshold(false)
+    }
+  }
+
+const handleUpgrade = async (plan) => {
     setUpgradingPlan(plan)
     try {
       const { url } = await createCheckoutSession(plan.toLowerCase())
@@ -803,6 +818,39 @@ const handleAddMember = async (e) => {
             <div className="flex gap-3 pt-2">
               <button onClick={handleUpdateAccount} disabled={savingAccount} className="btn-primary disabled:opacity-50">
                 {savingAccount ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-border">
+            <h3 className="font-semibold text-textPrimary mb-1">🔮 Grocery restock threshold</h3>
+            <p className="text-sm text-textMuted mb-4">
+              Nooka will suggest restocking pantry items when stock drops below this percentage of their usual amount.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-textMuted">Remind me at</span>
+                <span className="text-sm font-semibold text-primary">{restockThreshold}% remaining</span>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={50}
+                step={5}
+                value={restockThreshold}
+                onChange={e => setRestockThreshold(parseInt(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-textMuted">
+                <span>5% (run lean)</span>
+                <span>50% (early warning)</span>
+              </div>
+              <button
+                onClick={handleSaveThreshold}
+                disabled={savingThreshold}
+                className="btn-primary text-sm disabled:opacity-50"
+              >
+                {savingThreshold ? 'Saving...' : 'Save threshold'}
               </button>
             </div>
           </div>

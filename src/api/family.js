@@ -22,3 +22,6 @@ export const deleteMember = async (id) => {
 
 export const inviteMember = async (id, email) =>
   client.post(`/family/members/${id}/invite`, { email }).then(r => r.data)
+
+export const updateRestockThreshold = async (percent) =>
+  client.put('/family/restock-threshold', { restockThresholdPercent: percent }).then(r => r.data)
