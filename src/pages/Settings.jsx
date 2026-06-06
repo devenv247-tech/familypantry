@@ -104,7 +104,7 @@ const { isFeatureEnabled } = useAppConfigStore()
   const [editingId, setEditingId] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
   const [editForm, setEditForm] = useState({})
-  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '' })
+  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '', isBaby: false, birthDate: '' })
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -116,7 +116,7 @@ const { isFeatureEnabled } = useAppConfigStore()
     confirmPassword: '',
   })
   const [savingAccount, setSavingAccount] = useState(false)
-  const [inviteModal, setInviteModal] = useState(null) // holds member object
+  const [inviteModal, setInviteModal] = useState(null)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteSending, setInviteSending] = useState(false)
   const [subscription, setSubscription] = useState(null)
@@ -149,7 +149,6 @@ const { isFeatureEnabled } = useAppConfigStore()
     }
   }, [activeTab])
 
-  // Handle success/cancel from Stripe redirect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('success') === 'true') {
@@ -175,8 +174,6 @@ const { isFeatureEnabled } = useAppConfigStore()
     try {
       const data = await getSubscription()
       setSubscription(data)
-
-      // Update auth store with latest plan from server
       if (data?.plan && data.plan !== family?.plan) {
         setAuth(token, user, { ...family, plan: data.plan })
       }
@@ -200,7 +197,7 @@ const { isFeatureEnabled } = useAppConfigStore()
     }
   }
 
-const handleUpgrade = async (plan) => {
+  const handleUpgrade = async (plan) => {
     setUpgradingPlan(plan)
     try {
       const { url } = await createCheckoutSession(plan.toLowerCase())
@@ -229,7 +226,7 @@ const handleUpgrade = async (plan) => {
     }
   }
 
- const startEdit = (member) => {
+  const startEdit = (member) => {
     setEditingId(member.id)
     setEditForm({
       ...member,
@@ -239,7 +236,7 @@ const handleUpgrade = async (plan) => {
     })
   }
 
- const saveEdit = async () => {
+  const saveEdit = async () => {
     try {
       const updated = await updateMember(editingId, {
         ...editForm,
@@ -265,22 +262,22 @@ const handleUpgrade = async (plan) => {
   }
 
   const handleInvite = async () => {
-  if (!inviteEmail.trim()) return
-  setInviteSending(true)
-  try {
-    await inviteMember(inviteModal.id, inviteEmail)
-    setMembers(prev => prev.map(m => m.id === inviteModal.id ? { ...m, email: inviteEmail } : m))
-    setInviteModal(null)
-    setInviteEmail('')
-    showToast('Invite sent!')
-  } catch (err) {
-    showToast(err.response?.data?.error || 'Failed to send invite', 'error')
-  } finally {
-    setInviteSending(false)
+    if (!inviteEmail.trim()) return
+    setInviteSending(true)
+    try {
+      await inviteMember(inviteModal.id, inviteEmail)
+      setMembers(prev => prev.map(m => m.id === inviteModal.id ? { ...m, email: inviteEmail } : m))
+      setInviteModal(null)
+      setInviteEmail('')
+      showToast('Invite sent!')
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to send invite', 'error')
+    } finally {
+      setInviteSending(false)
+    }
   }
-}
 
-const handleAddMember = async (e) => {
+  const handleAddMember = async (e) => {
     e.preventDefault()
     if (!newMember.name.trim()) return
     try {
@@ -288,9 +285,10 @@ const handleAddMember = async (e) => {
         ...newMember,
         goals: newMember.goals.join(', '),
         dietary: newMember.dietary.join(', '),
+        birthDate: newMember.isBaby && newMember.birthDate ? newMember.birthDate : undefined,
       })
       setMembers(prev => [...prev, member])
-      setNewMember({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '' })
+      setNewMember({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '', isBaby: false, birthDate: '' })
       setShowAddMember(false)
       showToast('Member added!')
     } catch (err) {
@@ -346,6 +344,25 @@ const handleAddMember = async (e) => {
   const currentPlan = family?.plan || 'free'
   const currentPlanName = currentPlan === 'premium' ? 'Premium' : currentPlan === 'family' ? 'Family' : 'Free'
 
+  // Helper: compute baby age in months from birthDate
+  const getBabyAgeMonths = (birthDate) => {
+    if (!birthDate) return null
+    const birth = new Date(birthDate)
+    const now = new Date()
+    return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
+  }
+
+  const getBabyStageLabel = (months) => {
+    if (months === null) return null
+    if (months < 6)  return { stage: 0, label: 'Breast milk / formula only', color: 'bg-gray-100 text-gray-600' }
+    if (months < 7)  return { stage: 1, label: 'Stage 1 — first iron-rich purées', color: 'bg-pink-50 text-pink-600' }
+    if (months < 9)  return { stage: 2, label: 'Stage 2 — mashed & lumpy textures', color: 'bg-orange-50 text-orange-600' }
+    if (months < 12) return { stage: 3, label: 'Stage 3 — soft finger foods', color: 'bg-yellow-50 text-yellow-600' }
+    if (months < 18) return { stage: 4, label: 'Stage 4 — most family foods', color: 'bg-green-50 text-green-600' }
+    if (months < 36) return { stage: 5, label: 'Stage 5 — toddler table foods', color: 'bg-blue-50 text-blue-600' }
+    return { stage: 5, label: 'Toddler (36+ months)', color: 'bg-blue-50 text-blue-600' }
+  }
+
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
 
@@ -356,7 +373,7 @@ const handleAddMember = async (e) => {
       </div>
 
       {/* Tabs */}
-     <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 overflow-x-auto scrollbar-hide">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -390,109 +407,154 @@ const handleAddMember = async (e) => {
                 <button onClick={() => setShowAddMember(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
               </div>
               <form onSubmit={handleAddMember}>
+
+                {/* Baby toggle */}
+                <div className="flex items-center gap-3 mb-4 p-3 rounded-card bg-pink-50 border border-pink-100">
+                  <button
+                    type="button"
+                    onClick={() => setNewMember(p => ({ ...p, isBaby: !p.isBaby, age: '', birthDate: '', goals: [], dietary: [], weight: '', height: '' }))}
+                    className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-200'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${newMember.isBaby ? 'translate-x-5' : 'translate-x-1'}`} />
+                  </button>
+                  <div>
+                    <p className="text-sm font-medium text-textPrimary">This is a baby or toddler 🍼</p>
+                    <p className="text-xs text-textMuted">Unlocks stage-based food tracking and allergen introduction scheduler</p>
+                  </div>
+                </div>
+
+                {/* Name + age/birthdate + weight/height */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div>
                     <label className="label">Name</label>
                     <input className="input" placeholder="name" value={newMember.name} onChange={e => setNewMember(p => ({ ...p, name: e.target.value }))} />
                   </div>
-                  <div>
-                    <label className="label">Age</label>
-                    <input className="input" type="number" placeholder="age" value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
-                  </div>
-                  <div>
-                    <label className="label">Weight</label>
-                    <div className="flex gap-2">
+
+                  {newMember.isBaby ? (
+                    <div>
+                      <label className="label">Date of birth</label>
                       <input
-                        className="input flex-1"
-                        type="number"
-                        step="0.1"
-                        placeholder="weight"
-                        value={newMember.weight}
-                        onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
+                        className="input"
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        value={newMember.birthDate}
+                        onChange={e => setNewMember(p => ({ ...p, birthDate: e.target.value }))}
                       />
-                      <select
-                        className="input w-20"
-                        value={newMember.weightUnit}
-                        onChange={e => setNewMember(p => ({ ...p, weightUnit: e.target.value }))}
-                      >
-                        <option value="kg">kg</option>
-                        <option value="lbs">lbs</option>
-                      </select>
                     </div>
-                  </div>
-                  <div>
-                    <label className="label">Height</label>
-                    <input
-                      className="input"
-                      placeholder="Type 54 for 5'4&quot;"
-                      value={newMember.height}
-                      onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))}
-                      onBlur={e => {
-                        const raw = e.target.value.replace(/\D/g, '')
-                        if (raw && !e.target.value.includes("'")) {
-                          setNewMember(p => ({ ...p, height: formatHeight(raw) }))
-                        }
-                      }}
-                    />
-                    <p className="text-xs text-textMuted mt-1">Type 54 → auto formats to 5'4"</p>
-                  </div>
-                </div>
+                  ) : (
+                    <div>
+                      <label className="label">Age</label>
+                      <input className="input" type="number" placeholder="age" value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
+                    </div>
+                  )}
 
-                {/* Health goals — multi select */}
-                <div className="mb-4">
-                  <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                  <div className="flex flex-wrap gap-2">
-                    {GOALS.map(goal => {
-                      const selected = (newMember.goals || []).includes(goal)
-                      return (
-                        <button key={goal} type="button"
-                          onClick={() => setNewMember(p => ({
-                            ...p,
-                            goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
-                          }))}
-                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                            selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                          }`}
+                  {!newMember.isBaby && (
+                    <div>
+                      <label className="label">Weight</label>
+                      <div className="flex gap-2">
+                        <input
+                          className="input flex-1"
+                          type="number"
+                          step="0.1"
+                          placeholder="weight"
+                          value={newMember.weight}
+                          onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
+                        />
+                        <select
+                          className="input w-20"
+                          value={newMember.weightUnit}
+                          onChange={e => setNewMember(p => ({ ...p, weightUnit: e.target.value }))}
                         >
-                          {selected ? '✓ ' : '+ '}{goal}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {(newMember.goals || []).length > 0 && (
-                    <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
+                          <option value="kg">kg</option>
+                          <option value="lbs">lbs</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {!newMember.isBaby && (
+                    <div>
+                      <label className="label">Height</label>
+                      <input
+                        className="input"
+                        placeholder="Type 54 for 5'4&quot;"
+                        value={newMember.height}
+                        onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))}
+                        onBlur={e => {
+                          const raw = e.target.value.replace(/\D/g, '')
+                          if (raw && !e.target.value.includes("'")) {
+                            setNewMember(p => ({ ...p, height: formatHeight(raw) }))
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-textMuted mt-1">Type 54 → auto formats to 5'4"</p>
+                    </div>
                   )}
                 </div>
 
-                {/* Dietary preferences — multi select */}
-                <div className="mb-4">
-                  <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                  <div className="flex flex-wrap gap-2">
-                    {DIETARY.map(diet => {
-                      const selected = (newMember.dietary || []).includes(diet)
-                      return (
-                        <button key={diet} type="button"
-                          onClick={() => setNewMember(p => ({
-                            ...p,
-                            dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
-                          }))}
-                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                            selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
-                          }`}
-                        >
-                          {selected ? '✓ ' : '+ '}{diet}
-                        </button>
-                      )
-                    })}
+                {/* Health goals — hidden for babies */}
+                {!newMember.isBaby && (
+                  <div className="mb-4">
+                    <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                    <div className="flex flex-wrap gap-2">
+                      {GOALS.map(goal => {
+                        const selected = (newMember.goals || []).includes(goal)
+                        return (
+                          <button key={goal} type="button"
+                            onClick={() => setNewMember(p => ({
+                              ...p,
+                              goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
+                            }))}
+                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                              selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                            }`}
+                          >
+                            {selected ? '✓ ' : '+ '}{goal}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {(newMember.goals || []).length > 0 && (
+                      <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
+                    )}
                   </div>
-                  {(newMember.dietary || []).length > 0 && (
-                    <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
-                  )}
-                </div>
+                )}
 
+                {/* Dietary preferences — hidden for babies */}
+                {!newMember.isBaby && (
+                  <div className="mb-4">
+                    <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                    <div className="flex flex-wrap gap-2">
+                      {DIETARY.map(diet => {
+                        const selected = (newMember.dietary || []).includes(diet)
+                        return (
+                          <button key={diet} type="button"
+                            onClick={() => setNewMember(p => ({
+                              ...p,
+                              dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
+                            }))}
+                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                              selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
+                            }`}
+                          >
+                            {selected ? '✓ ' : '+ '}{diet}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {(newMember.dietary || []).length > 0 && (
+                      <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Allergens — always shown */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                   <div className="md:col-span-3">
                     <label className="label">Allergens</label>
+                    {newMember.isBaby && (
+                      <p className="text-xs text-pink-600 mb-2">💡 You can track allergen introductions step by step after adding your baby.</p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       {ALLERGENS.map(allergen => {
                         const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
@@ -515,6 +577,7 @@ const handleAddMember = async (e) => {
                     {newMember.allergens && <p className="text-xs text-danger mt-2">⚠️ Allergens: {newMember.allergens}</p>}
                   </div>
                 </div>
+
                 <div className="flex gap-3 justify-end">
                   <button type="button" onClick={() => setShowAddMember(false)} className="btn-secondary">Cancel</button>
                   <button type="submit" className="btn-primary">Add member</button>
@@ -531,7 +594,10 @@ const handleAddMember = async (e) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {members.map(member => (
+              {members.map(member => {
+                const babyMonths = member.isBaby ? getBabyAgeMonths(member.birthDate) : null
+                const babyStage = babyMonths !== null ? getBabyStageLabel(babyMonths) : null
+                return (
                 <div key={member.id} className="card">
                   {editingId === member.id ? (
                     <div>
@@ -541,115 +607,112 @@ const handleAddMember = async (e) => {
                           <input className="input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
                         </div>
                         <div>
-                          <label className="label">Age</label>
-                          <input className="input" type="number" value={editForm.age || ''} onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
-                        </div>
-                        <div>
-                          <label className="label">Weight</label>
-                          <div className="flex gap-2">
+                          <label className="label">{editForm.isBaby ? 'Date of birth' : 'Age'}</label>
+                          {editForm.isBaby ? (
                             <input
-                              className="input flex-1"
-                              type="number"
-                              step="0.1"
-                              min="0"
-                              placeholder="e.g. 70.5"
-                              value={editForm.weight || ''}
-                              onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
+                              className="input"
+                              type="date"
+                              max={new Date().toISOString().split('T')[0]}
+                              value={editForm.birthDate ? new Date(editForm.birthDate).toISOString().split('T')[0] : ''}
+                              onChange={e => setEditForm(p => ({ ...p, birthDate: e.target.value }))}
                             />
-                            <select
-                              className="input w-20"
-                              value={editForm.weightUnit || 'kg'}
-                              onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
-                            >
-                              <option value="kg">kg</option>
-                              <option value="lbs">lbs</option>
-                            </select>
+                          ) : (
+                            <input className="input" type="number" value={editForm.age || ''} onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
+                          )}
+                        </div>
+                        {!editForm.isBaby && (
+                          <div>
+                            <label className="label">Weight</label>
+                            <div className="flex gap-2">
+                              <input
+                                className="input flex-1"
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                placeholder="e.g. 70.5"
+                                value={editForm.weight || ''}
+                                onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
+                              />
+                              <select
+                                className="input w-20"
+                                value={editForm.weightUnit || 'kg'}
+                                onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
+                              >
+                                <option value="kg">kg</option>
+                                <option value="lbs">lbs</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                        {!editForm.isBaby && (
+                          <div>
+                            <label className="label">Height</label>
+                            <input
+                              className="input"
+                              placeholder="e.g. 54 → 5'4&quot;"
+                              value={editForm.height || ''}
+                              onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))}
+                              onBlur={e => {
+                                const raw = e.target.value.replace(/\D/g, '')
+                                if (raw && !e.target.value.includes("'")) {
+                                  setEditForm(p => ({ ...p, height: formatHeight(raw) }))
+                                }
+                              }}
+                            />
+                            <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Health goals multi-select — hidden for babies */}
+                      {!editForm.isBaby && (
+                        <div className="mb-4">
+                          <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                          <div className="flex flex-wrap gap-2">
+                            {GOALS.map(goal => {
+                              const selected = (Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)).includes(goal)
+                              return (
+                                <button key={goal} type="button"
+                                  onClick={() => {
+                                    const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
+                                    setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))
+                                  }}
+                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                                    selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                                  }`}
+                                >
+                                  {selected ? '✓ ' : '+ '}{goal}
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
+                      )}
 
-                        <div>
-                          <label className="label">Height</label>
-                          <input
-                            className="input"
-                            placeholder="e.g. 54 → 5'4&quot;"
-                            value={editForm.height || ''}
-                            onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))}
-                            onBlur={e => {
-                              const raw = e.target.value.replace(/\D/g, '')
-                              if (raw && !e.target.value.includes("'")) {
-                                setEditForm(p => ({ ...p, height: formatHeight(raw) }))
-                              }
-                            }}
-                          />
-                          <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
-                        </div>
-                       <div>
-                          <label className="label">Weight</label>
-                          <div className="flex gap-2">
-                            <input
-                              className="input flex-1"
-                              type="number"
-                              step="0.1"
-                              value={editForm.weight || ''}
-                              onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
-                            />
-                            <select
-                              className="input w-20"
-                              value={editForm.weightUnit || 'kg'}
-                              onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
-                            >
-                              <option value="kg">kg</option>
-                              <option value="lbs">lbs</option>
-                            </select>
+                      {/* Dietary preferences multi-select — hidden for babies */}
+                      {!editForm.isBaby && (
+                        <div className="mb-4">
+                          <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                          <div className="flex flex-wrap gap-2">
+                            {DIETARY.map(diet => {
+                              const selected = (Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)).includes(diet)
+                              return (
+                                <button key={diet} type="button"
+                                  onClick={() => {
+                                    const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
+                                    setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))
+                                  }}
+                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                                    selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
+                                  }`}
+                                >
+                                  {selected ? '✓ ' : '+ '}{diet}
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
-                      </div>
-
-                      {/* Health goals multi-select */}
-                      <div className="mb-4">
-                        <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                        <div className="flex flex-wrap gap-2">
-                          {GOALS.map(goal => {
-                            const selected = (Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)).includes(goal)
-                            return (
-                              <button key={goal} type="button"
-                                onClick={() => {
-                                  const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
-                                  setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))
-                                }}
-                                className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                                  selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                                }`}
-                              >
-                                {selected ? '✓ ' : '+ '}{goal}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Dietary preferences multi-select */}
-                      <div className="mb-4">
-                        <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                        <div className="flex flex-wrap gap-2">
-                          {DIETARY.map(diet => {
-                            const selected = (Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)).includes(diet)
-                            return (
-                              <button key={diet} type="button"
-                                onClick={() => {
-                                  const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
-                                  setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))
-                                }}
-                                className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                                  selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
-                                }`}
-                              >
-                                {selected ? '✓ ' : '+ '}{diet}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      </div>
+                      )}
 
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                         <div className="md:col-span-3">
@@ -683,67 +746,112 @@ const handleAddMember = async (e) => {
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-  <div className="flex items-start gap-3 flex-1 min-w-0">
-  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-    {member.name?.[0]?.toUpperCase() || '?'}
-  </div>
-  <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold text-textPrimary">{member.name}</p>
-                          <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
-                            {member.role}
-                          </span>
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                          {member.isBaby ? '🍼' : (member.name?.[0]?.toUpperCase() || '?')}
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                          {[
-                            { label: 'Age', value: member.age ? `${member.age} yrs` : '—' },
-                            { label: 'Weight', value: member.weight || '—' },
-                            { label: 'Height', value: member.height || '—' },
-                            { label: 'Dietary', value: member.dietary || '—' },
-                          ].map((item, i) => (
-                            <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
-                              <p className="text-xs text-textMuted">{item.label}</p>
-                              <p className="text-sm font-medium text-textPrimary">{item.value}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
-                            Goal: {member.goals || '—'}
-                          </span>
-                          {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
-                            <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
-                              ⚠️ {allergen}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <p className="font-semibold text-textPrimary">{member.name}</p>
+                            <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
+                              {member.role}
                             </span>
-                          ))}
+                            {member.isBaby && (
+                              <span className="text-xs px-2 py-0.5 rounded-pill font-medium bg-pink-50 text-pink-600 border border-pink-100">
+                                🍼 Baby & Toddler
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Baby stage badge */}
+                          {babyStage && (
+                            <div className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-pill font-medium mb-2 ${babyStage.color}`}>
+                              <span>Stage {babyStage.stage}</span>
+                              <span>·</span>
+                              <span>{babyStage.label}</span>
+                              {babyMonths !== null && <span>· {babyMonths}mo</span>}
+                            </div>
+                          )}
+
+                          {member.isBaby ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                              {[
+                                { label: 'Age', value: babyMonths !== null ? `${babyMonths} months` : '—' },
+                                { label: 'Born', value: member.birthDate ? new Date(member.birthDate).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' },
+                                { label: 'Allergens noted', value: member.allergens ? member.allergens.split(',').filter(Boolean).length + ' flagged' : 'None' },
+                              ].map((item, i) => (
+                                <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
+                                  <p className="text-xs text-textMuted">{item.label}</p>
+                                  <p className="text-sm font-medium text-textPrimary">{item.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                              {[
+                                { label: 'Age', value: member.age ? `${member.age} yrs` : '—' },
+                                { label: 'Weight', value: member.weight || '—' },
+                                { label: 'Height', value: member.height || '—' },
+                                { label: 'Dietary', value: member.dietary || '—' },
+                              ].map((item, i) => (
+                                <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
+                                  <p className="text-xs text-textMuted">{item.label}</p>
+                                  <p className="text-sm font-medium text-textPrimary">{item.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {!member.isBaby && (
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
+                                Goal: {member.goals || '—'}
+                              </span>
+                              {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
+                                <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
+                                  ⚠️ {allergen}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {member.isBaby && member.allergens && (
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
+                                <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
+                                  ⚠️ {allergen}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
-  </div>{/* end flex items-start */}
-      <div className="flex gap-2 flex-shrink-0 flex-wrap sm:mt-0">
-  <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
-  {member.role !== 'Admin' && !member.inviteAccepted && (
-    <button
-      onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
-      className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all"
-    >
-      {member.email ? 'Resend invite' : 'Invite to login'}
-    </button>
-  )}
-  {member.inviteAccepted && (
-    <span className="text-xs px-3 py-1.5 rounded-btn bg-green-50 text-success border border-green-100 font-medium">
-      ✓ Has login
-    </span>
-  )}
-  {member.role !== 'Admin' && (
-    <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
-      Remove
-    </button>
-  )}
-</div>
+                      <div className="flex gap-2 flex-shrink-0 flex-wrap sm:mt-0">
+                        <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
+                        {member.role !== 'Admin' && !member.inviteAccepted && (
+                          <button
+                            onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
+                            className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all"
+                          >
+                            {member.email ? 'Resend invite' : 'Invite to login'}
+                          </button>
+                        )}
+                        {member.inviteAccepted && (
+                          <span className="text-xs px-3 py-1.5 rounded-btn bg-green-50 text-success border border-green-100 font-medium">
+                            ✓ Has login
+                          </span>
+                        )}
+                        {member.role !== 'Admin' && (
+                          <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
@@ -772,12 +880,7 @@ const handleAddMember = async (e) => {
               />
             </div>
             <div className="flex gap-3">
-              <button
-                onClick={() => { setInviteModal(null); setInviteEmail('') }}
-                className="btn-secondary flex-1"
-              >
-                Cancel
-              </button>
+              <button onClick={() => { setInviteModal(null); setInviteEmail('') }} className="btn-secondary flex-1">Cancel</button>
               <button
                 onClick={handleInvite}
                 disabled={!inviteEmail.trim() || inviteSending}
@@ -845,11 +948,7 @@ const handleAddMember = async (e) => {
                 <span>5% (run lean)</span>
                 <span>50% (early warning)</span>
               </div>
-              <button
-                onClick={handleSaveThreshold}
-                disabled={savingThreshold}
-                className="btn-primary text-sm disabled:opacity-50"
-              >
+              <button onClick={handleSaveThreshold} disabled={savingThreshold} className="btn-primary text-sm disabled:opacity-50">
                 {savingThreshold ? 'Saving...' : 'Save threshold'}
               </button>
             </div>
@@ -898,8 +997,6 @@ const handleAddMember = async (e) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {PLANS.map((plan, i) => {
               const isCurrent = plan.name.toLowerCase() === currentPlanName.toLowerCase()
-              const isUpgrade = ['free', 'family'].includes(currentPlanName.toLowerCase()) && plan.name === 'Premium' ||
-                currentPlanName.toLowerCase() === 'free' && plan.name === 'Family'
               return (
                 <div key={i} className={`card border-2 transition-all ${
                   isCurrent ? 'border-primary' :
@@ -961,7 +1058,6 @@ const handleAddMember = async (e) => {
             })}
           </div>
 
-          {/* Manage subscription */}
           {subscription?.subscription && (
             <div className="card max-w-lg mb-6">
               <h3 className="font-semibold text-textPrimary mb-3">Manage subscription</h3>
@@ -974,7 +1070,6 @@ const handleAddMember = async (e) => {
             </div>
           )}
 
-          {/* Billing history placeholder */}
           <div className="card max-w-lg">
             <h3 className="font-semibold text-textPrimary mb-1">Billing history</h3>
             <p className="text-xs text-textMuted mb-4">Access full billing history and invoices through the billing portal above.</p>
@@ -1000,7 +1095,7 @@ const handleAddMember = async (e) => {
             )}
           </div>
         </div>
-      )}      
+      )}
 
       {/* Notifications tab */}
       {activeTab === 'notifications' && (
@@ -1036,7 +1131,7 @@ const handleAddMember = async (e) => {
         </div>
       )}
 
-     {/* Support + Sign out */}
+      {/* Support + Sign out */}
       <div className="mt-8 flex items-center justify-between">
         <p className="text-xs text-textMuted">
           Need help?{' '}
@@ -1049,7 +1144,6 @@ const handleAddMember = async (e) => {
         </button>
       </div>
 
-      {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
     </div>
