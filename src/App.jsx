@@ -25,6 +25,7 @@ const Recipes = lazy(() => import('./pages/Recipes'))
 const Grocery = lazy(() => import('./pages/Grocery'))
 const Reports = lazy(() => import('./pages/Reports'))
 const Settings = lazy(() => import('./pages/Settings'))
+const BabyProfile = lazy(() => import('./pages/BabyProfile'))
 const Recalls = lazy(() => import('./pages/Recalls'))
 const MealPlan = lazy(() => import('./pages/MealPlan'))
 const SavedRecipes = lazy(() => import('./pages/SavedRecipes'))
@@ -45,33 +46,34 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/accept-invite" element={<AcceptInvite />} />
-      <Route path="/session-expired" element={<SessionExpired />} />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
-      <Route path="*" element={<NotFound />} />
-      <Route path="/app" element={<PrivateRoute><AppShell /></PrivateRoute>}>
-        <Route index element={<Dashboard />} />
-        <Route path="pantry" element={<Pantry />} />
-        <Route path="recipes" element={<Recipes />} />
-        <Route path="grocery" element={<Grocery />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="recalls" element={<Recalls />} />
-        <Route path="mealplan" element={<MealPlan />} />
-        <Route path="cookbook" element={<SavedRecipes />} />
-        <Route path="health" element={<Health />} />
-      </Route>
-      <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
-</Routes>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path="/session-expired" element={<SessionExpired />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/app" element={<PrivateRoute><AppShell /></PrivateRoute>}>
+          <Route index element={<Dashboard />} />
+          <Route path="pantry" element={<Pantry />} />
+          <Route path="recipes" element={<Recipes />} />
+          <Route path="grocery" element={<Grocery />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="/app/baby/:memberId" element={<BabyProfile />} />
+          <Route path="recalls" element={<Recalls />} />
+          <Route path="mealplan" element={<MealPlan />} />
+          <Route path="cookbook" element={<SavedRecipes />} />
+          <Route path="health" element={<Health />} />
+        </Route>
+        <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+      </Routes>
     </Suspense>
   )
 }

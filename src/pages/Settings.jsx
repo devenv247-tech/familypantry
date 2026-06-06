@@ -828,6 +828,11 @@ const { isFeatureEnabled } = useAppConfigStore()
                       </div>
                       <div className="flex gap-2 flex-shrink-0 flex-wrap sm:mt-0">
                         <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
+{member.isBaby && (
+  <button onClick={() => navigate(`/app/baby/${member.id}`)} className="text-xs px-3 py-1.5 rounded-btn border border-pink-200 text-pink-600 hover:bg-pink-50 transition-all">
+    🍼 View profile
+  </button>
+)}
                         {member.role !== 'Admin' && !member.inviteAccepted && (
                           <button
                             onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
