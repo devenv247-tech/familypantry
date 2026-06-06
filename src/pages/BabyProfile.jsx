@@ -8,10 +8,12 @@ import {
   getFeedingLog,
   addFeedingLog,
   deleteFeedingLog,
+  generateBabyRecipe,
 } from '../api/baby'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
 import { useAuthStore } from '../store/authStore'
+import Icon from '../components/ui/Icon'
 
 const BIG_9 = ['Peanuts', 'Egg', 'Milk', 'Tree nuts', 'Wheat', 'Soy', 'Sesame', 'Fish', 'Shellfish']
 
@@ -51,9 +53,15 @@ export default function BabyProfile() {
   const [feedForm, setFeedForm] = useState({ foodName: '', portionG: '', texture: '', reaction: 'none', notes: '' })
   const [savingFeed, setSavingFeed] = useState(false)
 
+  // Recipe generator
+  const [recipe, setRecipe] = useState(null)
+  const [generatingRecipe, setGeneratingRecipe] = useState(false)
+  const [recipeMealType, setRecipeMealType] = useState('any')
+
   const planName = family?.plan || 'free'
   const canUseAllergenTracker = ['family', 'premium'].includes(planName)
   const canUseFeedingLog = ['family', 'premium'].includes(planName)
+  const canUseRecipeGenerator = planName === 'premium'
 
   useEffect(() => {
     loadProfile()
@@ -137,6 +145,25 @@ export default function BabyProfile() {
     }
   }
 
+  const handleGenerateRecipe = async () => {
+    setGeneratingRecipe(true)
+    setRecipe(null)
+    try {
+      const data = await generateBabyRecipe(memberId, { mealType: recipeMealType })
+      setRecipe(data)
+    } catch (err) {
+      if (err.response?.data?.limitReached) {
+        showToast('Premium plan required to generate baby recipes', 'error')
+      } else if (err.response?.data?.error) {
+        showToast(err.response.data.error, 'error')
+      } else {
+        showToast('Failed to generate recipe', 'error')
+      }
+    } finally {
+      setGeneratingRecipe(false)
+    }
+  }
+
   const handleDeleteFeedingLog = async (logId) => {
     try {
       await deleteFeedingLog(memberId, logId)
@@ -200,9 +227,10 @@ export default function BabyProfile() {
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6">
         {[
-          { id: 'stage',    label: 'Stage tracker',      icon: '📊' },
-          { id: 'allergens',label: 'Allergen tracker',   icon: '🧪' },
-          { id: 'feeding',  label: 'Feeding log',        icon: '📓' },
+          { id: 'stage',    label: 'Stage tracker',   iconComponent: 'chart' },
+      { id: 'allergens',label: 'Allergen tracker', iconComponent: 'warning' },
+      { id: 'feeding',  label: 'Feeding log',      iconComponent: 'cookbook' },
+      { id: 'recipes',  label: 'Recipes',          iconComponent: 'sparkle' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -211,7 +239,10 @@ export default function BabyProfile() {
               activeTab === tab.id ? 'bg-surface text-textPrimary shadow-card' : 'text-textMuted hover:text-textPrimary'
             }`}
           >
-            <span>{tab.icon}</span>
+            {tab.iconComponent
+              ? <Icon name={tab.iconComponent} size={15} />
+              : <span>{tab.icon}</span>
+            }
             <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
@@ -470,6 +501,140 @@ export default function BabyProfile() {
                       )
                     })}
                   </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Recipes tab */}
+      {activeTab === 'recipes' && (
+        <div className="space-y-4">
+          {!canUseRecipeGenerator ? (
+            <div className="card text-center py-10">
+              <p className="text-3xl mb-3">🫧</p>
+              <p className="font-semibold text-textPrimary mb-1">Premium plan required</p>
+              <p className="text-sm text-textMuted mb-4">Upgrade to generate AI baby-safe recipes tailored to your baby's exact stage and pantry.</p>
+              <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-start gap-2 p-3 bg-pink-50 border border-pink-100 rounded-card">
+                <span className="text-lg flex-shrink-0">🍼</span>
+                <p className="text-xs text-pink-700 leading-relaxed">
+                  Recipes are generated for <strong>Stage {profile.stage} ({profile.label})</strong> using what's in your pantry. All recipes follow Health Canada safety guidelines — no honey, no choking hazards, no added salt.
+                </p>
+              </div>
+
+              {/* Meal type selector */}
+              <div className="card">
+                <p className="font-semibold text-textPrimary mb-3">🫧 Generate a baby-safe recipe</p>
+                <div className="mb-4">
+                  <label className="label">Meal type</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['any', 'breakfast', 'lunch', 'dinner', 'snack'].map(type => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setRecipeMealType(type)}
+                        className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all capitalize ${
+                          recipeMealType === type
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {type === 'any' ? 'Any meal' : type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={handleGenerateRecipe}
+                  disabled={generatingRecipe}
+                  className="btn-primary w-full disabled:opacity-50"
+                >
+                  {generatingRecipe ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Icon name="refresh" size={16} className="animate-spin" />
+                      Generating safe recipe...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Icon name="sparkles" size={16} />
+                      Generate recipe
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Generated recipe */}
+              {recipe && (
+                <div className="card">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-3xl">{recipe.icon}</span>
+                    <div>
+                      <h3 className="font-bold text-textPrimary">{recipe.name}</h3>
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
+                        <span className="text-xs bg-pink-50 text-pink-600 border border-pink-100 px-2 py-0.5 rounded-pill font-medium">Stage {recipe.stage}</span>
+                        <span className="text-xs text-textMuted">⏱ {recipe.time}</span>
+                        <span className="text-xs text-textMuted">👶 {recipe.ageRange}</span>
+                        <span className="text-xs text-textMuted">🥄 {recipe.texture}</span>
+                        {recipe.freezable && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-pill font-medium">❄️ Freezable</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Health note */}
+                  {recipe.healthNote && (
+                    <div className="bg-green-50 border border-green-100 rounded-card px-3 py-2 mb-4">
+                      <p className="text-xs font-semibold text-green-700 mb-0.5">💚 Nutrition note</p>
+                      <p className="text-xs text-green-700">{recipe.healthNote}</p>
+                    </div>
+                  )}
+
+                  {/* Safety note */}
+                  {recipe.safetyNote && (
+                    <div className="bg-yellow-50 border border-yellow-100 rounded-card px-3 py-2 mb-4">
+                      <p className="text-xs font-semibold text-yellow-700 mb-0.5">⚠️ Safety reminder</p>
+                      <p className="text-xs text-yellow-700">{recipe.safetyNote}</p>
+                    </div>
+                  )}
+
+                  {/* Ingredients */}
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold text-textPrimary mb-2">Ingredients <span className="text-textMuted font-normal text-xs">({recipe.portions})</span></p>
+                    <div className="space-y-1.5">
+                      {recipe.ingredients?.map((ing, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                          <span className="text-textPrimary font-medium">{ing.amount} {ing.name}</span>
+                          {ing.prep && <span className="text-textMuted">— {ing.prep}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Steps */}
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold text-textPrimary mb-2">Instructions</p>
+                    <div className="space-y-2">
+                      {recipe.steps?.map((step, i) => (
+                        <div key={i} className="flex items-start gap-2.5 text-xs">
+                          <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                          <p className="text-textMuted leading-relaxed">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Freezing tip */}
+                  {recipe.freezingTip && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-card px-3 py-2">
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5">❄️ Freeze & reheat</p>
+                      <p className="text-xs text-blue-700">{recipe.freezingTip}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </>

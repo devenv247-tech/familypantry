@@ -20,3 +20,6 @@ export const addFeedingLog = (memberId, data) =>
 
 export const deleteFeedingLog = (memberId, logId) =>
   client.delete(`/baby/${memberId}/feeding-log/${logId}`).then(r => r.data)
+
+export const generateBabyRecipe = (memberId, data) =>
+  client.post(`/baby/${memberId}/recipe`, data).then(r => r.data)
