@@ -10,6 +10,8 @@ import {
   deleteFeedingLog,
   generateBabyRecipe,
   downloadPediatricianReport,
+  logGrowth,
+  getGrowthHistory,
 } from '../api/baby'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
@@ -60,6 +62,12 @@ export default function BabyProfile() {
   const [recipeMealType, setRecipeMealType] = useState('any')
   const [downloadingReport, setDownloadingReport] = useState(false)
 
+  // Growth tracking
+  const [growthData, setGrowthData] = useState(null)
+  const [growthForm, setGrowthForm] = useState({ weight: '', height: '', note: '' })
+  const [savingGrowth, setSavingGrowth] = useState(false)
+  const canUseGrowthHistory = ['family', 'premium'].includes(planName)
+
   const planName = family?.plan || 'free'
   const canUseAllergenTracker = ['family', 'premium'].includes(planName)
   const canUseFeedingLog = ['family', 'premium'].includes(planName)
@@ -72,6 +80,7 @@ export default function BabyProfile() {
   useEffect(() => {
     if (activeTab === 'allergens' && canUseAllergenTracker) loadAllergens()
     if (activeTab === 'feeding' && canUseFeedingLog) loadFeedingLog()
+    if (activeTab === 'growth') loadGrowthHistory()
   }, [activeTab])
 
   const loadProfile = async () => {
@@ -144,6 +153,43 @@ export default function BabyProfile() {
       showToast('Failed to log feeding', 'error')
     } finally {
       setSavingFeed(false)
+    }
+  }
+
+  const loadGrowthHistory = async () => {
+    try {
+      const data = await getGrowthHistory(memberId)
+      setGrowthData(data)
+    } catch (err) {
+      showToast('Failed to load growth history', 'error')
+    }
+  }
+
+  const handleLogGrowth = async () => {
+    if (!growthForm.weight || !growthForm.height) {
+      return showToast('Weight and height are both required', 'error')
+    }
+    setSavingGrowth(true)
+    try {
+      const result = await logGrowth(memberId, {
+        weight: parseFloat(growthForm.weight),
+        height: parseFloat(growthForm.height),
+        weightUnit: 'kg',
+        heightUnit: 'cm',
+        note: growthForm.note,
+      })
+      setGrowthData(prev => ({
+        ...prev,
+        logs: [...(prev?.logs || []), result.log],
+        assessment: result.assessment,
+        nextDue: result.nextDue,
+      }))
+      setGrowthForm({ weight: '', height: '', note: '' })
+      showToast('Growth measurement logged!')
+    } catch (err) {
+      showToast('Failed to log measurement', 'error')
+    } finally {
+      setSavingGrowth(false)
     }
   }
 
@@ -249,6 +295,7 @@ export default function BabyProfile() {
       <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6">
         {[
           { id: 'stage',    label: 'Stage tracker',   iconComponent: 'chart' },
+      { id: 'growth',   label: 'Growth',          iconComponent: 'reports' },
       { id: 'allergens',label: 'Allergen tracker', iconComponent: 'warning' },
       { id: 'feeding',  label: 'Feeding log',      iconComponent: 'cookbook' },
       { id: 'recipes',  label: 'Recipes',          iconComponent: 'sparkle' },
@@ -523,6 +570,166 @@ export default function BabyProfile() {
               )}
             </>
           )}
+        </div>
+      )}
+
+      {/* Growth tab */}
+      {activeTab === 'growth' && (
+        <div className="space-y-4">
+
+          {/* Log new measurement — always visible */}
+          <div className="card">
+            <p className="font-semibold text-textPrimary mb-1">Log a measurement</p>
+            <p className="text-xs text-textMuted mb-3">Weight and height are required to track growth accurately.</p>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="label">Weight (kg) <span className="text-danger">*</span></label>
+                <input
+                  className="input"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="30"
+                  placeholder="e.g. 7.5"
+                  value={growthForm.weight}
+                  onChange={e => setGrowthForm(p => ({ ...p, weight: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="label">Height (cm) <span className="text-danger">*</span></label>
+                <input
+                  className="input"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="120"
+                  placeholder="e.g. 68.5"
+                  value={growthForm.height}
+                  onChange={e => setGrowthForm(p => ({ ...p, height: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="label">Note <span className="text-textMuted font-normal">optional</span></label>
+              <input
+                className="input"
+                placeholder="e.g. 6-month well-baby visit"
+                value={growthForm.note}
+                onChange={e => setGrowthForm(p => ({ ...p, note: e.target.value }))}
+              />
+            </div>
+            <button
+              onClick={handleLogGrowth}
+              disabled={savingGrowth || !growthForm.weight || !growthForm.height}
+              className="btn-primary w-full disabled:opacity-50"
+            >
+              {savingGrowth ? 'Saving...' : 'Log measurement'}
+            </button>
+          </div>
+
+          {/* WHO Assessment */}
+          {growthData?.assessment && (
+            <div className={`card border-2 ${
+              growthData.assessment.color === 'green'  ? 'border-green-200 bg-green-50' :
+              growthData.assessment.color === 'blue'   ? 'border-blue-200 bg-blue-50' :
+              growthData.assessment.color === 'yellow' ? 'border-yellow-200 bg-yellow-50' :
+              'border-red-200 bg-red-50'
+            }`}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">{growthData.assessment.emoji}</span>
+                <div>
+                  <p className="font-semibold text-textPrimary">{growthData.assessment.verdict}</p>
+                  <p className="text-xs text-textMuted">Based on WHO Child Growth Standards</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-card px-3 py-2 border border-white/50">
+                  <p className="text-xs text-textMuted">Weight percentile</p>
+                  <p className="text-lg font-bold text-textPrimary">{growthData.assessment.weightPercentile}<span className="text-xs font-normal">th</span></p>
+                  <p className="text-xs text-textMuted">WHO median: {growthData.assessment.weightMedian}kg</p>
+                </div>
+                <div className="bg-white rounded-card px-3 py-2 border border-white/50">
+                  <p className="text-xs text-textMuted">Height percentile</p>
+                  <p className="text-lg font-bold text-textPrimary">{growthData.assessment.heightPercentile}<span className="text-xs font-normal">th</span></p>
+                  <p className="text-xs text-textMuted">WHO median: {growthData.assessment.heightMedian}cm</p>
+                </div>
+              </div>
+              {growthData.nextDue && (
+                <p className="text-xs text-textMuted mt-3">
+                  📅 Next recommended measurement: <strong>{growthData.nextDue} months</strong>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Growth history */}
+          {!canUseGrowthHistory ? (
+            <div className="card text-center py-8">
+              <Icon name="reports" size={28} className="mx-auto mb-3 text-textMuted" />
+              <p className="font-semibold text-textPrimary mb-1">Family plan required</p>
+              <p className="text-sm text-textMuted mb-4">Upgrade to view full growth history and WHO percentile charts.</p>
+              <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
+            </div>
+          ) : growthData?.logs?.length > 0 ? (
+            <div className="card">
+              <p className="font-semibold text-textPrimary mb-3">Growth history</p>
+
+              {/* Simple visual chart */}
+              <div className="mb-4 overflow-x-auto">
+                <div className="flex items-end gap-2 min-w-max pb-2" style={{ height: '80px' }}>
+                  {growthData.logs.map((log, i) => {
+                    const maxW = Math.max(...growthData.logs.map(l => l.weight))
+                    const pct = Math.round((log.weight / maxW) * 100)
+                    return (
+                      <div key={log.id} className="flex flex-col items-center gap-1">
+                        <span className="text-xs text-textMuted">{log.weight}kg</span>
+                        <div
+                          className="w-8 bg-primary rounded-t-sm transition-all"
+                          style={{ height: `${Math.max(pct * 0.5, 8)}px` }}
+                          title={`${log.weight}kg · ${log.height}cm`}
+                        />
+                        <span className="text-xs text-textMuted whitespace-nowrap">
+                          {new Date(log.loggedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Log entries */}
+              <div className="space-y-2">
+                {[...growthData.logs].reverse().map(log => (
+                  <div key={log.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-textPrimary">{log.weight}{log.weightUnit}</span>
+                        <span className="text-xs text-textMuted">·</span>
+                        <span className="text-sm font-medium text-textPrimary">{log.height}{log.heightUnit}</span>
+                        {log.note && <span className="text-xs text-textMuted">· {log.note}</span>}
+                      </div>
+                      <p className="text-xs text-textMuted mt-0.5">
+                        {new Date(log.loggedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="card text-center py-8 text-textMuted">
+              <Icon name="reports" size={28} className="mx-auto mb-3" />
+              <p className="text-sm">No measurements yet — log your first one above</p>
+            </div>
+          )}
+
+          {/* Health Canada note */}
+          <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
+            <span className="text-lg flex-shrink-0">🇨🇦</span>
+            <p className="text-xs text-blue-700 leading-relaxed">
+              Percentiles are based on <strong>WHO Child Growth Standards</strong>, used by Canadian pediatricians. A healthy baby can fall anywhere between the 5th and 95th percentile. Always discuss growth with your healthcare provider.
+            </p>
+          </div>
         </div>
       )}
 

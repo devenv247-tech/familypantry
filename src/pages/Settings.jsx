@@ -3,66 +3,99 @@ import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold } from '../api/family'
+import { logGrowth } from '../api/baby'
 import { deleteAccount, updateAccount } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
 import { createCheckoutSession, createPortalSession, getSubscription } from '../api/stripe'
 import { useAppConfigStore } from '../store/appConfigStore'
+import Icon from '../components/ui/Icon'
 
 const GOALS = [
-  'Lose weight',
-  'Gain muscle',
-  'Maintain weight',
-  'Healthy growth',
-  'High protein',
-  'Low carb',
-  'Heart healthy',
-  'Manage diabetes',
-  'Manage cholesterol',
-  'Manage blood pressure',
-  'Improve gut health',
-  'Boost energy',
-  'Anti-inflammatory',
-  'Build endurance',
-  'Postpartum recovery',
-  'Healthy aging',
+  'Lose weight', 'Gain muscle', 'Maintain weight', 'Healthy growth',
+  'High protein', 'Low carb', 'Heart healthy', 'Manage diabetes',
+  'Manage cholesterol', 'Manage blood pressure', 'Improve gut health',
+  'Boost energy', 'Anti-inflammatory', 'Build endurance',
+  'Postpartum recovery', 'Healthy aging',
 ]
 
 const DIETARY = [
-  'Vegetarian',
-  'Vegan',
-  'Gluten free',
-  'Dairy free',
-  'Halal',
-  'Kosher',
-  'Keto',
-  'Paleo',
-  'Low sodium',
-  'Low sugar',
-  'Low fat',
-  'High fiber',
-  'Nut free',
-  'Egg free',
-  'Soy free',
-  'Shellfish free',
-  'Raw food',
-  'Whole food plant based',
-  'Mediterranean',
-  'Intermittent fasting',
+  'Vegetarian', 'Vegan', 'Gluten free', 'Dairy free', 'Halal', 'Kosher',
+  'Keto', 'Paleo', 'Low sodium', 'Low sugar', 'Low fat', 'High fiber',
+  'Nut free', 'Egg free', 'Soy free', 'Shellfish free', 'Raw food',
+  'Whole food plant based', 'Mediterranean', 'Intermittent fasting',
 ]
+
 const ALLERGENS = [
   'Peanuts', 'Tree nuts', 'Sesame seeds', 'Milk', 'Eggs',
   'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Mustard',
-  'Sulphites', 'Celery', 'Lupin', 'Molluscs'
+  'Sulphites', 'Celery', 'Lupin', 'Molluscs',
 ]
 
+const formatHeight = (raw) => {
+  if (!raw) return ''
+  if (raw.length === 1) return `${raw}'0"`
+  if (raw.length === 2) return `${raw[0]}'${raw[1]}"`
+  return `${raw[0]}'${raw.slice(1, 3)}"`
+}
+
+const getBabyAgeMonths = (birthDate) => {
+  if (!birthDate) return null
+  const birth = new Date(birthDate)
+  const now = new Date()
+  return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
+}
+
+const getBabyStageLabel = (months) => {
+  if (months === null) return null
+  if (months < 6)  return { stage: 0, label: 'Breast milk / formula only', color: 'bg-gray-100 text-gray-600 border-gray-200' }
+  if (months < 7)  return { stage: 1, label: 'Stage 1 — first purées',      color: 'bg-pink-50 text-pink-600 border-pink-200' }
+  if (months < 9)  return { stage: 2, label: 'Stage 2 — mashed textures',   color: 'bg-orange-50 text-orange-600 border-orange-200' }
+  if (months < 12) return { stage: 3, label: 'Stage 3 — soft finger foods', color: 'bg-yellow-50 text-yellow-600 border-yellow-200' }
+  if (months < 18) return { stage: 4, label: 'Stage 4 — family foods',      color: 'bg-green-50 text-green-600 border-green-200' }
+  if (months < 36) return { stage: 5, label: 'Stage 5 — toddler foods',     color: 'bg-blue-50 text-blue-600 border-blue-200' }
+  return { stage: 5, label: 'Toddler (36+ months)', color: 'bg-blue-50 text-blue-600 border-blue-200' }
+}
+
+// ─── Pill toggle button ───────────────────────────────────────────────────────
+function PillButton({ selected, onClick, children, variant = 'primary' }) {
+  const colors = {
+    primary: selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary',
+    green:   selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600',
+    red:     selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger',
+  }
+  return (
+    <button type="button" onClick={onClick}
+      className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${colors[variant]}`}>
+      {children}
+    </button>
+  )
+}
+
+// ─── Toggle switch ────────────────────────────────────────────────────────────
+function ToggleSwitch({ on, onChange }) {
+  return (
+    <button onClick={() => onChange(!on)}
+      className={`relative w-11 h-6 rounded-pill transition-all flex-shrink-0 ${on ? 'bg-primary' : 'bg-gray-200'}`}>
+      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${on ? 'left-5' : 'left-0.5'}`} />
+    </button>
+  )
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+function SectionLabel({ children }) {
+  return <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">{children}</p>
+}
 
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
-  
-const { isFeatureEnabled } = useAppConfigStore()
-  const [flags, setFlags] = useState([])
+  const { isFeatureEnabled } = useAppConfigStore()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { toast, showToast, hideToast } = useToast()
 
+  // ── Flags ──────────────────────────────────────────────────────────────────
+  const [flags, setFlags] = useState([])
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/app/config/public`)
       .then(r => setFlags(r.data.flags || []))
@@ -71,8 +104,8 @@ const { isFeatureEnabled } = useAppConfigStore()
 
   const buildPlanFeatures = (planKey) => {
     const base = {
-      free: ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week', 'Up to 5 family members'],
-      family: ['Everything in Free'],
+      free:    ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week', 'Up to 5 family members'],
+      family:  ['Everything in Free'],
       premium: ['Everything in Family'],
     }
     const fromFlags = flags
@@ -86,152 +119,51 @@ const { isFeatureEnabled } = useAppConfigStore()
   }
 
   const PLANS = [
-    { name: 'Free',    price: '$0',     features: buildPlanFeatures('free') },
-    { name: 'Family',  price: '$9.99/mo',  features: buildPlanFeatures('family') },
-    { name: 'Premium', price: '$17.99/mo', features: buildPlanFeatures('premium') },
+    { name: 'Free',    price: '$0',        period: 'forever',  features: buildPlanFeatures('free'),    highlight: false },
+    { name: 'Family',  price: '$9.99',     period: '/month',   features: buildPlanFeatures('family'),  highlight: true  },
+    { name: 'Premium', price: '$17.99',    period: '/month',   features: buildPlanFeatures('premium'), highlight: false },
   ]
-  const formatHeight = (raw) => {
-    if (!raw) return ''
-    if (raw.length === 1) return `${raw}'0"`
-    if (raw.length === 2) return `${raw[0]}'${raw[1]}"`
-    return `${raw[0]}'${raw.slice(1, 3)}"`
-  }
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const { toast, showToast, hideToast } = useToast()
-  const [members, setMembers] = useState([])
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState('members')
-  const [editingId, setEditingId] = useState(null)
-  const [showAddMember, setShowAddMember] = useState(false)
-  const [editForm, setEditForm] = useState({})
-  const [newMember, setNewMember] = useState({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '', isBaby: false, birthDate: '' })
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteConfirmText, setDeleteConfirmText] = useState('')
-  const [deleting, setDeleting] = useState(false)
-  const [accountForm, setAccountForm] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    familyName: family?.name || '',
-    password: '',
-    confirmPassword: '',
-  })
-  const [savingAccount, setSavingAccount] = useState(false)
-  const [inviteModal, setInviteModal] = useState(null)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteSending, setInviteSending] = useState(false)
-  const [subscription, setSubscription] = useState(null)
-  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
-  const [upgradingPlan, setUpgradingPlan] = useState('')
-  const [restockThreshold, setRestockThreshold] = useState(family?.restockThresholdPercent ?? 20)
-  const [savingThreshold, setSavingThreshold] = useState(false)
-  const [notifPrefs, setNotifPrefs] = useState({
-    recalls: true,
-    expiry: true,
-    grocery: true,
-    monthly: false,
-    recipes: false,
-  })
 
   const TABS = [
-    { id: 'members', label: 'Family members', icon: '👨‍👩‍👧‍👦' },
-    { id: 'account', label: 'Account', icon: '👤' },
-    { id: 'plan', label: 'Plan & billing', icon: '💳' },
-    { id: 'notifications', label: 'Notifications', icon: '🔔' },
+    { id: 'members',       label: 'Family',        icon: 'family'   },
+    { id: 'account',       label: 'Account',       icon: 'settings' },
+    { id: 'plan',          label: 'Plan',          icon: 'crown'    },
+    { id: 'notifications', label: 'Notifications', icon: 'bell'     },
   ]
-
-  useEffect(() => {
-    fetchMembers()
-  }, [])
-
-  useEffect(() => {
-    if (activeTab === 'plan') {
-      fetchSubscription()
-    }
-  }, [activeTab])
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('success') === 'true') {
-      showToast('🎉 Subscription activated! Welcome to your new plan.')
-      setActiveTab('plan')
-      fetchSubscription()
-      window.history.replaceState({}, '', '/app/settings')
-    }
-    if (params.get('cancelled') === 'true') {
-      showToast('Checkout cancelled.', 'error')
-      setActiveTab('plan')
-      window.history.replaceState({}, '', '/app/settings')
-    }
-  }, [])
 
   useEffect(() => {
     const tab = searchParams.get('tab')
     if (tab) setActiveTab(tab)
   }, [])
 
-  const fetchSubscription = async () => {
-    setSubscriptionLoading(true)
-    try {
-      const data = await getSubscription()
-      setSubscription(data)
-      if (data?.plan && data.plan !== family?.plan) {
-        setAuth(token, user, { ...family, plan: data.plan })
-      }
-    } catch (err) {
-      console.error('Failed to fetch subscription:', err)
-    } finally {
-      setSubscriptionLoading(false)
-    }
-  }
+  // ── Members ────────────────────────────────────────────────────────────────
+  const [members, setMembers] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const [showAddMember, setShowAddMember] = useState(false)
+  const [editForm, setEditForm] = useState({})
 
-  const handleSaveThreshold = async () => {
-    setSavingThreshold(true)
-    try {
-      await updateRestockThreshold(restockThreshold)
-      setAuth(token, user, { ...family, restockThresholdPercent: restockThreshold })
-      showToast('Restock threshold saved!')
-    } catch (err) {
-      showToast('Failed to save threshold', 'error')
-    } finally {
-      setSavingThreshold(false)
-    }
+  const EMPTY_MEMBER = {
+    name: '', age: '', weight: '', weightUnit: 'kg', height: '',
+    goals: [], dietary: [], allergens: '',
+    isBaby: false, birthDate: '', babyHeight: '',
   }
+  const [newMember, setNewMember] = useState(EMPTY_MEMBER)
 
-  const handleUpgrade = async (plan) => {
-    setUpgradingPlan(plan)
-    try {
-      const { url } = await createCheckoutSession(plan.toLowerCase())
-      window.location.href = url
-    } catch (err) {
-      showToast('Failed to start checkout. Please try again.', 'error')
-      setUpgradingPlan('')
-    }
-  }
-
-  const handleManageBilling = async () => {
-    try {
-      const { url } = await createPortalSession()
-      window.location.href = url
-    } catch (err) {
-      showToast('Failed to open billing portal. Please try again.', 'error')
-    }
-  }
+  useEffect(() => { fetchMembers() }, [])
 
   const fetchMembers = async () => {
-    try {
-      const data = await getMembers()
-      setMembers(data)
-    } catch (err) {
-      console.error(err)
-    }
+    try { setMembers(await getMembers()) } catch (err) { console.error(err) }
   }
 
   const startEdit = (member) => {
     setEditingId(member.id)
     setEditForm({
       ...member,
-      goals: member.goals ? member.goals.split(',').map(g => g.trim()).filter(Boolean) : [],
-      dietary: member.dietary ? member.dietary.split(',').map(d => d.trim()).filter(Boolean) : [],
+      goals:      member.goals   ? member.goals.split(',').map(g => g.trim()).filter(Boolean)   : [],
+      dietary:    member.dietary ? member.dietary.split(',').map(d => d.trim()).filter(Boolean)  : [],
       weightUnit: member.weightUnit || 'kg',
     })
   }
@@ -240,15 +172,13 @@ const { isFeatureEnabled } = useAppConfigStore()
     try {
       const updated = await updateMember(editingId, {
         ...editForm,
-        goals: Array.isArray(editForm.goals) ? editForm.goals.join(', ') : editForm.goals,
+        goals:   Array.isArray(editForm.goals)   ? editForm.goals.join(', ')   : editForm.goals,
         dietary: Array.isArray(editForm.dietary) ? editForm.dietary.join(', ') : editForm.dietary,
       })
       setMembers(prev => prev.map(m => m.id === editingId ? updated : m))
       setEditingId(null)
       showToast('Member updated!')
-    } catch (err) {
-      showToast('Failed to update member', 'error')
-    }
+    } catch { showToast('Failed to update member', 'error') }
   }
 
   const handleDeleteMember = async (id) => {
@@ -256,10 +186,47 @@ const { isFeatureEnabled } = useAppConfigStore()
       await deleteMember(id)
       setMembers(prev => prev.filter(m => m.id !== id))
       showToast('Member removed')
-    } catch (err) {
-      showToast('Failed to remove member', 'error')
-    }
+    } catch { showToast('Failed to remove member', 'error') }
   }
+
+  const handleAddMember = async (e) => {
+    e.preventDefault()
+    if (!newMember.name.trim()) return
+    if (newMember.isBaby && !newMember.birthDate) return showToast('Date of birth is required', 'error')
+    if (newMember.isBaby && !newMember.weight)    return showToast('Weight is required', 'error')
+    if (newMember.isBaby && !newMember.babyHeight) return showToast('Height is required', 'error')
+    try {
+      const member = await addMember({
+        ...newMember,
+        goals:     newMember.goals.join(', '),
+        dietary:   newMember.dietary.join(', '),
+        birthDate: newMember.isBaby && newMember.birthDate ? newMember.birthDate : undefined,
+      })
+
+      // Auto-log first growth entry
+      if (newMember.isBaby && newMember.weight && newMember.babyHeight) {
+        try {
+          await logGrowth(member.id, {
+            weight:     parseFloat(newMember.weight),
+            height:     parseFloat(newMember.babyHeight),
+            weightUnit: 'kg',
+            heightUnit: 'cm',
+            note:       'Initial measurement',
+          })
+        } catch (err) { console.error('Failed to log initial growth:', err) }
+      }
+
+      setMembers(prev => [...prev, member])
+      setNewMember(EMPTY_MEMBER)
+      setShowAddMember(false)
+      showToast('Member added!')
+    } catch { showToast('Failed to add member', 'error') }
+  }
+
+  // ── Invite ─────────────────────────────────────────────────────────────────
+  const [inviteModal, setInviteModal] = useState(null)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteSending, setInviteSending] = useState(false)
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return
@@ -272,513 +239,501 @@ const { isFeatureEnabled } = useAppConfigStore()
       showToast('Invite sent!')
     } catch (err) {
       showToast(err.response?.data?.error || 'Failed to send invite', 'error')
-    } finally {
-      setInviteSending(false)
-    }
+    } finally { setInviteSending(false) }
   }
 
-  const handleAddMember = async (e) => {
-    e.preventDefault()
-    if (!newMember.name.trim()) return
+  // ── Account ────────────────────────────────────────────────────────────────
+  const [accountForm, setAccountForm] = useState({
+    name: user?.name || '', email: user?.email || '',
+    familyName: family?.name || '', password: '', confirmPassword: '',
+  })
+  const [savingAccount, setSavingAccount] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [restockThreshold, setRestockThreshold] = useState(family?.restockThresholdPercent ?? 20)
+  const [savingThreshold, setSavingThreshold] = useState(false)
+
+  const handleUpdateAccount = async () => {
+    if (accountForm.password && accountForm.password !== accountForm.confirmPassword)
+      return showToast('Passwords do not match', 'error')
+    if (accountForm.password && accountForm.password.length < 6)
+      return showToast('Password must be at least 6 characters', 'error')
+    setSavingAccount(true)
     try {
-      const member = await addMember({
-        ...newMember,
-        goals: newMember.goals.join(', '),
-        dietary: newMember.dietary.join(', '),
-        birthDate: newMember.isBaby && newMember.birthDate ? newMember.birthDate : undefined,
-      })
-      setMembers(prev => [...prev, member])
-      setNewMember({ name: '', age: '', weight: '', weightUnit: 'kg', height: '', goals: [], dietary: [], allergens: '', isBaby: false, birthDate: '' })
-      setShowAddMember(false)
-      showToast('Member added!')
+      const updateData = {}
+      if (accountForm.name !== user?.name)           updateData.name       = accountForm.name
+      if (accountForm.email !== user?.email)         updateData.email      = accountForm.email
+      if (accountForm.familyName !== family?.name)   updateData.familyName = accountForm.familyName
+      if (accountForm.password)                      updateData.password   = accountForm.password
+      if (Object.keys(updateData).length === 0) { showToast('No changes to save'); setSavingAccount(false); return }
+      const res = await updateAccount(updateData)
+      setAuth(token, res.user, res.family || family)
+      setAccountForm(prev => ({ ...prev, password: '', confirmPassword: '' }))
+      showToast('Account updated!')
     } catch (err) {
-      showToast('Failed to add member', 'error')
-    }
+      showToast(err.response?.data?.error || 'Failed to update account', 'error')
+    } finally { setSavingAccount(false) }
+  }
+
+  const handleSaveThreshold = async () => {
+    setSavingThreshold(true)
+    try {
+      await updateRestockThreshold(restockThreshold)
+      setAuth(token, user, { ...family, restockThresholdPercent: restockThreshold })
+      showToast('Threshold saved!')
+    } catch { showToast('Failed to save threshold', 'error') }
+    finally { setSavingThreshold(false) }
   }
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== 'DELETE') return
     setDeleting(true)
-    try {
-      await deleteAccount()
-      logout()
-      navigate('/')
-    } catch (err) {
-      showToast('Failed to delete account', 'error')
-      setDeleting(false)
-    }
+    try { await deleteAccount(); logout(); navigate('/') }
+    catch { showToast('Failed to delete account', 'error'); setDeleting(false) }
   }
 
-  const handleUpdateAccount = async () => {
-    if (accountForm.password && accountForm.password !== accountForm.confirmPassword) {
-      return showToast('Passwords do not match', 'error')
+  // ── Plan ───────────────────────────────────────────────────────────────────
+  const [subscription, setSubscription] = useState(null)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
+  const [upgradingPlan, setUpgradingPlan] = useState('')
+
+  useEffect(() => {
+    if (activeTab === 'plan') fetchSubscription()
+  }, [activeTab])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true') {
+      showToast('🎉 Subscription activated!')
+      setActiveTab('plan')
+      fetchSubscription()
+      window.history.replaceState({}, '', '/app/settings')
     }
-    if (accountForm.password && accountForm.password.length < 6) {
-      return showToast('Password must be at least 6 characters', 'error')
+    if (params.get('cancelled') === 'true') {
+      showToast('Checkout cancelled.', 'error')
+      setActiveTab('plan')
+      window.history.replaceState({}, '', '/app/settings')
     }
-    setSavingAccount(true)
+  }, [])
+
+  const fetchSubscription = async () => {
+    setSubscriptionLoading(true)
     try {
-      const updateData = {}
-      if (accountForm.name !== user?.name) updateData.name = accountForm.name
-      if (accountForm.email !== user?.email) updateData.email = accountForm.email
-      if (accountForm.familyName !== family?.name) updateData.familyName = accountForm.familyName
-      if (accountForm.password) updateData.password = accountForm.password
-
-      if (Object.keys(updateData).length === 0) {
-        showToast('No changes to save')
-        setSavingAccount(false)
-        return
-      }
-
-      const res = await updateAccount(updateData)
-      setAuth(token, res.user, res.family || family)
-      setAccountForm(prev => ({ ...prev, password: '', confirmPassword: '' }))
-      showToast('Account updated successfully!')
-    } catch (err) {
-      showToast(err.response?.data?.error || 'Failed to update account', 'error')
-    } finally {
-      setSavingAccount(false)
-    }
+      const data = await getSubscription()
+      setSubscription(data)
+      if (data?.plan && data.plan !== family?.plan)
+        setAuth(token, user, { ...family, plan: data.plan })
+    } catch (err) { console.error(err) }
+    finally { setSubscriptionLoading(false) }
   }
 
+  const handleUpgrade = async (plan) => {
+    setUpgradingPlan(plan)
+    try {
+      const { url } = await createCheckoutSession(plan.toLowerCase())
+      window.location.href = url
+    } catch { showToast('Failed to start checkout.', 'error'); setUpgradingPlan('') }
+  }
+
+  const handleManageBilling = async () => {
+    try { const { url } = await createPortalSession(); window.location.href = url }
+    catch { showToast('Failed to open billing portal.', 'error') }
+  }
+
+  // ── Notifications ──────────────────────────────────────────────────────────
+  const [notifPrefs, setNotifPrefs] = useState({
+    recalls: true, expiry: true, grocery: true, monthly: false, recipes: false,
+  })
+
+  // ── Derived ────────────────────────────────────────────────────────────────
   const currentPlan = family?.plan || 'free'
   const currentPlanName = currentPlan === 'premium' ? 'Premium' : currentPlan === 'family' ? 'Family' : 'Free'
 
-  // Helper: compute baby age in months from birthDate
-  const getBabyAgeMonths = (birthDate) => {
-    if (!birthDate) return null
-    const birth = new Date(birthDate)
-    const now = new Date()
-    return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
-  }
-
-  const getBabyStageLabel = (months) => {
-    if (months === null) return null
-    if (months < 6)  return { stage: 0, label: 'Breast milk / formula only', color: 'bg-gray-100 text-gray-600' }
-    if (months < 7)  return { stage: 1, label: 'Stage 1 — first iron-rich purées', color: 'bg-pink-50 text-pink-600' }
-    if (months < 9)  return { stage: 2, label: 'Stage 2 — mashed & lumpy textures', color: 'bg-orange-50 text-orange-600' }
-    if (months < 12) return { stage: 3, label: 'Stage 3 — soft finger foods', color: 'bg-yellow-50 text-yellow-600' }
-    if (months < 18) return { stage: 4, label: 'Stage 4 — most family foods', color: 'bg-green-50 text-green-600' }
-    if (months < 36) return { stage: 5, label: 'Stage 5 — toddler table foods', color: 'bg-blue-50 text-blue-600' }
-    return { stage: 5, label: 'Toddler (36+ months)', color: 'bg-blue-50 text-blue-600' }
-  }
-
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-5xl mx-auto">
 
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-textPrimary">Settings</h1>
-        <p className="text-textMuted mt-1">Manage your family account and preferences</p>
+        <p className="text-textMuted mt-1 text-sm">Manage your family account and preferences</p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 overflow-x-auto scrollbar-hide">
         {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-surface text-textPrimary shadow-card'
-                : 'text-textMuted hover:text-textPrimary'
-            }`}
-          >
-            <span>{tab.icon}</span>
+              activeTab === tab.id ? 'bg-surface text-textPrimary shadow-card' : 'text-textMuted hover:text-textPrimary'
+            }`}>
+            <Icon name={tab.icon} size={15} />
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Members tab */}
+      {/* ── MEMBERS TAB ───────────────────────────────────────────────────── */}
       {activeTab === 'members' && (
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-semibold text-textPrimary">Family members ({members.length})</h2>
-            <button onClick={() => setShowAddMember(true)} className="btn-primary flex items-center gap-2">
-              + Add member
+            <div>
+              <h2 className="font-semibold text-textPrimary">Family members</h2>
+              <p className="text-xs text-textMuted mt-0.5">{members.length} member{members.length !== 1 ? 's' : ''} in your family</p>
+            </div>
+            <button onClick={() => setShowAddMember(true)} className="btn-primary flex items-center gap-2 text-sm">
+              <Icon name="add" size={15} />
+              Add member
             </button>
           </div>
 
+          {/* Add member form */}
           {showAddMember && (
             <div className="card mb-6 border-2 border-primary">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-textPrimary">New family member</h3>
-                <button onClick={() => setShowAddMember(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="font-semibold text-textPrimary">New family member</h3>
+                  <p className="text-xs text-textMuted mt-0.5">Fill in the details below</p>
+                </div>
+                <button onClick={() => { setShowAddMember(false); setNewMember(EMPTY_MEMBER) }}
+                  className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                  <Icon name="close" size={16} />
+                </button>
               </div>
               <form onSubmit={handleAddMember}>
 
                 {/* Baby toggle */}
-                <div className="flex items-center gap-3 mb-4 p-3 rounded-card bg-pink-50 border border-pink-100">
-                  <button
-                    type="button"
-                    onClick={() => setNewMember(p => ({ ...p, isBaby: !p.isBaby, age: '', birthDate: '', goals: [], dietary: [], weight: '', height: '' }))}
-                    className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-200'}`}
-                  >
+                <div className={`flex items-center gap-3 mb-5 p-3 rounded-card border transition-all ${newMember.isBaby ? 'bg-pink-50 border-pink-200' : 'bg-gray-50 border-border'}`}>
+                  <button type="button"
+                    onClick={() => setNewMember(p => ({ ...EMPTY_MEMBER, isBaby: !p.isBaby }))}
+                    className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-300'}`}>
                     <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${newMember.isBaby ? 'translate-x-5' : 'translate-x-1'}`} />
                   </button>
                   <div>
                     <p className="text-sm font-medium text-textPrimary">This is a baby or toddler 🍼</p>
-                    <p className="text-xs text-textMuted">Unlocks stage-based food tracking and allergen introduction scheduler</p>
+                    <p className="text-xs text-textMuted">Enables stage tracking, allergen scheduler, and growth monitoring</p>
                   </div>
                 </div>
 
-                {/* Name + age/birthdate + weight/height */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="label">Name</label>
-                    <input className="input" placeholder="name" value={newMember.name} onChange={e => setNewMember(p => ({ ...p, name: e.target.value }))} />
+                {/* Core fields */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
+                  <div className={newMember.isBaby ? 'col-span-2 md:col-span-3' : ''}>
+                    <label className="label">Name <span className="text-danger">*</span></label>
+                    <input className="input" placeholder="e.g. Emma"
+                      value={newMember.name} onChange={e => setNewMember(p => ({ ...p, name: e.target.value }))} />
                   </div>
 
                   {newMember.isBaby ? (
-                    <div>
-                      <label className="label">Date of birth</label>
-                      <input
-                        className="input"
-                        type="date"
-                        max={new Date().toISOString().split('T')[0]}
-                        value={newMember.birthDate}
-                        onChange={e => setNewMember(p => ({ ...p, birthDate: e.target.value }))}
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="label">Age</label>
-                      <input className="input" type="number" placeholder="age" value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
-                    </div>
-                  )}
-
-                  {!newMember.isBaby && (
-                    <div>
-                      <label className="label">Weight</label>
-                      <div className="flex gap-2">
-                        <input
-                          className="input flex-1"
-                          type="number"
-                          step="0.1"
-                          placeholder="weight"
-                          value={newMember.weight}
-                          onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))}
-                        />
-                        <select
-                          className="input w-20"
-                          value={newMember.weightUnit}
-                          onChange={e => setNewMember(p => ({ ...p, weightUnit: e.target.value }))}
-                        >
-                          <option value="kg">kg</option>
-                          <option value="lbs">lbs</option>
-                        </select>
+                    <>
+                      <div>
+                        <label className="label">Date of birth <span className="text-danger">*</span></label>
+                        <input className="input" type="date"
+                          max={new Date().toISOString().split('T')[0]}
+                          value={newMember.birthDate}
+                          onChange={e => setNewMember(p => ({ ...p, birthDate: e.target.value }))} />
                       </div>
-                    </div>
-                  )}
-
-                  {!newMember.isBaby && (
-                    <div>
-                      <label className="label">Height</label>
-                      <input
-                        className="input"
-                        placeholder="Type 54 for 5'4&quot;"
-                        value={newMember.height}
-                        onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))}
-                        onBlur={e => {
-                          const raw = e.target.value.replace(/\D/g, '')
-                          if (raw && !e.target.value.includes("'")) {
-                            setNewMember(p => ({ ...p, height: formatHeight(raw) }))
-                          }
-                        }}
-                      />
-                      <p className="text-xs text-textMuted mt-1">Type 54 → auto formats to 5'4"</p>
-                    </div>
+                      <div>
+                        <label className="label">Weight (kg) <span className="text-danger">*</span></label>
+                        <input className="input" type="number" step="0.1" min="0" max="30" placeholder="e.g. 7.5"
+                          value={newMember.weight}
+                          onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label">Height (cm) <span className="text-danger">*</span></label>
+                        <input className="input" type="number" step="0.1" min="0" max="120" placeholder="e.g. 68.5"
+                          value={newMember.babyHeight}
+                          onChange={e => setNewMember(p => ({ ...p, babyHeight: e.target.value }))} />
+                        <p className="text-xs text-textMuted mt-1">Tracked against WHO standards</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="label">Age</label>
+                        <input className="input" type="number" placeholder="e.g. 32"
+                          value={newMember.age} onChange={e => setNewMember(p => ({ ...p, age: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label">Weight</label>
+                        <div className="flex gap-2">
+                          <input className="input flex-1" type="number" step="0.1" placeholder="e.g. 70"
+                            value={newMember.weight} onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))} />
+                          <select className="input w-20" value={newMember.weightUnit}
+                            onChange={e => setNewMember(p => ({ ...p, weightUnit: e.target.value }))}>
+                            <option value="kg">kg</option>
+                            <option value="lbs">lbs</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="label">Height</label>
+                        <input className="input" placeholder="Type 54 for 5'4&quot;"
+                          value={newMember.height}
+                          onChange={e => setNewMember(p => ({ ...p, height: e.target.value }))}
+                          onBlur={e => {
+                            const raw = e.target.value.replace(/\D/g, '')
+                            if (raw && !e.target.value.includes("'"))
+                              setNewMember(p => ({ ...p, height: formatHeight(raw) }))
+                          }} />
+                        <p className="text-xs text-textMuted mt-1">54 → auto formats to 5'4"</p>
+                      </div>
+                    </>
                   )}
                 </div>
 
-                {/* Health goals — hidden for babies */}
+                {/* Goals — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-4">
-                    <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="mb-5">
+                    <SectionLabel>Health goals</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                       {GOALS.map(goal => {
                         const selected = (newMember.goals || []).includes(goal)
                         return (
-                          <button key={goal} type="button"
+                          <PillButton key={goal} selected={selected} variant="primary"
                             onClick={() => setNewMember(p => ({
-                              ...p,
-                              goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
-                            }))}
-                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                              selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                            }`}
-                          >
+                              ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
+                            }))}>
                             {selected ? '✓ ' : '+ '}{goal}
-                          </button>
+                          </PillButton>
                         )
                       })}
                     </div>
-                    {(newMember.goals || []).length > 0 && (
+                    {newMember.goals.length > 0 && (
                       <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
                     )}
                   </div>
                 )}
 
-                {/* Dietary preferences — hidden for babies */}
+                {/* Dietary — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-4">
-                    <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <div className="mb-5">
+                    <SectionLabel>Dietary preferences</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                       {DIETARY.map(diet => {
                         const selected = (newMember.dietary || []).includes(diet)
                         return (
-                          <button key={diet} type="button"
+                          <PillButton key={diet} selected={selected} variant="green"
                             onClick={() => setNewMember(p => ({
-                              ...p,
-                              dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
-                            }))}
-                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                              selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
-                            }`}
-                          >
+                              ...p, dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
+                            }))}>
                             {selected ? '✓ ' : '+ '}{diet}
-                          </button>
+                          </PillButton>
                         )
                       })}
                     </div>
-                    {(newMember.dietary || []).length > 0 && (
+                    {newMember.dietary.length > 0 && (
                       <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
                     )}
                   </div>
                 )}
 
                 {/* Allergens — always shown */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  <div className="md:col-span-3">
-                    <label className="label">Allergens</label>
-                    {newMember.isBaby && (
-                      <p className="text-xs text-pink-600 mb-2">💡 You can track allergen introductions step by step after adding your baby.</p>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      {ALLERGENS.map(allergen => {
-                        const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
-                        return (
-                          <button key={allergen} type="button"
-                            onClick={() => {
-                              const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
-                              const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
-                              setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
-                            }}
-                            className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                              selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
-                            }`}
-                          >
-                            {selected ? '✕ ' : '+ '}{allergen}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    {newMember.allergens && <p className="text-xs text-danger mt-2">⚠️ Allergens: {newMember.allergens}</p>}
+                <div className="mb-5">
+                  <SectionLabel>Allergens</SectionLabel>
+                  {newMember.isBaby && (
+                    <p className="text-xs text-pink-600 mb-2">💡 Track introductions step by step in the baby profile after adding.</p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {ALLERGENS.map(allergen => {
+                      const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+                      return (
+                        <PillButton key={allergen} selected={selected} variant="red"
+                          onClick={() => {
+                            const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+                            const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
+                            setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
+                          }}>
+                          {selected ? '✕ ' : '+ '}{allergen}
+                        </PillButton>
+                      )
+                    })}
                   </div>
+                  {newMember.allergens && (
+                    <p className="text-xs text-danger mt-2">⚠️ {newMember.allergens}</p>
+                  )}
                 </div>
 
-                <div className="flex gap-3 justify-end">
-                  <button type="button" onClick={() => setShowAddMember(false)} className="btn-secondary">Cancel</button>
+                <div className="flex gap-3 justify-end pt-2 border-t border-border">
+                  <button type="button" onClick={() => { setShowAddMember(false); setNewMember(EMPTY_MEMBER) }} className="btn-secondary">Cancel</button>
                   <button type="submit" className="btn-primary">Add member</button>
                 </div>
               </form>
             </div>
           )}
 
+          {/* Member list */}
           {members.length === 0 ? (
-            <div className="text-center py-12 text-textMuted">
-              <div className="text-4xl mb-3">👨‍👩‍👧‍👦</div>
+            <div className="card text-center py-16 text-textMuted">
+              <Icon name="family" size={36} className="mx-auto mb-3 opacity-30" />
               <p className="font-medium">No members yet</p>
               <p className="text-sm mt-1">Add your first family member above</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {members.map(member => {
                 const babyMonths = member.isBaby ? getBabyAgeMonths(member.birthDate) : null
-                const babyStage = babyMonths !== null ? getBabyStageLabel(babyMonths) : null
+                const babyStage  = babyMonths !== null ? getBabyStageLabel(babyMonths) : null
                 return (
-                <div key={member.id} className="card">
-                  {editingId === member.id ? (
-                    <div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <label className="label">Name</label>
-                          <input className="input" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
+                  <div key={member.id} className="card">
+                    {editingId === member.id ? (
+                      /* ── Edit form ─────────────────────────────────────── */
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <p className="font-semibold text-textPrimary">Edit {member.name}</p>
+                          <button onClick={() => setEditingId(null)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                            <Icon name="close" size={16} />
+                          </button>
                         </div>
-                        <div>
-                          <label className="label">{editForm.isBaby ? 'Date of birth' : 'Age'}</label>
-                          {editForm.isBaby ? (
-                            <input
-                              className="input"
-                              type="date"
-                              max={new Date().toISOString().split('T')[0]}
-                              value={editForm.birthDate ? new Date(editForm.birthDate).toISOString().split('T')[0] : ''}
-                              onChange={e => setEditForm(p => ({ ...p, birthDate: e.target.value }))}
-                            />
-                          ) : (
-                            <input className="input" type="number" value={editForm.age || ''} onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                          <div>
+                            <label className="label">Name</label>
+                            <input className="input" value={editForm.name}
+                              onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="label">{editForm.isBaby ? 'Date of birth' : 'Age'}</label>
+                            {editForm.isBaby ? (
+                              <input className="input" type="date"
+                                max={new Date().toISOString().split('T')[0]}
+                                value={editForm.birthDate ? new Date(editForm.birthDate).toISOString().split('T')[0] : ''}
+                                onChange={e => setEditForm(p => ({ ...p, birthDate: e.target.value }))} />
+                            ) : (
+                              <input className="input" type="number" value={editForm.age || ''}
+                                onChange={e => setEditForm(p => ({ ...p, age: e.target.value }))} />
+                            )}
+                          </div>
+                          {!editForm.isBaby && (
+                            <>
+                              <div>
+                                <label className="label">Weight</label>
+                                <div className="flex gap-2">
+                                  <input className="input flex-1" type="number" step="0.1" min="0"
+                                    value={editForm.weight || ''}
+                                    onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))} />
+                                  <select className="input w-20" value={editForm.weightUnit || 'kg'}
+                                    onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}>
+                                    <option value="kg">kg</option>
+                                    <option value="lbs">lbs</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="label">Height</label>
+                                <input className="input" placeholder="e.g. 54 → 5'4&quot;"
+                                  value={editForm.height || ''}
+                                  onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))}
+                                  onBlur={e => {
+                                    const raw = e.target.value.replace(/\D/g, '')
+                                    if (raw && !e.target.value.includes("'"))
+                                      setEditForm(p => ({ ...p, height: formatHeight(raw) }))
+                                  }} />
+                                <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
+                              </div>
+                            </>
                           )}
                         </div>
+
                         {!editForm.isBaby && (
-                          <div>
-                            <label className="label">Weight</label>
-                            <div className="flex gap-2">
-                              <input
-                                className="input flex-1"
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                placeholder="e.g. 70.5"
-                                value={editForm.weight || ''}
-                                onChange={e => setEditForm(p => ({ ...p, weight: e.target.value }))}
-                              />
-                              <select
-                                className="input w-20"
-                                value={editForm.weightUnit || 'kg'}
-                                onChange={e => setEditForm(p => ({ ...p, weightUnit: e.target.value }))}
-                              >
-                                <option value="kg">kg</option>
-                                <option value="lbs">lbs</option>
-                              </select>
+                          <>
+                            <div className="mb-4">
+                              <SectionLabel>Health goals</SectionLabel>
+                              <div className="flex flex-wrap gap-2">
+                                {GOALS.map(goal => {
+                                  const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
+                                  const selected = current.includes(goal)
+                                  return (
+                                    <PillButton key={goal} selected={selected} variant="primary"
+                                      onClick={() => setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))}>
+                                      {selected ? '✓ ' : '+ '}{goal}
+                                    </PillButton>
+                                  )
+                                })}
+                              </div>
                             </div>
-                          </div>
+                            <div className="mb-4">
+                              <SectionLabel>Dietary preferences</SectionLabel>
+                              <div className="flex flex-wrap gap-2">
+                                {DIETARY.map(diet => {
+                                  const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
+                                  const selected = current.includes(diet)
+                                  return (
+                                    <PillButton key={diet} selected={selected} variant="green"
+                                      onClick={() => setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))}>
+                                      {selected ? '✓ ' : '+ '}{diet}
+                                    </PillButton>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </>
                         )}
-                        {!editForm.isBaby && (
-                          <div>
-                            <label className="label">Height</label>
-                            <input
-                              className="input"
-                              placeholder="e.g. 54 → 5'4&quot;"
-                              value={editForm.height || ''}
-                              onChange={e => setEditForm(p => ({ ...p, height: e.target.value }))}
-                              onBlur={e => {
-                                const raw = e.target.value.replace(/\D/g, '')
-                                if (raw && !e.target.value.includes("'")) {
-                                  setEditForm(p => ({ ...p, height: formatHeight(raw) }))
-                                }
-                              }}
-                            />
-                            <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Health goals multi-select — hidden for babies */}
-                      {!editForm.isBaby && (
                         <div className="mb-4">
-                          <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                          <div className="flex flex-wrap gap-2">
-                            {GOALS.map(goal => {
-                              const selected = (Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)).includes(goal)
-                              return (
-                                <button key={goal} type="button"
-                                  onClick={() => {
-                                    const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
-                                    setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))
-                                  }}
-                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                                    selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                                  }`}
-                                >
-                                  {selected ? '✓ ' : '+ '}{goal}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Dietary preferences multi-select — hidden for babies */}
-                      {!editForm.isBaby && (
-                        <div className="mb-4">
-                          <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
-                          <div className="flex flex-wrap gap-2">
-                            {DIETARY.map(diet => {
-                              const selected = (Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)).includes(diet)
-                              return (
-                                <button key={diet} type="button"
-                                  onClick={() => {
-                                    const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
-                                    setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))
-                                  }}
-                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                                    selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'
-                                  }`}
-                                >
-                                  {selected ? '✓ ' : '+ '}{diet}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                        <div className="md:col-span-3">
-                          <label className="label">Allergens</label>
+                          <SectionLabel>Allergens</SectionLabel>
                           <div className="flex flex-wrap gap-2">
                             {ALLERGENS.map(allergen => {
                               const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
                               return (
-                                <button key={allergen} type="button"
+                                <PillButton key={allergen} selected={selected} variant="red"
                                   onClick={() => {
                                     const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
                                     const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
                                     setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
-                                  }}
-                                  className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                                    selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'
-                                  }`}
-                                >
+                                  }}>
                                   {selected ? '✕ ' : '+ '}{allergen}
-                                </button>
+                                </PillButton>
                               )
                             })}
                           </div>
-                          {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ Allergens: {editForm.allergens}</p>}
+                          {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ {editForm.allergens}</p>}
+                        </div>
+
+                        <div className="flex gap-3 justify-end pt-3 border-t border-border">
+                          <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
+                          <button onClick={saveEdit} className="btn-primary">Save changes</button>
                         </div>
                       </div>
-                      <div className="flex gap-3 justify-end">
-                        <button onClick={() => setEditingId(null)} className="btn-secondary">Cancel</button>
-                        <button onClick={saveEdit} className="btn-primary">Save changes</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    ) : (
+                      /* ── View card ─────────────────────────────────────── */
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        {/* Avatar */}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${member.isBaby ? 'bg-pink-400' : 'bg-primary'}`}>
                           {member.isBaby ? '🍼' : (member.name?.[0]?.toUpperCase() || '?')}
                         </div>
+
+                        {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <p className="font-semibold text-textPrimary">{member.name}</p>
-                            <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${member.role === 'Admin' ? 'bg-blue-50 text-primary border border-blue-100' : 'bg-gray-100 text-textMuted'}`}>
-                              {member.role}
-                            </span>
+                            <span className={`text-xs px-2 py-0.5 rounded-pill font-medium border ${
+                              member.role === 'Admin' ? 'bg-blue-50 text-primary border-blue-100' : 'bg-gray-100 text-textMuted border-gray-200'
+                            }`}>{member.role}</span>
                             {member.isBaby && (
                               <span className="text-xs px-2 py-0.5 rounded-pill font-medium bg-pink-50 text-pink-600 border border-pink-100">
                                 🍼 Baby & Toddler
                               </span>
                             )}
+                            {member.inviteAccepted && (
+                              <span className="text-xs px-2 py-0.5 rounded-pill bg-green-50 text-success border border-green-100 font-medium">
+                                ✓ Has login
+                              </span>
+                            )}
                           </div>
 
-                          {/* Baby stage badge */}
+                          {/* Baby stage */}
                           {babyStage && (
-                            <div className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-pill font-medium mb-2 ${babyStage.color}`}>
-                              <span>Stage {babyStage.stage}</span>
-                              <span>·</span>
-                              <span>{babyStage.label}</span>
-                              {babyMonths !== null && <span>· {babyMonths}mo</span>}
-                            </div>
+                            <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-pill font-medium border mb-2 ${babyStage.color}`}>
+                              Stage {babyStage.stage} · {babyStage.label} · {babyMonths}mo
+                            </span>
                           )}
 
+                          {/* Stats grid */}
                           {member.isBaby ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                            <div className="grid grid-cols-3 gap-2 mt-1">
                               {[
-                                { label: 'Age', value: babyMonths !== null ? `${babyMonths} months` : '—' },
-                                { label: 'Born', value: member.birthDate ? new Date(member.birthDate).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' },
-                                { label: 'Allergens noted', value: member.allergens ? member.allergens.split(',').filter(Boolean).length + ' flagged' : 'None' },
+                                { label: 'Age',      value: babyMonths !== null ? `${babyMonths} months` : '—' },
+                                { label: 'Born',     value: member.birthDate ? new Date(member.birthDate).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' },
+                                { label: 'Allergens', value: member.allergens ? member.allergens.split(',').filter(Boolean).length + ' flagged' : 'None' },
                               ].map((item, i) => (
                                 <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
                                   <p className="text-xs text-textMuted">{item.label}</p>
@@ -787,25 +742,27 @@ const { isFeatureEnabled } = useAppConfigStore()
                               ))}
                             </div>
                           ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
                               {[
-                                { label: 'Age', value: member.age ? `${member.age} yrs` : '—' },
-                                { label: 'Weight', value: member.weight || '—' },
-                                { label: 'Height', value: member.height || '—' },
+                                { label: 'Age',     value: member.age    ? `${member.age} yrs`                            : '—' },
+                                { label: 'Weight',  value: member.weight ? `${member.weight} ${member.weightUnit || 'kg'}` : '—' },
+                                { label: 'Height',  value: member.height || '—' },
                                 { label: 'Dietary', value: member.dietary || '—' },
                               ].map((item, i) => (
                                 <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
                                   <p className="text-xs text-textMuted">{item.label}</p>
-                                  <p className="text-sm font-medium text-textPrimary">{item.value}</p>
+                                  <p className="text-sm font-medium text-textPrimary truncate">{item.value}</p>
                                 </div>
                               ))}
                             </div>
                           )}
 
-                          {!member.isBaby && (
-                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {/* Tags */}
+                          {!member.isBaby && member.goals && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
                               <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
-                                Goal: {member.goals || '—'}
+                                {member.goals.split(',')[0]?.trim()}
+                                {member.goals.split(',').length > 1 && ` +${member.goals.split(',').length - 1}`}
                               </span>
                               {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
                                 <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
@@ -814,9 +771,8 @@ const { isFeatureEnabled } = useAppConfigStore()
                               ))}
                             </div>
                           )}
-
                           {member.isBaby && member.allergens && (
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <div className="mt-2 flex flex-wrap gap-1.5">
                               {member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
                                 <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
                                   ⚠️ {allergen}
@@ -825,36 +781,34 @@ const { isFeatureEnabled } = useAppConfigStore()
                             </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0 flex-wrap sm:mt-0">
-                        <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5">Edit</button>
-{member.isBaby && (
-  <button onClick={() => navigate(`/app/baby/${member.id}`)} className="text-xs px-3 py-1.5 rounded-btn border border-pink-200 text-pink-600 hover:bg-pink-50 transition-all">
-    🍼 View profile
-  </button>
-)}
-                        {member.role !== 'Admin' && !member.inviteAccepted && (
-                          <button
-                            onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
-                            className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all"
-                          >
-                            {member.email ? 'Resend invite' : 'Invite to login'}
+
+                        {/* Actions */}
+                        <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                          <button onClick={() => startEdit(member)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
+                            <Icon name="edit" size={13} /> Edit
                           </button>
-                        )}
-                        {member.inviteAccepted && (
-                          <span className="text-xs px-3 py-1.5 rounded-btn bg-green-50 text-success border border-green-100 font-medium">
-                            ✓ Has login
-                          </span>
-                        )}
-                        {member.role !== 'Admin' && (
-                          <button onClick={() => handleDeleteMember(member.id)} className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all">
-                            Remove
-                          </button>
-                        )}
+                          {member.isBaby && (
+                            <button onClick={() => navigate(`/app/baby/${member.id}`)}
+                              className="text-xs px-3 py-1.5 rounded-btn border border-pink-200 text-pink-600 hover:bg-pink-50 transition-all">
+                              🍼 View profile
+                            </button>
+                          )}
+                          {member.role !== 'Admin' && !member.inviteAccepted && (
+                            <button onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
+                              className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all">
+                              {member.email ? 'Resend invite' : 'Invite to login'}
+                            </button>
+                          )}
+                          {member.role !== 'Admin' && (
+                            <button onClick={() => handleDeleteMember(member.id)}
+                              className="text-xs px-3 py-1.5 rounded-btn border border-border text-danger hover:bg-red-50 transition-all flex items-center gap-1.5">
+                              <Icon name="trash" size={13} /> Remove
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
                 )
               })}
             </div>
@@ -862,35 +816,29 @@ const { isFeatureEnabled } = useAppConfigStore()
         </div>
       )}
 
-      {/* Invite modal */}
+      {/* ── INVITE MODAL ──────────────────────────────────────────────────── */}
       {inviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
-              <button onClick={() => { setInviteModal(null); setInviteEmail('') }} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <button onClick={() => { setInviteModal(null); setInviteEmail('') }}
+                className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                <Icon name="close" size={16} />
+              </button>
             </div>
             <p className="text-sm text-textMuted mb-4">
-              They'll receive an email to set their password and log in to your family account.
+              They'll receive an email to set their password and join your family account.
             </p>
             <div className="mb-4">
               <label className="label">Email address</label>
-              <input
-                className="input"
-                type="email"
-                placeholder="their@email.com"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                autoFocus
-              />
+              <input className="input" type="email" placeholder="their@email.com"
+                value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} autoFocus />
             </div>
             <div className="flex gap-3">
               <button onClick={() => { setInviteModal(null); setInviteEmail('') }} className="btn-secondary flex-1">Cancel</button>
-              <button
-                onClick={handleInvite}
-                disabled={!inviteEmail.trim() || inviteSending}
-                className="btn-primary flex-1 disabled:opacity-50"
-              >
+              <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviteSending}
+                className="btn-primary flex-1 disabled:opacity-50">
                 {inviteSending ? 'Sending...' : 'Send invite'}
               </button>
             </div>
@@ -898,60 +846,61 @@ const { isFeatureEnabled } = useAppConfigStore()
         </div>
       )}
 
-      {/* Account tab */}
+      {/* ── ACCOUNT TAB ───────────────────────────────────────────────────── */}
       {activeTab === 'account' && (
-        <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-6">Account details</h2>
-          <div className="space-y-5">
-            <div>
-              <label className="label">Family name</label>
-              <input className="input" value={accountForm.familyName} onChange={e => setAccountForm(p => ({ ...p, familyName: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">Your name</label>
-              <input className="input" value={accountForm.name} onChange={e => setAccountForm(p => ({ ...p, name: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">Email address</label>
-              <input className="input" type="email" value={accountForm.email} onChange={e => setAccountForm(p => ({ ...p, email: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">New password</label>
-              <input className="input" type="password" placeholder="Leave blank to keep current" value={accountForm.password} onChange={e => setAccountForm(p => ({ ...p, password: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">Confirm new password</label>
-              <input className="input" type="password" placeholder="Repeat new password" value={accountForm.confirmPassword} onChange={e => setAccountForm(p => ({ ...p, confirmPassword: e.target.value }))} />
-            </div>
-            <div className="flex gap-3 pt-2">
+        <div className="space-y-6 max-w-lg">
+
+          {/* Profile */}
+          <div className="card">
+            <h2 className="font-semibold text-textPrimary mb-5">Account details</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="label">Family name</label>
+                <input className="input" value={accountForm.familyName}
+                  onChange={e => setAccountForm(p => ({ ...p, familyName: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Your name</label>
+                <input className="input" value={accountForm.name}
+                  onChange={e => setAccountForm(p => ({ ...p, name: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Email address</label>
+                <input className="input" type="email" value={accountForm.email}
+                  onChange={e => setAccountForm(p => ({ ...p, email: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">New password</label>
+                <input className="input" type="password" placeholder="Leave blank to keep current"
+                  value={accountForm.password} onChange={e => setAccountForm(p => ({ ...p, password: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Confirm new password</label>
+                <input className="input" type="password" placeholder="Repeat new password"
+                  value={accountForm.confirmPassword} onChange={e => setAccountForm(p => ({ ...p, confirmPassword: e.target.value }))} />
+              </div>
               <button onClick={handleUpdateAccount} disabled={savingAccount} className="btn-primary disabled:opacity-50">
                 {savingAccount ? 'Saving...' : 'Save changes'}
               </button>
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="font-semibold text-textPrimary mb-1">🔮 Grocery restock threshold</h3>
+          {/* Restock threshold */}
+          <div className="card">
+            <h3 className="font-semibold text-textPrimary mb-1">Grocery restock threshold</h3>
             <p className="text-sm text-textMuted mb-4">
-              Nooka will suggest restocking pantry items when stock drops below this percentage of their usual amount.
+              Nooka suggests restocking when stock drops below this percentage of the usual amount.
             </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-textMuted">Remind me at</span>
-                <span className="text-sm font-semibold text-primary">{restockThreshold}% remaining</span>
+                <span className="text-sm text-textMuted">Alert me at</span>
+                <span className="text-sm font-bold text-primary">{restockThreshold}% remaining</span>
               </div>
-              <input
-                type="range"
-                min={5}
-                max={50}
-                step={5}
-                value={restockThreshold}
-                onChange={e => setRestockThreshold(parseInt(e.target.value))}
-                className="w-full accent-primary"
-              />
+              <input type="range" min={5} max={50} step={5} value={restockThreshold}
+                onChange={e => setRestockThreshold(parseInt(e.target.value))} className="w-full accent-primary" />
               <div className="flex justify-between text-xs text-textMuted">
-                <span>5% (run lean)</span>
-                <span>50% (early warning)</span>
+                <span>5% — run lean</span>
+                <span>50% — early warning</span>
               </div>
               <button onClick={handleSaveThreshold} disabled={savingThreshold} className="btn-primary text-sm disabled:opacity-50">
                 {savingThreshold ? 'Saving...' : 'Save threshold'}
@@ -959,24 +908,29 @@ const { isFeatureEnabled } = useAppConfigStore()
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border">
-            <h3 className="font-semibold text-danger mb-2">Danger zone</h3>
+          {/* Danger zone */}
+          <div className="card border border-red-100">
+            <h3 className="font-semibold text-danger mb-1">Danger zone</h3>
             <p className="text-sm text-textMuted mb-4">
-              Permanently deletes your family account, all members, pantry items, grocery lists and spending history. This cannot be undone.
+              Permanently deletes your account, all members, pantry items, and history. Cannot be undone.
             </p>
             {!showDeleteConfirm ? (
-              <button onClick={() => setShowDeleteConfirm(true)} className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all">
+              <button onClick={() => setShowDeleteConfirm(true)}
+                className="text-sm text-danger border border-danger/30 px-4 py-2 rounded-btn hover:bg-red-50 transition-all">
                 Delete family account
               </button>
             ) : (
               <div className="bg-red-50 border border-red-100 rounded-card p-4">
                 <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
                 <p className="text-xs text-red-600 mb-3">Type <strong>DELETE</strong> to confirm.</p>
-                <input className="input mb-3 text-sm" placeholder="Type DELETE to confirm" value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} />
+                <input className="input mb-3 text-sm" placeholder="Type DELETE to confirm"
+                  value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} />
                 <div className="flex gap-3">
                   <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }} className="btn-secondary text-sm flex-1">Cancel</button>
-                  <button onClick={handleDeleteAccount} disabled={deleteConfirmText !== 'DELETE' || deleting} className="text-sm flex-1 py-2 px-4 rounded-btn font-medium bg-danger text-white hover:bg-red-600 disabled:opacity-40 transition-all">
-                    {deleting ? 'Deleting...' : 'Permanently delete everything'}
+                  <button onClick={handleDeleteAccount}
+                    disabled={deleteConfirmText !== 'DELETE' || deleting}
+                    className="text-sm flex-1 py-2 px-4 rounded-btn font-medium bg-danger text-white hover:bg-red-600 disabled:opacity-40 transition-all">
+                    {deleting ? 'Deleting...' : 'Permanently delete'}
                   </button>
                 </div>
               </div>
@@ -985,77 +939,77 @@ const { isFeatureEnabled } = useAppConfigStore()
         </div>
       )}
 
-      {/* Plan tab */}
+      {/* ── PLAN TAB ──────────────────────────────────────────────────────── */}
       {activeTab === 'plan' && (
         <div>
-          <h2 className="font-semibold text-textPrimary mb-2">Current plan</h2>
-          <p className="text-sm text-textMuted mb-6">
-            You are on the <span className="font-semibold text-textPrimary">{currentPlanName}</span> plan.
-            {subscription?.subscription?.currentPeriodEnd && (
-              <span className="text-textMuted"> · Renews {subscription.subscription.currentPeriodEnd}</span>
-            )}
-            {subscription?.subscription?.cancelAtPeriodEnd && (
-              <span className="text-danger"> · Cancels at end of period</span>
-            )}
-          </p>
+          <div className="mb-6">
+            <h2 className="font-semibold text-textPrimary mb-1">Plan & billing</h2>
+            <p className="text-sm text-textMuted">
+              You're on the <span className="font-semibold text-textPrimary">{currentPlanName}</span> plan.
+              {subscription?.subscription?.currentPeriodEnd && (
+                <span> · Renews {subscription.subscription.currentPeriodEnd}</span>
+              )}
+              {subscription?.subscription?.cancelAtPeriodEnd && (
+                <span className="text-danger"> · Cancels at period end</span>
+              )}
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            {PLANS.map((plan, i) => {
+            {PLANS.map((plan) => {
               const isCurrent = plan.name.toLowerCase() === currentPlanName.toLowerCase()
               return (
-                <div key={i} className={`card border-2 transition-all ${
-                  isCurrent ? 'border-primary' :
-                  plan.name === 'Premium' ? 'border-purple-200' :
-                  'border-border'
+                <div key={plan.name} className={`card border-2 transition-all flex flex-col ${
+                  isCurrent          ? 'border-primary'      :
+                  plan.highlight     ? 'border-green-200'    :
+                  plan.name === 'Premium' ? 'border-purple-200' : 'border-border'
                 }`}>
-                  {isCurrent && (
-                    <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-blue-100">
-                      ✓ Current plan
-                    </span>
-                  )}
-                  {plan.name === 'Premium' && !isCurrent && (
-                    <span className="inline-block bg-purple-50 text-purple-600 text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-purple-100">
-                      ⭐ Most features
-                    </span>
-                  )}
-                  {plan.name === 'Family' && !isCurrent && currentPlanName.toLowerCase() === 'free' && (
-                    <span className="inline-block bg-green-50 text-success text-xs font-semibold px-3 py-1 rounded-pill mb-3 border border-green-100">
-                      Popular
-                    </span>
-                  )}
+                  <div className="mb-3">
+                    {isCurrent && (
+                      <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill border border-blue-100">
+                        ✓ Current plan
+                      </span>
+                    )}
+                    {plan.highlight && !isCurrent && (
+                      <span className="inline-block bg-green-50 text-success text-xs font-semibold px-3 py-1 rounded-pill border border-green-100">
+                        Most popular
+                      </span>
+                    )}
+                    {plan.name === 'Premium' && !isCurrent && (
+                      <span className="inline-block bg-purple-50 text-purple-600 text-xs font-semibold px-3 py-1 rounded-pill border border-purple-100">
+                        ⭐ Most features
+                      </span>
+                    )}
+                  </div>
                   <p className="font-bold text-textPrimary text-lg">{plan.name}</p>
-                  <p className="text-2xl font-bold text-textPrimary my-2">{plan.price}</p>
-                  <ul className="space-y-1.5 mb-5">
+                  <div className="flex items-baseline gap-1 my-2">
+                    <span className="text-2xl font-bold text-textPrimary">{plan.price}</span>
+                    <span className="text-xs text-textMuted">{plan.period}</span>
+                  </div>
+                  <ul className="space-y-1.5 mb-5 flex-1">
                     {plan.features.map((f, j) => (
                       <li key={j} className="flex items-start gap-2 text-xs text-textMuted">
-                        <span className="text-success mt-0.5 flex-shrink-0">✓</span>
+                        <Icon name="check" size={13} className="text-success mt-0.5 flex-shrink-0" />
                         {f}
                       </li>
                     ))}
                   </ul>
                   <button
                     onClick={() => !isCurrent && plan.name !== 'Free' && handleUpgrade(plan.name)}
-                    disabled={isCurrent || plan.name === 'Free' || upgradingPlan === plan.name.toLowerCase()}
-                    className={`w-full text-sm py-2.5 rounded-btn font-medium transition-all ${
-                      isCurrent
-                        ? 'bg-gray-100 text-textMuted cursor-default'
-                        : plan.name === 'Free'
-                        ? 'bg-gray-100 text-textMuted cursor-default'
-                        : plan.name === 'Premium'
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
-                        : 'btn-primary'
-                    } disabled:opacity-50`}
-                  >
+                    disabled={isCurrent || plan.name === 'Free' || !!upgradingPlan}
+                    className={`w-full text-sm py-2.5 rounded-btn font-medium transition-all disabled:opacity-50 ${
+                      isCurrent        ? 'bg-gray-100 text-textMuted cursor-default' :
+                      plan.name === 'Free'    ? 'bg-gray-100 text-textMuted cursor-default' :
+                      plan.name === 'Premium' ? 'bg-purple-600 text-white hover:bg-purple-700' :
+                      'btn-primary'
+                    }`}>
                     {upgradingPlan === plan.name.toLowerCase() ? (
                       <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                        </svg>
+                        <Icon name="refresh" size={14} className="animate-spin" />
                         Redirecting...
                       </span>
                     ) : isCurrent ? 'Current plan'
-                      : plan.name === 'Free' ? 'Free plan'
+                      : plan.name === 'Free' ? 'Free forever'
                       : `Upgrade to ${plan.name} →`}
                   </button>
                 </div>
@@ -1064,10 +1018,10 @@ const { isFeatureEnabled } = useAppConfigStore()
           </div>
 
           {subscription?.subscription && (
-            <div className="card max-w-lg mb-6">
-              <h3 className="font-semibold text-textPrimary mb-3">Manage subscription</h3>
+            <div className="card max-w-lg mb-4">
+              <h3 className="font-semibold text-textPrimary mb-2">Manage subscription</h3>
               <p className="text-sm text-textMuted mb-4">
-                Change payment method, download invoices, or cancel your subscription through the Stripe billing portal.
+                Change payment method, download invoices, or cancel through the Stripe billing portal.
               </p>
               <button onClick={handleManageBilling} className="btn-secondary text-sm">
                 Open billing portal →
@@ -1077,13 +1031,10 @@ const { isFeatureEnabled } = useAppConfigStore()
 
           <div className="card max-w-lg">
             <h3 className="font-semibold text-textPrimary mb-1">Billing history</h3>
-            <p className="text-xs text-textMuted mb-4">Access full billing history and invoices through the billing portal above.</p>
+            <p className="text-xs text-textMuted mb-4">Full history available in the billing portal above.</p>
             {subscriptionLoading ? (
               <div className="flex items-center justify-center py-6">
-                <svg className="animate-spin w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                </svg>
+                <Icon name="refresh" size={20} className="animate-spin text-primary" />
               </div>
             ) : subscription?.subscription ? (
               <div className="flex items-center justify-between py-3 border-b border-border">
@@ -1094,74 +1045,59 @@ const { isFeatureEnabled } = useAppConfigStore()
               </div>
             ) : (
               <div className="text-center py-6 text-textMuted">
-                <p className="text-3xl mb-2">💳</p>
+                <Icon name="dollar" size={28} className="mx-auto mb-2 opacity-30" />
                 <p className="text-sm">No billing history yet</p>
               </div>
             )}
           </div>
+
+          <p className="text-xs text-textMuted mt-4 text-center">
+            All prices in CAD · No hidden fees · Cancel anytime · Powered by Stripe
+          </p>
         </div>
       )}
 
-      {/* Notifications tab */}
+      {/* ── NOTIFICATIONS TAB ─────────────────────────────────────────────── */}
       {activeTab === 'notifications' && (
         <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-2">Notification preferences</h2>
-          <p className="text-xs text-textMuted mb-6">Email notifications will be enabled once SendGrid is configured.</p>
+          <h2 className="font-semibold text-textPrimary mb-1">Notification preferences</h2>
+          <p className="text-xs text-textMuted mb-6">Email notifications are coming soon.</p>
           <div className="space-y-5">
             {[
-              { key: 'recalls', label: 'Food recall alerts', sub: 'Get notified when a recalled item matches your pantry' },
-              { key: 'expiry', label: 'Expiry reminders', sub: 'Alert when pantry items are about to expire' },
-              { key: 'grocery', label: 'Weekly grocery list', sub: 'Auto-generated list every Friday morning' },
-              { key: 'monthly', label: 'Monthly spend report', sub: 'Summary of your grocery spending each month' },
-              { key: 'recipes', label: 'Recipe suggestions', sub: 'Daily meal ideas based on your pantry' },
+              { key: 'recalls', label: 'Food recall alerts',   sub: 'Instant alert when a recalled item matches your pantry' },
+              { key: 'expiry',  label: 'Expiry reminders',     sub: 'Alert before pantry items expire' },
+              { key: 'grocery', label: 'Weekly grocery list',  sub: 'Auto-generated list every Friday morning' },
+              { key: 'monthly', label: 'Monthly spend report', sub: 'Summary of grocery spending each month' },
+              { key: 'recipes', label: 'Recipe suggestions',   sub: 'Daily meal ideas based on your pantry' },
             ].map((n) => (
               <div key={n.key} className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-0">
                 <div>
                   <p className="text-sm font-medium text-textPrimary">{n.label}</p>
                   <p className="text-xs text-textMuted mt-0.5">{n.sub}</p>
                 </div>
-                <ToggleSwitch
-                  on={notifPrefs[n.key]}
-                  onChange={(val) => setNotifPrefs(prev => ({ ...prev, [n.key]: val }))}
-                />
+                <ToggleSwitch on={notifPrefs[n.key]} onChange={(val) => setNotifPrefs(prev => ({ ...prev, [n.key]: val }))} />
               </div>
             ))}
           </div>
-          <button
-            onClick={() => showToast('Preferences saved! Email notifications coming soon.')}
-            className="btn-primary mt-6 w-full"
-          >
+          <button onClick={() => showToast('Preferences saved!')} className="btn-primary mt-6 w-full">
             Save preferences
           </button>
         </div>
       )}
 
-      {/* Support + Sign out */}
-      <div className="mt-8 flex items-center justify-between">
+      {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+      <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
         <p className="text-xs text-textMuted">
           Need help?{' '}
-          <a href="mailto:support@nooka.ca" className="text-primary hover:underline font-medium">
-            support@nooka.ca
-          </a>
+          <a href="mailto:support@nooka.ca" className="text-primary hover:underline font-medium">support@nooka.ca</a>
         </p>
-        <button onClick={() => { logout(); navigate('/') }} className="text-sm text-danger hover:underline font-medium">
-          Sign out of Nooka
+        <button onClick={() => { logout(); navigate('/') }}
+          className="text-sm text-danger hover:underline font-medium flex items-center gap-1.5">
+          Sign out
         </button>
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
-
     </div>
-  )
-}
-
-function ToggleSwitch({ on, onChange }) {
-  return (
-    <button
-      onClick={() => onChange(!on)}
-      className={`relative w-11 h-6 rounded-pill transition-all flex-shrink-0 ${on ? 'bg-primary' : 'bg-gray-200'}`}
-    >
-      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${on ? 'left-5' : 'left-0.5'}`} />
-    </button>
   )
 }

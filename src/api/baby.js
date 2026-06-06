@@ -24,6 +24,12 @@ export const deleteFeedingLog = (memberId, logId) =>
 export const generateBabyRecipe = (memberId, data) =>
   client.post(`/baby/${memberId}/recipe`, data).then(r => r.data)
 
+export const logGrowth = (memberId, data) =>
+  client.post(`/baby/${memberId}/growth`, data).then(r => r.data)
+
+export const getGrowthHistory = (memberId) =>
+  client.get(`/baby/${memberId}/growth`).then(r => r.data)
+
 export const downloadPediatricianReport = async (memberId) => {
   const res = await client.get(`/baby/${memberId}/report`, { responseType: 'blob' })
   const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
