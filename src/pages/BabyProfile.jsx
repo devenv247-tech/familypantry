@@ -66,12 +66,11 @@ export default function BabyProfile() {
   const [growthData, setGrowthData] = useState(null)
   const [growthForm, setGrowthForm] = useState({ weight: '', weightUnit: 'kg', height: '', heightUnit: 'cm', note: '' })
   const [savingGrowth, setSavingGrowth] = useState(false)
-  const canUseGrowthHistory = ['family', 'premium'].includes(planName)
-
   const planName = family?.plan || 'free'
   const canUseAllergenTracker = ['family', 'premium'].includes(planName)
   const canUseFeedingLog = ['family', 'premium'].includes(planName)
   const canUseRecipeGenerator = planName === 'premium'
+  const canUseGrowthHistory = ['family', 'premium'].includes(planName)
 
   useEffect(() => {
     loadProfile()
