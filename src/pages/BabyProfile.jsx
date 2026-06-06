@@ -64,7 +64,7 @@ export default function BabyProfile() {
 
   // Growth tracking
   const [growthData, setGrowthData] = useState(null)
-  const [growthForm, setGrowthForm] = useState({ weight: '', height: '', note: '' })
+  const [growthForm, setGrowthForm] = useState({ weight: '', weightUnit: 'kg', height: '', heightUnit: 'cm', note: '' })
   const [savingGrowth, setSavingGrowth] = useState(false)
   const canUseGrowthHistory = ['family', 'premium'].includes(planName)
 
@@ -172,11 +172,11 @@ export default function BabyProfile() {
     setSavingGrowth(true)
     try {
       const result = await logGrowth(memberId, {
-        weight: parseFloat(growthForm.weight),
-        height: parseFloat(growthForm.height),
-        weightUnit: 'kg',
-        heightUnit: 'cm',
-        note: growthForm.note,
+        weight:     parseFloat(growthForm.weight),
+        height:     parseFloat(growthForm.height),
+        weightUnit: growthForm.weightUnit,
+        heightUnit: growthForm.heightUnit,
+        note:       growthForm.note,
       })
       setGrowthData(prev => ({
         ...prev,
@@ -583,30 +583,48 @@ export default function BabyProfile() {
             <p className="text-xs text-textMuted mb-3">Weight and height are required to track growth accurately.</p>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="label">Weight (kg) <span className="text-danger">*</span></label>
-                <input
-                  className="input"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="30"
-                  placeholder="e.g. 7.5"
-                  value={growthForm.weight}
-                  onChange={e => setGrowthForm(p => ({ ...p, weight: e.target.value }))}
-                />
+                <label className="label">Weight <span className="text-danger">*</span></label>
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder={growthForm.weightUnit === 'kg' ? 'e.g. 7.5' : 'e.g. 16.5'}
+                    value={growthForm.weight}
+                    onChange={e => setGrowthForm(p => ({ ...p, weight: e.target.value }))}
+                  />
+                  <select
+                    className="input w-20"
+                    value={growthForm.weightUnit}
+                    onChange={e => setGrowthForm(p => ({ ...p, weightUnit: e.target.value }))}
+                  >
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                  </select>
+                </div>
               </div>
               <div>
-                <label className="label">Height (cm) <span className="text-danger">*</span></label>
-                <input
-                  className="input"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="120"
-                  placeholder="e.g. 68.5"
-                  value={growthForm.height}
-                  onChange={e => setGrowthForm(p => ({ ...p, height: e.target.value }))}
-                />
+                <label className="label">Height <span className="text-danger">*</span></label>
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder={growthForm.heightUnit === 'cm' ? 'e.g. 68.5' : 'e.g. 27'}
+                    value={growthForm.height}
+                    onChange={e => setGrowthForm(p => ({ ...p, height: e.target.value }))}
+                  />
+                  <select
+                    className="input w-20"
+                    value={growthForm.heightUnit}
+                    onChange={e => setGrowthForm(p => ({ ...p, heightUnit: e.target.value }))}
+                  >
+                    <option value="cm">cm</option>
+                    <option value="in">in</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div className="mb-3">

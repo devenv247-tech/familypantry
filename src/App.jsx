@@ -65,9 +65,9 @@ export default function App() {
           <Route path="recipes" element={<Recipes />} />
           <Route path="grocery" element={<Grocery />} />
           <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="/app/baby/:memberId" element={<BabyProfile />} />
-          <Route path="recalls" element={<Recalls />} />
+         <Route path="settings" element={<Settings />} />
+<Route path="baby/:memberId" element={<BabyProfile />} />
+<Route path="recalls" element={<Recalls />} />
           <Route path="mealplan" element={<MealPlan />} />
           <Route path="cookbook" element={<SavedRecipes />} />
           <Route path="health" element={<Health />} />
