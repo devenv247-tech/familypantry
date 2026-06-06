@@ -1,19 +1,20 @@
 import NookaIcon from '../ui/NookaIcon'
+import Icon from '../ui/Icon'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useAppConfigStore } from '../../store/appConfigStore'
 
 const getLinks = (showHealth) => [
-  { to: '/app', label: 'Dashboard', icon: '🏠', end: true },
-  { to: '/app/pantry', label: 'Pantry', icon: '🧺' },
-  { to: '/app/recipes', label: 'Recipes', icon: '🍽️' },
-  { to: '/app/cookbook', label: 'Cookbook', icon: '📖' },
-  { to: '/app/mealplan', label: 'Meal planner', icon: '📅' },
-  ...(showHealth ? [{ to: '/app/health', label: 'Health tracker', icon: '❤️' }] : []),
-  { to: '/app/grocery', label: 'Grocery list', icon: '🛒' },
-  { to: '/app/recalls', label: 'Recall alerts', icon: '🚨' },
-  { to: '/app/reports', label: 'Reports', icon: '📊' },
-  { to: '/app/settings', label: 'Settings', icon: '⚙️' },
+  { to: '/app', label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/app/pantry', label: 'Pantry', icon: 'pantry' },
+  { to: '/app/recipes', label: 'Recipes', icon: 'recipes' },
+  { to: '/app/cookbook', label: 'Cookbook', icon: 'cookbook' },
+  { to: '/app/mealplan', label: 'Meal planner', icon: 'mealplan' },
+  ...(showHealth ? [{ to: '/app/health', label: 'Health tracker', icon: 'health' }] : []),
+  { to: '/app/grocery', label: 'Grocery list', icon: 'grocery' },
+  { to: '/app/recalls', label: 'Recall alerts', icon: 'recalls' },
+  { to: '/app/reports', label: 'Reports', icon: 'reports' },
+  { to: '/app/settings', label: 'Settings', icon: 'settings' },
 ]
 
 export default function Sidebar({ onClose }) {
@@ -72,7 +73,7 @@ export default function Sidebar({ onClose }) {
               }`
             }
           >
-            <span className="text-base">{link.icon}</span>
+            <Icon name={link.icon} size={18} />
             {link.label}
           </NavLink>
         ))}

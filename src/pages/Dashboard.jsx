@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Icon from '../components/ui/Icon'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { getDashboardStats, getRecentActivity, getWasteSavings, getNudges } from '../api/dashboard'
@@ -27,10 +28,10 @@ const getCurrentSeason = () => {
   return 'winter'
 }
 const quickActions = [
-  { label: 'Add pantry item', icon: '➕', to: '/app/pantry' },
-  { label: 'Get recipe ideas', icon: '🫧', to: '/app/recipes' },
-  { label: 'View grocery list', icon: '🛒', to: '/app/grocery' },
-  { label: 'See reports', icon: '📊', to: '/app/reports' },
+  { label: 'Add pantry item', icon: 'add', to: '/app/pantry' },
+  { label: 'Get recipe ideas', icon: 'ai', to: '/app/recipes' },
+  { label: 'View grocery list', icon: 'grocery', to: '/app/grocery' },
+  { label: 'See reports', icon: 'chart', to: '/app/reports' },
 ]
 
 export default function Dashboard() {
@@ -567,7 +568,7 @@ export default function Dashboard() {
                 onClick={() => navigate(a.to)}
                 className="flex items-center gap-3 p-3 rounded-btn border border-border hover:bg-gray-50 hover:border-primary transition-all text-left"
               >
-                <span className="text-xl">{a.icon}</span>
+                <Icon name={a.icon} size={20} />
                 <span className="text-sm font-medium text-textPrimary">{a.label}</span>
               </button>
             ))}

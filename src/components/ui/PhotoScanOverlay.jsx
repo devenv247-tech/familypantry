@@ -1,3 +1,4 @@
+import Icon from './Icon'
 export default function PhotoScanOverlay({ visible, imagePreview }) {
   if (!visible) return null
 
@@ -15,7 +16,7 @@ export default function PhotoScanOverlay({ visible, imagePreview }) {
         <span className="absolute w-24 h-24 rounded-full bg-purple-500/20 animate-ping" style={{ animationDuration: '1.5s' }} />
         <span className="absolute w-16 h-16 rounded-full bg-purple-500/30 animate-ping" style={{ animationDuration: '1.2s', animationDelay: '0.2s' }} />
         <div className="relative w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center shadow-lg">
-          <span className="text-2xl">🫧</span>
+          <Icon name="aiScan" size={26} color="white" />
         </div>
       </div>
 

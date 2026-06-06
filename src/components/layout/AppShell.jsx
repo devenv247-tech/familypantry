@@ -1,4 +1,5 @@
 import NookaIcon from '../ui/NookaIcon'
+import Icon from '../ui/Icon'
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
@@ -123,8 +124,8 @@ export default function AppShell() {
             <p className="text-xs text-textMuted font-medium px-5 mb-3">More pages</p>
             <div className="grid grid-cols-3 gap-px bg-border">
               {[
-                { to: '/app/mealplan', icon: '📅', label: 'Meal plan' },
-                { to: '/app/cookbook', icon: '📖', label: 'Cookbook' },
+                { to: '/app/mealplan', icon: 'mealplan', label: 'Meal plan' },
+                { to: '/app/cookbook', icon: 'cookbook', label: 'Cookbook' },
                 ...(showHealth ? [{ to: '/app/health', icon: '❤️', label: 'Health' }] : []),
                 { to: '/app/recalls', icon: '🚨', label: 'Recalls' },
                 { to: '/app/reports', icon: '📊', label: 'Reports' },
@@ -140,7 +141,7 @@ export default function AppShell() {
                     }`
                   }
                 >
-                  <span className="text-2xl leading-none">{item.icon}</span>
+                  <Icon name={item.icon} size={22} />
                   <span className="text-[11px] font-medium">{item.label}</span>
                 </NavLink>
               ))}
@@ -175,7 +176,7 @@ export default function AppShell() {
               }`
             }
           >
-            <span className="text-xl leading-none">{item.icon}</span>
+            <Icon name={item.icon} size={20} />
             <span className="text-[10px] font-medium">{item.label}</span>
           </NavLink>
         ))}

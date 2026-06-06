@@ -1,4 +1,5 @@
 import NookaIcon from '../components/ui/NookaIcon'
+import Icon from '../components/ui/Icon'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
@@ -7,13 +8,13 @@ import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
 const TABS = [
-  { id: 'overview', label: '📊 Overview' },
-  { id: 'families', label: '👨‍👩‍👧‍👦 Families' },
-  { id: 'features', label: '🚩 Feature flags' },
-  { id: 'announcements', label: '📣 Announcements' },
-  { id: 'usage', label: '📈 Usage stats' },
-  { id: 'costs', label: '💰 Costs & revenue' },
-  { id: 'cache', label: '🗄️ Nutrition cache' },
+  { id: 'overview', label: 'Overview', icon: 'chart' },
+  { id: 'families', label: 'Families', icon: 'family' },
+  { id: 'features', label: 'Feature flags', icon: 'flag' },
+  { id: 'announcements', label: 'Announcements', icon: 'megaphone' },
+  { id: 'usage', label: 'Usage stats', icon: 'reports' },
+  { id: 'costs', label: 'Costs & revenue', icon: 'dollar' },
+  { id: 'cache', label: 'Nutrition cache', icon: 'database' },
 ]
 
 export default function Admin() {
@@ -243,12 +244,12 @@ export default function Admin() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === tab.id
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-500 hover:text-gray-900'
-              }`}
+                }`}
             >
+              <Icon name={tab.icon} size={15} />
               {tab.label}
             </button>
           ))}
@@ -256,7 +257,7 @@ export default function Admin() {
 
         {/* Overview tab */}
         {activeTab === 'overview' && stats && (
-         <div className="space-y-6">
+          <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900">Platform overview</h2>
 
             {/* API Status Alert */}
@@ -281,7 +282,7 @@ export default function Admin() {
                 <span className="text-green-500">✓</span>
                 <p className="text-sm text-green-700 font-medium">Anthropic API is healthy</p>
                 <span className="text-xs text-green-500 ml-auto">Last checked: {new Date(apiStatus.anthropic.lastChecked).toLocaleTimeString()}</span>
-             </div>
+              </div>
             )}
 
             {/* Key metrics */}
@@ -401,11 +402,10 @@ export default function Admin() {
                           value={family.plan}
                           onChange={e => handleUpdatePlan(family.id, e.target.value)}
                           disabled={updatingPlan === family.id}
-                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${
-                            family.plan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                            family.plan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                            'bg-gray-100 text-gray-600 border-gray-200'
-                          }`}
+                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${family.plan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                              family.plan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                'bg-gray-100 text-gray-600 border-gray-200'
+                            }`}
                         >
                           <option value="free">Free</option>
                           <option value="family">Family</option>
@@ -465,11 +465,10 @@ export default function Admin() {
                           value={flag.requiredPlan}
                           onChange={e => handleUpdateFlag(flag.id, { requiredPlan: e.target.value })}
                           disabled={updatingFlag === flag.id}
-                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${
-                            flag.requiredPlan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                            flag.requiredPlan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                            'bg-gray-100 text-gray-600 border-gray-200'
-                          }`}
+                          className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${flag.requiredPlan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                              flag.requiredPlan === 'family' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                'bg-gray-100 text-gray-600 border-gray-200'
+                            }`}
                         >
                           <option value="free">Free</option>
                           <option value="family">Family</option>
@@ -480,13 +479,11 @@ export default function Admin() {
                         <button
                           onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
                           disabled={updatingFlag === flag.id}
-                          className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${
-                            flag.enabled ? 'bg-green-500' : 'bg-gray-200'
-                          } disabled:opacity-50`}
+                          className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${flag.enabled ? 'bg-green-500' : 'bg-gray-200'
+                            } disabled:opacity-50`}
                         >
-                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${
-                            flag.enabled ? 'left-5' : 'left-0.5'
-                          }`} />
+                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${flag.enabled ? 'left-5' : 'left-0.5'
+                            }`} />
                         </button>
                       </td>
                     </tr>
@@ -715,11 +712,10 @@ export default function Admin() {
                         <tr key={item.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
                             <p className="font-medium text-gray-900 text-xs">{item.mealName}</p>
-                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                              item.confidence === 'high' ? 'bg-green-100 text-green-700' :
-                              item.confidence === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-gray-100 text-gray-600'
-                            }`}>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${item.confidence === 'high' ? 'bg-green-100 text-green-700' :
+                                item.confidence === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-gray-100 text-gray-600'
+                              }`}>
                               {item.confidence}
                             </span>
                           </td>
@@ -761,8 +757,8 @@ export default function Admin() {
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                   <p className="text-sm font-medium text-blue-800 mb-1">💡 How caching works</p>
                   <p className="text-xs text-blue-600 leading-relaxed">
-                    When a user looks up nutrition for a meal, the result is cached for 90 days. 
-                    Any other user searching for the same meal gets the cached result instantly — no API call made. 
+                    When a user looks up nutrition for a meal, the result is cached for 90 days.
+                    Any other user searching for the same meal gets the cached result instantly — no API call made.
                     Hit count shows how many times each item was served from cache instead of calling Claude.
                   </p>
                 </div>

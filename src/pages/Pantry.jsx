@@ -1,3 +1,4 @@
+import Icon from '../components/ui/Icon'
 import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem, parseVoiceItem } from '../api/pantry'
 import { useState, useEffect, useRef } from 'react'
 import { useVoiceInput } from '../hooks/useVoiceInput'
@@ -631,7 +632,7 @@ export default function Pantry() {
                 </svg>
                 Looking up...
               </>
-            ) : '📷 Scan barcode'}
+            ) : <><Icon name="barcode" size={16} /> Scan barcode</>}
           </button>
 
           {/* AI Photo scan */}
@@ -651,7 +652,7 @@ export default function Pantry() {
                 </>
               ) : (
                 <>
-                  🫧 AI photo scan
+                  <Icon name="aiScan" size={16} /> AI photo scan
                   {scanStatus?.scansRemaining !== null && scanStatus?.scansRemaining !== undefined && (
                     <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-pill">
                       {scanStatus.scansRemaining} left
@@ -668,7 +669,7 @@ export default function Pantry() {
               onClick={() => setShowTemplates(true)}
               className="btn-secondary flex items-center gap-2 text-sm border-orange-200 text-orange-600 hover:bg-orange-50"
             >
-              🗂️ Grocery Templates
+              <Icon name="templates" size={16} /> Grocery Templates
             </button>
           )}
 
