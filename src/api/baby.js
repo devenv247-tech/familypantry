@@ -23,3 +23,15 @@ export const deleteFeedingLog = (memberId, logId) =>
 
 export const generateBabyRecipe = (memberId, data) =>
   client.post(`/baby/${memberId}/recipe`, data).then(r => r.data)
+
+export const downloadPediatricianReport = async (memberId) => {
+  const res = await client.get(`/baby/${memberId}/report`, { responseType: 'blob' })
+  const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `nooka-feeding-report.pdf`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}

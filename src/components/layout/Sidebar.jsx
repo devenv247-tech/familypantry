@@ -3,8 +3,10 @@ import Icon from '../ui/Icon'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useAppConfigStore } from '../../store/appConfigStore'
+import { useState, useEffect } from 'react'
+import { getMembers } from '../../api/family'
 
-const getLinks = (showHealth) => [
+const getLinks = (showHealth, babyMembers) => [
   { to: '/app', label: 'Dashboard', icon: 'dashboard', end: true },
   { to: '/app/pantry', label: 'Pantry', icon: 'pantry' },
   { to: '/app/recipes', label: 'Recipes', icon: 'recipes' },
@@ -14,6 +16,7 @@ const getLinks = (showHealth) => [
   { to: '/app/grocery', label: 'Grocery list', icon: 'grocery' },
   { to: '/app/recalls', label: 'Recall alerts', icon: 'recalls' },
   { to: '/app/reports', label: 'Reports', icon: 'reports' },
+  ...babyMembers.map(b => ({ to: `/app/baby/${b.id}`, label: `${b.name}'s tracker`, icon: 'health', isBaby: true })),
   { to: '/app/settings', label: 'Settings', icon: 'settings' },
 ]
 
@@ -23,6 +26,13 @@ export default function Sidebar({ onClose }) {
   const { isFeatureEnabled } = useAppConfigStore()
   const plan = family?.plan?.toLowerCase() || 'free'
   const showHealth = isFeatureEnabled('health_tracker', plan)
+ const [babyMembers, setBabyMembers] = useState([])
+
+useEffect(() => {
+  getMembers()
+    .then(members => setBabyMembers(members.filter(m => m.isBaby)))
+    .catch(() => {})
+}, [])
 
   const handleLogout = () => {
     logout()
@@ -59,21 +69,23 @@ export default function Sidebar({ onClose }) {
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {getLinks(showHealth).map(link => (
+        {getLinks(showHealth, babyMembers).map(link => (
           <NavLink
             key={link.to}
             to={link.to}
             end={link.end}
             onClick={handleNavClick}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-50 text-primary'
-                  : 'text-textMuted hover:bg-gray-50 hover:text-textPrimary'
+              `flex items-center gap-3 px-3 py-2.5 rounded-btn text-sm font-medium transition-all ${isActive
+                ? link.isBaby ? 'bg-pink-50 text-pink-600' : 'bg-blue-50 text-primary'
+                : 'text-textMuted hover:bg-gray-50 hover:text-textPrimary'
               }`
             }
           >
-            <Icon name={link.icon} size={18} />
+            {link.isBaby
+              ? <span className="text-base leading-none">🍼</span>
+              : <Icon name={link.icon} size={18} />
+            }
             {link.label}
           </NavLink>
         ))}

@@ -9,6 +9,7 @@ import {
   addFeedingLog,
   deleteFeedingLog,
   generateBabyRecipe,
+  downloadPediatricianReport,
 } from '../api/baby'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
@@ -57,6 +58,7 @@ export default function BabyProfile() {
   const [recipe, setRecipe] = useState(null)
   const [generatingRecipe, setGeneratingRecipe] = useState(false)
   const [recipeMealType, setRecipeMealType] = useState('any')
+  const [downloadingReport, setDownloadingReport] = useState(false)
 
   const planName = family?.plan || 'free'
   const canUseAllergenTracker = ['family', 'premium'].includes(planName)
@@ -216,10 +218,29 @@ export default function BabyProfile() {
               )}
             </p>
             {profile.stage !== null && (
-              <span className={`inline-block mt-1 text-xs px-2.5 py-1 rounded-pill border font-medium ${stageInfo.color}`}>
-                Stage {profile.stage} — {profile.label}
-              </span>
-            )}
+            <span className={`inline-block mt-1 text-xs px-2.5 py-1 rounded-pill border font-medium ${stageInfo.color}`}>
+              Stage {profile.stage} — {profile.label}
+            </span>
+          )}
+          {canUseRecipeGenerator && (
+            <button
+              onClick={async () => {
+                setDownloadingReport(true)
+                try {
+                  await downloadPediatricianReport(memberId)
+                } catch (err) {
+                  showToast('Failed to generate report', 'error')
+                } finally {
+                  setDownloadingReport(false)
+                }
+              }}
+              disabled={downloadingReport}
+              className="mt-2 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-btn border border-purple-200 text-purple-600 hover:bg-purple-50 transition-all disabled:opacity-50"
+            >
+              <Icon name="cookbook" size={13} />
+              {downloadingReport ? 'Generating PDF...' : 'Export pediatrician report'}
+            </button>
+          )}
           </div>
         </div>
       </div>
@@ -239,10 +260,7 @@ export default function BabyProfile() {
               activeTab === tab.id ? 'bg-surface text-textPrimary shadow-card' : 'text-textMuted hover:text-textPrimary'
             }`}
           >
-            {tab.iconComponent
-              ? <Icon name={tab.iconComponent} size={15} />
-              : <span>{tab.icon}</span>
-            }
+           <Icon name={tab.iconComponent} size={15} />
             <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
