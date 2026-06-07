@@ -13,6 +13,7 @@ import BlogPost from './pages/BlogPost'
 
 // Lazily loaded (only fetched when needed)
 const Privacy = lazy(() => import('./pages/Privacy'))
+const ConfirmEmail = lazy(() => import('./pages/ConfirmEmail'))
 const Terms = lazy(() => import('./pages/Terms'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/session-expired" element={<SessionExpired />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
