@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold } from '../api/family'
 import { logGrowth } from '../api/baby'
-import { deleteAccount, updateAccount } from '../api/auth'
+import { deleteAccount, updateAccount, exportMyData } from '../api/auth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/ui/PageState'
 import { createCheckoutSession, createPortalSession, getSubscription } from '../api/stripe'
@@ -291,6 +291,19 @@ export default function Settings() {
     setDeleting(true)
     try { await deleteAccount(); logout(); navigate('/') }
     catch { showToast('Failed to delete account', 'error'); setDeleting(false) }
+  }
+
+  const [exporting, setExporting] = useState(false)
+  const handleExportData = async () => {
+    setExporting(true)
+    try {
+      await exportMyData()
+      showToast('Your data export has been downloaded!')
+    } catch {
+      showToast('Failed to export data', 'error')
+    } finally {
+      setExporting(false)
+    }
   }
 
   // ── Plan ───────────────────────────────────────────────────────────────────
@@ -906,6 +919,21 @@ export default function Settings() {
                 {savingThreshold ? 'Saving...' : 'Save threshold'}
               </button>
             </div>
+          </div>
+
+          {/* Data export */}
+          <div className="card">
+            <h3 className="font-semibold text-textPrimary mb-1">Export your data</h3>
+            <p className="text-sm text-textMuted mb-4">
+              Download a copy of all personal data Nooka holds for your account — your right under PIPEDA.
+            </p>
+            <button
+              onClick={handleExportData}
+              disabled={exporting}
+              className="text-sm border border-border px-4 py-2 rounded-btn hover:bg-gray-50 transition-all disabled:opacity-50 flex items-center gap-2">
+              <Icon name="download" size={14} />
+              {exporting ? 'Preparing export...' : 'Download my data'}
+            </button>
           </div>
 
           {/* Danger zone */}

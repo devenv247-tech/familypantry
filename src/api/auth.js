@@ -35,3 +35,15 @@ export const resetPassword = async (token, password) =>
 
 export const acceptInvite = async (token, password) =>
   client.post('/auth/accept-invite', { token, password }).then(r => r.data)
+
+export const exportMyData = async () => {
+  const res = await client.get('/auth/export', { responseType: 'blob' })
+  const url = window.URL.createObjectURL(new Blob([res.data]))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `nooka-data-export-${new Date().toISOString().split('T')[0]}.json`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
