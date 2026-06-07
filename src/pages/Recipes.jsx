@@ -119,6 +119,11 @@ export default function Recipes() {
   const [cookedModal, setCookedModal] = useState(null)
   const [expiringItems, setExpiringItems] = useState([])
   const [expiringBannerDismissed, setExpiringBannerDismissed] = useState(false)
+  const [showAIDisclosure, setShowAIDisclosure] = useState(false)
+  const [pendingAIAction, setPendingAIAction] = useState(null)
+  const aiDisclosureKey = `nooka_ai_disclosure_${family?.id}`
+  const hasAcknowledgedAI = () => localStorage.getItem(aiDisclosureKey) === 'true'
+  const acknowledgeAI = () => localStorage.setItem(aiDisclosureKey, 'true')
 
   useEffect(() => {
     fetchMembers()
@@ -165,6 +170,11 @@ export default function Recipes() {
 
   const handleGenerate = async () => {
     if (selectedMembers.length === 0) return
+    if (!hasAcknowledgedAI()) {
+      setPendingAIAction('generate')
+      setShowAIDisclosure(true)
+      return
+    }
     setLoading(true)
     setGenerated(false)
     setLimitError('')
@@ -198,6 +208,11 @@ export default function Recipes() {
   }
 
   const handleFamilyRecipe = async () => {
+    if (!hasAcknowledgedAI()) {
+      setPendingAIAction('family')
+      setShowAIDisclosure(true)
+      return
+    }
     setFamilyLoading(true)
     setFamilyRecipe(null)
     try {
@@ -408,6 +423,66 @@ export default function Recipes() {
       {/* Full screen loading overlays */}
       <CookingLoader mode="recipes" visible={loading} />
       <CookingLoader mode="family" visible={familyLoading} />
+
+      {/* AI data disclosure modal — shown once per user before first recipe generation */}
+      {showAIDisclosure && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-card shadow-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🫧</div>
+              <div>
+                <h3 className="font-semibold text-textPrimary">Before we generate your recipes</h3>
+                <p className="text-xs text-textMuted mt-0.5">One-time notice — we won't ask again</p>
+              </div>
+            </div>
+            <p className="text-sm text-textMuted mb-3 leading-relaxed">
+              To generate personalized recipes, Nooka sends the following to Anthropic's AI (servers located in the US):
+            </p>
+            <ul className="space-y-1.5 mb-4">
+              {[
+                'Dietary preferences and restrictions',
+                'Health goals and allergens',
+                'Age ranges of family members',
+                'Items currently in your pantry',
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="bg-gray-50 rounded-btn px-3 py-2.5 mb-4">
+              <p className="text-xs text-textMuted leading-relaxed">
+                Your <span className="font-semibold text-textPrimary">name, email, and account details are never shared</span> with any AI service. Only anonymous health and pantry data is used.
+              </p>
+            </div>
+            <p className="text-xs text-textMuted mb-5">
+              By continuing you consent to this data being processed by Anthropic in accordance with their privacy policy and our{' '}
+              <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowAIDisclosure(false); setPendingAIAction(null) }}
+                className="btn-secondary flex-1 text-sm">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  acknowledgeAI()
+                  setShowAIDisclosure(false)
+                  if (pendingAIAction === 'generate') handleGenerate()
+                  if (pendingAIAction === 'family') handleFamilyRecipe()
+                  setPendingAIAction(null)
+                }}
+                className="btn-primary flex-1 text-sm">
+                I understand, continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rating modal */}
       {ratingModal && (
