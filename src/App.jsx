@@ -43,6 +43,13 @@ function PrivateRoute({ children }) {
   return token ? children : <Navigate to="/login" replace />
 }
 
+function AdminRoute({ children }) {
+  const { token, user } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  if (!user?.isAdmin) return <Navigate to="/app" replace />
+  return children
+}
+
 export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -65,14 +72,14 @@ export default function App() {
           <Route path="recipes" element={<Recipes />} />
           <Route path="grocery" element={<Grocery />} />
           <Route path="reports" element={<Reports />} />
-         <Route path="settings" element={<Settings />} />
-<Route path="baby/:memberId" element={<BabyProfile />} />
-<Route path="recalls" element={<Recalls />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="baby/:memberId" element={<BabyProfile />} />
+          <Route path="recalls" element={<Recalls />} />ß
           <Route path="mealplan" element={<MealPlan />} />
           <Route path="cookbook" element={<SavedRecipes />} />
           <Route path="health" element={<Health />} />
         </Route>
-        <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Routes>
     </Suspense>
   )
