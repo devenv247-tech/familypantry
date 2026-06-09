@@ -1098,9 +1098,9 @@ export default function Recipes() {
                   <button
                     type="button"
                     onClick={() => setBudgetMode(prev => !prev)}
-                    className={`relative inline-flex w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 focus:outline-none ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 focus:outline-none ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
                   >
-                    <span className={`inline-block w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform duration-200 mt-0.5 ml-0.5 ${budgetMode ? 'translate-x-5' : 'translate-x-0'}`} />
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${budgetMode ? 'left-5' : 'left-0.5'}`} />
                   </button>
                 </div>
               )}
