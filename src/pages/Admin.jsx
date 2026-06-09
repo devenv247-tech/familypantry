@@ -475,38 +475,35 @@ export default function Admin() {
                           <option value="premium">Premium</option>
                         </select>
                       </td>
-                      <td className="px-4 py-3 w-px whitespace-nowrap">
-                        <button
-                          onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
-                          disabled={updatingFlag === flag.id}
-                          style={{
-                            position: 'relative',
-                            display: 'inline-block',
-                            width: '44px',
-                            height: '24px',
-                            minWidth: '44px',
-                            borderRadius: '12px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            backgroundColor: flag.enabled ? '#22c55e' : '#d1d5db',
-                            transition: 'background-color 0.2s ease',
-                            opacity: updatingFlag === flag.id ? 0.5 : 1,
-                          }}
-                        >
-                          <span
+                     <td className="px-4 py-3" style={{ width: '80px' }}>
+                        <div style={{ width: '44px', height: '24px', position: 'relative' }}>
+                          <div
+                            onClick={() => updatingFlag !== flag.id && handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
                             style={{
+                              width: '44px',
+                              height: '24px',
+                              borderRadius: '12px',
+                              backgroundColor: flag.enabled ? '#22c55e' : '#d1d5db',
+                              cursor: updatingFlag === flag.id ? 'not-allowed' : 'pointer',
+                              opacity: updatingFlag === flag.id ? 0.5 : 1,
+                              transition: 'background-color 0.2s',
+                              position: 'relative',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <div style={{
                               position: 'absolute',
                               top: '2px',
                               left: flag.enabled ? '22px' : '2px',
                               width: '20px',
                               height: '20px',
-                              backgroundColor: 'white',
                               borderRadius: '50%',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                              backgroundColor: '#fff',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
                               transition: 'left 0.2s ease',
-                            }}
-                          />
-                        </button>
+                            }} />
+                          </div>
+                        </div>
                       </td>
                     </tr>
                   ))}
