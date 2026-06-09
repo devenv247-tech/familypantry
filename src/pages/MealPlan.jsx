@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CookingLoader from '../components/ui/CookingLoader'
+import Icon from '../components/ui/Icon'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { cookRecipe } from '../api/recipes'
 import { logNutrition } from '../api/healthProgress'
@@ -539,7 +540,7 @@ const handleGenerateWeek = async () => {
             onClick={() => navigate('/app/recipes')}
             className="btn-primary text-sm"
           >
-            🫧 Get recipes
+            <Icon name="ai" size={16} /> Get recipes
           </button>
         </div>
       </div>

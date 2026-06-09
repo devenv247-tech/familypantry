@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useVoiceInput } from '../hooks/useVoiceInput'
 import { parseVoiceItem } from '../api/pantry'
 import VoiceOverlay from '../components/ui/VoiceOverlay'
+import Icon from '../components/ui/Icon'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems, getGroceryPredictions } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
@@ -345,7 +346,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 </svg>
                 Adding...
               </>
-            ) : <>🫧 Auto-generate</>}
+            ) : <><Icon name="ai" size={16} /> Auto-generate</>}
           </button>
         </div>
       </div>
