@@ -878,16 +878,37 @@ export default function Pantry() {
       )}
 
       {/* Search + filter */}
-      <div className="flex flex-col gap-3 mb-6 mt-4">
-        <input className="input flex-1" placeholder="Search pantry items..." value={search} onChange={e => setSearch(e.target.value)} />
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-          {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-pill text-sm font-medium border transition-all whitespace-nowrap flex-shrink-0 ${activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                }`}>
-              {cat}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 mt-4">
+        <div className="relative flex-1">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input
+            className="input pl-9"
+            placeholder="Search by name, e.g. milk, chicken..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted hover:text-textPrimary text-lg leading-none"
+            >
+              ✕
             </button>
-          ))}
+          )}
+        </div>
+        <div className="relative">
+          <select
+            className="input pr-9 appearance-none cursor-pointer min-w-[160px]"
+            value={activeCategory}
+            onChange={e => setActiveCategory(e.target.value)}
+          >
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>
+                {cat === 'All' ? 'All categories' : cat}
+              </option>
+            ))}
+          </select>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6"/></svg>
         </div>
       </div>
 
