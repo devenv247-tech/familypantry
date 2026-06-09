@@ -68,7 +68,7 @@ export default function MealPlan() {
   const [selectedMeal, setSelectedMeal] = useState(null)
   const [recipeName, setRecipeName] = useState('')
   const [saving, setSaving] = useState(false)
-const [members, setMembers] = useState([])
+  const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
   const [cooking, setCooking] = useState(false)
   const [cookedModal, setCookedModal] = useState(null)
@@ -165,7 +165,7 @@ const [members, setMembers] = useState([])
     }
   }
 
-const handleGenerateWeek = async () => {
+  const handleGenerateWeek = async () => {
     setShowMemberModal(true)
   }
 
@@ -195,7 +195,7 @@ const handleGenerateWeek = async () => {
       // 1. Decrement pantry
       await cookRecipe({ ingredients: meal.recipeData.ingredients })
 
-     // 2. Log nutrition for all members — fall back to nutrition if nutritionPerServing missing
+      // 2. Log nutrition for all members — fall back to nutrition if nutritionPerServing missing
       const membersToLog = members.map(m => m.name)
       let nutritionLogged = false
       const nutritionData = meal.recipeData.nutritionPerServing || meal.recipeData.nutrition
@@ -329,7 +329,7 @@ const handleGenerateWeek = async () => {
                   </ol>
                 </div>
               )}
-             {/* Already cooked badge */}
+              {/* Already cooked badge */}
               {selectedMeal.cooked && (
                 <div className="mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-3 flex items-center gap-2">
                   <span className="text-success text-lg">✓</span>
@@ -357,8 +357,8 @@ const handleGenerateWeek = async () => {
                     {cooking ? (
                       <>
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                         </svg>
                         Cooking...
                       </>
@@ -397,15 +397,13 @@ const handleGenerateWeek = async () => {
                     <button
                       key={m.id}
                       onClick={() => toggleMember(m.name)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                        selectedMembers.includes(m.name)
+                      className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${selectedMembers.includes(m.name)
                           ? 'bg-primary text-white border-primary'
                           : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                      }`}
+                        }`}
                     >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                        selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
+                        }`}>
                         {m.name[0]}
                       </div>
                       {m.name}
@@ -421,11 +419,10 @@ const handleGenerateWeek = async () => {
                     <button
                       key={c.label}
                       onClick={() => toggleCuisine(c.label)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill border text-xs font-medium transition-all ${
-                        selectedCuisines.includes(c.label)
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill border text-xs font-medium transition-all ${selectedCuisines.includes(c.label)
                           ? 'bg-primary text-white border-primary'
                           : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                      }`}
+                        }`}
                     >
                       {c.icon} {c.label}
                     </button>
@@ -502,7 +499,7 @@ const handleGenerateWeek = async () => {
           <p className="text-textMuted mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-       {isFeatureEnabled('grocery_from_plan', plan) && (
+          {isFeatureEnabled('grocery_from_plan', plan) && (
             <button
               onClick={canGroceryFromPlan ? handleGenerateGrocery : () => navigate('/app/settings?tab=plan')}
               disabled={generating || plannedCount === 0}
@@ -511,15 +508,15 @@ const handleGenerateWeek = async () => {
               {generating ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Adding...
                 </>
               ) : canGroceryFromPlan ? '🛒 Add to grocery' : '⭐ Upgrade to Premium'}
             </button>
           )}
-       {isFeatureEnabled('ai_meal_planner', plan) && (
+          {isFeatureEnabled('ai_meal_planner', plan) && (
             <button
               onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
               disabled={generatingWeek}
@@ -528,8 +525,8 @@ const handleGenerateWeek = async () => {
               {generatingWeek ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Generating week...
                 </>
@@ -538,7 +535,7 @@ const handleGenerateWeek = async () => {
           )}
           <button
             onClick={() => navigate('/app/recipes')}
-            className="btn-primary text-sm"
+            className="btn-primary text-sm flex items-center gap-2"
           >
             <Icon name="ai" size={16} /> Get recipes
           </button>
@@ -612,22 +609,21 @@ const handleGenerateWeek = async () => {
                   return (
                     <div
                       key={day}
-                      className={`rounded-btn border min-h-[70px] p-2 cursor-pointer transition-all group relative ${
-                        meal
+                      className={`rounded-btn border min-h-[70px] p-2 cursor-pointer transition-all group relative ${meal
                           ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
                           : 'bg-surface border-border border-dashed hover:border-primary hover:bg-gray-50'
-                      }`}
-                      onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => {} }) : handleSlotClick(day, mealType)}
+                        }`}
+                      onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => { } }) : handleSlotClick(day, mealType)}
                     >
                       {meal ? (
                         <div className="h-full">
-<p className="text-xs font-medium text-primary leading-tight">
-{meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
-{meal.recipeName}
-</p>
-{meal.cooked && (
-  <span className="text-xs text-success font-medium">✓ Cooked</span>
-)}
+                          <p className="text-xs font-medium text-primary leading-tight">
+                            {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+                            {meal.recipeName}
+                          </p>
+                          {meal.cooked && (
+                            <span className="text-xs text-success font-medium">✓ Cooked</span>
+                          )}
                           {meal.recipeData?.calories && (
                             <p className="text-xs text-textMuted mt-1">🔥 {meal.recipeData.calories} kcal</p>
                           )}
@@ -657,75 +653,74 @@ const handleGenerateWeek = async () => {
           <div className="md:hidden">
             {/* Day selector tabs */}
             <div className="relative mb-4">
-            <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
-              {DAYS.map(day => (
-                <button
-                  key={day}
-                  onClick={() => setActiveMobileDay(day)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-btn text-xs font-medium transition-all ${
-                    activeMobileDay === day
-                      ? 'bg-primary text-white'
-                      : 'bg-surface border border-border text-textMuted'
-                  }`}
-                >
-                  {day.slice(0, 3)}
-                </button>
-              ))}
-            </div>
-            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-background to-transparent" />
+              <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
+                {DAYS.map(day => (
+                  <button
+                    key={day}
+                    onClick={() => setActiveMobileDay(day)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-btn text-xs font-medium transition-all ${activeMobileDay === day
+                        ? 'bg-primary text-white'
+                        : 'bg-surface border border-border text-textMuted'
+                      }`}
+                  >
+                    {day.slice(0, 3)}
+                  </button>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-background to-transparent" />
             </div>
 
             <div className="space-y-4">
-            {DAYS.filter(day => day === activeMobileDay).map(day => (
-              <div key={day} className="card p-4">
-                <h3 className="font-semibold text-textPrimary mb-3">{day}</h3>
-                <div className="space-y-2">
-                  {MEAL_TYPES.map(mealType => {
-                    const meal = getMealForSlot(day, mealType)
-                    return (
-                      <div key={mealType} className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
-                          <span className="text-sm">{MEAL_ICONS[mealType]}</span>
-                          <span className="text-xs text-textMuted">{mealType}</span>
-                        </div>
-                        {meal ? (
-                          <div
-                            className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all"
-                            onClick={() => handleMealClick(meal, { stopPropagation: () => {} })}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-primary truncate">
-{meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
-{meal.recipeName}
-</p>
-{meal.cooked && (
-  <span className="text-xs text-success font-medium">✓ Cooked</span>
-)}
-{meal.recipeData?.calories && (
-<p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
-                              )}
-</div>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
-                              className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                            >
-                              ✕
-                            </button>
+              {DAYS.filter(day => day === activeMobileDay).map(day => (
+                <div key={day} className="card p-4">
+                  <h3 className="font-semibold text-textPrimary mb-3">{day}</h3>
+                  <div className="space-y-2">
+                    {MEAL_TYPES.map(mealType => {
+                      const meal = getMealForSlot(day, mealType)
+                      return (
+                        <div key={mealType} className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
+                            <span className="text-sm">{MEAL_ICONS[mealType]}</span>
+                            <span className="text-xs text-textMuted">{mealType}</span>
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => handleSlotClick(day, mealType)}
-                            className="flex-1 text-xs text-textMuted border border-dashed border-border rounded-btn px-3 py-2 hover:border-primary hover:text-primary transition-all text-left"
-                          >
-                            + Add meal
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
+                          {meal ? (
+                            <div
+                              className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all"
+                              onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-primary truncate">
+                                  {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
+                                  {meal.recipeName}
+                                </p>
+                                {meal.cooked && (
+                                  <span className="text-xs text-success font-medium">✓ Cooked</span>
+                                )}
+                                {meal.recipeData?.calories && (
+                                  <p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
+                                className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleSlotClick(day, mealType)}
+                              className="flex-1 text-xs text-textMuted border border-dashed border-border rounded-btn px-3 py-2 hover:border-primary hover:text-primary transition-all text-left"
+                            >
+                              + Add meal
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-           ))}
+              ))}
             </div>
           </div>
         </>
@@ -747,9 +742,8 @@ const handleGenerateWeek = async () => {
                 </div>
                 <span className="text-success text-lg">✓</span>
               </div>
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
-                cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
-              }`}>
+              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                }`}>
                 <span className="text-lg">❤️</span>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
