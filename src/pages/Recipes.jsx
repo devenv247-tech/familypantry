@@ -580,8 +580,8 @@ export default function Recipes() {
                   key={c.label}
                   onClick={() => setDrinkCondition(c.label)}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-btn border text-sm font-medium transition-all text-left ${drinkCondition === c.label
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                     }`}
                 >
                   <span className="text-base">{c.icon}</span>
@@ -658,8 +658,8 @@ export default function Recipes() {
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${drink.temp === 'hot' ? 'bg-orange-50 text-orange-600' :
-                          drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
-                            'bg-gray-50 text-textMuted'
+                        drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
+                          'bg-gray-50 text-textMuted'
                         }`}>
                         {drink.temp === 'hot' ? '♨️ Hot' : drink.temp === 'cold' ? '🧊 Cold' : '🌡️ Either'}
                       </span>
@@ -788,8 +788,8 @@ export default function Recipes() {
                       key={m.id}
                       onClick={() => toggleMember(m.name)}
                       className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${selectedMembers.includes(m.name)
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                         }`}
                     >
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
@@ -1068,8 +1068,8 @@ export default function Recipes() {
                     onClick={() => handleSaveRecipe(familyRecipe, 'family')}
                     disabled={savingRecipe['family'] || savedRecipes['family']}
                     className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${savedRecipes['family']
-                        ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                        : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+                      ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                      : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
                       } disabled:opacity-50`}
                   >
                     {savingRecipe['family'] ? '...' : savedRecipes['family'] ? '🔖 Saved' : '🔖 Save'}
@@ -1091,15 +1091,16 @@ export default function Recipes() {
               {isPaidPlan && Object.keys(recipeCosts).length > 0 && (
                 <div className="flex items-center justify-between mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-2.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">💰</span>
+                    <Icon name="dollar" size={16} className="text-green-600" />
                     <span className="text-sm font-medium text-textPrimary">Budget mode</span>
                     <span className="text-xs text-textMuted">Sort by cheapest first</span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setBudgetMode(prev => !prev)}
-                    className={`relative w-10 h-5 rounded-full transition-all ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
                   >
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${budgetMode ? 'left-5' : 'left-0.5'}`} />
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${budgetMode ? 'translate-x-[18px]' : 'translate-x-0'}`} />
                   </button>
                 </div>
               )}
@@ -1278,8 +1279,8 @@ export default function Recipes() {
                           onClick={() => handleSaveRecipe(recipe, idx)}
                           disabled={savingRecipe[idx] || savedRecipes[idx]}
                           className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${savedRecipes[idx]
-                              ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                              : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+                            ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                            : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
                             } disabled:opacity-50`}
                         >
                           {savingRecipe[idx] ? '...' : savedRecipes[idx] ? '🔖 Saved' : '🔖 Save'}
