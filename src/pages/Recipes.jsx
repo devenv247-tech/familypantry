@@ -1381,7 +1381,7 @@ export default function Recipes() {
                 <div className="space-y-2.5 mb-6">
                   <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryUpdated ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
                     }`}>
-                    <span className="text-lg">🧺</span>
+                    <Icon name="pantry" size={18} />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
                       <p className="text-xs text-textMuted">Ingredients subtracted from your pantry</p>
@@ -1391,7 +1391,7 @@ export default function Recipes() {
 
                   <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
                     }`}>
-                    <span className="text-lg">❤️</span>
+                    <Icon name="health" size={18} />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
                       <p className="text-xs text-textMuted">
@@ -1408,7 +1408,7 @@ export default function Recipes() {
 
                   <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
                     }`}>
-                    <span className="text-lg">📅</span>
+                    <Icon name="mealplan" size={18} />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Meal plan</p>
                       <p className="text-xs text-textMuted">

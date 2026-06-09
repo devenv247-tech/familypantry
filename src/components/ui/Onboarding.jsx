@@ -335,12 +335,15 @@ export default function Onboarding({ onComplete }) {
               <div className="grid grid-cols-1 gap-3 mb-8 text-left">
                 {[
                   { icon: '🧺', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
-                  { icon: '🫧', title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes' },
+                  { icon: null, title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes', svgIcon: 'ai' },
                   { icon: '🛒', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
                   { icon: '📊', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
                 ].map((item, i) => (
                   <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
-                    <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                    {item.svgIcon
+                      ? <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
+                      : <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                    }
                     <div>
                       <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
                       <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>

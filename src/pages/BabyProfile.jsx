@@ -755,7 +755,7 @@ export default function BabyProfile() {
         <div className="space-y-4">
           {!canUseRecipeGenerator ? (
             <div className="card text-center py-10">
-              <p className="text-3xl mb-3">🫧</p>
+              <div className="flex justify-center mb-3"><Icon name="ai" size={32} className="text-primary" /></div>
               <p className="font-semibold text-textPrimary mb-1">Premium plan required</p>
               <p className="text-sm text-textMuted mb-4">Upgrade to generate AI baby-safe recipes tailored to your baby's exact stage and pantry.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>

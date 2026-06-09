@@ -441,7 +441,7 @@ export default function MealPlan() {
                   onClick={handleConfirmGenerate}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
                 >
-                  ✨ Generate {selectedMembers.length > 0 ? `for ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : 'for whole family'}
+                  <Icon name="sparkle" size={15} /> Generate {selectedMembers.length > 0 ? `for ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : 'for whole family'}
                 </button>
               </div>
             </div>
@@ -450,7 +450,7 @@ export default function MealPlan() {
       )}
       {/* Add meal modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h3 className="font-semibold text-textPrimary">
@@ -484,7 +484,7 @@ export default function MealPlan() {
                   onClick={() => { setShowAddModal(false); navigate('/app/recipes') }}
                   className="w-full text-sm text-primary border border-blue-100 bg-blue-50 rounded-btn py-2 hover:bg-blue-100 transition-all"
                 >
-                  🫧 Go to recipe suggestions
+                  <Icon name="ai" size={15} /> Go to recipe suggestions
                 </button>
               </div>
             </div>
@@ -513,7 +513,7 @@ export default function MealPlan() {
                   </svg>
                   Adding...
                 </>
-              ) : canGroceryFromPlan ? '🛒 Add to grocery' : '⭐ Upgrade to Premium'}
+              ) : canGroceryFromPlan ? <><Icon name="grocery" size={15} /> Add to grocery</> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
             </button>
           )}
           {isFeatureEnabled('ai_meal_planner', plan) && (
@@ -530,7 +530,7 @@ export default function MealPlan() {
                   </svg>
                   Generating week...
                 </>
-              ) : canAutoplan ? '✨ Auto-plan week 👑' : '⭐ Upgrade to Premium'}
+              ) : canAutoplan ? <><Icon name="sparkle" size={15} /> Auto-plan week <Icon name="crown" size={15} /></> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
             </button>
           )}
           <button

@@ -126,10 +126,10 @@ export default function AppShell() {
               {[
                 { to: '/app/mealplan', icon: 'mealplan', label: 'Meal plan' },
                 { to: '/app/cookbook', icon: 'cookbook', label: 'Cookbook' },
-                ...(showHealth ? [{ to: '/app/health', icon: '❤️', label: 'Health' }] : []),
-                { to: '/app/recalls', icon: '🚨', label: 'Recalls' },
-                { to: '/app/reports', icon: '📊', label: 'Reports' },
-                { to: '/app/settings', icon: '⚙️', label: 'Settings' },
+                ...(showHealth ? [{ to: '/app/health', icon: 'health', label: 'Health' }] : []),
+                { to: '/app/recalls', icon: 'recalls', label: 'Recalls' },
+                { to: '/app/reports', icon: 'reports', label: 'Reports' },
+                { to: '/app/settings', icon: 'settings', label: 'Settings' },
               ].map(item => (
                 <NavLink
                   key={item.to}
@@ -161,10 +161,10 @@ export default function AppShell() {
         }}
       >
         {[
-          { to: '/app', icon: '🏠', label: 'Home', end: true },
-          { to: '/app/pantry', icon: '🧺', label: 'Pantry' },
-          { to: '/app/recipes', icon: '🍽️', label: 'Recipes' },
-          { to: '/app/grocery', icon: '🛒', label: 'Grocery' },
+          { to: '/app', icon: 'dashboard', label: 'Home', end: true },
+          { to: '/app/pantry', icon: 'pantry', label: 'Pantry' },
+          { to: '/app/recipes', icon: 'recipes', label: 'Recipes' },
+          { to: '/app/grocery', icon: 'grocery', label: 'Grocery' },
         ].map(item => (
           <NavLink
             key={item.to}
@@ -186,7 +186,7 @@ export default function AppShell() {
             showMoreDrawer ? 'text-primary' : 'text-textMuted'
           }`}
         >
-          <span className="text-xl leading-none">⋯</span>
+         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
           <span className="text-[10px] font-medium">More</span>
         </button>
       </nav>

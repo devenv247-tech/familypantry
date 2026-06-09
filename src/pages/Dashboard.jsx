@@ -471,7 +471,7 @@ export default function Dashboard() {
           /* No meal planned */
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🌙</span>
+              <Icon name="mealplan" size={22} className="text-indigo-400" />
               <div>
                 <p className="text-sm font-semibold text-textPrimary">Nothing planned for tonight</p>
                 <p className="text-xs text-textMuted">Want AI to suggest a quick dinner?</p>
@@ -487,7 +487,7 @@ export default function Dashboard() {
         ) : tonightMeal.cooked ? (
           /* Already cooked */
           <div className="flex items-center gap-3">
-            <span className="text-2xl">✅</span>
+            <Icon name="check" size={22} className="text-success" />
             <div>
               <p className="text-sm font-semibold text-success">Dinner's done!</p>
               <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook 🍳</p>
@@ -521,7 +521,7 @@ export default function Dashboard() {
       {isFeatureEnabled('meal_patterns', plan) && nudges.filter(n => !dismissedNudges.includes(n.message)).length > 0 && (
         <div className="card mb-6 border border-purple-100 bg-purple-50/20">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">🧠</span>
+            <Icon name="ai" size={18} className="text-purple-500" />
             <h2 className="font-semibold text-textPrimary">Nooka notices</h2>
             <span className="text-xs text-textMuted ml-auto">Based on your habits</span>
           </div>
