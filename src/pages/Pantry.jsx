@@ -563,7 +563,7 @@ export default function Pantry() {
           <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-bold text-textPrimary">🗂️ Pantry starter templates</h3>
+                <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="templates" size={18} /> Pantry starter templates</h3>
                 <button onClick={() => setShowTemplates(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
               </div>
               <p className="text-sm text-textMuted mb-6">
@@ -573,7 +573,7 @@ export default function Pantry() {
                 {templates.map(template => (
                   <div key={template.id} className="flex items-center justify-between p-4 rounded-btn border border-border hover:border-primary transition-all">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{template.icon}</span>
+                      <span className="text-2xl leading-none w-8 text-center flex-shrink-0">{template.icon}</span>
                       <div>
                         <p className="text-sm font-semibold text-textPrimary">{template.name}</p>
                         <p className="text-xs text-textMuted">{template.description}</p>

@@ -259,9 +259,9 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
-                    item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
-                      item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-blue-100 text-blue-700'
+                  item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
+                    item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-blue-100 text-blue-700'
                   }`}>
                   {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
                 </span>
@@ -479,7 +479,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={() => navigate('/app/recipes')}
-              className="btn-primary text-sm whitespace-nowrap"
+              className="btn-primary text-sm whitespace-nowrap flex items-center gap-2"
             >
               <Icon name="ai" size={16} /> Get ideas
             </button>
@@ -618,7 +618,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className={`text-lg font-bold ${member.overallScore >= 75 ? 'text-success' :
-                        member.overallScore >= 50 ? 'text-orange-500' : 'text-danger'
+                      member.overallScore >= 50 ? 'text-orange-500' : 'text-danger'
                       }`}>{member.overallScore}%</p>
                     <p className="text-xs text-textMuted">{member.mealsLogged} meals</p>
                   </div>
