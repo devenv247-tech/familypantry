@@ -479,7 +479,19 @@ export default function Admin() {
                        <button
                           onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
                           disabled={updatingFlag === flag.id}
-                          className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 disabled:opacity-50 ${flag.enabled ? 'bg-green-500' : 'bg-gray-200'}`}
+                          style={{
+                            position: 'relative',
+                            display: 'inline-block',
+                            width: '44px',
+                            height: '24px',
+                            minWidth: '44px',
+                            borderRadius: '12px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            backgroundColor: flag.enabled ? '#22c55e' : '#d1d5db',
+                            transition: 'background-color 0.2s ease',
+                            opacity: updatingFlag === flag.id ? 0.5 : 1,
+                          }}
                         >
                           <span
                             style={{
