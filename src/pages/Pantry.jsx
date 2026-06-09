@@ -1,4 +1,5 @@
 import Icon from '../components/ui/Icon'
+import ItemAutocomplete from '../components/ui/ItemAutocomplete'
 import { getPantryItems, addPantryItem, deletePantryItem, restockPantryItem, parseVoiceItem } from '../api/pantry'
 import { useState, useEffect, useRef } from 'react'
 import { useVoiceInput } from '../hooks/useVoiceInput'
@@ -14,6 +15,7 @@ import { useAppConfigStore } from '../store/appConfigStore'
 import { useAuthStore } from '../store/authStore'
 import { scanPantryPhoto, getScanStatus, getTemplates, applyTemplate } from '../api/pantryTools'
 import { useNavigate } from 'react-router-dom'
+
 
 const UNITS = ['pcs', 'dozen', 'kg', 'g', 'mg', 'L', 'ml', 'lb', 'oz', 'cup', 'tbsp', 'tsp', 'gallon']
 const EMPTY_FORM = { name: '', quantity: '', unit: 'pcs', category: 'Fridge', expiry: '', icon: '🛒', isCustomCategory: false }
@@ -820,8 +822,24 @@ export default function Pantry() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="label">Item name</label>
-                <input className="input" placeholder="e.g. Natrel 2% Milk, Dempster's Bread..." value={form.name} onChange={e => update('name', e.target.value)} />
-                <p className="text-xs text-textMuted mt-1.5">💡 Include brand name for more accurate recall alerts</p>
+                <ItemAutocomplete
+                  className="input"
+                  placeholder="e.g. Milk, Chicken Breast, Basmati Rice..."
+                  value={form.name}
+                  onChange={v => update('name', v)}
+                  onSelect={({ name, unit, category, icon, defaultQty }) => {
+                    setForm(p => ({
+                      ...p,
+                      name,
+                      unit,
+                      category,
+                      icon,
+                      quantity: p.quantity || String(defaultQty),
+                      isCustomCategory: false,
+                    }))
+                  }}
+                />
+                <p className="text-xs text-textMuted mt-1.5">💡 Start typing to search 400+ Canadian grocery items</p>
               </div>
               <div>
                 <label className="label">Quantity</label>
