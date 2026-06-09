@@ -416,17 +416,19 @@ export default function Settings() {
               <form onSubmit={handleAddMember}>
 
                 {/* Baby toggle */}
-                <div className={`flex items-center gap-3 mb-5 p-3 rounded-card border transition-all ${newMember.isBaby ? 'bg-pink-50 border-pink-200' : 'bg-gray-50 border-border'}`}>
-                  <button type="button"
-                    onClick={() => setNewMember(p => ({ ...EMPTY_MEMBER, isBaby: !p.isBaby }))}
-                    className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-300'}`}>
-                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${newMember.isBaby ? 'translate-x-5' : 'translate-x-1'}`} />
-                  </button>
+                <button
+                  type="button"
+                  onClick={() => setNewMember(p => ({ ...EMPTY_MEMBER, isBaby: !p.isBaby }))}
+                  className={`w-full flex items-center gap-3 mb-5 p-3 rounded-card border transition-all text-left ${newMember.isBaby ? 'bg-pink-50 border-pink-200' : 'bg-gray-50 border-border hover:border-gray-300'}`}
+                >
+                  <div className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-300'}`}>
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${newMember.isBaby ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </div>
                   <div>
                     <p className="text-sm font-medium text-textPrimary">This is a baby or toddler 🍼</p>
                     <p className="text-xs text-textMuted">Enables stage tracking, allergen scheduler, and growth monitoring</p>
                   </div>
-                </div>
+                </button>
 
                 {/* Core fields */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
