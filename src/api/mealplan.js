@@ -19,6 +19,7 @@ export const generateGroceryFromPlan = async (weekStart) => {
   const res = await client.post('/mealplan/generate-grocery', { weekStart })
   return res.data
 }
+
 export const generateWeekPlan = async (weekStart, selectedMembers = [], selectedCuisines = []) =>
   client.post('/mealplan/generate-week', { weekStart, selectedMembers, selectedCuisines }).then(r => r.data)
 

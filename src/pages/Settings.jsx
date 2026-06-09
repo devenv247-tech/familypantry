@@ -148,7 +148,7 @@ export default function Settings() {
   const EMPTY_MEMBER = {
     name: '', age: '', weight: '', weightUnit: 'kg', height: '',
     goals: [], dietary: [], allergens: '',
-    isBaby: false, birthDate: '', babyHeight: '',
+    isBaby: false, birthDate: '', babyHeight: '', babyWeightUnit: 'kg', babyHeightUnit: 'cm',
   }
   const [newMember, setNewMember] = useState(EMPTY_MEMBER)
 
@@ -209,8 +209,8 @@ export default function Settings() {
           await logGrowth(member.id, {
             weight:     parseFloat(newMember.weight),
             height:     parseFloat(newMember.babyHeight),
-            weightUnit: 'kg',
-            heightUnit: 'cm',
+            weightUnit: newMember.babyWeightUnit || 'kg',
+            heightUnit: newMember.babyHeightUnit || 'cm',
             note:       'Initial measurement',
           })
         } catch (err) { console.error('Failed to log initial growth:', err) }
@@ -446,16 +446,32 @@ export default function Settings() {
                           onChange={e => setNewMember(p => ({ ...p, birthDate: e.target.value }))} />
                       </div>
                       <div>
-                        <label className="label">Weight (kg) <span className="text-danger">*</span></label>
-                        <input className="input" type="number" step="0.1" min="0" max="30" placeholder="e.g. 7.5"
-                          value={newMember.weight}
-                          onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))} />
+                        <label className="label">Weight <span className="text-danger">*</span></label>
+                        <div className="flex gap-2">
+                          <input className="input flex-1" type="number" step="0.1" min="0" max="60"
+                            placeholder={newMember.babyWeightUnit === 'lbs' ? 'e.g. 16.5' : 'e.g. 7.5'}
+                            value={newMember.weight}
+                            onChange={e => setNewMember(p => ({ ...p, weight: e.target.value }))} />
+                          <select className="input w-20" value={newMember.babyWeightUnit}
+                            onChange={e => setNewMember(p => ({ ...p, babyWeightUnit: e.target.value }))}>
+                            <option value="kg">kg</option>
+                            <option value="lbs">lbs</option>
+                          </select>
+                        </div>
                       </div>
                       <div>
-                        <label className="label">Height (cm) <span className="text-danger">*</span></label>
-                        <input className="input" type="number" step="0.1" min="0" max="120" placeholder="e.g. 68.5"
-                          value={newMember.babyHeight}
-                          onChange={e => setNewMember(p => ({ ...p, babyHeight: e.target.value }))} />
+                        <label className="label">Height <span className="text-danger">*</span></label>
+                        <div className="flex gap-2">
+                          <input className="input flex-1" type="number" step="0.1" min="0" max="150"
+                            placeholder={newMember.babyHeightUnit === 'in' ? 'e.g. 27' : 'e.g. 68.5'}
+                            value={newMember.babyHeight}
+                            onChange={e => setNewMember(p => ({ ...p, babyHeight: e.target.value }))} />
+                          <select className="input w-20" value={newMember.babyHeightUnit}
+                            onChange={e => setNewMember(p => ({ ...p, babyHeightUnit: e.target.value }))}>
+                            <option value="cm">cm</option>
+                            <option value="in">in</option>
+                          </select>
+                        </div>
                         <p className="text-xs text-textMuted mt-1">Tracked against WHO standards</p>
                       </div>
                     </>

@@ -16,7 +16,7 @@ import { useToast } from '../hooks/useToast'
 const SEASONAL_DATA = {
   spring: { icon: '🌱', color: 'border-green-200 bg-green-50/30', badge: 'bg-green-100 text-green-700', items: ['Asparagus', 'Spinach', 'Peas', 'Rhubarb', 'Radishes', 'Arugula', 'Leeks', 'Lettuce'] },
   summer: { icon: '☀️', color: 'border-yellow-200 bg-yellow-50/30', badge: 'bg-yellow-100 text-yellow-700', items: ['Strawberries', 'Corn', 'Tomatoes', 'Zucchini', 'Peaches', 'Blueberries', 'Cucumbers', 'Bell peppers'] },
-  fall:   { icon: '🍂', color: 'border-orange-200 bg-orange-50/30', badge: 'bg-orange-100 text-orange-700', items: ['Squash', 'Apples', 'Pears', 'Beets', 'Brussels sprouts', 'Sweet potatoes', 'Cranberries', 'Cauliflower'] },
+  fall: { icon: '🍂', color: 'border-orange-200 bg-orange-50/30', badge: 'bg-orange-100 text-orange-700', items: ['Squash', 'Apples', 'Pears', 'Beets', 'Brussels sprouts', 'Sweet potatoes', 'Cranberries', 'Cauliflower'] },
   winter: { icon: '❄️', color: 'border-blue-200 bg-blue-50/30', badge: 'bg-blue-100 text-blue-700', items: ['Citrus', 'Oranges', 'Cabbage', 'Carrots', 'Kale', 'Potatoes', 'Grapefruit', 'Lemons'] },
 }
 
@@ -67,13 +67,13 @@ export default function Dashboard() {
   const fetchTonightMeal = async () => {
     try {
       const today = new Date()
-      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
       const todayName = days[today.getDay()]
       const weekStart = new Date(today)
       const dayOfWeek = today.getDay()
       const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
       weekStart.setDate(diff)
-      weekStart.setHours(0,0,0,0)
+      weekStart.setHours(0, 0, 0, 0)
       const weekStartStr = weekStart.toISOString().split('T')[0]
 
       const data = await getMealPlan(weekStartStr)
@@ -123,7 +123,7 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setError('')
-   const [statsData, activityData, membersData, expiryData, healthData, wasteSavingsData, nudgesData] = await Promise.all([
+      const [statsData, activityData, membersData, expiryData, healthData, wasteSavingsData, nudgesData] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getMembers(),
@@ -151,14 +151,14 @@ export default function Dashboard() {
     return (
       <div className="page-container">
         <div className="mb-8">
-          <div className="h-8 bg-gray-100 rounded w-64 mb-2 animate-pulse"/>
-          <div className="h-4 bg-gray-100 rounded w-48 animate-pulse"/>
+          <div className="h-8 bg-gray-100 rounded w-64 mb-2 animate-pulse" />
+          <div className="h-4 bg-gray-100 rounded w-48 animate-pulse" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1,2,3,4].map(i => (
+          {[1, 2, 3, 4].map(i => (
             <div key={i} className="card animate-pulse">
-              <div className="h-8 bg-gray-100 rounded mb-2"/>
-              <div className="h-4 bg-gray-100 rounded w-2/3"/>
+              <div className="h-8 bg-gray-100 rounded mb-2" />
+              <div className="h-4 bg-gray-100 rounded w-2/3" />
             </div>
           ))}
         </div>
@@ -258,12 +258,11 @@ export default function Dashboard() {
                     <p className="text-xs text-textMuted">{item.quantity} {item.unit}</p>
                   </div>
                 </div>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${
-                  item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
-                  item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
-                  item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
+                    item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
+                      item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-blue-100 text-blue-700'
+                  }`}>
                   {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
                 </span>
               </div>
@@ -277,13 +276,13 @@ export default function Dashboard() {
         </div>
       )}
 
-     {/* Cook what's expiring hero prompt */}
+      {/* Cook what's expiring hero prompt */}
       {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
         <div className="card mb-6 border border-orange-200 bg-gradient-to-r from-orange-50/40 to-yellow-50/40">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-lg">🫧</span>
+                <Icon name="ai" size={18} className="text-orange-500" />
                 <h2 className="font-semibold text-textPrimary">Use what's expiring</h2>
                 <span className="text-xs bg-orange-100 text-orange-700 font-medium px-2 py-0.5 rounded-pill">
                   {expiringSoon.filter(i => !i.isExpired).length} item{expiringSoon.filter(i => !i.isExpired).length !== 1 ? 's' : ''} soon
@@ -311,7 +310,7 @@ export default function Dashboard() {
                 onClick={() => navigate('/app/recipes?expiring=true')}
                 className="btn-primary text-sm px-5 py-2"
               >
-                🫧 Find recipes for expiring items
+                <Icon name="ai" size={16} /> Find recipes for expiring items
               </button>
             </div>
           </div>
@@ -482,7 +481,7 @@ export default function Dashboard() {
               onClick={() => navigate('/app/recipes')}
               className="btn-primary text-sm whitespace-nowrap"
             >
-              🫧 Get ideas
+              <Icon name="ai" size={16} /> Get ideas
             </button>
           </div>
         ) : tonightMeal.cooked ? (
@@ -618,10 +617,9 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`text-lg font-bold ${
-                      member.overallScore >= 75 ? 'text-success' :
-                      member.overallScore >= 50 ? 'text-orange-500' : 'text-danger'
-                    }`}>{member.overallScore}%</p>
+                    <p className={`text-lg font-bold ${member.overallScore >= 75 ? 'text-success' :
+                        member.overallScore >= 50 ? 'text-orange-500' : 'text-danger'
+                      }`}>{member.overallScore}%</p>
                     <p className="text-xs text-textMuted">{member.mealsLogged} meals</p>
                   </div>
                 </div>

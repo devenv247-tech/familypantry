@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Icon } from '../components/ui/Icon'
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
@@ -426,10 +427,12 @@ export default function Recipes() {
 
       {/* AI data disclosure modal — shown once per user before first recipe generation */}
       {showAIDisclosure && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-card shadow-xl p-6">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-md sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🫧</div>
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Icon name="ai" size={20} className="text-primary" />
+              </div>
               <div>
                 <h3 className="font-semibold text-textPrimary">Before we generate your recipes</h3>
                 <p className="text-xs text-textMuted mt-0.5">One-time notice — we won't ask again</p>
