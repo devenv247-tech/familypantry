@@ -476,14 +476,24 @@ export default function Admin() {
                         </select>
                       </td>
                       <td className="px-4 py-3">
-                        <button
+                       <button
                           onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
                           disabled={updatingFlag === flag.id}
-                          className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${flag.enabled ? 'bg-green-500' : 'bg-gray-200'
-                            } disabled:opacity-50`}
+                          className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 disabled:opacity-50 ${flag.enabled ? 'bg-green-500' : 'bg-gray-200'}`}
                         >
-                          <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${flag.enabled ? 'left-5' : 'left-0.5'
-                            }`} />
+                          <span
+                            style={{
+                              position: 'absolute',
+                              top: '2px',
+                              left: flag.enabled ? '22px' : '2px',
+                              width: '20px',
+                              height: '20px',
+                              backgroundColor: 'white',
+                              borderRadius: '50%',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                              transition: 'left 0.2s ease',
+                            }}
+                          />
                         </button>
                       </td>
                     </tr>
