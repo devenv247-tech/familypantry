@@ -475,8 +475,8 @@ export default function Admin() {
                           <option value="premium">Premium</option>
                         </select>
                       </td>
-                      <td className="px-4 py-3">
-                       <button
+                      <td className="px-4 py-3 w-px whitespace-nowrap">
+                        <button
                           onClick={() => handleUpdateFlag(flag.id, { enabled: !flag.enabled })}
                           disabled={updatingFlag === flag.id}
                           style={{
