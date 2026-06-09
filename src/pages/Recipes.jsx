@@ -890,7 +890,7 @@ export default function Recipes() {
                     </svg>
                     Generating...
                   </>
-                ) : <>🫧 Generate recipes</>}
+                ) : <><Icon name="ai" size={16} /> Generate recipes</>}
               </button>
               {selectedMembers.length === 0 && <p className="text-sm text-textMuted">Select at least one member</p>}
             </div>
