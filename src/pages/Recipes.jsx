@@ -195,7 +195,7 @@ export default function Recipes() {
             costs.forEach(c => { if (c.cost) costMap[c.name] = c.cost })
             setRecipeCosts(costMap)
           })
-          .catch(() => {})
+          .catch(() => { })
       }
     } catch (err) {
       if (err.response?.data?.limitReached) {
@@ -253,13 +253,13 @@ export default function Recipes() {
       let mealPlanMarked = false
       try {
         const today = new Date()
-        const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         const todayName = days[today.getDay()]
         const weekStart = new Date(today)
         const dayOfWeek = today.getDay()
         const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
         weekStart.setDate(diff)
-        weekStart.setHours(0,0,0,0)
+        weekStart.setHours(0, 0, 0, 0)
         const weekStartStr = weekStart.toISOString().split('T')[0]
 
         const planData = await getMealPlan(weekStartStr)
@@ -545,17 +545,15 @@ export default function Recipes() {
       <div className="flex gap-2 mb-6 bg-surface border border-border rounded-card p-1">
         <button
           onClick={() => setMode('food')}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${
-            mode === 'food' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
-          }`}
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+            }`}
         >
           🍽️ Food
         </button>
         <button
           onClick={() => setMode('drinks')}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${
-            mode === 'drinks' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
-          }`}
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+            }`}
         >
           🥤 Drinks & Remedies
         </button>
@@ -581,11 +579,10 @@ export default function Recipes() {
                 <button
                   key={c.label}
                   onClick={() => setDrinkCondition(c.label)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-btn border text-sm font-medium transition-all text-left ${
-                    drinkCondition === c.label
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-btn border text-sm font-medium transition-all text-left ${drinkCondition === c.label
                       ? 'bg-primary text-white border-primary'
                       : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                  }`}
+                    }`}
                 >
                   <span className="text-base">{c.icon}</span>
                   <span className="leading-tight">{c.label}</span>
@@ -634,12 +631,12 @@ export default function Recipes() {
               {drinksLoading ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Finding drinks...
                 </>
-              ) : '🫧 Suggest drinks'}
+              ) : <><Icon name="ai" size={16} /> Suggest drinks</>}
             </button>
           </div>
 
@@ -660,11 +657,10 @@ export default function Recipes() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${
-                        drink.temp === 'hot' ? 'bg-orange-50 text-orange-600' :
-                        drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
-                        'bg-gray-50 text-textMuted'
-                      }`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${drink.temp === 'hot' ? 'bg-orange-50 text-orange-600' :
+                          drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
+                            'bg-gray-50 text-textMuted'
+                        }`}>
                         {drink.temp === 'hot' ? '♨️ Hot' : drink.temp === 'cold' ? '🧊 Cold' : '🌡️ Either'}
                       </span>
                       <span className="text-xs text-textMuted">⏱ {drink.prepTime}</span>
@@ -698,9 +694,8 @@ export default function Recipes() {
                       <ul className="space-y-1.5 mb-4">
                         {drink.ingredients?.map((ing, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
-                              ing.inPantry ? 'bg-green-100 text-success' : 'bg-orange-100 text-orange-500'
-                            }`}>
+                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${ing.inPantry ? 'bg-green-100 text-success' : 'bg-orange-100 text-orange-500'
+                              }`}>
                               {ing.inPantry ? '✓' : '+'}
                             </span>
                             {ing.name} — {ing.quantity} {ing.unit}
@@ -792,15 +787,13 @@ export default function Recipes() {
                     <button
                       key={m.id}
                       onClick={() => toggleMember(m.name)}
-                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                        selectedMembers.includes(m.name)
+                      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${selectedMembers.includes(m.name)
                           ? 'bg-primary text-white border-primary'
                           : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                      }`}
+                        }`}
                     >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                        selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
+                        }`}>
                         {m.name[0]}
                       </div>
                       {m.name}
@@ -818,9 +811,8 @@ export default function Recipes() {
                   <button
                     key={t}
                     onClick={() => setMealType(t)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                      mealType === t ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                    }`}
+                    className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${mealType === t ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                      }`}
                   >
                     {t === 'Breakfast' ? '🌅' : t === 'Lunch' ? '☀️' : t === 'Dinner' ? '🌙' : '🍎'} {t}
                   </button>
@@ -839,9 +831,8 @@ export default function Recipes() {
                       <button
                         key={c.label}
                         onClick={() => setCuisine(c.label)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
-                          cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                        }`}
+                        className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          }`}
                       >
                         {c.icon} {c.label}
                       </button>
@@ -866,8 +857,8 @@ export default function Recipes() {
                   {familyLoading ? (
                     <>
                       <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                       </svg>
                       Generating...
                     </>
@@ -885,8 +876,8 @@ export default function Recipes() {
                 {loading ? (
                   <>
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
                     Generating...
                   </>
@@ -972,9 +963,8 @@ export default function Recipes() {
                     <button
                       onClick={() => handleAddToGrocery(familyRecipe, 'family')}
                       disabled={addingToGrocery['family']}
-                      className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${
-                        addedToGrocery['family'] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
-                      }`}
+                      className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery['family'] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                        }`}
                     >
                       {addingToGrocery['family'] ? 'Adding...' : addedToGrocery['family'] ? '✓ Added!' : '+ Add to grocery'}
                     </button>
@@ -1068,9 +1058,8 @@ export default function Recipes() {
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => handleCook(familyRecipe, 'family')}
-                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${
-                    cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
-                  }`}
+                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
+                    }`}
                 >
                   {cookedId === 'family' ? '✓ Cooked! Pantry updated' : '🍳 I cooked this — update pantry'}
                 </button>
@@ -1078,11 +1067,10 @@ export default function Recipes() {
                   <button
                     onClick={() => handleSaveRecipe(familyRecipe, 'family')}
                     disabled={savingRecipe['family'] || savedRecipes['family']}
-                    className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${
-                      savedRecipes['family']
+                    className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${savedRecipes['family']
                         ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
                         : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
-                    } disabled:opacity-50`}
+                      } disabled:opacity-50`}
                   >
                     {savingRecipe['family'] ? '...' : savedRecipes['family'] ? '🔖 Saved' : '🔖 Save'}
                   </button>
@@ -1160,9 +1148,8 @@ export default function Recipes() {
 
                     <div className="flex items-start justify-between mb-3">
                       <div className="text-4xl">{recipe.icon}</div>
-                      <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
-                        recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'
-                      }`}>
+                      <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'
+                        }`}>
                         {recipe.difficulty}
                       </span>
                     </div>
@@ -1209,9 +1196,8 @@ export default function Recipes() {
                           <button
                             onClick={() => handleAddToGrocery(recipe, idx)}
                             disabled={addingToGrocery[idx]}
-                            className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${
-                              addedToGrocery[idx] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
-                            }`}
+                            className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery[idx] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                              }`}
                           >
                             {addingToGrocery[idx] ? 'Adding...' : addedToGrocery[idx] ? '✓ Added!' : '+ Add to grocery'}
                           </button>
@@ -1282,9 +1268,8 @@ export default function Recipes() {
                       </button>
                       <button
                         onClick={() => handleCook(recipe, idx)}
-                        className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${
-                          cookedId === idx ? 'bg-success text-white' : 'bg-green-50 text-success border border-green-200 hover:bg-green-100'
-                        }`}
+                        className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${cookedId === idx ? 'bg-success text-white' : 'bg-green-50 text-success border border-green-200 hover:bg-green-100'
+                          }`}
                       >
                         {cookedId === idx ? '✓ Pantry updated!' : '🍳 I cooked this'}
                       </button>
@@ -1292,11 +1277,10 @@ export default function Recipes() {
                         <button
                           onClick={() => handleSaveRecipe(recipe, idx)}
                           disabled={savingRecipe[idx] || savedRecipes[idx]}
-                          className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${
-                            savedRecipes[idx]
+                          className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${savedRecipes[idx]
                               ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
                               : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
-                          } disabled:opacity-50`}
+                            } disabled:opacity-50`}
                         >
                           {savingRecipe[idx] ? '...' : savedRecipes[idx] ? '🔖 Saved' : '🔖 Save'}
                         </button>
@@ -1342,17 +1326,15 @@ export default function Recipes() {
                             <div className="flex gap-2 mb-3">
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'serving' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${
-                                  (nutritionView[idx] || 'serving') === 'serving' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
-                                }`}
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${(nutritionView[idx] || 'serving') === 'serving' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
+                                  }`}
                               >
                                 Per serving
                               </button>
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'total' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${
-                                  nutritionView[idx] === 'total' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
-                                }`}
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${nutritionView[idx] === 'total' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
+                                  }`}
                               >
                                 Total recipe
                               </button>
@@ -1397,9 +1379,8 @@ export default function Recipes() {
                 <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
                 <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
                 <div className="space-y-2.5 mb-6">
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
-                    cookedModal.pantryUpdated ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
-                  }`}>
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryUpdated ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                    }`}>
                     <span className="text-lg">🧺</span>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
@@ -1408,9 +1389,8 @@ export default function Recipes() {
                     <span className="text-success text-lg">✓</span>
                   </div>
 
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
-                    cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
-                  }`}>
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                    }`}>
                     <span className="text-lg">❤️</span>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
@@ -1426,9 +1406,8 @@ export default function Recipes() {
                     }
                   </div>
 
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${
-                    cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
-                  }`}>
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                    }`}>
                     <span className="text-lg">📅</span>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-textPrimary">Meal plan</p>
@@ -1454,7 +1433,7 @@ export default function Recipes() {
             </div>
           )}
 
-        </div> 
+        </div>
       )}
 
       {/* Toast */}
