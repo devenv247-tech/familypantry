@@ -75,14 +75,34 @@ function PillButton({ selected, onClick, children, variant = 'primary' }) {
 // ─── Toggle switch ────────────────────────────────────────────────────────────
 function ToggleSwitch({ on, onChange }) {
   return (
-    <button type="button" onClick={() => onChange(!on)}
-      style={{ borderRadius: '9999px', width: '44px', height: '24px', flexShrink: 0, position: 'relative', transition: 'background 0.2s', background: on ? '#2563eb' : '#d1d5db' }}
+    <div
+      onClick={() => onChange(!on)}
+      style={{
+        borderRadius: '9999px',
+        width: '44px',
+        height: '24px',
+        flexShrink: 0,
+        position: 'relative',
+        cursor: 'pointer',
+        transition: 'background 0.2s',
+        background: on ? '#2563eb' : '#d1d5db',
+        display: 'inline-block',
+      }}
     >
-      <span style={{ position: 'absolute', top: '2px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s', left: on ? '22px' : '2px' }} />
-    </button>
+      <div style={{
+        position: 'absolute',
+        top: '2px',
+        width: '20px',
+        height: '20px',
+        background: '#fff',
+        borderRadius: '50%',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        transition: 'left 0.2s',
+        left: on ? '22px' : '2px',
+      }} />
+    </div>
   )
 }
-
 // ─── Section header ───────────────────────────────────────────────────────────
 function SectionLabel({ children }) {
   return <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">{children}</p>
