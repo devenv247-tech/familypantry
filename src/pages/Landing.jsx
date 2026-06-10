@@ -25,7 +25,7 @@ const PLAN_META = [
     highlight: false,
     badge: null,
     cta: 'Get started free',
-    baseFeatures: [
+   baseFeatures: [
       'Pantry tracking',
       'Barcode scanner',
       'Manual grocery list',
@@ -33,6 +33,7 @@ const PLAN_META = [
       'Manual meal planner',
       '5 smart recipes per week',
       'Up to 5 family members',
+      'Weekly pantry digest email',
     ],
   },
   {
@@ -43,7 +44,10 @@ const PLAN_META = [
     highlight: true,
     badge: 'Most popular',
     cta: 'Choose Family',
-    baseFeatures: ['Everything in Free'],
+    baseFeatures: [
+      'Everything in Free',
+      'Expiry alerts + recipe ideas in digest',
+    ],
   },
   {
     key: 'premium',
@@ -53,7 +57,10 @@ const PLAN_META = [
     highlight: false,
     badge: '⭐ Most features',
     cta: 'Choose Premium',
-    baseFeatures: ['Everything in Family'],
+    baseFeatures: [
+      'Everything in Family',
+      'Full weekly digest — meal plan + nutrition tips',
+    ],
   },
 ]
 

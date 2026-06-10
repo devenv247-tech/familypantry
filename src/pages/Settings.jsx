@@ -104,9 +104,9 @@ export default function Settings() {
 
   const buildPlanFeatures = (planKey) => {
     const base = {
-      free:    ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week', 'Up to 5 family members'],
-      family:  ['Everything in Free'],
-      premium: ['Everything in Family'],
+      free:    ['Pantry tracking', 'Barcode scanner', 'Manual grocery list', 'Basic spending reports', 'Manual meal planner', '5 AI recipes per week', 'Up to 5 family members', 'Weekly pantry digest email'],
+      family:  ['Everything in Free', 'Expiry alerts + recipe ideas in digest'],
+      premium: ['Everything in Family', 'Full weekly digest — meal plan + nutrition tips'],
     }
     const fromFlags = flags
       .filter(f => f.requiredPlan === planKey)
