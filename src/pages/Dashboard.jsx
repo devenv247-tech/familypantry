@@ -200,6 +200,25 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Tonight's dinner CTA */}
+      {(stats?.pantryCount ?? 0) >= 5 && (
+        <div className="card mb-6 border border-primary/20 bg-primary/5 flex items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Icon name="ai" size={16} className="text-primary" />
+              <p className="font-semibold text-textPrimary">What should I cook tonight?</p>
+            </div>
+            <p className="text-xs text-textMuted mt-0.5">Get ideas based on what's in your pantry right now</p>
+          </div>
+          <button
+            onClick={() => navigate('/app/recipes')}
+            className="btn-primary whitespace-nowrap flex-shrink-0"
+          >
+            Show me
+          </button>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
