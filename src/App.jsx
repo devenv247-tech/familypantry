@@ -18,6 +18,7 @@ const Terms = lazy(() => import('./pages/Terms'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const AcceptInvite = lazy(() => import('./pages/AcceptInvite'))
+const Unsubscribe = lazy(() => import('./pages/Unsubscribe'))
 // Blog eagerly loaded for now
 const AppShell = lazy(() => import('./components/layout/AppShell'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
