@@ -75,9 +75,10 @@ function PillButton({ selected, onClick, children, variant = 'primary' }) {
 // ─── Toggle switch ────────────────────────────────────────────────────────────
 function ToggleSwitch({ on, onChange }) {
   return (
-    <button onClick={() => onChange(!on)}
-      className={`relative w-11 h-6 rounded-pill transition-all flex-shrink-0 ${on ? 'bg-primary' : 'bg-gray-200'}`}>
-      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${on ? 'left-5' : 'left-0.5'}`} />
+    <button type="button" onClick={() => onChange(!on)}
+      style={{ borderRadius: '9999px', width: '44px', height: '24px', flexShrink: 0, position: 'relative', transition: 'background 0.2s', background: on ? '#2563eb' : '#d1d5db' }}
+    >
+      <span style={{ position: 'absolute', top: '2px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s', left: on ? '22px' : '2px' }} />
     </button>
   )
 }
