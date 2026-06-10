@@ -220,6 +220,42 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Pantry setup progress */}
+      {(stats?.pantryCount ?? 0) < 15 && (
+        <div className="card mb-6 border border-green-200 bg-green-50/30">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-semibold text-textPrimary">🛒 Set up your pantry</p>
+            <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium">
+              Add items →
+            </button>
+          </div>
+          <p className="text-xs text-textMuted mb-3">
+            {(stats?.pantryCount ?? 0) < 5
+              ? 'Add 5 items to unlock your first recipe suggestions'
+              : (stats?.pantryCount ?? 0) < 10
+              ? 'Add a few more items for smarter meal planning'
+              : 'Almost there — 15 items activates your weekly digest email'}
+          </p>
+          <div className="relative h-2 bg-gray-100 rounded-pill overflow-hidden mb-2">
+            <div
+              className="h-full bg-green-500 rounded-pill transition-all duration-500"
+              style={{ width: `${Math.min(((stats?.pantryCount ?? 0) / 15) * 100, 100)}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-textMuted">
+            <span className={(stats?.pantryCount ?? 0) >= 5 ? 'text-green-600 font-medium' : ''}>
+              {(stats?.pantryCount ?? 0) >= 5 ? '✓' : '○'} 5 — Recipes unlock
+            </span>
+            <span className={(stats?.pantryCount ?? 0) >= 10 ? 'text-green-600 font-medium' : ''}>
+              {(stats?.pantryCount ?? 0) >= 10 ? '✓' : '○'} 10 — Smarter suggestions
+            </span>
+            <span className={(stats?.pantryCount ?? 0) >= 15 ? 'text-green-600 font-medium' : ''}>
+              {(stats?.pantryCount ?? 0) >= 15 ? '✓' : '○'} 15 — Weekly digest
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Plan usage for free plan */}
       {stats?.plan === 'free' && (
         <div className="card mb-6 border border-blue-100 bg-blue-50/30">
