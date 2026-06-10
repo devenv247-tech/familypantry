@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold } from '../api/family'
+import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold, updateDigestPreference } from '../api/family'
 import { logGrowth } from '../api/baby'
 import { deleteAccount, updateAccount, exportMyData } from '../api/auth'
 import { useToast } from '../hooks/useToast'
@@ -358,6 +358,22 @@ export default function Settings() {
   const [notifPrefs, setNotifPrefs] = useState({
     recalls: true, expiry: true, grocery: true, monthly: false, recipes: false,
   })
+  const [digestEnabled, setDigestEnabled] = useState(family?.digestEnabled ?? true)
+  const [savingDigest, setSavingDigest] = useState(false)
+
+  const handleDigestToggle = async (val) => {
+    setDigestEnabled(val)
+    setSavingDigest(true)
+    try {
+      await updateDigestPreference(val)
+      showToast(val ? 'Weekly digest enabled' : 'Weekly digest disabled')
+    } catch {
+      setDigestEnabled(!val) // revert on error
+      showToast('Failed to update preference', 'error')
+    } finally {
+      setSavingDigest(false)
+    }
+  }
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const currentPlan = family?.plan || 'free'
@@ -1125,6 +1141,18 @@ export default function Settings() {
               </div>
             ))}
           </div>
+          {/* Weekly digest */}
+          <div className="flex items-start justify-between gap-4 py-3 border-b border-border">
+            <div>
+              <p className="text-sm font-medium text-textPrimary">Weekly pantry digest</p>
+              <p className="text-xs text-textMuted mt-0.5">
+                Sunday email with expiring items
+                {family?.plan === 'free' ? '' : ' and recipe suggestions'}
+              </p>
+            </div>
+            <ToggleSwitch on={digestEnabled} onChange={handleDigestToggle} />
+          </div>
+
           <button onClick={() => showToast('Preferences saved!')} className="btn-primary mt-6 w-full">
             Save preferences
           </button>

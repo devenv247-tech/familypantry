@@ -25,3 +25,8 @@ export const inviteMember = async (id, email) =>
 
 export const updateRestockThreshold = async (percent) =>
   client.put('/family/restock-threshold', { restockThresholdPercent: percent }).then(r => r.data)
+
+export const updateDigestPreference = async (enabled) => {
+  const res = await client.put('/digest-preference', { enabled })
+  return res.data
+}

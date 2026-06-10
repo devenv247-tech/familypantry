@@ -65,6 +65,7 @@ export default function App() {
         <Route path="/accept-invite" element={<AcceptInvite />} />
         <Route path="/confirm-email" element={<ConfirmEmail />} />
         <Route path="/session-expired" element={<SessionExpired />} />
+        <Route path="/unsubscribe" element={<Unsubscribe />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="*" element={<NotFound />} />
