@@ -203,14 +203,14 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Pantry items', value: stats?.pantryCount || 0, icon: '🧺', color: 'bg-blue-50 text-primary' },
-          { label: 'Family members', value: stats?.memberCount || 0, icon: '👨‍👩‍👧‍👦', color: 'bg-green-50 text-success' },
-          { label: 'Grocery items', value: stats?.groceryCount || 0, icon: '🛒', color: 'bg-orange-50 text-orange-500' },
-          { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: '📊', color: 'bg-purple-50 text-purple-500' },
+          { label: 'Pantry items', value: stats?.pantryCount || 0, icon: 'pantry', color: 'bg-blue-50 text-primary' },
+          { label: 'Family members', value: stats?.memberCount || 0, icon: 'health', color: 'bg-green-50 text-success' },
+          { label: 'Grocery items', value: stats?.groceryCount || 0, icon: 'grocery', color: 'bg-orange-50 text-orange-500' },
+          { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: 'reports', color: 'bg-purple-50 text-purple-500' },
         ].map((s, i) => (
           <div key={i} className="card flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${s.color}`}>
-              {s.icon}
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color}`}>
+              <Icon name={s.icon} size={22} />
             </div>
             <div>
               <p className="text-2xl font-bold text-textPrimary">{s.value}</p>
