@@ -92,7 +92,7 @@ useEffect(() => {
       </nav>
 
       {/* User section */}
-      <div className="px-4 py-4 border-t border-border">
+      <div className="px-4 py-4 border-t border-border" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
             {user?.name?.[0] || 'U'}
