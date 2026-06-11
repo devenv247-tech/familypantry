@@ -18,7 +18,9 @@ const handleSubmit = async (e) => {
   try {
     const data = await login({ email: form.email, password: form.password })
     setAuth(data.token, data.user, data.family)
-    navigate('/app')
+    const params = new URLSearchParams(window.location.search)
+    const redirect = params.get('redirect') || '/app'
+    navigate(redirect)
   } catch (err) {
     setError(err.response?.data?.error || 'Invalid email or password')
   } finally {
