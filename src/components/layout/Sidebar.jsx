@@ -44,7 +44,7 @@ useEffect(() => {
   }
 
   return (
-    <aside className="w-64 bg-surface border-r border-border flex flex-col h-screen">
+    <aside className="w-64 bg-surface border-r border-border flex flex-col" style={{ height: '100dvh' }}>
 
       {/* Logo */}
       <div className="px-6 py-5 border-b border-border flex items-center justify-between">
@@ -68,7 +68,7 @@ useEffect(() => {
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0">
         {getLinks(showHealth, babyMembers).map(link => (
           <NavLink
             key={link.to}
