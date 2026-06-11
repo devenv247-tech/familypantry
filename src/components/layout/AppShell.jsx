@@ -88,7 +88,7 @@ export default function AppShell() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
-        <div className="lg:hidden bg-surface border-b border-border px-4 flex items-center gap-3 sticky top-0 z-30" style={{paddingTop: `calc(env(safe-area-inset-top, 0px) + 12px)`}}>
+        <div className="lg:hidden bg-surface border-b border-border px-4 flex items-center gap-3 sticky top-0 z-30" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)', paddingBottom: '12px' }}>
           <button
             onClick={() => setSidebarOpen(true)}
             className="w-11 h-11 flex items-center justify-center rounded-btn hover:bg-gray-100 transition-colors"
@@ -104,7 +104,7 @@ export default function AppShell() {
             <span className="font-semibold text-textPrimary">Nooka</span>
           </div>
         </div>
-        <main className="flex-1 overflow-auto pb-16 lg:pb-0">
+        <main className="flex-1 overflow-auto pb-16 lg:pb-0" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
           <Outlet />
         </main>
       </div>

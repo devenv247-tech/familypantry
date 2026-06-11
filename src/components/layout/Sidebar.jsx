@@ -83,7 +83,7 @@ useEffect(() => {
             }
           >
             {link.isBaby
-              ? <span className="text-base leading-none">🍼</span>
+              ? <Icon name="health" size={18} />
               : <Icon name={link.icon} size={18} />
             }
             {link.label}

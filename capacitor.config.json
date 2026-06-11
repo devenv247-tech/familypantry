@@ -5,5 +5,8 @@
   "server": {
     "url": "https://nooka.ca",
     "cleartext": false
+  },
+  "ios": {
+    "contentInset": "always"
   }
 }
