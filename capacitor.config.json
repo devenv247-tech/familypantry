@@ -1,0 +1,9 @@
+{
+  "appId": "ca.nooka.app",
+  "appName": "Nooka",
+  "webDir": "dist",
+  "server": {
+    "url": "https://nooka.ca",
+    "cleartext": false
+  }
+}
