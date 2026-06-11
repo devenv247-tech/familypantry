@@ -88,10 +88,10 @@ export default function AppShell() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
-        <div className="lg:hidden bg-surface border-b border-border px-4 py-3 flex items-center gap-3 sticky top-0 z-30">
+        <div className="lg:hidden bg-surface border-b border-border px-4 flex items-center gap-3 sticky top-0 z-30" style={{paddingTop: `calc(env(safe-area-inset-top, 0px) + 12px)`}}>
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-btn hover:bg-gray-100 transition-colors"
+            className="w-11 h-11 flex items-center justify-center rounded-btn hover:bg-gray-100 transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6"/>
