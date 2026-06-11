@@ -745,13 +745,10 @@ export default function Pantry() {
               {showCO2 ? 'Hide details' : 'Show details'}
             </button>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-2xl font-bold text-green-700">{co2Data.totalCO2}kg</p>
               <p className="text-xs text-green-600">CO2 in your pantry</p>
-            </div>
-            <div className="flex-1 h-2 bg-green-200 rounded-pill overflow-hidden">
-              <div className="h-full bg-green-500 rounded-pill" style={{ width: `${Math.min((co2Data.totalCO2 / co2Data.canadianAvgMonthly) * 100, 100)}%` }} />
             </div>
             <div className="text-right">
               <p className={`text-sm font-semibold ${co2Data.comparison <= 0 ? 'text-success' : 'text-orange-500'}`}>
@@ -759,6 +756,9 @@ export default function Pantry() {
               </p>
               <p className="text-xs text-green-600">vs {co2Data.canadianAvgMonthly}kg avg</p>
             </div>
+          </div>
+          <div className="h-2 bg-green-200 rounded-pill overflow-hidden">
+            <div className="h-full bg-green-500 rounded-pill" style={{ width: `${Math.min((co2Data.totalCO2 / co2Data.canadianAvgMonthly) * 100, 100)}%` }} />
           </div>
           {showCO2 && (
             <div className="mt-3 pt-3 border-t border-green-200">
