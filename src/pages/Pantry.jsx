@@ -912,6 +912,20 @@ export default function Pantry() {
         </div>
       </div>
 
+      {/* Results count */}
+      {!loading && !error && (search || activeCategory !== 'All') && (
+        <p className="text-xs text-textMuted mb-3">
+          {filtered.length} item{filtered.length !== 1 ? 's' : ''}
+          {search && <span> matching <span className="font-medium text-textPrimary">"{search}"</span></span>}
+          {activeCategory !== 'All' && <span> in <span className="font-medium text-textPrimary">{activeCategory}</span></span>}
+          {(search || activeCategory !== 'All') && (
+            <button onClick={() => { setSearch(''); setActiveCategory('All') }} className="ml-2 text-primary hover:underline">
+              Clear filters
+            </button>
+          )}
+        </p>
+      )}
+
       {/* Items grid */}
       {loading ? <LoadingSpinner /> : error ? <ErrorState message={error} onRetry={fetchItems} /> : filtered.length === 0 ? (
         <EmptyState icon="🧺" title="No items found" subtitle="Try a different search or add a new item" />
