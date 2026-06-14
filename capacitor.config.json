@@ -10,6 +10,11 @@
     "contentInset": "always"
   },
   "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#ffffff",
+      "overlaysWebView": true
+    },
     "SplashScreen": {
       "launchShowDuration": 0,
       "launchAutoHide": true
