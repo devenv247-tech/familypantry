@@ -84,7 +84,7 @@ export default function SavedRecipes() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-textPrimary">📖 Cookbook</h1>
+          <h1 className="text-xl font-bold text-textPrimary">Cookbook</h1>
           <p className="text-textMuted mt-1">{recipes.length} saved recipe{recipes.length !== 1 ? 's' : ''}</p>
         </div>
       </div>

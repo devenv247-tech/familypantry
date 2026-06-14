@@ -241,7 +241,7 @@ export default function Health() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-textPrimary">❤️ Health tracker</h1>
+          <h1 className="text-xl font-bold text-textPrimary">Health tracker</h1>
           <p className="text-textMuted mt-1">Nutrition, weight and goal tracking</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">

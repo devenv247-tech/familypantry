@@ -180,8 +180,8 @@ export default function Dashboard() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-textPrimary">
-          {greeting}, {user?.name || 'there'} 👋
+        <h1 className="text-xl font-bold text-textPrimary">
+          {greeting}, {user?.name || 'there'}
         </h1>
         <p className="text-textMuted mt-1">
           Here's what's happening with <span className="font-medium text-textPrimary">{family?.name || 'your family'}</span> today.
