@@ -86,7 +86,7 @@ export default function AppShell() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden w-full max-w-full">
         {/* Mobile top bar */}
         <div className="lg:hidden bg-surface border-b border-border px-4 flex items-center gap-3 sticky top-0 z-30" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)', paddingBottom: '12px' }}>
           <button

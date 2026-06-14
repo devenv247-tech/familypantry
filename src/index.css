@@ -5,7 +5,14 @@
 
 * { box-sizing: border-box; }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
+  overflow-x: hidden;
+  width: 100%;
   margin: 0;
   background: #f8f9fa;
   color: #202124;
