@@ -45,9 +45,14 @@ body {
 }
 
 /* Prevent horizontal overflow on any page */
-body, #root {
+html, body, #root {
   overflow-x: hidden;
   max-width: 100vw;
+  width: 100%;
+}
+
+.page-container, .card, [class*="grid-cols"] {
+  max-width: 100%;
 }
 
 /* Smooth native-feel scrolling on iOS */
