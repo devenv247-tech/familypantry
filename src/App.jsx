@@ -124,10 +124,18 @@ function App() {
   const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('app') === '1') {
+      sessionStorage.setItem('isNativeApp', '1')
+    }
+  }, [])
+
+  useEffect(() => {
     const fadeTimer = setTimeout(() => setFadeOut(true), 2200)
     const hideTimer = setTimeout(() => setShowSplash(false), 2800)
     return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer) }
   }, [])
+
 
   return (
     <>
