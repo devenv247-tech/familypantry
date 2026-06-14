@@ -79,8 +79,8 @@ export default function AppShell() {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed lg:sticky top-0 h-screen z-50 transition-transform duration-300 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      <div className={`fixed top-0 h-screen z-50 transition-transform duration-300 lg:sticky lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
