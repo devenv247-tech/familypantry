@@ -6,8 +6,11 @@ import NookaIcon from '../components/ui/NookaIcon'
 import MobileLogin from './MobileLogin'
 
 export default function Login() {
- const isNative = new URLSearchParams(window.location.search).get('app') === '1'
-  if (isNative) return <MobileLogin />
+  const isNative = window.location.hash === '#native' || sessionStorage.getItem('isNativeApp') === '1'
+  if (isNative) {
+    sessionStorage.setItem('isNativeApp', '1')
+    return <MobileLogin />
+  }
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
   const [form, setForm] = useState({ email: '', password: '' })
