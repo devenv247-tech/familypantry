@@ -6,7 +6,12 @@ import NookaIcon from '../components/ui/NookaIcon'
 import MobileLogin from './MobileLogin'
 
 export default function Login() {
-  const isNative = window?.Capacitor?.isNativePlatform?.() || false
+ const isNative = !!(
+    window?.Capacitor?.isNativePlatform?.() ||
+    window?.Capacitor?.platform ||
+    navigator?.userAgent?.includes('Capacitor') ||
+    document?.URL?.startsWith('capacitor://')
+  )
   if (isNative) return <MobileLogin />
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
