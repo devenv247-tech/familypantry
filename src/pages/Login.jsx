@@ -3,8 +3,11 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { login } from '../api/auth'
 import NookaIcon from '../components/ui/NookaIcon'
+import MobileLogin from './MobileLogin'
 
 export default function Login() {
+  const isNative = window?.Capacitor?.isNativePlatform?.() || false
+  if (isNative) return <MobileLogin />
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
   const [form, setForm] = useState({ email: '', password: '' })
