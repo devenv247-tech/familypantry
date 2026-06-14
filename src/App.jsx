@@ -156,13 +156,15 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="baby/:memberId" element={<BabyProfile />} />
-          <Route path="recalls" element={<Recalls />} />ß
+          <Route path="recalls" element={<Recalls />} />
           <Route path="mealplan" element={<MealPlan />} />
           <Route path="cookbook" element={<SavedRecipes />} />
           <Route path="health" element={<Health />} />
         </Route>
-        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+   <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Routes>
     </Suspense>
   )
 }
+
+export default App
