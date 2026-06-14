@@ -3,7 +3,7 @@
   "appName": "Nooka",
   "webDir": "dist",
   "server": {
-    "url": "https://nooka.ca",
+    "url": "https://nooka.ca?app=1",
     "cleartext": false
   },
   "ios": {
