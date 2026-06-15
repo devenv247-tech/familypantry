@@ -136,6 +136,19 @@
 <body style="margin:0;padding:0;">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+  <script>
+    setTimeout(() => {
+      const all = document.querySelectorAll('*')
+      const wide = []
+      all.forEach(el => {
+        if (el.scrollWidth > window.innerWidth) {
+          wide.push(el.tagName + ' ' + el.className.slice(0,50) + ' scrollWidth:' + el.scrollWidth)
+        }
+      })
+      console.log('OVERFLOW ELEMENTS:', wide.join('\n'))
+      alert('Wide elements:\n' + wide.slice(0,5).join('\n'))
+    }, 3000)
+  </script>
   <style>
     html, body, #root {
       width: 100% !important;
