@@ -10,10 +10,10 @@
     "backgroundColor": "#ffffff"
   },
   "plugins": {
-    "StatusBar": {
+   "StatusBar": {
       "style": "DARK",
       "backgroundColor": "#ffffff",
-      "overlaysWebView": false
+      "overlaysWebView": true
     },
     "SplashScreen": {
       "launchShowDuration": 0,

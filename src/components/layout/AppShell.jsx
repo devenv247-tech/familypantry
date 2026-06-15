@@ -88,7 +88,7 @@ export default function AppShell() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden w-full max-w-full">
         {/* Mobile top bar */}
-        <div className="lg:hidden bg-surface border-b border-border px-4 py-3 flex items-center gap-3 sticky top-0 z-30">
+        <div className="lg:hidden bg-surface border-b border-border px-4 flex items-center gap-3 sticky top-0 z-30" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)', paddingBottom: '12px' }}>
           <button
             onClick={() => setSidebarOpen(true)}
             className="w-11 h-11 flex items-center justify-center rounded-btn hover:bg-gray-100 transition-colors"
