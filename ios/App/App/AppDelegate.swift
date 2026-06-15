@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             appearance.configureWithTransparentBackground()
             UINavigationBar.appearance().standardAppearance = appearance
         }
+        window?.backgroundColor = UIColor(red: 0.97, green: 0.98, blue: 0.98, alpha: 1.0)
         return true
     }
 

@@ -154,10 +154,10 @@ export default function AppShell() {
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-around"
         style={{
-          paddingBottom: 'env(safe-area-inset-bottom, 12px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
           paddingLeft: 'env(safe-area-inset-left, 0px)',
           paddingRight: 'env(safe-area-inset-right, 0px)',
-          minHeight: '56px',
+          minHeight: '72px',
         }}
       >
         {[
