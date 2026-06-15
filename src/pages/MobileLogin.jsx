@@ -34,6 +34,8 @@ export default function MobileLogin() {
       position: 'relative',
       overflow: 'hidden',
       fontFamily: '-apple-system, BlinkMacSystemFont, SF Pro Display, sans-serif',
+      width: '100%',
+      maxWidth: '100vw',
     }}>
       <style>{`
         @keyframes fadeDown {
@@ -59,10 +61,10 @@ export default function MobileLogin() {
 
       {/* Background */}
       <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,#dbeafe 0%,#f0f9ff 30%,#faf5ff 70%,#f0fdf4 100%)' }} />
-      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 500px 500px at 5% -5%,rgba(99,179,237,0.55) 0%,transparent 55%),radial-gradient(ellipse 400px 400px at 95% 100%,rgba(167,139,250,0.45) 0%,transparent 55%),radial-gradient(ellipse 350px 350px at 85% 5%,rgba(110,231,183,0.3) 0%,transparent 50%)' }} />
-      <div style={{ position:'absolute', width:180, height:180, borderRadius:'50%', background:'rgba(99,179,237,0.3)', top:60, left:-40, filter:'blur(40px)' }} />
-      <div style={{ position:'absolute', width:140, height:140, borderRadius:'50%', background:'rgba(167,139,250,0.25)', top:200, right:-20, filter:'blur(40px)' }} />
-      <div style={{ position:'absolute', width:120, height:120, borderRadius:'50%', background:'rgba(110,231,183,0.2)', bottom:120, left:30, filter:'blur(40px)' }} />
+      <div style={{ position:'absolute', inset:0, overflow:'hidden', background:'radial-gradient(ellipse 500px 500px at 5% -5%,rgba(99,179,237,0.55) 0%,transparent 55%),radial-gradient(ellipse 400px 400px at 95% 100%,rgba(167,139,250,0.45) 0%,transparent 55%),radial-gradient(ellipse 350px 350px at 85% 5%,rgba(110,231,183,0.3) 0%,transparent 50%)' }} />
+      <div style={{ position:'absolute', width:180, height:180, borderRadius:'50%', background:'rgba(99,179,237,0.3)', top:60, left:-20, filter:'blur(40px)' }} />
+      <div style={{ position:'absolute', width:140, height:140, borderRadius:'50%', background:'rgba(167,139,250,0.25)', top:200, right:-10, filter:'blur(40px)' }} />
+      <div style={{ position:'absolute', width:120, height:120, borderRadius:'50%', background:'rgba(110,231,183,0.2)', bottom:120, left:20, filter:'blur(40px)' }} />
 
       {/* Content */}
       <div style={{ position:'relative', zIndex:2, display:'flex', flexDirection:'column', minHeight:'100dvh', padding:'0 24px' }}>

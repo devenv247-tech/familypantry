@@ -137,17 +137,16 @@
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
   <script>
-    setTimeout(() => {
+    window.findOverflow = () => {
       const all = document.querySelectorAll('*')
       const wide = []
       all.forEach(el => {
-        if (el.scrollWidth > window.innerWidth) {
-          wide.push(el.tagName + ' ' + el.className.slice(0,50) + ' scrollWidth:' + el.scrollWidth)
+        if (el.scrollWidth > window.innerWidth + 5) {
+          wide.push(el.tagName + ' | ' + el.className.slice(0,60) + ' | w:' + el.scrollWidth)
         }
       })
-      console.log('OVERFLOW ELEMENTS:', wide.join('\n'))
-      alert('Wide elements:\n' + wide.slice(0,5).join('\n'))
-    }, 3000)
+      alert('Wide elements:\n' + wide.slice(0,8).join('\n'))
+    }
   </script>
   <style>
     html, body, #root {
