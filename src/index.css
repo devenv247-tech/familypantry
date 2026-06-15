@@ -3,7 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
-* { box-sizing: border-box; max-width: 100%; }
+* { 
+  box-sizing: border-box; 
+  max-width: 100%; 
+  -webkit-text-size-adjust: 100%;
+}
+
+::-webkit-scrollbar { display: none; }
 
 html {
   overflow-x: hidden;

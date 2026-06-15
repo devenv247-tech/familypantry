@@ -133,21 +133,9 @@
   }
   </script>
 </head>
-<body style="margin:0;padding:0;">
+<body style="margin:0;padding:0;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
-  <script>
-    window.findOverflow = () => {
-      const all = document.querySelectorAll('*')
-      const wide = []
-      all.forEach(el => {
-        if (el.scrollWidth > window.innerWidth + 5) {
-          wide.push(el.tagName + ' | ' + el.className.slice(0,60) + ' | w:' + el.scrollWidth)
-        }
-      })
-      alert('Wide elements:\n' + wide.slice(0,8).join('\n'))
-    }
-  </script>
   <style>
     html, body, #root {
       width: 100% !important;

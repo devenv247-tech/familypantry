@@ -7,7 +7,9 @@
     "cleartext": false
   },
   "ios": {
-    "backgroundColor": "#ffffff"
+    "backgroundColor": "#ffffff",
+    "allowsLinkPreview": false,
+    "scrollEnabled": false
   },
   "plugins": {
    "StatusBar": {

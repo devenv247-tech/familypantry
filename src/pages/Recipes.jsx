@@ -782,7 +782,7 @@ export default function Recipes() {
                   <button onClick={() => navigate('/app/settings')} className="text-primary hover:underline">add members in Settings</button>
                 </p>
               ) : (
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 px-4 sm:mx-0 sm:px-0">
                   {members.map(m => (
                     <button
                       key={m.id}
@@ -852,7 +852,7 @@ export default function Recipes() {
                 <button
                   onClick={handleFamilyRecipe}
                   disabled={familyLoading}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-btn text-sm font-medium hover:bg-purple-700 transition-all disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-btn text-sm font-medium hover:bg-purple-700 transition-all disabled:opacity-50 flex items-center gap-2 flex-shrink-0"
                 >
                   {familyLoading ? (
                     <>
