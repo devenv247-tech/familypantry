@@ -155,8 +155,8 @@ export default function AppShell() {
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-between px-10"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-          paddingLeft: 'env(safe-area-inset-left, 0px)',
-          paddingRight: 'env(safe-area-inset-right, 0px)',
+          paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)',
+          paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)',
           minHeight: '72px',
         }}
       >
@@ -176,8 +176,8 @@ export default function AppShell() {
               }`
             }
           >
-            <Icon name={item.icon} size={20} />
-            <span className="text-[10px] font-medium">{item.label}</span>
+           <Icon name={item.icon} size={26} />
+            <span className="text-[11px] font-medium">{item.label}</span>
           </NavLink>
         ))}
         <button
@@ -186,7 +186,7 @@ export default function AppShell() {
             showMoreDrawer ? 'text-primary' : 'text-textMuted'
           }`}
         >
-         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+         <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
           <span className="text-[10px] font-medium">More</span>
         </button>
       </nav>
