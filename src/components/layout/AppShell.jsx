@@ -152,7 +152,7 @@ export default function AppShell() {
 
       {/* Mobile bottom nav */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-between px-6"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-between px-10"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 16px)',
           paddingLeft: 'env(safe-area-inset-left, 0px)',
