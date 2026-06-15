@@ -7,13 +7,13 @@
     "cleartext": false
   },
   "ios": {
-    "backgroundColor": "#F8F9FA"
+    "backgroundColor": "#ffffff"
   },
   "plugins": {
     "StatusBar": {
       "style": "DARK",
       "backgroundColor": "#ffffff",
-      "overlaysWebView": true
+      "overlaysWebView": false
     },
     "SplashScreen": {
       "launchShowDuration": 0,
