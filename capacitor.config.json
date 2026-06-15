@@ -7,7 +7,6 @@
     "cleartext": false
   },
   "ios": {
-    "contentInset": "always",
     "backgroundColor": "#F8F9FA"
   },
   "plugins": {
