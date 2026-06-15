@@ -382,7 +382,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                   <button
                     onClick={() => handleAddPrediction(p)}
                     disabled={addingPrediction[p.name]}
-                    className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 whitespace-nowrap ml-3 ${p.urgent
+                    className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 flex-shrink-0 ml-3 ${p.urgent
                         ? 'bg-red-500 text-white hover:bg-red-600'
                         : 'bg-primary text-white hover:bg-blue-600'
                       }`}
@@ -406,7 +406,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             </div>
             <button
               onClick={() => navigate('/app/settings?tab=plan')}
-              className="text-xs bg-primary text-white px-3 py-1.5 rounded-btn font-medium whitespace-nowrap ml-3"
+              className="text-xs bg-primary text-white px-3 py-1.5 rounded-btn font-medium flex-shrink-0 ml-3"
             >
               Upgrade
             </button>

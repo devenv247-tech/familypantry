@@ -517,7 +517,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={() => navigate('/app/recipes')}
-              className="btn-primary text-sm whitespace-nowrap flex items-center gap-2"
+              className="btn-primary text-sm flex-shrink-0 flex items-center gap-2"
             >
               Show me
             </button>
@@ -547,9 +547,9 @@ export default function Dashboard() {
             </div>
             <button
               onClick={handleCookAlong}
-              className="btn-primary text-sm whitespace-nowrap flex items-center gap-2"
+              className="btn-primary text-sm flex-shrink-0 flex items-center gap-2"
             >
-              👨‍🍳 Start cooking
+              Start cooking
             </button>
           </div>
         )}

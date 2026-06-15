@@ -979,7 +979,7 @@ export default function Recipes() {
                             <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                             <button
                               onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings?tab=plan')}
-                              className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
+                              className="text-xs text-primary hover:underline font-medium ml-2 flex-shrink-0"
                             >
                               {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
                             </button>
