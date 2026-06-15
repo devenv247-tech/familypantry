@@ -806,7 +806,7 @@ export default function Recipes() {
             {/* Meal type */}
             <div className="mb-6">
               <label className="label">Meal type</label>
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 sm:mx-0 sm:px-0">
                 {MEAL_TYPES.map(t => (
                   <button
                     key={t}
@@ -826,7 +826,7 @@ export default function Recipes() {
               {CUISINE_CATEGORIES.map(cat => (
                 <div key={cat.label} className="mb-3">
                   <p className="text-xs text-textMuted mb-2">{cat.label}</p>
-                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 sm:mx-0 sm:px-0">
                     {cat.options.map(c => (
                       <button
                         key={c.label}
