@@ -133,8 +133,16 @@
   }
   </script>
 </head>
-<body>
+<body style="margin:0;padding:0;">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+  <style>
+    html, body, #root {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+      position: relative !important;
+    }
+  </style>
 </body>
 </html>
