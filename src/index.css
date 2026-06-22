@@ -34,7 +34,7 @@ body {
     @apply bg-white text-textPrimary px-5 py-2.5 rounded-btn font-medium text-sm border border-border hover:bg-gray-50 active:scale-95 transition-all duration-150 cursor-pointer;
   }
   .card {
-    @apply bg-surface rounded-card shadow-card border border-border p-6;
+    @apply bg-surface rounded-card shadow-card border border-border p-5;
   }
   .input {
     @apply w-full border border-border rounded-btn px-4 py-2.5 text-sm text-textPrimary placeholder:text-textMuted focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-primary transition-all;
@@ -43,7 +43,9 @@ body {
     @apply block text-sm font-medium text-textPrimary mb-1.5;
   }
   .page-container {
-    @apply px-4 py-6 sm:px-6 sm:py-8 max-w-6xl mx-auto w-full overflow-x-hidden;
+    @apply py-6 sm:py-8 max-w-6xl mx-auto w-full overflow-x-hidden;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
