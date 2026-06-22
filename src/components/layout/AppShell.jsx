@@ -104,7 +104,7 @@ export default function AppShell() {
             <span className="font-semibold text-textPrimary">Nooka</span>
           </div>
         </div>
-        <main className="flex-1 overflow-auto pb-16 lg:pb-0" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
+        <main className="flex-1 overflow-auto lg:pb-0" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))', paddingLeft: 'env(safe-area-inset-left, 8px)', paddingRight: 'env(safe-area-inset-right, 8px)' }}>
           <Outlet />
         </main>
       </div>
