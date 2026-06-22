@@ -44,8 +44,8 @@ body {
   }
   .page-container {
     @apply py-6 sm:py-8 max-w-6xl mx-auto w-full overflow-x-hidden;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
   }
 }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
