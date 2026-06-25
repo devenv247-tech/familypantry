@@ -406,7 +406,7 @@ export default function Settings() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-textPrimary">Settings</h1>
+        <h1 className="page-heading">Settings</h1>
         <p className="text-textMuted mt-1 text-sm">Manage your family account and preferences</p>
       </div>
 

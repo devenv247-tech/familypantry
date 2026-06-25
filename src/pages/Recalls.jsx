@@ -94,7 +94,7 @@ export default function Recalls() {
     return (
       <div className="page-container">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-textPrimary">Recall alerts</h1>
+          <h1 className="page-heading">Recall alerts</h1>
           <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
         </div>
         <div className="card text-center py-16 border-2 border-orange-100 bg-orange-50/20">
@@ -125,7 +125,7 @@ export default function Recalls() {
 
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-textPrimary">Recall alerts</h1>
+          <h1 className="page-heading">Recall alerts</h1>
           <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
         </div>
         <button onClick={checkMatches} disabled={checking} className="btn-primary flex items-center gap-2 disabled:opacity-50">

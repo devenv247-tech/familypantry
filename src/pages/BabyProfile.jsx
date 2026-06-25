@@ -255,7 +255,7 @@ export default function BabyProfile() {
             🍼
           </div>
           <div>
-            <h1 className="text-xl font-bold text-textPrimary">{profile.member.name}</h1>
+            <h1 className="page-heading">{profile.member.name}</h1>
             <p className="text-sm text-textMuted">
               {profile.ageMonths !== null ? `${profile.ageMonths} months old` : 'Age unknown'}
               {profile.member.birthDate && (

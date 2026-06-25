@@ -130,7 +130,7 @@ export default function Reports() {
     return (
       <div className="page-container">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
+          <h1 className="page-heading">Expense reports</h1>
           <p className="text-textMuted mt-1">Loading your spending data...</p>
         </div>
         <LoadingSpinner />
@@ -142,7 +142,7 @@ export default function Reports() {
     return (
       <div className="page-container">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
+          <h1 className="page-heading">Expense reports</h1>
         </div>
         <ErrorState message={error} onRetry={fetchReports} />
       </div>
@@ -159,7 +159,7 @@ export default function Reports() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-textPrimary">Expense reports</h1>
+        <h1 className="page-heading">Expense reports</h1>
         <p className="text-textMuted mt-1">Track and reduce your family grocery spending</p>
       </div>
 

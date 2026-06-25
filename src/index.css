@@ -101,3 +101,12 @@ img, video, iframe, svg {
 .btn-primary, .btn-secondary {
   min-height: 44px;
 }
+
+/* Responsive page headings */
+.page-heading {
+  @apply text-xl sm:text-2xl font-bold text-textPrimary;
+}
+
+.page-subheading {
+  @apply text-textMuted mt-1 text-sm sm:text-base;
+}

@@ -287,7 +287,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-textPrimary">Grocery list</h1>
+          <h1 className="page-heading">Grocery list</h1>
           <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex flex-wrap gap-2">
