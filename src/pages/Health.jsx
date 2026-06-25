@@ -37,6 +37,7 @@ export default function Health() {
   const [savedMeals, setSavedMeals] = useState([])
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [mealDescription, setMealDescription] = useState('')
+  const [describeError, setDescribeError] = useState('')
 
   useEffect(() => {
     fetchData()
@@ -277,7 +278,7 @@ const getGoalNudges = (member) => {
       await logMeal({ memberName: activeMember?.name, memberId: activeMemberId, ...mealForm })
 
       // Save as custom recipe if toggled
-      if (saveAsRecipe && logMode === 'ingredients') {
+      if (saveAsRecipe && (logMode === 'ingredients' || logMode === 'describe')) {
         try {
           await saveRecipe({
             name: mealForm.recipeName,
@@ -308,9 +309,185 @@ const getGoalNudges = (member) => {
     }
   }
 
+  const FOOD_SIGNAL_WORDS = [
+    // ── Proteins — Global ─────────────────────────────────────────────────────
+    'chicken','beef','pork','fish','salmon','tuna','egg','tofu','lentil','bean','chickpea',
+    'lamb','turkey','shrimp','paneer','prawn','crab','lobster','squid','octopus','clam','mussel',
+    'duck','goat','mutton','venison','bison','bacon','sausage','ham','pepperoni','sardine',
+    'mackerel','tilapia','cod','halibut','trout','herring','anchovy','mahi','catfish',
+    'tempeh','seitan','edamame','quorn','jackfruit','mince','ground',
+    // South Asian proteins
+    'dal','daal','chana','rajma','moong','urad','masoor','toor','kala chana',
+    // East Asian proteins
+    'pork belly','char siu','lap cheong','kimchi','natto','miso',
+
+    // ── Dairy & Alternatives ──────────────────────────────────────────────────
+    'milk','cheese','yogurt','cream','butter','ghee','paneer','curd','lassi','buttermilk',
+    'whey','casein','kefir','cottage','ricotta','mozzarella','cheddar','feta','brie','gouda',
+    'parmesan','halloumi','quark','skyr','oat milk','almond milk','soy milk','coconut milk',
+    'condensed','evaporated','gelato','custard','pudding',
+
+    // ── Grains & Breads — Global ──────────────────────────────────────────────
+    'rice','pasta','bread','roti','naan','tortilla','oat','quinoa','flour','chapati','paratha',
+    'noodle','spaghetti','penne','fusilli','linguine','fettuccine','udon','soba','vermicelli',
+    'glass noodle','rice noodle','pad thai noodle','couscous','bulgur','farro','barley','millet',
+    'amaranth','teff','buckwheat','semolina','polenta','grits','cornmeal','tapioca','sago',
+    'pita','bagel','ciabatta','focaccia','baguette','sourdough','brioche','croissant',
+    'injera','ugali','fufu','eba','plantain','yam','cassava','taro','poi',
+    'idli','dosa','uttapam','appam','paratha','poori','puri','bhatura','kulcha','laccha',
+    'pao','bun','steamed bun','mantou','baozi','dumpling skin','wonton','spring roll wrapper',
+    'lavash','pide','bazlama','somun','pretzel','rye bread','pumpernickel','cracker','rice cake',
+
+    // ── Vegetables — Global ───────────────────────────────────────────────────
+    'salad','vegetable','veggie','potato','tomato','onion','garlic','spinach','broccoli',
+    'carrot','pepper','cucumber','lettuce','mushroom','zucchini','eggplant','aubergine',
+    'cauliflower','kale','corn','pea','cabbage','bok choy','pak choi','chinese cabbage',
+    'brussels sprout','asparagus','artichoke','celery','leek','scallion','spring onion',
+    'shallot','radish','daikon','turnip','parsnip','beet','beetroot','sweet potato',
+    'yam','butternut squash','pumpkin','acorn squash','okra','bitter gourd','karela',
+    'drumstick','moringa','lotus root','bamboo shoot','water chestnut','jicama',
+    'tomatillo','chayote','nopales','plantain','breadfruit','jackfruit','banana flower',
+    'fiddlehead','rhubarb','fennel','endive','radicchio','watercress','arugula','rocket',
+    'capsicum','chilli','jalapeño','habanero','serrano','poblano','anaheim',
+    'green bean','snap pea','snow pea','edamame','mung bean sprout','bean sprout',
+    'sabzi','bhindi','lauki','tinda','karela','methi','palak','sarson','bathua',
+
+    // ── Fruits ────────────────────────────────────────────────────────────────
+    'apple','banana','mango','strawberry','berry','orange','grape','pear','peach',
+    'melon','avocado','lemon','lime','pineapple','papaya','guava','passion fruit',
+    'dragon fruit','lychee','longan','rambutan','durian','jackfruit','starfruit',
+    'pomegranate','fig','date','prune','apricot','plum','cherry','blueberry',
+    'raspberry','blackberry','cranberry','kiwi','coconut','watermelon','cantaloupe',
+    'honeydew','mandarin','clementine','tangerine','grapefruit','pomelo','kumquat',
+    'persimmon','tamarind','amla','jamun','chikoo','sitaphal','custard apple',
+
+    // ── World Cuisines & Dishes ───────────────────────────────────────────────
+    // Indian subcontinent
+    'curry','biryani','dal','daal','sabzi','khichdi','upma','poha','halwa','kheer',
+    'idli','dosa','uttapam','sambar','rasam','chole','rajma','palak paneer','butter chicken',
+    'tikka','tandoori','korma','vindaloo','saag','aloo','gobi','matar','keema',
+    'nihari','haleem','paya','kofta','seekh','shami','paratha','puri','bhatura',
+    'lassi','chai','masala chai','kulfi','raita','chutney','pickle','papad',
+    // East Asian
+    'sushi','ramen','pho','pad thai','fried rice','noodle','dumpling','dim sum',
+    'gyoza','momo','wontons','spring roll','baozi','bao','mantou','congee','jook',
+    'bibimbap','bulgogi','kimchi','japchae','tteokbokki','doenjang','gochujang',
+    'mapo tofu','kung pao','sweet sour','orange chicken','peking duck','hot pot',
+    'steamboat','sukiyaki','shabu','tempura','tonkatsu','yakitori','teriyaki','miso soup',
+    'edamame','onigiri','takoyaki','okonomiyaki','matcha','boba','bubble tea',
+    // Southeast Asian
+    'laksa','rendang','nasi','mee','satay','gado gado','peanut sauce','sambal',
+    'tom yum','tom kha','green curry','red curry','massaman','pad see ew',
+    'banh mi','pho','bun bo','goi cuon','bun cha','com tam','hu tieu',
+    'nasi lemak','nasi goreng','mee goreng','char kway teow','hainanese chicken',
+    'adobo','sinigang','kare kare','lechon','sisig','pancit','lumpia',
+    // Middle Eastern & Mediterranean
+    'hummus','falafel','shawarma','kebab','kofta','tabouleh','fattoush','kibbeh',
+    'mansaf','maqluba','kabsa','machboos','jollof','tagine','couscous','harira',
+    'pita','lavash','manakish','fatayer','sambosa','borek','dolma','stuffed grape leaf',
+    'tzatziki','baba ganoush','muhammara','labneh','za\'atar','sumac',
+    'moussaka','spanakopita','tiropita','souvlaki','gyros',
+    // African
+    'jollof','egusi','ogbono','fufu','eba','amala','suya','chin chin','puff puff',
+    'injera','wat','tibs','kitfo','ful medames','shakshuka','tagine','chermoula',
+    'bunny chow','bobotie','potjie','chakalaka','pap','sadza','ugali','matoke',
+    // Latin American
+    'taco','burrito','enchilada','tamale','quesadilla','nachos','guacamole','salsa',
+    'ceviche','lomo saltado','aji de gallina','causa','anticucho','chicharron',
+    'arepa','empanada','pupusa','bandeja paisa','sancocho','feijoada','moqueca',
+    'churrasco','asado','chimichurri','locro','mazamorra',
+    // European
+    'pasta','pizza','risotto','gnocchi','lasagne','carbonara','bolognese','pesto',
+    'paella','tortilla española','gazpacho','patatas bravas','churros',
+    'croissant','crepe','ratatouille','bouillabaisse','cassoulet','coq au vin',
+    'schnitzel','bratwurst','pretzel','sauerkraut','pierogi','borscht','goulash',
+    'stroganoff','blini','pelmeni','varenyky','shchi','okroshka',
+    'fish chips','shepherd pie','bangers mash','full english','scone','haggis',
+    // North American
+    'burger','hotdog','bbq','mac cheese','clam chowder','gumbo','jambalaya',
+    'po boy','biscuits gravy','pancake','waffle','french toast','hash brown',
+    'poutine','butter tart','nanaimo bar','tourtière','bannock',
+    // Soups & Stews
+    'soup','stew','broth','stock','bisque','chowder','minestrone','ramen',
+    'pho','laksa','soto','pozole','menudo','caldo','caldillo',
+
+    // ── Cooking Methods ───────────────────────────────────────────────────────
+    'grilled','baked','fried','boiled','steamed','roasted','cooked','raw','mixed',
+    'blended','sautéed','sauteed','braised','poached','smoked','cured','pickled',
+    'fermented','stir fried','deep fried','pan fried','air fried','slow cooked',
+    'pressure cooked','microwaved','toasted','charred','barbecued','marinated',
+
+    // ── Quantities & Measures ─────────────────────────────────────────────────
+    'cup','tbsp','tsp','gram','grams','kg','piece','slice','handful','scoop',
+    'portion','serving','half','whole','quarter','third','bowl','plate','can',
+    'tin','jar','bottle','pack','bag','bunch','head','clove','knob','dash','pinch',
+    'oz','ounce','pound','lb','ml','litre','liter','tablespoon','teaspoon',
+
+    // ── Condiments, Sauces & Extras ───────────────────────────────────────────
+    'oil','sauce','salt','sugar','honey','peanut','almond','protein','powder',
+    'supplement','soy sauce','fish sauce','oyster sauce','hoisin','sriracha',
+    'ketchup','mustard','mayo','mayonnaise','ranch','vinegar','balsamic',
+    'tahini','harissa','gochujang','doenjang','miso','worcestershire',
+    'hot sauce','chilli sauce','curry paste','coconut cream','tomato paste',
+    'stock cube','bouillon','gravy','relish','jam','jelly','marmalade','syrup',
+    'maple','agave','molasses','treacle','chocolate','cocoa','vanilla','cinnamon',
+    'turmeric','cumin','coriander','cardamom','clove','nutmeg','paprika','chilli',
+    'garam masala','five spice','za\'atar','berbere','ras el hanout','herbes',
+    'basil','oregano','thyme','rosemary','parsley','cilantro','mint','dill',
+    'lemongrass','galangal','ginger','wasabi','horseradish',
+
+    // ── Snacks, Drinks & Extras ───────────────────────────────────────────────
+    'smoothie','shake','juice','coffee','tea','latte','chai','matcha','protein shake',
+    'granola','muesli','cereal','cracker','chip','crisp','popcorn','pretzel',
+    'nut','walnut','cashew','pistachio','pecan','hazelnut','macadamia','pine nut',
+    'seed','flaxseed','chia','hemp','sunflower','pumpkin seed','sesame',
+    'dried fruit','trail mix','energy bar','protein bar','meal replacement',
+    'supplement','multivitamin','omega','collagen','creatine',
+
+    // ── Generic meal words ────────────────────────────────────────────────────
+    'breakfast','lunch','dinner','snack','meal','dish','food','eat','ate',
+    'leftovers','homemade','takeout','restaurant','order','made',
+  ]
+
+  const validateDescription = (text) => {
+    const cleaned = text.trim().toLowerCase()
+
+    if (cleaned.length < 5) {
+      return 'Please describe your meal in more detail.'
+    }
+
+    // Detect pure repetition e.g. "ahahahah", "lololol", "aaaaaa"
+    const repetitionPattern = /^(.{1,4})\1{3,}$/i
+    if (repetitionPattern.test(cleaned.replace(/\s/g, ''))) {
+      return 'That doesn\'t look like a meal — try describing what you ate.'
+    }
+
+    // Detect if it's all the same character repeated
+    const uniqueChars = new Set(cleaned.replace(/\s/g, '')).size
+    if (uniqueChars < 3 && cleaned.length > 4) {
+      return 'That doesn\'t look like a meal — try describing what you ate.'
+    }
+
+    // Check for at least one food signal word
+    const words = cleaned.split(/\s+/)
+    const hasFood = words.some(w => FOOD_SIGNAL_WORDS.some(f => w.includes(f)))
+    if (!hasFood) {
+      return 'No food detected — try something like "rice and dal with yogurt" or "grilled chicken with vegetables".'
+    }
+
+    return null // valid
+  }
+
   const handleCalculateIngredients = async () => {
     const isDescribeMode = logMode === 'describe'
-    if (isDescribeMode && !mealDescription.trim()) return
+    if (isDescribeMode) {
+      const validationError = validateDescription(mealDescription)
+      if (validationError) {
+        setDescribeError(validationError)
+        return
+      }
+      setDescribeError('')
+    }
     if (!isDescribeMode && !ingredients.some(i => i.name.trim() && i.quantity)) return
     setCalculating(true)
     setCalcResult(null)
@@ -360,6 +537,7 @@ const getGoalNudges = (member) => {
     setSaveAsRecipe(false)
     setShowSavedSuggestions(false)
     setMealDescription('')
+    setDescribeError('')
   }
   const openMealModal = async () => {
     setShowMealModal(true)
@@ -1043,6 +1221,12 @@ const getGoalNudges = (member) => {
                       autoFocus
                     />
                     <p className="text-xs text-textMuted mt-1">Describe anything — home cooking, leftovers, a snack, any cuisine. Claude will estimate the macros.</p>
+                    {describeError && (
+                      <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-100 rounded-btn">
+                        <Icon name="warning" size={14} className="text-danger flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-danger">{describeError}</p>
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -1126,6 +1310,26 @@ const getGoalNudges = (member) => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Save to cookbook toggle — describe mode */}
+                      <button
+                        type="button"
+                        onClick={() => setSaveAsRecipe(p => !p)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-btn border transition-colors ${
+                          saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-border'
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                          saveAsRecipe ? 'bg-primary border-primary' : 'border-gray-300'
+                        }`}>
+                          {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-medium text-textPrimary">Save to cookbook</p>
+                          <p className="text-xs text-textMuted">Recall this meal next time without recalculating</p>
+                        </div>
+                        <Icon name="cookbook" size={16} className="ml-auto text-textMuted" />
+                      </button>
                     </>
                   )}
                 </>
