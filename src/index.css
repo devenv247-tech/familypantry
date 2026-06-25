@@ -79,10 +79,15 @@ html, body, #root {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Modal bottom sheet — clears bottom nav + safe area on mobile */
-@media (max-width: 640px) {
+
+/* Modal bottom sheet — clears bottom nav + safe area */
+.modal-sheet {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px) !important;
+}
+
+@media (min-width: 640px) {
   .modal-sheet {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+    padding-bottom: 24px !important;
   }
 }
 

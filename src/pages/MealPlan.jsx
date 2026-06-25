@@ -451,7 +451,7 @@ export default function MealPlan() {
       {/* Add meal modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:justify-center sm:p-4">
-          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
+          <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h3 className="font-semibold text-textPrimary">
                 {MEAL_ICONS[selectedSlot?.mealType]} {selectedSlot?.mealType} — {selectedSlot?.day}
@@ -729,7 +729,7 @@ export default function MealPlan() {
       {/* I cooked this — confirmation modal */}
       {cookedModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-md p-6 modal-sheet">
             <div className="text-5xl text-center mb-3">🍳</div>
             <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
             <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
