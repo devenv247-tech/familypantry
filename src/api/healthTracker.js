@@ -18,6 +18,9 @@ export const deleteNutritionLog = (id) =>
 export const lookupNutrition = (mealName, servings) =>
   api.post('/health-tracker/lookup', { mealName, servings }).then(r => r.data)
 
+export const calculateIngredients = (ingredients) =>
+  api.post('/health-tracker/calculate-ingredients', { ingredients }).then(r => r.data)
+
 export const searchNutritionCache = async (query) => {
   const res = await api.get(`/health-tracker/nutrition/search?q=${encodeURIComponent(query)}`)
   return res.data
