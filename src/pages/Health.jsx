@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Icon from '../components/ui/Icon'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary } from '../api/healthTracker'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -27,6 +27,11 @@ export default function Health() {
   const debounceRef = useRef(null)
   const [kidsData, setKidsData] = useState(null)
   const [kidsLoading, setKidsLoading] = useState(false)
+  const [logMode, setLogMode] = useState('quick')
+  const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: 'g' }])
+  const [calculating, setCalculating] = useState(false)
+  const [calcResult, setCalcResult] = useState(null)
+  const [customMealName, setCustomMealName] = useState('')
 
   useEffect(() => {
     fetchData()
@@ -131,16 +136,61 @@ export default function Health() {
     try {
       await logMeal({ memberName: activeMember?.name, memberId: activeMemberId, ...mealForm })
       showToast('Meal logged!')
-      setShowMealModal(false)
-      setMealForm({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
-      setServings(1)
-      setLookupResult(null)
+      resetMealModal()
       fetchData()
     } catch (err) {
       showToast('Failed to log meal', 'error')
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleCalculateIngredients = async () => {
+    const valid = ingredients.filter(i => i.name.trim() && i.quantity)
+    if (valid.length === 0) return
+    setCalculating(true)
+    setCalcResult(null)
+    try {
+      const result = await calculateIngredients(valid)
+      if (result.found) {
+        setMealForm(p => ({
+          ...p,
+          recipeName: customMealName || 'Home-cooked meal',
+          calories: result.calories || '',
+          protein: result.protein || '',
+          carbs: result.carbs || '',
+          fat: result.fat || '',
+          calcium: result.calcium || '',
+          iron: result.iron || '',
+          vitaminD: result.vitaminD || '',
+        }))
+        setCalcResult(result)
+      }
+    } catch (err) {
+      showToast('Could not calculate nutrition. Please try again.', 'error')
+    } finally {
+      setCalculating(false)
+    }
+  }
+
+  const addIngredient = () => setIngredients(p => [...p, { name: '', quantity: '', unit: 'g' }])
+
+  const removeIngredient = (idx) => setIngredients(p => p.filter((_, i) => i !== idx))
+
+  const updateIngredient = (idx, field, value) =>
+    setIngredients(p => p.map((ing, i) => i === idx ? { ...ing, [field]: value } : ing))
+
+  const resetMealModal = () => {
+    setShowMealModal(false)
+    setMealForm({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
+    setServings(1)
+    setLookupResult(null)
+    setLogMode('quick')
+    setIngredients([{ name: '', quantity: '', unit: 'g' }])
+    setCalcResult(null)
+    setCustomMealName('')
+    setSuggestions([])
+    setShowSuggestions(false)
   }
 
   const handleUpdateGoal = async () => {
@@ -251,15 +301,15 @@ export default function Health() {
               setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg' })
               setShowGoalModal(true)
             }}
-            className="btn-secondary text-sm flex-1 sm:flex-none"
+            className="btn-secondary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5"
           >
-            🎯 Set goals
+            <Icon name="star" size={14} /> Set goals
           </button>
-          <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm flex-1 sm:flex-none">
-            ⚖️ Log weight
+          <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5">
+            <Icon name="dashboard" size={14} /> Log weight
           </button>
-          <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm flex-1 sm:flex-none">
-            + Log meal
+          <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5">
+            <Icon name="add" size={14} /> Log meal
           </button>
         </div>
       </div>
@@ -270,7 +320,7 @@ export default function Health() {
           <button
             key={member.id}
             onClick={() => setActiveMemberId(member.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all whitespace-nowrap ${
               activeMemberId === member.id
                 ? 'bg-primary text-white border-primary'
                 : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
@@ -280,20 +330,27 @@ export default function Health() {
               {member.name[0]}
             </span>
             {member.name}
-            {member.age && member.age < 18 && <span className="text-xs">👶</span>}
-            {member.streak > 0 && <span className="text-xs">🔥{member.streak}</span>}
+            {member.age && member.age < 18 && (
+              <Icon name="family" size={13} className="opacity-70" />
+            )}
+            {member.streak > 0 && (
+              <span className="flex items-center gap-0.5 text-xs">
+                <Icon name="star" size={11} className="text-yellow-400" />
+                {member.streak}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {activeMember && (
         <>
-          {/* 👶 Kids Nutrition Mode */}
+          {/* Kids Nutrition Mode */}
           {(kidsLoading || kidsData) && (
             <div className="card mb-6 border-2 border-purple-100 bg-gradient-to-br from-purple-50/50 to-blue-50/30">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">👶</span>
+                  <Icon name="family" size={24} className="text-purple-500" />
                   <div>
                     <h2 className="font-semibold text-textPrimary">Kids nutrition check</h2>
                     <p className="text-xs text-textMuted">Weekly targets based on Health Canada guidelines</p>
@@ -305,9 +362,9 @@ export default function Health() {
                     kidsData.overallPct >= 45 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                     'bg-purple-50 text-purple-700 border-purple-200'
                   }`}>
-                    {kidsData.overallPct >= 75 ? '✨ Looking great!' :
-                     kidsData.overallPct >= 45 ? '👍 Getting there' :
-                     '🌱 Room to grow'}
+                    {kidsData.overallPct >= 75 ? 'Looking great!' :
+                     kidsData.overallPct >= 45 ? 'Getting there' :
+                     'Room to grow'}
                   </div>
                 )}
               </div>
@@ -326,7 +383,6 @@ export default function Health() {
                     </div>
                   )}
 
-                  {/* Nutrient bars */}
                   <div className="space-y-4 mb-4">
                     {kidsData.nutrients.map((nutrient) => (
                       <div key={nutrient.key}>
@@ -368,15 +424,14 @@ export default function Health() {
                     ))}
                   </div>
 
-                  {/* AI tip */}
                   {kidsData.aiTip ? (
                     <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
-                      <span className="text-lg flex-shrink-0">🫧</span>
+                      <Icon name="sparkle" size={18} className="text-purple-500 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-textPrimary leading-relaxed">{kidsData.aiTip}</p>
                     </div>
                   ) : kidsData.hasData && (
                     <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
-                      <span className="text-lg flex-shrink-0">🫧</span>
+                      <Icon name="sparkle" size={18} className="text-purple-400 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-textMuted">Log more meals this week to get personalized nutrition tips for {kidsData.member.name}.</p>
                     </div>
                   )}
@@ -392,34 +447,10 @@ export default function Health() {
           {/* Member overview cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
-              {
-                label: 'Daily goal',
-                value: activeMember.dailyCalorieGoal ? `${activeMember.dailyCalorieGoal}` : 'Not set',
-                unit: activeMember.dailyCalorieGoal ? 'kcal' : '',
-                icon: 'reports',
-                color: 'bg-blue-50 border-blue-100'
-              },
-              {
-                label: 'Consumed today',
-                value: activeMember.todayTotals.calories,
-                unit: 'kcal',
-                icon: 'health',
-                color: 'bg-orange-50 border-orange-100'
-              },
-              {
-                label: 'Current weight',
-                value: activeMember.currentWeight || '—',
-                unit: activeMember.currentWeight ? 'kg' : '',
-                icon: 'dashboard',
-                color: 'bg-purple-50 border-purple-100'
-              },
-              {
-                label: 'Logging streak',
-                value: activeMember.streak,
-                unit: activeMember.streak === 1 ? 'day' : 'days',
-                icon: 'star',
-                color: 'bg-green-50 border-green-100'
-              },
+              { label: 'Daily goal', value: activeMember.dailyCalorieGoal ? `${activeMember.dailyCalorieGoal}` : 'Not set', unit: activeMember.dailyCalorieGoal ? 'kcal' : '', icon: 'reports', color: 'bg-blue-50 border-blue-100' },
+              { label: 'Consumed today', value: activeMember.todayTotals.calories, unit: 'kcal', icon: 'health', color: 'bg-orange-50 border-orange-100' },
+              { label: 'Current weight', value: activeMember.currentWeight || '—', unit: activeMember.currentWeight ? 'kg' : '', icon: 'dashboard', color: 'bg-purple-50 border-purple-100' },
+              { label: 'Logging streak', value: activeMember.streak, unit: activeMember.streak === 1 ? 'day' : 'days', icon: 'star', color: 'bg-green-50 border-green-100' },
             ].map((card, i) => (
               <div key={i} className={`card border ${card.color}`}>
                 <Icon name={card.icon} size={22} className="mb-1 text-textMuted" />
@@ -429,7 +460,7 @@ export default function Health() {
             ))}
           </div>
 
-          {/* Calorie progress ring */}
+          {/* Calorie progress */}
           {activeMember.dailyCalorieGoal && (
             <div className="card mb-6">
               <div className="flex items-center justify-between mb-4">
@@ -438,7 +469,7 @@ export default function Health() {
                   {new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </span>
               </div>
-              <div className="flex items-center gap-8 flex-wrap">
+              <div className="flex items-center gap-6 flex-wrap">
                 {/* Calorie ring */}
                 <div className="relative w-32 h-32 flex-shrink-0">
                   <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
@@ -457,13 +488,13 @@ export default function Health() {
                   </div>
                 </div>
 
-                {/* Macro progress bars */}
-                <div className="flex-1 space-y-3 min-w-48">
+                {/* Macro bars */}
+                <div className="flex-1 space-y-3 min-w-0">
                   {[
-                    { label: 'Protein', consumed: activeMember.todayTotals.protein, goal: activeMember.macroTargets?.protein, unit: 'g', color: 'bg-blue-500' },
-                    { label: 'Carbs', consumed: activeMember.todayTotals.carbs, goal: activeMember.macroTargets?.carbs, unit: 'g', color: 'bg-yellow-400' },
-                    { label: 'Fat', consumed: activeMember.todayTotals.fat, goal: activeMember.macroTargets?.fat, unit: 'g', color: 'bg-red-400' },
-                    { label: 'Fiber', consumed: activeMember.todayTotals.fiber, goal: 25, unit: 'g', color: 'bg-green-500' },
+                    { label: 'Protein', consumed: activeMember.todayTotals.protein, goal: activeMember.macroTargets?.protein, color: 'bg-blue-500' },
+                    { label: 'Carbs', consumed: activeMember.todayTotals.carbs, goal: activeMember.macroTargets?.carbs, color: 'bg-yellow-400' },
+                    { label: 'Fat', consumed: activeMember.todayTotals.fat, goal: activeMember.macroTargets?.fat, color: 'bg-red-400' },
+                    { label: 'Fiber', consumed: activeMember.todayTotals.fiber, goal: 25, color: 'bg-green-500' },
                   ].map((macro, i) => (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
@@ -481,7 +512,7 @@ export default function Health() {
                 </div>
 
                 {/* Status */}
-                <div className="text-center">
+                <div className="text-center w-full sm:w-auto">
                   {(() => {
                     const status = getCalorieStatus(activeMember.todayTotals.calories, activeMember.dailyCalorieGoal)
                     return status ? (
@@ -497,16 +528,16 @@ export default function Health() {
           )}
 
           {/* Tabs */}
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6 w-fit">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6 overflow-x-auto scrollbar-hide">
             {[
               { id: 'today', label: "Today's meals" },
               { id: 'week', label: '7-day history' },
-              { id: 'weight', label: 'Weight tracking' },
+              { id: 'weight', label: 'Weight' },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-btn text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id ? 'bg-white text-textPrimary shadow-sm' : 'text-textMuted hover:text-textPrimary'
                 }`}
               >
@@ -515,16 +546,18 @@ export default function Health() {
             ))}
           </div>
 
-          {/* Today's meals tab */}
+          {/* Today's meals */}
           {activeTab === 'today' && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-textPrimary">Meals logged today</h3>
-                <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm py-1.5 px-3">+ Add meal</button>
+                <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
+                  <Icon name="add" size={14} /> Add meal
+                </button>
               </div>
               {activeMember.todayMeals.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="text-4xl mb-3">🍽️</div>
+                  <Icon name="recipes" size={40} className="text-gray-200 mx-auto mb-3" />
                   <p className="text-textMuted text-sm">No meals logged today</p>
                   <p className="text-xs text-textMuted mt-1">Cook a recipe or add a meal manually</p>
                 </div>
@@ -532,16 +565,18 @@ export default function Health() {
                 <div className="space-y-3">
                   {activeMember.todayMeals.map((meal, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-btn">
-                      <div>
-                        <p className="text-sm font-medium text-textPrimary">{meal.recipeName}</p>
+                      <div className="min-w-0 flex-1 pr-3">
+                        <p className="text-sm font-medium text-textPrimary truncate">{meal.recipeName}</p>
                         <p className="text-xs text-textMuted">{meal.mealType} · {new Date(meal.loggedAt).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-right">
                           {meal.calories && <p className="text-sm font-semibold text-textPrimary">{Math.round(meal.calories)} kcal</p>}
                           {meal.protein && <p className="text-xs text-textMuted">{Math.round(meal.protein)}g protein</p>}
                         </div>
-                        <button onClick={() => handleDeleteLog(meal.id)} className="text-textMuted hover:text-danger text-sm">✕</button>
+                        <button onClick={() => handleDeleteLog(meal.id)} className="text-textMuted hover:text-danger p-1">
+                          <Icon name="close" size={16} />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -550,14 +585,14 @@ export default function Health() {
             </div>
           )}
 
-          {/* 7-day history tab */}
+          {/* 7-day history */}
           {activeTab === 'week' && (
             <div className="card">
               <h3 className="font-semibold text-textPrimary mb-4">7-day calorie history</h3>
               <div className="space-y-3">
                 {activeMember.last7Days.map((day, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <p className="text-xs text-textMuted w-24 flex-shrink-0">{day.date}</p>
+                  <div key={i} className="flex items-center gap-3">
+                    <p className="text-xs text-textMuted w-20 flex-shrink-0">{day.date}</p>
                     <div className="flex-1 h-6 bg-gray-100 rounded-pill overflow-hidden relative">
                       <div
                         className={`h-full rounded-pill transition-all ${
@@ -569,7 +604,7 @@ export default function Health() {
                         style={{ width: day.goal ? `${Math.min((day.calories / day.goal) * 100, 100)}%` : `${Math.min(day.calories / 30, 100)}%` }}
                       />
                     </div>
-                    <div className="text-right w-28 flex-shrink-0">
+                    <div className="text-right w-24 flex-shrink-0">
                       <p className="text-xs font-semibold text-textPrimary">{day.calories} kcal</p>
                       {day.mealsLogged > 0 && <p className="text-xs text-textMuted">{day.mealsLogged} meals</p>}
                       {day.calories === 0 && <p className="text-xs text-textMuted">Not logged</p>}
@@ -588,12 +623,14 @@ export default function Health() {
             </div>
           )}
 
-          {/* Weight tracking tab */}
+          {/* Weight tracking */}
           {activeTab === 'weight' && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-textPrimary">Weight history</h3>
-                <button onClick={() => setShowWeightModal(true)} className="btn-primary text-sm py-1.5 px-3">+ Log weight</button>
+                <button onClick={() => setShowWeightModal(true)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
+                  <Icon name="add" size={14} /> Log weight
+                </button>
               </div>
 
               {activeMember.goalWeight && (
@@ -610,21 +647,19 @@ export default function Health() {
                             const diff = Math.abs(currentKg - activeMember.goalWeight).toFixed(1)
                             if (currentKg > activeMember.goalWeight) return `${diff} kg to lose`
                             if (currentKg < activeMember.goalWeight) return `${diff} kg to gain`
-                            return '🎉 Goal reached!'
+                            return 'Goal reached!'
                           })()}
                         </p>
                       )}
                     </div>
-                    <div className="text-2xl">
-                      {activeMember.currentWeight && activeMember.currentWeight <= activeMember.goalWeight ? '🎉' : '🎯'}
-                    </div>
+                    <Icon name="star" size={24} className="text-primary opacity-60" />
                   </div>
                 </div>
               )}
 
               {activeMember.weightHistory.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="text-4xl mb-3">⚖️</div>
+                  <Icon name="dashboard" size={40} className="text-gray-200 mx-auto mb-3" />
                   <p className="text-textMuted text-sm">No weight logged yet</p>
                   <p className="text-xs text-textMuted mt-1">Log your weight to track progress over time</p>
                 </div>
@@ -638,7 +673,7 @@ export default function Health() {
                       </div>
                       <div className="flex items-center gap-3">
                         {i < activeMember.weightHistory.length - 1 && (
-                          <span className={`text-xs font-medium ${
+                          <span className={`text-xs font-medium flex items-center gap-0.5 ${
                             log.weight < activeMember.weightHistory[i + 1].weight ? 'text-success' :
                             log.weight > activeMember.weightHistory[i + 1].weight ? 'text-danger' :
                             'text-textMuted'
@@ -667,7 +702,9 @@ export default function Health() {
           <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">Log weight</h3>
-              <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
+              <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary p-1">
+                <Icon name="close" size={20} />
+              </button>
             </div>
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
             <div className="space-y-3 mb-4">
@@ -703,127 +740,322 @@ export default function Health() {
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">Log meal</h3>
-              <button onClick={() => setShowMealModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
-            </div>
-            <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
-            <div className="space-y-3 mb-4">
+          <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl max-h-[92vh] overflow-y-auto modal-sheet">
 
-              {/* Meal name + lookup */}
-              <div>
-                <label className="label">Meal name</label>
-                <div className="flex gap-2 relative">
-                  <div className="flex-1 relative">
+            {/* Sticky header */}
+            <div className="sticky top-0 bg-white z-10 px-6 pt-6 pb-4 border-b border-border">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-bold text-textPrimary">Log meal</h3>
+                <button onClick={resetMealModal} className="text-textMuted hover:text-textPrimary p-1">
+                  <Icon name="close" size={20} />
+                </button>
+              </div>
+              <p className="text-sm text-textMuted mb-4">
+                Logging for <strong>{activeMember?.name}</strong>
+              </p>
+
+              {/* Mode toggle */}
+              <div className="flex rounded-btn border border-border overflow-hidden">
+                <button
+                  onClick={() => { setLogMode('quick'); setCalcResult(null) }}
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                    logMode === 'quick' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
+                  }`}
+                >
+                  <Icon name="search" size={14} /> Quick lookup
+                </button>
+                <button
+                  onClick={() => { setLogMode('ingredients'); setLookupResult(null) }}
+                  className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                    logMode === 'ingredients' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
+                  }`}
+                >
+                  <Icon name="filter" size={14} /> By ingredients
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="px-6 py-4 space-y-4">
+
+              {logMode === 'quick' ? (
+                <>
+                  {/* Meal name + lookup */}
+                  <div>
+                    <label className="label">Meal name</label>
+                    <div className="flex gap-2 relative">
+                      <div className="flex-1 relative">
+                        <input
+                          className="input w-full"
+                          placeholder="e.g. Junior Chicken McDonald's"
+                          value={mealForm.recipeName}
+                          onChange={e => handleMealNameChange(e.target.value)}
+                          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                          autoFocus
+                        />
+                        {showSuggestions && suggestions.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
+                            {searchingCache && <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>}
+                            {suggestions.map((item, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onMouseDown={() => handleSelectSuggestion(item)}
+                                className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
+                              >
+                                <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
+                                <p className="text-xs text-textMuted">
+                                  {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleLookupNutrition(mealForm.recipeName)}
+                        disabled={lookingUp || mealForm.recipeName.length < 3}
+                        className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap flex items-center gap-1.5"
+                      >
+                        {lookingUp || searchingCache ? (
+                          <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                          </svg>
+                        ) : <Icon name="search" size={14} />}
+                        Lookup
+                      </button>
+                    </div>
+                    <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
+                  </div>
+
+                  {/* Lookup result badge */}
+                  {lookupResult && (
+                    <div className={`rounded-btn px-3 py-2 border text-xs flex items-start gap-2 ${
+                      lookupResult.confidence === 'high' ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'
+                    }`}>
+                      <Icon name="check" size={14} className="text-success mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-textPrimary">{lookupResult.mealName}</p>
+                        <p className="text-textMuted mt-0.5">
+                          {lookupResult.servingSize} · {lookupResult.source}
+                          {lookupResult.confidence === 'low' && ' · Estimated'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Meal type */}
+                  <div>
+                    <label className="label">Meal type</label>
+                    <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
+                      {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Servings */}
+                  <div>
+                    <label className="label">Servings</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        className="input w-24"
+                        type="number"
+                        step="0.5"
+                        min="0.5"
+                        value={servings}
+                        onChange={e => setServings(parseFloat(e.target.value) || 1)}
+                      />
+                      <p className="text-xs text-textMuted">Change servings then lookup again to recalculate</p>
+                    </div>
+                  </div>
+
+                  {/* Macros */}
+                  <div>
+                    <label className="label">Nutrition <span className="text-textMuted font-normal">(auto-filled or enter manually)</span></label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="label text-xs">Calories</label>
+                        <input className="input" type="number" placeholder="kcal" value={mealForm.calories} onChange={e => setMealForm(p => ({ ...p, calories: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Protein (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.protein} onChange={e => setMealForm(p => ({ ...p, protein: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Carbs (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.carbs} onChange={e => setMealForm(p => ({ ...p, carbs: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Fat (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Ingredient builder */}
+                  <div>
+                    <label className="label">Meal name <span className="text-textMuted font-normal">(optional)</span></label>
                     <input
-                      className="input w-full"
-                      placeholder="e.g. Junior Chicken McDonald's"
-                      value={mealForm.recipeName}
-                      onChange={e => handleMealNameChange(e.target.value)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                      onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                      className="input"
+                      placeholder="e.g. Mom's Dal, Protein Bowl..."
+                      value={customMealName}
+                      onChange={e => setCustomMealName(e.target.value)}
                       autoFocus
                     />
-                    {showSuggestions && suggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
-                        {searchingCache && <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>}
-                        {suggestions.map((item, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onMouseDown={() => handleSelectSuggestion(item)}
-                            className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
+                  </div>
+
+                  <div>
+                    <label className="label">Ingredients</label>
+                    <div className="space-y-2">
+                      {ingredients.map((ing, idx) => (
+                        <div key={idx} className="flex gap-2 items-center">
+                          <input
+                            className="input flex-1 min-w-0"
+                            placeholder="e.g. chicken breast"
+                            value={ing.name}
+                            onChange={e => updateIngredient(idx, 'name', e.target.value)}
+                          />
+                          <input
+                            className="input w-16 shrink-0"
+                            type="number"
+                            placeholder="qty"
+                            value={ing.quantity}
+                            onChange={e => updateIngredient(idx, 'quantity', e.target.value)}
+                          />
+                          <select
+                            className="input w-16 shrink-0 px-1 text-sm"
+                            value={ing.unit}
+                            onChange={e => updateIngredient(idx, 'unit', e.target.value)}
                           >
-                            <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
-                            <p className="text-xs text-textMuted">
-                              {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
-                            </p>
-                          </button>
+                            {['g', 'kg', 'ml', 'L', 'oz', 'lb', 'cup', 'tbsp', 'tsp', 'pcs'].map(u => (
+                              <option key={u} value={u}>{u}</option>
+                            ))}
+                          </select>
+                          {ingredients.length > 1 && (
+                            <button
+                              onClick={() => removeIngredient(idx)}
+                              className="text-textMuted hover:text-danger shrink-0 p-1"
+                            >
+                              <Icon name="close" size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={addIngredient}
+                      className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
+                    >
+                      <Icon name="add" size={14} /> Add ingredient
+                    </button>
+                  </div>
+
+                  {/* Calculate button */}
+                  <button
+                    onClick={handleCalculateIngredients}
+                    disabled={calculating || !ingredients.some(i => i.name && i.quantity)}
+                    className="btn-secondary w-full disabled:opacity-50 flex items-center justify-center gap-2 py-3"
+                  >
+                    {calculating ? (
+                      <>
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Calculating macros...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="sparkle" size={16} className="text-primary" />
+                        Calculate macros
+                      </>
+                    )}
+                  </button>
+
+                  {/* Calc result */}
+                  {calcResult && (
+                    <div className="rounded-btn bg-green-50 border border-green-100 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon name="check" size={16} className="text-success" />
+                        <p className="text-sm font-semibold text-success">Macros calculated</p>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2 text-center mb-3">
+                        {[
+                          { label: 'Cal', value: calcResult.calories, color: 'text-orange-600' },
+                          { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-blue-600' },
+                          { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
+                          { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
+                        ].map((m, i) => (
+                          <div key={i} className="bg-white rounded-btn p-2 border border-green-100">
+                            <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
+                            <p className="text-xs text-textMuted">{m.label}</p>
+                          </div>
                         ))}
                       </div>
-                    )}
+                      <p className="text-xs text-textMuted flex items-center gap-1">
+                        <Icon name="info" size={12} /> Review and adjust below before logging
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Meal type */}
+                  <div>
+                    <label className="label">Meal type</label>
+                    <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
+                      {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map(t => <option key={t}>{t}</option>)}
+                    </select>
                   </div>
-                  <button
-                    onClick={() => handleLookupNutrition(mealForm.recipeName)}
-                    disabled={lookingUp || mealForm.recipeName.length < 3}
-                    className="btn-secondary text-sm px-3 disabled:opacity-50 whitespace-nowrap"
-                  >
-                    {lookingUp || searchingCache ? (
-                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                      </svg>
-                    ) : '🔍 Lookup'}
-                  </button>
-                </div>
-                <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
-              </div>
 
-              {/* Lookup result badge */}
-              {lookupResult && (
-                <div className={`rounded-btn px-3 py-2 border text-xs ${
-                  lookupResult.confidence === 'high' ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'
-                }`}>
-                  <p className="font-medium text-textPrimary">✓ Found: {lookupResult.mealName}</p>
-                  <p className="text-textMuted mt-0.5">
-                    {lookupResult.servingSize} · Source: {lookupResult.source}
-                    {lookupResult.confidence === 'low' && ' · Estimated'}
-                  </p>
-                </div>
+                  {/* Editable macro fields — always shown in ingredient mode */}
+                  <div>
+                    <label className="label">Adjust nutrition <span className="text-textMuted font-normal">(edit if needed)</span></label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="label text-xs">Calories</label>
+                        <input className="input" type="number" placeholder="kcal" value={mealForm.calories} onChange={e => setMealForm(p => ({ ...p, calories: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Protein (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.protein} onChange={e => setMealForm(p => ({ ...p, protein: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Carbs (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.carbs} onChange={e => setMealForm(p => ({ ...p, carbs: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="label text-xs">Fat (g)</label>
+                        <input className="input" type="number" placeholder="g" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
+                      </div>
+                    </div>
+                  </div>
+                </>
               )}
-
-              {/* Meal type */}
-              <div>
-                <label className="label">Meal type</label>
-                <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
-                  {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map(t => <option key={t}>{t}</option>)}
-                </select>
-              </div>
-
-              {/* Servings */}
-              <div>
-                <label className="label">Servings</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    className="input w-24"
-                    type="number"
-                    step="0.5"
-                    min="0.5"
-                    value={servings}
-                    onChange={e => setServings(parseFloat(e.target.value) || 1)}
-                  />
-                  <p className="text-xs text-textMuted">Change servings then lookup again to recalculate</p>
-                </div>
-              </div>
-
-              {/* Macros */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">Calories</label>
-                  <input className="input" type="number" placeholder="kcal" value={mealForm.calories} onChange={e => setMealForm(p => ({ ...p, calories: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="label">Protein (g)</label>
-                  <input className="input" type="number" placeholder="g" value={mealForm.protein} onChange={e => setMealForm(p => ({ ...p, protein: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="label">Carbs (g)</label>
-                  <input className="input" type="number" placeholder="g" value={mealForm.carbs} onChange={e => setMealForm(p => ({ ...p, carbs: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="label">Fat (g)</label>
-                  <input className="input" type="number" placeholder="g" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
-                </div>
-              </div>
-
-              <p className="text-xs text-textMuted">💡 Use lookup to auto-fill nutrition, or enter manually</p>
             </div>
 
-            <div className="flex gap-3">
-              <button onClick={() => setShowMealModal(false)} className="btn-secondary flex-1">Cancel</button>
-              <button onClick={handleLogMeal} disabled={!mealForm.recipeName || saving} className="btn-primary flex-1 disabled:opacity-50">
-                {saving ? 'Saving...' : 'Log meal'}
+            {/* Sticky footer */}
+            <div className="sticky bottom-0 bg-white border-t border-border px-6 py-4 flex gap-3">
+              <button onClick={resetMealModal} className="btn-secondary flex-1">Cancel</button>
+              <button
+                onClick={handleLogMeal}
+                disabled={!mealForm.recipeName || saving}
+                className="btn-primary flex-1 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="check" size={14} /> Log meal
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -837,7 +1069,9 @@ export default function Health() {
           <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">Set goals</h3>
-              <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
+              <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary p-1">
+                <Icon name="close" size={20} />
+              </button>
             </div>
             <p className="text-sm text-textMuted mb-1">Setting goals for <strong>{activeMember?.name}</strong></p>
             {activeMember?.dailyCalorieGoal && (
