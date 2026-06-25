@@ -663,7 +663,7 @@ export default function Health() {
       {/* ── Log weight modal ── */}
       {showWeightModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">⚖️ Log weight</h3>
               <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>

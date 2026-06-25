@@ -887,7 +887,7 @@ export default function Settings() {
       {/* ── INVITE MODAL ──────────────────────────────────────────────────── */}
       {inviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
+          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
               <button onClick={() => { setInviteModal(null); setInviteEmail('') }}

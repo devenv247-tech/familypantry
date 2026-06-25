@@ -381,7 +381,7 @@ export default function MealPlan() {
       {/* Member selector modal for week generation */}
       {showMemberModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4">
-          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown">
+          <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h3 className="font-semibold text-textPrimary">✨ Auto-plan this week</h3>
               <button onClick={() => setShowMemberModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>

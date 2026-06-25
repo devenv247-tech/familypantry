@@ -79,8 +79,25 @@ html, body, #root {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Minimum touch target size */
-button, a, [role="button"] {
+/* Modal bottom sheet — clears bottom nav + safe area on mobile */
+@media (max-width: 640px) {
+  .modal-sheet {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+  }
+}
+
+/* Prevent images/media overflow */
+img, video, iframe, svg {
+  max-width: 100%;
+}
+
+/* Wrap flex rows on mobile */
+@media (max-width: 640px) {
+  .flex-mobile-wrap {
+    flex-wrap: wrap;
+  }
+}
+/* Minimum touch target size — only for standalone buttons, not inline */
+.btn-primary, .btn-secondary {
   min-height: 44px;
-  min-width: 44px;
 }
