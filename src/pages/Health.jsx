@@ -1165,7 +1165,7 @@ const getGoalNudges = (member) => {
          <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
 
             {/* Header */}
-            <div className="bg-white px-4 pt-4 pb-3 border-b border-border" style={{ flexShrink: 0 }}>
+            <div className="modal-header bg-white px-4 pt-4 pb-3 border-b border-border">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h3 className="font-bold text-textPrimary text-base leading-tight">Log meal</h3>
@@ -1203,7 +1203,7 @@ const getGoalNudges = (member) => {
             </div>
 
             {/* Scrollable body */}
-            <div className="px-4 py-3 space-y-3" style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div className="modal-body px-4 py-3 space-y-3">
 
               {logMode === 'describe' ? (
                 <>
@@ -1638,7 +1638,7 @@ const getGoalNudges = (member) => {
             </div>
 
            {/* Footer */}
-            <div className="bg-white border-t border-border px-4 py-3 flex gap-2" style={{ flexShrink: 0 }}>
+            <div className="modal-footer bg-white border-t border-border px-4 py-3 flex gap-2">
               <button onClick={resetMealModal} className="btn-secondary flex-1">Cancel</button>
               <button
                 onClick={handleLogMeal}
