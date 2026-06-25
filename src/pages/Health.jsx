@@ -1036,13 +1036,13 @@ const getGoalNudges = (member) => {
                     <label className="label">Describe your meal</label>
                     <textarea
                       className="input w-full resize-none"
-                      rows={4}
-                      placeholder={"e.g. protein smoothie with 1 cup milk, 3 strawberries, 2 chunks mango, half banana, 1 tbsp peanut butter and a scoop of salted caramel protein powder"}
+                      rows={5}
+                      placeholder={"e.g. grilled salmon with half cup rice and steamed broccoli\nor: 2 eggs scrambled with cheese on toast\nor: leftover chicken curry with rice, medium portion"}
                       value={mealDescription}
                       onChange={e => setMealDescription(e.target.value)}
                       autoFocus
                     />
-                    <p className="text-xs text-textMuted mt-1">Just describe it naturally — Claude will figure out the macros</p>
+                    <p className="text-xs text-textMuted mt-1">Describe anything — home cooking, leftovers, a snack, any cuisine. Claude will estimate the macros.</p>
                   </div>
 
                   <button
