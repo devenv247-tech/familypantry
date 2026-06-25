@@ -18,10 +18,8 @@ export default function AppShell() {
   useEffect(() => { setShowMoreDrawer(false) }, [location.pathname])
 
   useEffect(() => {
-    const main = document.querySelector('main')
-    if (!main) return
     const handleScroll = () => {
-      const currentY = main.scrollTop
+      const currentY = window.scrollY || document.documentElement.scrollTop
       if (currentY < 10) {
         setNavVisible(true)
         lastScrollY.current = currentY
@@ -36,8 +34,8 @@ export default function AppShell() {
       }
       lastScrollY.current = currentY
     }
-    main.addEventListener('scroll', handleScroll, { passive: true })
-    return () => main.removeEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   const { setConfig, announcements, dismissAnnouncement, isFeatureEnabled } = useAppConfigStore()
   const { token, user, family } = useAuthStore()
