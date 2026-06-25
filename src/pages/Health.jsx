@@ -1162,51 +1162,48 @@ const getGoalNudges = (member) => {
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl max-h-[92vh] overflow-y-auto modal-sheet">
+         <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
 
             {/* Sticky header */}
-            <div className="sticky top-0 bg-white z-10 px-6 pt-6 pb-4 border-b border-border">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="font-bold text-textPrimary">Log meal</h3>
-                <button onClick={resetMealModal} className="text-textMuted hover:text-textPrimary p-1">
-                  <Icon name="close" size={20} />
+            <div className="sticky top-0 bg-white z-10 px-4 pt-4 pb-3 border-b border-border">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h3 className="font-bold text-textPrimary text-base leading-tight">Log meal</h3>
+                  <p className="text-xs text-textMuted">Logging for <strong>{activeMember?.name}</strong></p>
+                </div>
+                <button onClick={resetMealModal} className="text-textMuted hover:text-textPrimary p-1 -mr-1">
+                  <Icon name="close" size={18} />
                 </button>
               </div>
-              <p className="text-sm text-textMuted mb-4">
-                Logging for <strong>{activeMember?.name}</strong>
-              </p>
 
-              {/* Mode toggle */}
-              <div className="flex rounded-btn border border-border overflow-hidden">
-                <button
-                  onClick={() => { setLogMode('quick'); setCalcResult(null) }}
-                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                    logMode === 'quick' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
-                  }`}
-                >
-                  <Icon name="search" size={13} /> Lookup
-                </button>
-                <button
-                  onClick={() => { setLogMode('describe'); setLookupResult(null); setCalcResult(null) }}
-                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                    logMode === 'describe' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
-                  }`}
-                >
-                  <Icon name="edit" size={13} /> Describe
-                </button>
-                <button
-                  onClick={() => { setLogMode('ingredients'); setLookupResult(null); setCalcResult(null) }}
-                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                    logMode === 'ingredients' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
-                  }`}
-                >
-                  <Icon name="filter" size={13} /> Builder
-                </button>
+              {/* Mode toggle — 3 equal pills */}
+              <div className="flex rounded-lg border border-border overflow-hidden">
+                {[
+                  { mode: 'quick', icon: 'search', label: 'Lookup' },
+                  { mode: 'describe', icon: 'edit', label: 'Describe' },
+                  { mode: 'ingredients', icon: 'filter', label: 'Builder' },
+                ].map(({ mode, icon, label }) => (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      setLogMode(mode)
+                      setCalcResult(null)
+                      setLookupResult(null)
+                      setDescribeError('')
+                    }}
+                    className={`flex-1 py-2 text-xs font-semibold transition-colors flex items-center justify-center gap-1 ${
+                      logMode === mode ? 'bg-primary text-white' : 'text-textMuted bg-white'
+                    }`}
+                  >
+                    <Icon name={icon} size={12} />
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Scrollable body */}
-            <div className="px-6 py-4 space-y-4">
+            <div className="px-4 py-3 space-y-3 overflow-y-auto flex-1">
 
               {logMode === 'describe' ? (
                 <>
@@ -1641,7 +1638,7 @@ const getGoalNudges = (member) => {
             </div>
 
             {/* Sticky footer */}
-            <div className="sticky bottom-0 bg-white border-t border-border px-6 py-4 flex gap-3">
+            <div className="sticky bottom-0 bg-white border-t border-border px-4 py-3 flex gap-2">
               <button onClick={resetMealModal} className="btn-secondary flex-1">Cancel</button>
               <button
                 onClick={handleLogMeal}
