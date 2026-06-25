@@ -88,6 +88,141 @@ export default function Health() {
     return { text: `${remaining} cal remaining`, color: 'text-success' }
   }
 
+const getGoalNudges = (member) => {
+    if (!member) return []
+    const { last7Days, macroTargets, dailyCalorieGoal, goals, todayTotals, recentMeals, streak } = member
+    const goal = (goals || '').toLowerCase()
+    const nudges = []
+
+    // Count days with meals logged in last 7
+    const loggedDays = last7Days.filter(d => d.mealsLogged > 0).length
+    const totalDays = last7Days.length
+
+    // Not enough data
+    if (loggedDays === 0) return [{
+      icon: 'health', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+      text: 'Start logging meals to see personalized insights based on your goal.'
+    }]
+
+    // Low logging rate
+    if (loggedDays < 4) {
+      nudges.push({
+        icon: 'info', color: 'bg-yellow-50 border-yellow-100', iconClass: 'text-yellow-500',
+        text: `Only ${loggedDays} of ${totalDays} days logged this week — track more meals for accurate insights.`
+      })
+    }
+
+    // Avg calories over logged days
+    const avgCalories = loggedDays > 0
+      ? Math.round(last7Days.filter(d => d.calories > 0).reduce((s, d) => s + d.calories, 0) / loggedDays)
+      : 0
+
+    // Avg macros from recentMeals (last 7 days)
+    const recentLogged = (recentMeals || [])
+    const avgProtein = recentLogged.length > 0
+      ? Math.round(recentLogged.reduce((s, m) => s + (m.protein || 0), 0) / recentLogged.length)
+      : 0
+    const avgFiber = recentLogged.length > 0
+      ? Math.round(recentLogged.reduce((s, m) => s + (m.fiber || 0), 0) / recentLogged.length)
+      : 0
+
+    // Days hitting calorie goal
+    const daysHittingGoal = dailyCalorieGoal
+      ? last7Days.filter(d => d.calories > 0 && d.calories >= dailyCalorieGoal * 0.85 && d.calories <= dailyCalorieGoal * 1.1).length
+      : 0
+
+    // ── Goal-specific nudges ──────────────────────────────────────────────────
+
+    if (goal.includes('gain muscle') || goal.includes('high protein')) {
+      const proteinTarget = macroTargets?.protein || 120
+      if (avgProtein > 0 && avgProtein < proteinTarget * 0.8) {
+        nudges.push({
+          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          text: `Protein is averaging ${avgProtein}g vs your ${proteinTarget}g target — try adding chicken, eggs, or legumes to more meals.`
+        })
+      } else if (avgProtein >= proteinTarget * 0.9) {
+        nudges.push({
+          icon: 'star', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          text: `Protein is on track at ${avgProtein}g avg this week — keep it up to support muscle growth!`
+        })
+      }
+      if (avgCalories > 0 && dailyCalorieGoal && avgCalories < dailyCalorieGoal * 0.85) {
+        nudges.push({
+          icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+          text: `Averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal goal — a slight surplus helps muscle gain.`
+        })
+      }
+    }
+
+    if (goal.includes('lose weight')) {
+      const proteinTarget = macroTargets?.protein || 100
+      if (avgProtein > 0 && avgProtein < proteinTarget * 0.8) {
+        nudges.push({
+          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          text: `Protein is low at ${avgProtein}g avg — keeping protein high helps preserve muscle while losing weight.`
+        })
+      }
+      if (daysHittingGoal >= 5) {
+        nudges.push({
+          icon: 'star', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          text: `You've hit your calorie goal ${daysHittingGoal} of ${loggedDays} days logged — excellent consistency!`
+        })
+      } else if (avgCalories > 0 && dailyCalorieGoal && avgCalories > dailyCalorieGoal * 1.1) {
+        nudges.push({
+          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          text: `Averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal target — try trimming portions or snacks to stay in deficit.`
+        })
+      }
+    }
+
+    if (goal.includes('maintain')) {
+      if (daysHittingGoal >= 4) {
+        nudges.push({
+          icon: 'check', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          text: `Calories are consistent this week — ${daysHittingGoal} days within your maintenance range. Great work.`
+        })
+      } else if (loggedDays >= 4) {
+        nudges.push({
+          icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+          text: `Calorie consistency could be better this week — aim to stay within 10% of your ${dailyCalorieGoal} kcal goal daily.`
+        })
+      }
+    }
+
+    if (goal.includes('improve energy') || goal.includes('energy')) {
+      if (avgFiber > 0 && avgFiber < 20) {
+        nudges.push({
+          icon: 'leaf', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          text: `Fiber is averaging ${avgFiber}g per meal — aim for 25g/day with more vegetables, legumes, and whole grains.`
+        })
+      }
+      if (avgCalories > 0 && dailyCalorieGoal && avgCalories < dailyCalorieGoal * 0.8) {
+        nudges.push({
+          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          text: `Under-eating can cause fatigue — you're averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal goal.`
+        })
+      }
+    }
+
+    // Universal streak nudge
+    if (streak >= 5 && nudges.filter(n => n.icon === 'star').length === 0) {
+      nudges.push({
+        icon: 'star', color: 'bg-yellow-50 border-yellow-100', iconClass: 'text-yellow-500',
+        text: `${streak}-day logging streak — consistency is the most important factor in reaching your goal.`
+      })
+    }
+
+    // No goal set
+    if (!goals && nudges.length === 0) {
+      nudges.push({
+        icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+        text: 'Set a goal to get personalized insights — tap "Set goals" above.'
+      })
+    }
+
+    return nudges.slice(0, 3)
+  }
+
   const handleLogWeight = async () => {
     if (!weightForm.weight) return
     setSaving(true)
@@ -594,6 +729,43 @@ export default function Health() {
               </div>
             </div>
           )}
+
+          {/* Goal nudges */}
+          {(() => {
+            const nudges = getGoalNudges(activeMember)
+            if (!nudges.length) return null
+            return (
+              <div className="card mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon name="sparkle" size={16} className="text-primary" />
+                  <h2 className="font-semibold text-textPrimary text-sm">
+                    {activeMember.goals
+                      ? `Insights for your ${activeMember.goals} goal`
+                      : 'This week\'s insights'}
+                  </h2>
+                </div>
+                <div className="space-y-2">
+                  {nudges.map((nudge, i) => (
+                    <div key={i} className={`flex items-start gap-3 px-3 py-3 rounded-btn border ${nudge.color}`}>
+                      <Icon name={nudge.icon} size={15} className={`${nudge.iconClass} flex-shrink-0 mt-0.5`} />
+                      <p className="text-sm text-textPrimary leading-relaxed">{nudge.text}</p>
+                    </div>
+                  ))}
+                </div>
+                {!activeMember.goals && (
+                  <button
+                    onClick={() => {
+                      setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg', goalType: activeMember?.goals || '' })
+                      setShowGoalModal(true)
+                    }}
+                    className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
+                  >
+                    <Icon name="star" size={13} /> Set a goal to unlock personalized insights
+                  </button>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Tabs */}
           <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6 overflow-x-auto scrollbar-hide">
