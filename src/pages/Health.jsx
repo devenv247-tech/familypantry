@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Icon from '../components/ui/Icon'
 import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients } from '../api/healthTracker'
+import { saveRecipe, getSavedRecipes } from '../api/savedRecipes'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
@@ -32,6 +33,9 @@ export default function Health() {
   const [calculating, setCalculating] = useState(false)
   const [calcResult, setCalcResult] = useState(null)
   const [customMealName, setCustomMealName] = useState('')
+  const [saveAsRecipe, setSaveAsRecipe] = useState(false)
+  const [savedMeals, setSavedMeals] = useState([])
+  const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -135,7 +139,30 @@ export default function Health() {
     setSaving(true)
     try {
       await logMeal({ memberName: activeMember?.name, memberId: activeMemberId, ...mealForm })
-      showToast('Meal logged!')
+
+      // Save as custom recipe if toggled
+      if (saveAsRecipe && logMode === 'ingredients') {
+        try {
+          await saveRecipe({
+            name: mealForm.recipeName,
+            ingredients: ingredients.filter(i => i.name && i.quantity),
+            nutrition: {
+              calories: parseFloat(mealForm.calories) || 0,
+              protein: parseFloat(mealForm.protein) || 0,
+              carbs: parseFloat(mealForm.carbs) || 0,
+              fat: parseFloat(mealForm.fat) || 0,
+            },
+            source: 'custom',
+            steps: [],
+          })
+          showToast('Meal logged and saved to cookbook!')
+        } catch {
+          showToast('Meal logged! (Could not save recipe — may already exist)')
+        }
+      } else {
+        showToast('Meal logged!')
+      }
+
       resetMealModal()
       fetchData()
     } catch (err) {
@@ -191,6 +218,37 @@ export default function Health() {
     setCustomMealName('')
     setSuggestions([])
     setShowSuggestions(false)
+    setSaveAsRecipe(false)
+    setShowSavedSuggestions(false)
+  }
+
+  const openMealModal = async () => {
+    setShowMealModal(true)
+    try {
+      const data = await getSavedRecipes()
+      // Only custom home-cooked ones (no steps/missing = came from ingredient builder)
+      setSavedMeals(data.filter(r => r.nutrition && !r.steps?.length))
+    } catch {
+      setSavedMeals([])
+    }
+  }
+
+  const handleLoadSavedMeal = (recipe) => {
+    setCustomMealName(recipe.name)
+    setMealForm(p => ({
+      ...p,
+      recipeName: recipe.name,
+      calories: recipe.nutrition?.calories || '',
+      protein: recipe.nutrition?.protein || '',
+      carbs: recipe.nutrition?.carbs || '',
+      fat: recipe.nutrition?.fat || '',
+    }))
+    if (recipe.ingredients) {
+      const parsed = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+      if (parsed.length > 0) setIngredients(parsed)
+    }
+    setCalcResult(recipe.nutrition ? { ...recipe.nutrition, found: true } : null)
+    setShowSavedSuggestions(false)
   }
 
   const handleUpdateGoal = async () => {
@@ -308,7 +366,7 @@ export default function Health() {
           <button onClick={() => setShowWeightModal(true)} className="btn-secondary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5">
             <Icon name="dashboard" size={14} /> Log weight
           </button>
-          <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5">
+          <button onClick={openMealModal} className="btn-primary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5">
             <Icon name="add" size={14} /> Log meal
           </button>
         </div>
@@ -551,7 +609,7 @@ export default function Health() {
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-textPrimary">Meals logged today</h3>
-                <button onClick={() => setShowMealModal(true)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
+                <button onClick={openMealModal} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
                   <Icon name="add" size={14} /> Add meal
                 </button>
               </div>
@@ -896,15 +954,43 @@ export default function Health() {
               ) : (
                 <>
                   {/* Ingredient builder */}
-                  <div>
+                  <div className="relative">
                     <label className="label">Meal name <span className="text-textMuted font-normal">(optional)</span></label>
                     <input
                       className="input"
                       placeholder="e.g. Mom's Dal, Protein Bowl..."
                       value={customMealName}
-                      onChange={e => setCustomMealName(e.target.value)}
+                      onChange={e => {
+                        setCustomMealName(e.target.value)
+                        setMealForm(p => ({ ...p, recipeName: e.target.value }))
+                        setShowSavedSuggestions(e.target.value.length > 0 && savedMeals.length > 0)
+                      }}
+                      onFocus={() => savedMeals.length > 0 && setShowSavedSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSavedSuggestions(false), 150)}
                       autoFocus
                     />
+                    {showSavedSuggestions && (
+                      <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-40 overflow-y-auto">
+                        <p className="px-3 py-1.5 text-xs text-textMuted font-medium border-b border-border">Saved meals</p>
+                        {savedMeals
+                          .filter(r => !customMealName || r.name.toLowerCase().includes(customMealName.toLowerCase()))
+                          .map((recipe, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onMouseDown={() => handleLoadSavedMeal(recipe)}
+                              className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0"
+                            >
+                              <p className="text-sm font-medium text-textPrimary">{recipe.name}</p>
+                              {recipe.nutrition && (
+                                <p className="text-xs text-textMuted">
+                                  {recipe.nutrition.calories} kcal · {recipe.nutrition.protein}g protein
+                                </p>
+                              )}
+                            </button>
+                          ))}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -999,6 +1085,28 @@ export default function Health() {
                         <Icon name="info" size={12} /> Review and adjust below before logging
                       </p>
                     </div>
+                  )}
+
+                  {/* Save toggle */}
+                  {calcResult && (
+                    <button
+                      type="button"
+                      onClick={() => setSaveAsRecipe(p => !p)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-btn border transition-colors ${
+                        saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-border'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                        saveAsRecipe ? 'bg-primary border-primary' : 'border-gray-300'
+                      }`}>
+                        {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-textPrimary">Save to cookbook</p>
+                        <p className="text-xs text-textMuted">Recall this meal next time you log</p>
+                      </div>
+                      <Icon name="cookbook" size={16} className="ml-auto text-textMuted" />
+                    </button>
                   )}
 
                   {/* Meal type */}
