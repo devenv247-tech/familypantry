@@ -22,8 +22,18 @@ export default function AppShell() {
     if (!main) return
     const handleScroll = () => {
       const currentY = main.scrollTop
-      if (currentY < 10) { setNavVisible(true); return }
-      setNavVisible(currentY < lastScrollY.current)
+      if (currentY < 10) {
+        setNavVisible(true)
+        lastScrollY.current = currentY
+        return
+      }
+      const diff = currentY - lastScrollY.current
+      if (Math.abs(diff) < 8) return
+      if (diff > 0) {
+        setNavVisible(false)
+      } else {
+        setNavVisible(true)
+      }
       lastScrollY.current = currentY
     }
     main.addEventListener('scroll', handleScroll, { passive: true })
