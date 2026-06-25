@@ -1140,7 +1140,7 @@ const getGoalNudges = (member) => {
                     <label className="label">Meal name <span className="text-textMuted font-normal">(optional)</span></label>
                     <input
                       className="input"
-                      placeholder="e.g. Mom's Dal, Protein Bowl..."
+                      placeholder="e.g. Protein Bowl..."
                       value={customMealName}
                       onChange={e => {
                         setCustomMealName(e.target.value)
