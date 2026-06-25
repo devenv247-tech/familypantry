@@ -246,7 +246,7 @@ export default function MealPlan() {
       {/* Meal detail modal */}
       {showDetailModal && selectedMeal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center sm:p-4">
-          <div className="bg-surface rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto">
+          <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
               <h3 className="font-semibold text-textPrimary flex items-center gap-2">
                 <span>{selectedMeal.recipeData?.icon || MEAL_ICONS[selectedMeal.mealType]}</span>
@@ -728,8 +728,8 @@ export default function MealPlan() {
 
       {/* I cooked this — confirmation modal */}
       {cookedModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-md p-6 modal-sheet">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
             <div className="text-5xl text-center mb-3">🍳</div>
             <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
             <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
