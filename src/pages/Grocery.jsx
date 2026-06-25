@@ -268,7 +268,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
 
       {/* Price anomaly modal */}
       {anomalyModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center sm:p-4">
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-end sm:items-center sm:p-4">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6">
             <div className="text-3xl mb-3 text-center">{anomalyModal.icon}</div>
             <h3 className="font-semibold text-textPrimary text-lg mb-2 text-center">{anomalyModal.message}</h3>

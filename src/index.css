@@ -80,14 +80,16 @@ html, body, #root {
 }
 
 
-/* Modal bottom sheet — clears bottom nav + safe area */
+/* Modal bottom sheet — clears bottom nav (72px) + safe area */
 .modal-sheet {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px) !important;
+  margin-bottom: 72px;
 }
 
 @media (min-width: 640px) {
   .modal-sheet {
     padding-bottom: 24px !important;
+    margin-bottom: 0;
   }
 }
 

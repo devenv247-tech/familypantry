@@ -389,7 +389,7 @@ export default function Dashboard() {
 
       {/* Cook-along modal */}
       {cookAlong && tonightMeal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
 
             {/* Header */}

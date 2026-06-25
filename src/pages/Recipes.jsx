@@ -427,7 +427,7 @@ export default function Recipes() {
 
       {/* AI data disclosure modal — shown once per user before first recipe generation */}
       {showAIDisclosure && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white w-full sm:max-w-md sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -489,7 +489,7 @@ export default function Recipes() {
 
       {/* Rating modal */}
       {ratingModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center sm:p-4">
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-end sm:items-center sm:p-4">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
             <h3 className="font-semibold text-textPrimary text-lg mb-1">How was it? 🍽️</h3>
             <p className="text-sm text-textMuted mb-5">Rate <span className="font-medium text-textPrimary">{ratingModal.recipe.name}</span> so we can learn your family's preferences</p>
@@ -1374,7 +1374,7 @@ export default function Recipes() {
 
           {/* I cooked this — confirmation modal */}
           {cookedModal && (
-            <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+            <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
               <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
                 <div className="text-5xl text-center mb-3">🍳</div>
                 <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
