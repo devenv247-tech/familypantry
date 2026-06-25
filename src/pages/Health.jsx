@@ -1162,10 +1162,10 @@ const getGoalNudges = (member) => {
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-         <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl flex flex-col" style={{ maxHeight: '85vh' }}>
+         <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
 
-            {/* Sticky header */}
-            <div className="sticky top-0 bg-white z-10 px-4 pt-4 pb-3 border-b border-border">
+            {/* Header */}
+            <div className="bg-white px-4 pt-4 pb-3 border-b border-border" style={{ flexShrink: 0 }}>
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h3 className="font-bold text-textPrimary text-base leading-tight">Log meal</h3>
@@ -1203,7 +1203,7 @@ const getGoalNudges = (member) => {
             </div>
 
             {/* Scrollable body */}
-            <div className="px-4 py-3 space-y-3 overflow-y-auto flex-1">
+            <div className="px-4 py-3 space-y-3" style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
 
               {logMode === 'describe' ? (
                 <>
@@ -1637,8 +1637,8 @@ const getGoalNudges = (member) => {
               )}
             </div>
 
-            {/* Sticky footer */}
-            <div className="sticky bottom-0 bg-white border-t border-border px-4 py-3 flex gap-2">
+           {/* Footer */}
+            <div className="bg-white border-t border-border px-4 py-3 flex gap-2" style={{ flexShrink: 0 }}>
               <button onClick={resetMealModal} className="btn-secondary flex-1">Cancel</button>
               <button
                 onClick={handleLogMeal}
