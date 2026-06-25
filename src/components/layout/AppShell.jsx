@@ -1,6 +1,6 @@
 import NookaIcon from '../ui/NookaIcon'
 import Icon from '../ui/Icon'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Onboarding from '../ui/Onboarding'
@@ -11,9 +11,24 @@ import { getAppConfig } from '../../api/appConfig'
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [showMoreDrawer, setShowMoreDrawer] = useState(false)
+ const [showMoreDrawer, setShowMoreDrawer] = useState(false)
+  const [navVisible, setNavVisible] = useState(true)
+  const lastScrollY = useRef(0)
   const location = useLocation()
   useEffect(() => { setShowMoreDrawer(false) }, [location.pathname])
+
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    const handleScroll = () => {
+      const currentY = main.scrollTop
+      if (currentY < 10) { setNavVisible(true); return }
+      setNavVisible(currentY < lastScrollY.current)
+      lastScrollY.current = currentY
+    }
+    main.addEventListener('scroll', handleScroll, { passive: true })
+    return () => main.removeEventListener('scroll', handleScroll)
+  }, [])
   const { setConfig, announcements, dismissAnnouncement, isFeatureEnabled } = useAppConfigStore()
   const { token, user, family } = useAuthStore()
   const plan = family?.plan?.toLowerCase() || 'free'
@@ -151,13 +166,15 @@ export default function AppShell() {
       )}
 
       {/* Mobile bottom nav */}
-      <nav
+     <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border flex items-center justify-between px-10"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 16px)',
           paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)',
           paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)',
           minHeight: '72px',
+          transform: navVisible ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         {[
