@@ -1003,7 +1003,7 @@ export default function Recipes() {
                                           </div>
                                           <p className="text-xs opacity-75 mt-0.5">{sub.ratio} · {sub.note}</p>
                                         </div>
-                                        <span className="text-xs font-medium ml-2 whitespace-nowrap opacity-75">{qualityLabel(sub.quality)}</span>
+                                        <span className="text-xs font-medium ml-2 flex-shrink-0 opacity-75">{qualityLabel(sub.quality)}</span>
                                       </div>
                                     ))}
                                   </div>

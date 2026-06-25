@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import Icon from '../components/ui/Icon'
 import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary } from '../api/healthTracker'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -264,7 +265,7 @@ export default function Health() {
       </div>
 
       {/* Member selector */}
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-6">
         {data.members.map(member => (
           <button
             key={member.id}
@@ -395,33 +396,33 @@ export default function Health() {
                 label: 'Daily goal',
                 value: activeMember.dailyCalorieGoal ? `${activeMember.dailyCalorieGoal}` : 'Not set',
                 unit: activeMember.dailyCalorieGoal ? 'kcal' : '',
-                icon: '🎯',
+                icon: 'reports',
                 color: 'bg-blue-50 border-blue-100'
               },
               {
                 label: 'Consumed today',
                 value: activeMember.todayTotals.calories,
                 unit: 'kcal',
-                icon: '🔥',
+                icon: 'health',
                 color: 'bg-orange-50 border-orange-100'
               },
               {
                 label: 'Current weight',
                 value: activeMember.currentWeight || '—',
                 unit: activeMember.currentWeight ? 'kg' : '',
-                icon: '⚖️',
+                icon: 'dashboard',
                 color: 'bg-purple-50 border-purple-100'
               },
               {
                 label: 'Logging streak',
                 value: activeMember.streak,
                 unit: activeMember.streak === 1 ? 'day' : 'days',
-                icon: '🔥',
+                icon: 'star',
                 color: 'bg-green-50 border-green-100'
               },
             ].map((card, i) => (
               <div key={i} className={`card border ${card.color}`}>
-                <div className="text-2xl mb-1">{card.icon}</div>
+                <Icon name={card.icon} size={22} className="mb-1 text-textMuted" />
                 <p className="text-xl font-bold text-textPrimary">{card.value} <span className="text-sm font-normal text-textMuted">{card.unit}</span></p>
                 <p className="text-xs text-textMuted mt-1">{card.label}</p>
               </div>
@@ -665,7 +666,7 @@ export default function Health() {
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">⚖️ Log weight</h3>
+              <h3 className="font-bold text-textPrimary">Log weight</h3>
               <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
@@ -702,9 +703,9 @@ export default function Health() {
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">🍽️ Log meal</h3>
+              <h3 className="font-bold text-textPrimary">Log meal</h3>
               <button onClick={() => setShowMealModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
@@ -833,9 +834,9 @@ export default function Health() {
       {/* ── Set goals modal ── */}
       {showGoalModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">🎯 Set goals</h3>
+              <h3 className="font-bold text-textPrimary">Set goals</h3>
               <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
             </div>
             <p className="text-sm text-textMuted mb-1">Setting goals for <strong>{activeMember?.name}</strong></p>

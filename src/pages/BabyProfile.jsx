@@ -692,8 +692,8 @@ export default function BabyProfile() {
               <p className="font-semibold text-textPrimary mb-3">Growth history</p>
 
               {/* Simple visual chart */}
-              <div className="mb-4 overflow-x-auto">
-                <div className="flex items-end gap-2 min-w-max pb-2" style={{ height: '80px' }}>
+              <div className="mb-4 overflow-x-auto scrollbar-hide">
+                <div className="flex items-end gap-2 pb-2" style={{ height: '80px', minWidth: 'max-content' }}>
                   {growthData.logs.map((log, i) => {
                     const maxW = Math.max(...growthData.logs.map(l => l.weight))
                     const pct = Math.round((log.weight / maxW) * 100)

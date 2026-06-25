@@ -441,10 +441,10 @@ export default function Dashboard() {
                   </div>
 
                   {/* Quick info */}
-                  <div className="flex gap-3 mb-6 text-xs text-textMuted">
-                    {tonightMeal.recipeData?.time && <span>⏱ {tonightMeal.recipeData.time}</span>}
-                    {tonightMeal.recipeData?.calories && <span>🔥 {tonightMeal.recipeData.calories} kcal</span>}
-                    {tonightMeal.recipeData?.serves && <span>👥 Serves {tonightMeal.recipeData.serves}</span>}
+                  <div className="flex flex-wrap gap-2 mb-6 text-xs text-textMuted">
+                    {tonightMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
+                    {tonightMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
+                    {tonightMeal.recipeData?.serves && <span className="flex items-center gap-1"><Icon name="family" size={11} /> Serves {tonightMeal.recipeData.serves}</span>}
                   </div>
 
                   {/* Navigation */}

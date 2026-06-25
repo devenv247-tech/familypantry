@@ -103,3 +103,8 @@ img, video, iframe, svg {
 .page-subheading {
   @apply text-textMuted mt-1 text-sm sm:text-base;
 }
+
+/* Page header row — title + action button */
+.page-header-row {
+  @apply flex flex-wrap items-start justify-between gap-3 mb-6;
+}

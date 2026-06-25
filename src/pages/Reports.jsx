@@ -193,7 +193,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Bar chart */}
         <div className="card lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
+          <div className="page-header-row">
             <h2 className="font-semibold text-textPrimary">Monthly spending</h2>
             <span className="text-xs text-textMuted">Last 6 months</span>
           </div>

@@ -212,7 +212,7 @@ export default function Recalls() {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="page-header-row">
           <h2 className="font-semibold text-textPrimary">Recent recalls in Canada</h2>
           <span className="text-xs text-textMuted bg-gray-100 px-3 py-1 rounded-pill">Last 7 days</span>
         </div>
