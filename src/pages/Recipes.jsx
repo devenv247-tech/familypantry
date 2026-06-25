@@ -498,9 +498,9 @@ export default function Recipes() {
                 <button
                   key={star}
                   onClick={() => setPendingRating(star)}
-                  className={`text-3xl transition-all ${pendingRating >= star ? 'opacity-100 scale-110' : 'opacity-30'}`}
+                  className={`transition-all ${pendingRating >= star ? 'opacity-100 scale-110' : 'opacity-30'}`}
                 >
-                  ⭐
+                  <Icon name="star" size={32} className={pendingRating >= star ? 'text-yellow-400' : 'text-gray-300'} strokeWidth={1.5} />
                 </button>
               ))}
             </div>

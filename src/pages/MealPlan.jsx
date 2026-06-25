@@ -730,21 +730,21 @@ export default function MealPlan() {
       {cookedModal && (
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
-            <div className="text-5xl text-center mb-3">🍳</div>
+            <div className="flex justify-center mb-3"><Icon name="check" size={48} className="text-success" /></div>
             <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
             <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
             <div className="space-y-2.5 mb-6">
               <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">
-                <span className="text-lg">🧺</span>
+                <Icon name="pantry" size={20} className="text-success flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
                   <p className="text-xs text-textMuted">Ingredients subtracted from your pantry</p>
                 </div>
-                <span className="text-success text-lg">✓</span>
+                <Icon name="check" size={18} className="text-success flex-shrink-0" />
               </div>
               <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
                 }`}>
-                <span className="text-lg">❤️</span>
+                <Icon name="health" size={20} className="text-success flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
                   <p className="text-xs text-textMuted">
@@ -754,7 +754,7 @@ export default function MealPlan() {
                   </p>
                 </div>
                 {cookedModal.membersLogged.length > 0
-                  ? <span className="text-success text-lg">✓</span>
+                  ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
                   : <span className="text-textMuted text-lg">—</span>}
               </div>
               <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">

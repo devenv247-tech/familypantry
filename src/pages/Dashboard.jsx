@@ -528,7 +528,7 @@ export default function Dashboard() {
             <Icon name="check" size={22} className="text-success" />
             <div>
               <p className="text-sm font-semibold text-success">Dinner's done!</p>
-              <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook 🍳</p>
+              <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook!</p>
             </div>
           </div>
         ) : (
@@ -540,8 +540,8 @@ export default function Dashboard() {
                 <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
                 <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>
                 <div className="flex gap-2 mt-0.5">
-                  {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted">⏱ {tonightMeal.recipeData.time}</span>}
-                  {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted">🔥 {tonightMeal.recipeData.calories} kcal</span>}
+                  {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
+                  {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
                 </div>
               </div>
             </div>
