@@ -17,7 +17,7 @@ export default function Health() {
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [weightForm, setWeightForm] = useState({ weight: '', unit: 'kg', note: '' })
   const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
-  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg' })
+  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg', goalType: '' })
   const [saving, setSaving] = useState(false)
   const [lookingUp, setLookingUp] = useState(false)
   const [lookupResult, setLookupResult] = useState(null)
@@ -251,18 +251,23 @@ export default function Health() {
     setShowSavedSuggestions(false)
   }
 
-  const handleUpdateGoal = async () => {
+ const handleUpdateGoal = async () => {
     setSaving(true)
     try {
       const weightInKg = goalForm.goalWeight && goalForm.goalWeightUnit === 'lbs'
         ? (parseFloat(goalForm.goalWeight) / 2.205).toFixed(1)
         : goalForm.goalWeight
-      await updateMemberGoal({ memberId: activeMemberId, ...goalForm, goalWeight: weightInKg })
-      showToast('Goal updated!')
+      await updateMemberGoal({
+        memberId: activeMemberId,
+        ...goalForm,
+        goalWeight: weightInKg,
+        goals: goalForm.goalType,
+      })
+      showToast('Goals updated!')
       setShowGoalModal(false)
       fetchData()
     } catch (err) {
-      showToast('Failed to update goal', 'error')
+      showToast('Failed to update goals', 'error')
     } finally {
       setSaving(false)
     }
@@ -356,7 +361,12 @@ export default function Health() {
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => {
-              setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg' })
+              setGoalForm({
+                dailyCalorieGoal: activeMember?.dailyCalorieGoal || '',
+                goalWeight: activeMember?.goalWeight || '',
+                goalWeightUnit: 'kg',
+                goalType: activeMember?.goals || '',
+              })
               setShowGoalModal(true)
             }}
             className="btn-secondary text-sm flex-1 sm:flex-none flex items-center justify-center gap-1.5"
@@ -1181,24 +1191,46 @@ export default function Health() {
                 <Icon name="close" size={20} />
               </button>
             </div>
-            <p className="text-sm text-textMuted mb-1">Setting goals for <strong>{activeMember?.name}</strong></p>
-            {activeMember?.dailyCalorieGoal && (
-              <p className="text-xs text-primary mb-4">Auto-calculated goal: {activeMember.dailyCalorieGoal} kcal based on your profile</p>
-            )}
-            <div className="space-y-3 mb-4">
+           <p className="text-sm text-textMuted mb-4">Setting goals for <strong>{activeMember?.name}</strong></p>
+
+            <div className="space-y-4 mb-4">
+              {/* Goal type selector */}
               <div>
-                <label className="label">Daily calorie goal</label>
-                <input
-                  className="input"
-                  type="number"
-                  placeholder={`Auto: ${activeMember?.dailyCalorieGoal || '2000'} kcal`}
-                  value={goalForm.dailyCalorieGoal}
-                  onChange={e => setGoalForm(p => ({ ...p, dailyCalorieGoal: e.target.value }))}
-                />
-                <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal</p>
+                <label className="label">What's your goal?</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'lose weight', icon: 'leaf', label: 'Lose weight', desc: 'Calorie deficit · balanced macros', color: 'border-green-200 bg-green-50', activeColor: 'border-green-500 bg-green-50', iconClass: 'text-green-600' },
+                    { value: 'gain muscle', icon: 'star', label: 'Gain muscle', desc: 'Calorie surplus · high protein', color: 'border-blue-200 bg-blue-50', activeColor: 'border-blue-500 bg-blue-50', iconClass: 'text-blue-600' },
+                    { value: 'maintain', icon: 'check', label: 'Maintain', desc: 'Hit calorie goal · balanced', color: 'border-purple-200 bg-purple-50', activeColor: 'border-purple-500 bg-purple-50', iconClass: 'text-purple-600' },
+                    { value: 'improve energy', icon: 'sun', label: 'Improve energy', desc: 'Focus on fiber · complex carbs', color: 'border-orange-200 bg-orange-50', activeColor: 'border-orange-500 bg-orange-50', iconClass: 'text-orange-600' },
+                  ].map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setGoalForm(p => ({ ...p, goalType: p.goalType === opt.value ? '' : opt.value }))}
+                      className={`text-left p-3 rounded-btn border-2 transition-all ${
+                        goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-gray-300'
+                      }`}
+                    >
+                      <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-textMuted'}`} />
+                      <p className={`text-sm font-semibold ${goalForm.goalType === opt.value ? 'text-textPrimary' : 'text-textMuted'}`}>
+                        {opt.label}
+                      </p>
+                      <p className="text-xs text-textMuted mt-0.5 leading-tight">{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
+                {goalForm.goalType && (
+                  <p className="text-xs text-primary mt-2 flex items-center gap-1">
+                    <Icon name="sparkle" size={12} />
+                    Macro targets will auto-adjust for your goal
+                  </p>
+                )}
               </div>
+
+              {/* Goal weight */}
               <div>
-                <label className="label">Goal weight</label>
+                <label className="label">Goal weight <span className="text-textMuted font-normal">(optional)</span></label>
                 <div className="flex gap-2">
                   <input
                     className="input flex-1"
@@ -1218,11 +1250,25 @@ export default function Health() {
                   </select>
                 </div>
               </div>
+
+              {/* Manual calorie override */}
+              <div>
+                <label className="label">Daily calorie goal <span className="text-textMuted font-normal">(optional override)</span></label>
+                <input
+                  className="input"
+                  type="number"
+                  placeholder={`Auto: ${activeMember?.dailyCalorieGoal || '2000'} kcal`}
+                  value={goalForm.dailyCalorieGoal}
+                  onChange={e => setGoalForm(p => ({ ...p, dailyCalorieGoal: e.target.value }))}
+                />
+                <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal based on your profile</p>
+              </div>
             </div>
+
             <div className="flex gap-3">
               <button onClick={() => setShowGoalModal(false)} className="btn-secondary flex-1">Cancel</button>
-              <button onClick={handleUpdateGoal} disabled={saving} className="btn-primary flex-1 disabled:opacity-50">
-                {saving ? 'Saving...' : 'Save goals'}
+              <button onClick={handleUpdateGoal} disabled={saving} className="btn-primary flex-1 disabled:opacity-50 flex items-center justify-center gap-2">
+                {saving ? 'Saving...' : <><Icon name="check" size={14} /> Save goals</>}
               </button>
             </div>
           </div>
