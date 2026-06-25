@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Icon from '../components/ui/Icon'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients } from '../api/healthTracker'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients, describeIngredients } from '../api/healthTracker'
 import { saveRecipe, getSavedRecipes } from '../api/savedRecipes'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -36,6 +36,7 @@ export default function Health() {
   const [saveAsRecipe, setSaveAsRecipe] = useState(false)
   const [savedMeals, setSavedMeals] = useState([])
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
+  const [mealDescription, setMealDescription] = useState('')
 
   useEffect(() => {
     fetchData()
@@ -308,12 +309,15 @@ const getGoalNudges = (member) => {
   }
 
   const handleCalculateIngredients = async () => {
-    const valid = ingredients.filter(i => i.name.trim() && i.quantity)
-    if (valid.length === 0) return
+    const isDescribeMode = logMode === 'describe'
+    if (isDescribeMode && !mealDescription.trim()) return
+    if (!isDescribeMode && !ingredients.some(i => i.name.trim() && i.quantity)) return
     setCalculating(true)
     setCalcResult(null)
     try {
-      const result = await calculateIngredients(valid)
+      const result = isDescribeMode
+        ? await describeIngredients(mealDescription)
+        : await calculateIngredients(ingredients.filter(i => i.name.trim() && i.quantity))
       if (result.found) {
         setMealForm(p => ({
           ...p,
@@ -355,8 +359,8 @@ const getGoalNudges = (member) => {
     setShowSuggestions(false)
     setSaveAsRecipe(false)
     setShowSavedSuggestions(false)
+    setMealDescription('')
   }
-
   const openMealModal = async () => {
     setShowMealModal(true)
     try {
@@ -998,19 +1002,27 @@ const getGoalNudges = (member) => {
               <div className="flex rounded-btn border border-border overflow-hidden">
                 <button
                   onClick={() => { setLogMode('quick'); setCalcResult(null) }}
-                  className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
                     logMode === 'quick' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
                   }`}
                 >
-                  <Icon name="search" size={14} /> Quick lookup
+                  <Icon name="search" size={13} /> Lookup
                 </button>
                 <button
-                  onClick={() => { setLogMode('ingredients'); setLookupResult(null) }}
-                  className={`flex-1 py-2.5 text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                  onClick={() => { setLogMode('describe'); setLookupResult(null); setCalcResult(null) }}
+                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                    logMode === 'describe' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
+                  }`}
+                >
+                  <Icon name="edit" size={13} /> Describe
+                </button>
+                <button
+                  onClick={() => { setLogMode('ingredients'); setLookupResult(null); setCalcResult(null) }}
+                  className={`flex-1 py-2 text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
                     logMode === 'ingredients' ? 'bg-primary text-white' : 'text-textMuted hover:text-textPrimary bg-white'
                   }`}
                 >
-                  <Icon name="filter" size={14} /> By ingredients
+                  <Icon name="filter" size={13} /> Builder
                 </button>
               </div>
             </div>
@@ -1018,7 +1030,106 @@ const getGoalNudges = (member) => {
             {/* Scrollable body */}
             <div className="px-6 py-4 space-y-4">
 
-              {logMode === 'quick' ? (
+              {logMode === 'describe' ? (
+                <>
+                  <div>
+                    <label className="label">Describe your meal</label>
+                    <textarea
+                      className="input w-full resize-none"
+                      rows={4}
+                      placeholder={"e.g. protein smoothie with 1 cup milk, 3 strawberries, 2 chunks mango, half banana, 1 tbsp peanut butter and a scoop of salted caramel protein powder"}
+                      value={mealDescription}
+                      onChange={e => setMealDescription(e.target.value)}
+                      autoFocus
+                    />
+                    <p className="text-xs text-textMuted mt-1">Just describe it naturally — Claude will figure out the macros</p>
+                  </div>
+
+                  <button
+                    onClick={handleCalculateIngredients}
+                    disabled={calculating || !mealDescription.trim()}
+                    className="btn-secondary w-full disabled:opacity-50 flex items-center justify-center gap-2 py-3"
+                  >
+                    {calculating ? (
+                      <>
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Calculating...
+                      </>
+                    ) : (
+                      <><Icon name="sparkle" size={16} className="text-primary" /> Get macros</>
+                    )}
+                  </button>
+
+                  {calcResult && (
+                    <>
+                      <div className="rounded-btn bg-green-50 border border-green-100 p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Icon name="check" size={16} className="text-success" />
+                          <p className="text-sm font-semibold text-success">{calcResult.mealName}</p>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 text-center mb-3">
+                          {[
+                            { label: 'Cal', value: calcResult.calories, color: 'text-orange-600' },
+                            { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-blue-600' },
+                            { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
+                            { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
+                          ].map((m, i) => (
+                            <div key={i} className="bg-white rounded-btn p-2 border border-green-100">
+                              <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
+                              <p className="text-xs text-textMuted">{m.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-xs text-textMuted flex items-center gap-1">
+                          <Icon name="info" size={12} /> Confidence: {calcResult.confidence} · {calcResult.source}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="label">Meal name</label>
+                        <input
+                          className="input"
+                          value={mealForm.recipeName}
+                          onChange={e => setMealForm(p => ({ ...p, recipeName: e.target.value }))}
+                          placeholder="Edit name if needed"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="label">Meal type</label>
+                        <select className="input" value={mealForm.mealType} onChange={e => setMealForm(p => ({ ...p, mealType: e.target.value }))}>
+                          {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map(t => <option key={t}>{t}</option>)}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="label">Adjust nutrition <span className="text-textMuted font-normal">(edit if needed)</span></label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="label text-xs">Calories</label>
+                            <input className="input" type="number" value={mealForm.calories} onChange={e => setMealForm(p => ({ ...p, calories: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="label text-xs">Protein (g)</label>
+                            <input className="input" type="number" value={mealForm.protein} onChange={e => setMealForm(p => ({ ...p, protein: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="label text-xs">Carbs (g)</label>
+                            <input className="input" type="number" value={mealForm.carbs} onChange={e => setMealForm(p => ({ ...p, carbs: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="label text-xs">Fat (g)</label>
+                            <input className="input" type="number" value={mealForm.fat} onChange={e => setMealForm(p => ({ ...p, fat: e.target.value }))} />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </>
+              ) : logMode === 'quick' ? (
                 <>
                   {/* Meal name + lookup */}
                   <div>

@@ -21,6 +21,9 @@ export const lookupNutrition = (mealName, servings) =>
 export const calculateIngredients = (ingredients) =>
   api.post('/health-tracker/calculate-ingredients', { ingredients }).then(r => r.data)
 
+export const describeIngredients = (description) =>
+  api.post('/health-tracker/calculate-ingredients', { description }).then(r => r.data)
+
 export const searchNutritionCache = async (query) => {
   const res = await api.get(`/health-tracker/nutrition/search?q=${encodeURIComponent(query)}`)
   return res.data
