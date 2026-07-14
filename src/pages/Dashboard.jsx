@@ -225,16 +225,16 @@ export default function Dashboard() {
         <div className="card mb-6 border border-green-200 bg-green-50/30">
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-semibold text-textPrimary">🛒 Set up your pantry</p>
-            <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium">
+            <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium py-1">
               Add items →
             </button>
           </div>
           <p className="text-xs text-textMuted mb-3">
             {(stats?.pantryCount ?? 0) < 5
-              ? 'Add 5 items to unlock your first recipe suggestions'
+              ? 'Recipes are ready now — add more items for even better matches'
               : (stats?.pantryCount ?? 0) < 10
-              ? 'Add a few more items for smarter meal planning'
-              : 'Almost there — 15 items activates your weekly digest email'}
+              ? 'Add a few more items for even smarter suggestions'
+              : 'Almost there — 15 items unlocks your weekly digest email'}
           </p>
           <div className="relative h-2 bg-gray-100 rounded-pill overflow-hidden mb-2">
             <div
@@ -242,17 +242,29 @@ export default function Dashboard() {
               style={{ width: `${Math.min(((stats?.pantryCount ?? 0) / 15) * 100, 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-textMuted">
+          <div className="flex justify-between text-xs text-textMuted mb-3">
             <span className={(stats?.pantryCount ?? 0) >= 5 ? 'text-green-600 font-medium' : ''}>
-              {(stats?.pantryCount ?? 0) >= 5 ? '✓' : '○'} 5 — Recipes unlock
+              {(stats?.pantryCount ?? 0) >= 5 ? '✓' : '○'}{' '}
+              <span className="hidden sm:inline">5 — Good suggestions</span>
+              <span className="sm:hidden">5</span>
             </span>
             <span className={(stats?.pantryCount ?? 0) >= 10 ? 'text-green-600 font-medium' : ''}>
-              {(stats?.pantryCount ?? 0) >= 10 ? '✓' : '○'} 10 — Smarter suggestions
+              {(stats?.pantryCount ?? 0) >= 10 ? '✓' : '○'}{' '}
+              <span className="hidden sm:inline">10 — Great suggestions</span>
+              <span className="sm:hidden">10</span>
             </span>
             <span className={(stats?.pantryCount ?? 0) >= 15 ? 'text-green-600 font-medium' : ''}>
-              {(stats?.pantryCount ?? 0) >= 15 ? '✓' : '○'} 15 — Weekly digest
+              {(stats?.pantryCount ?? 0) >= 15 ? '✓' : '○'}{' '}
+              <span className="hidden sm:inline">15 — Weekly digest unlocks</span>
+              <span className="sm:hidden">15</span>
             </span>
           </div>
+          <button
+            onClick={() => navigate('/app/recipes')}
+            className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline py-1"
+          >
+            Try a recipe →
+          </button>
         </div>
       )}
 

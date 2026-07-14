@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(git commit -m ' *)",
+      "Read(//Users/jasssangha/**)",
+      "Bash(curl -s -X POST https://api.nooka.ca/api/mealplan/generate-week -H 'Content-Type: application/json' -H 'Authorization: Bearer __CMDSUB_OUTPUT__' -d '{\"weekStart\":\"2026-06-29\",\"selectedCuisines\":[\"Punjabi\"]}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(xargs ls)",
+      "Bash(xargs -I{} echo {})",
+      "Bash(npx babel *)",
+      "Bash(grep -iE \"^\\(expo|react|react-native\\)$\")",
+      "Bash(curl -s -X POST https://api.nooka.ca/api/health-tracker/lookup -H 'Content-Type: application/json' -H 'Authorization: Bearer INVALID' -d '{\"mealName\":\"Big Mac\",\"servings\":1}')"
+    ]
+  }
+}
