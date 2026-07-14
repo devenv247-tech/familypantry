@@ -68,9 +68,9 @@ export default function AppShell() {
 
     {/* Announcements banner — centered modal style */}
       {announcements.length > 0 && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center sm:justify-center p-4 bg-black/40 backdrop-blur-sm">
           {announcements.slice(0, 1).map(announcement => (
-            <div key={announcement.id} className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-card shadow-xl p-6 relative">
+            <div key={announcement.id} className="bg-white w-full sm:w-auto sm:min-w-[480px] sm:max-w-lg rounded-t-2xl sm:rounded-card shadow-xl p-6 relative modal-sheet">
               <button
                 onClick={() => dismissAnnouncement(announcement.id)}
                 className="absolute top-4 right-4 text-textMuted hover:text-textPrimary text-xl"

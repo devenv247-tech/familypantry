@@ -27,10 +27,10 @@ export default function BarcodeScanner({ onScan, onClose }) {
   }, [])
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-surface rounded-card w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center sm:justify-center p-4">
+      <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl overflow-hidden modal-sheet">
 
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="modal-header flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="font-semibold text-textPrimary">Scan barcode</h3>
           <button onClick={onClose} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
         </div>
