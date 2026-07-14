@@ -535,36 +535,69 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Waste savings widget */}
-      {wasteSavings && wasteSavings.mealsCooked > 0 && (
+      {/* Waste savings + weekly cooking consistency */}
+      {wasteSavings && (
         <div className="card mb-6 border border-green-200 bg-gradient-to-r from-green-50/40 to-emerald-50/40">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">💚</span>
-              <h2 className="font-semibold text-textPrimary">Your impact this month</h2>
+
+          {/* Weekly cooking indicator */}
+          <div className="mb-4">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Icon name="leaf" size={14} className="text-green-600 flex-shrink-0" />
+              <span className="text-sm font-semibold text-textPrimary">
+                {wasteSavings.mealsCookedThisWeek > 0
+                  ? `${wasteSavings.mealsCookedThisWeek} meal${wasteSavings.mealsCookedThisWeek !== 1 ? 's' : ''} cooked this week`
+                  : 'No meals cooked yet this week'}
+              </span>
             </div>
-            <span className="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-pill">
-              {wasteSavings.mealsCooked} meal{wasteSavings.mealsCooked !== 1 ? 's' : ''} cooked
-            </span>
+            {wasteSavings.mealsCookedThisWeek > 0 ? (
+              <div className="flex items-end gap-1">
+                {['M','T','W','T','F','S','S'].map((label, i) => (
+                  <div key={i} className="flex flex-col items-center gap-0.5">
+                    <div className={`w-2 h-2 rounded-full ${wasteSavings.cookedDays?.includes(i) ? 'bg-green-500' : 'bg-gray-200'}`} />
+                    <span className="text-[9px] leading-none text-textMuted">{label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <button onClick={() => navigate('/app/recipes')} className="text-xs text-primary font-medium hover:underline">
+                Cook your first meal this week →
+              </button>
+            )}
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
-              <p className="text-xl font-bold text-green-600">${wasteSavings.moneySaved}</p>
-              <p className="text-xs text-textMuted mt-0.5">estimated saved</p>
-            </div>
-            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
-              <p className="text-xl font-bold text-emerald-600">{wasteSavings.co2Saved}kg</p>
-              <p className="text-xs text-textMuted mt-0.5">CO₂ avoided</p>
-            </div>
-            <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
-              <p className="text-xl font-bold text-teal-600">{wasteSavings.foodRescued}</p>
-              <p className="text-xs text-textMuted mt-0.5">items rescued</p>
-            </div>
-          </div>
-          {wasteSavings.foodRescued > 0 && (
-            <p className="text-xs text-green-700 mt-3 text-center">
-              🎉 You rescued {wasteSavings.wasteAvoided}kg of food from going to waste this month!
-            </p>
+
+          {/* Monthly impact */}
+          {wasteSavings.mealsCooked > 0 && (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Icon name="health" size={18} className="text-green-500" />
+                  <h2 className="font-semibold text-textPrimary">Your impact this month</h2>
+                </div>
+                <span className="text-xs bg-green-100 text-green-700 font-medium px-2 py-0.5 rounded-pill">
+                  {wasteSavings.mealsCooked} meal{wasteSavings.mealsCooked !== 1 ? 's' : ''} cooked
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+                  <p className="text-xl font-bold text-green-600">${wasteSavings.moneySaved}</p>
+                  <p className="text-xs text-textMuted mt-0.5">estimated saved</p>
+                </div>
+                <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+                  <p className="text-xl font-bold text-emerald-600">{wasteSavings.co2Saved}kg</p>
+                  <p className="text-xs text-textMuted mt-0.5">CO₂ avoided</p>
+                </div>
+                <div className="bg-white rounded-btn border border-green-100 px-3 py-3 text-center">
+                  <p className="text-xl font-bold text-teal-600">{wasteSavings.foodRescued}</p>
+                  <p className="text-xs text-textMuted mt-0.5">items rescued</p>
+                </div>
+              </div>
+              {wasteSavings.foodRescued > 0 && (
+                <p className="text-xs text-green-700 mt-3 text-center flex items-center justify-center gap-1">
+                  <Icon name="sparkle" size={13} className="text-green-600 flex-shrink-0" />
+                  You rescued {wasteSavings.wasteAvoided}kg of food from going to waste this month!
+                </p>
+              )}
+            </>
           )}
         </div>
       )}
