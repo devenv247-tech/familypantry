@@ -10,7 +10,11 @@
       "Bash(xargs -I{} echo {})",
       "Bash(npx babel *)",
       "Bash(grep -iE \"^\\(expo|react|react-native\\)$\")",
-      "Bash(curl -s -X POST https://api.nooka.ca/api/health-tracker/lookup -H 'Content-Type: application/json' -H 'Authorization: Bearer INVALID' -d '{\"mealName\":\"Big Mac\",\"servings\":1}')"
+      "Bash(curl -s -X POST https://api.nooka.ca/api/health-tracker/lookup -H 'Content-Type: application/json' -H 'Authorization: Bearer INVALID' -d '{\"mealName\":\"Big Mac\",\"servings\":1}')",
+      "Bash(git commit *)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(awk '{print $6, $7, $8}')"
     ]
   }
 }
