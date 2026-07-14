@@ -19,3 +19,8 @@ export const getNudges = async () => {
   const res = await client.get('/dashboard/nudges')
   return res.data
 }
+
+export const getTonightSuggestion = async () => {
+  const res = await client.get('/dashboard/tonight')
+  return res.data
+}

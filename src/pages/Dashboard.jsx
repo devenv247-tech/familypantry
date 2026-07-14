@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Icon from '../components/ui/Icon'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
-import { getDashboardStats, getRecentActivity, getWasteSavings, getNudges } from '../api/dashboard'
+import { getDashboardStats, getRecentActivity, getWasteSavings, getNudges, getTonightSuggestion } from '../api/dashboard'
 import { getMealPlan, markMealCooked } from '../api/mealplan'
 import { cookRecipe } from '../api/recipes'
 import { logNutrition } from '../api/healthProgress'
@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [nudges, setNudges] = useState([])
   const [dismissedNudges, setDismissedNudges] = useState([])
   const [tonightMeal, setTonightMeal] = useState(null) // null = loading, false = empty
+  const [aiSuggestion, setAiSuggestion] = useState(null) // null = loading, false = empty
   const [cookAlong, setCookAlong] = useState(false)
   const [cookStep, setCookStep] = useState(0)
   const [cooking, setCooking] = useState(false)
@@ -62,6 +63,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData()
     fetchTonightMeal()
+    fetchAiSuggestion()
   }, [])
 
   const fetchTonightMeal = async () => {
@@ -81,6 +83,15 @@ export default function Dashboard() {
       setTonightMeal(dinner || false)
     } catch (err) {
       setTonightMeal(false)
+    }
+  }
+
+  const fetchAiSuggestion = async () => {
+    try {
+      const data = await getTonightSuggestion()
+      setAiSuggestion(data.empty ? false : data)
+    } catch {
+      setAiSuggestion(false)
     }
   }
 
@@ -198,6 +209,86 @@ export default function Dashboard() {
           </p>
           <button onClick={() => navigate('/app/recalls')} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-danger underline py-1">View recalls →</button>
         </div>
+      </div>
+
+      {/* What's for dinner tonight? — AI suggestion */}
+      <div className="card mb-6 border border-indigo-100 bg-indigo-50/20">
+        {aiSuggestion === null ? (
+          <div className="animate-pulse">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-4 h-4 bg-gray-100 rounded" />
+              <div className="h-3 bg-gray-100 rounded w-32" />
+            </div>
+            <div className="h-5 bg-gray-100 rounded w-3/4 mb-3" />
+            <div className="flex gap-2 mb-4">
+              <div className="h-6 bg-gray-100 rounded-pill w-20" />
+              <div className="h-6 bg-gray-100 rounded-pill w-16" />
+              <div className="h-6 bg-gray-100 rounded-pill w-24" />
+            </div>
+            <div className="h-9 bg-gray-100 rounded-btn w-36" />
+          </div>
+        ) : aiSuggestion === false ? (
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Icon name="sparkle" size={18} className="text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-textPrimary">What's for dinner tonight?</p>
+              <p className="text-xs text-textMuted mt-0.5 mb-3">
+                Add at least 3 pantry items and Nooka will suggest tonight's dinner.
+              </p>
+              <button
+                onClick={() => navigate('/app/pantry')}
+                className="btn-primary text-sm w-full sm:w-auto"
+              >
+                Add pantry items
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Icon name="sparkle" size={15} className="text-primary" />
+              <p className="text-xs font-semibold text-primary uppercase tracking-wide">Tonight's suggestion</p>
+            </div>
+            <div className="flex items-start gap-3 mb-3">
+              <span className="text-2xl leading-none flex-shrink-0">{aiSuggestion.recipe.icon}</span>
+              <p className="text-base font-bold text-textPrimary line-clamp-2 leading-snug">
+                {aiSuggestion.recipe.name}
+              </p>
+            </div>
+            {(aiSuggestion.recipe.time || aiSuggestion.recipe.difficulty) && (
+              <div className="flex items-center gap-3 mb-3 text-xs text-textMuted">
+                {aiSuggestion.recipe.time && (
+                  <span className="flex items-center gap-1">
+                    <Icon name="recipes" size={11} /> {aiSuggestion.recipe.time}
+                  </span>
+                )}
+                {aiSuggestion.recipe.difficulty && <span>{aiSuggestion.recipe.difficulty}</span>}
+              </div>
+            )}
+            {aiSuggestion.recipe.ingredients?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {aiSuggestion.recipe.ingredients.slice(0, 6).map((ing, i) => (
+                  <span key={i} className="text-xs bg-white border border-indigo-100 text-textPrimary px-2.5 py-1 rounded-pill">
+                    {ing.name}
+                  </span>
+                ))}
+                {aiSuggestion.recipe.ingredients.length > 6 && (
+                  <span className="text-xs text-textMuted px-1 py-1">
+                    +{aiSuggestion.recipe.ingredients.length - 6} more
+                  </span>
+                )}
+              </div>
+            )}
+            <button
+              onClick={() => navigate('/app/recipes')}
+              className="btn-primary text-sm w-full sm:w-auto flex items-center justify-center gap-2"
+            >
+              <Icon name="recipes" size={16} /> Get full recipe
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
