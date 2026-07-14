@@ -245,14 +245,14 @@ export default function MealPlan() {
 
       {/* Meal detail modal */}
       {showDetailModal && selectedMeal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center sm:p-4">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
               <h3 className="font-semibold text-textPrimary flex items-center gap-2">
                 <span>{selectedMeal.recipeData?.icon || MEAL_ICONS[selectedMeal.mealType]}</span>
                 <span>{selectedMeal.mealType} — {selectedMeal.day}</span>
               </h3>
-              <button onClick={() => setShowDetailModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <button onClick={() => setShowDetailModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
               <h2 className="text-lg font-bold text-textPrimary mb-1">{selectedMeal.recipeName}</h2>
@@ -380,11 +380,11 @@ export default function MealPlan() {
       <CookingLoader mode="weekplan" visible={generatingWeek} />
       {/* Member selector modal for week generation */}
       {showMemberModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center sm:p-4">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h3 className="font-semibold text-textPrimary">✨ Auto-plan this week</h3>
-              <button onClick={() => setShowMemberModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <button onClick={() => setShowMemberModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
               <p className="text-sm text-textMuted mb-4">
@@ -456,7 +456,7 @@ export default function MealPlan() {
               <h3 className="font-semibold text-textPrimary">
                 {MEAL_ICONS[selectedSlot?.mealType]} {selectedSlot?.mealType} — {selectedSlot?.day}
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <button onClick={() => setShowAddModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
               <label className="label">Recipe name</label>
@@ -728,7 +728,7 @@ export default function MealPlan() {
 
       {/* I cooked this — confirmation modal */}
       {cookedModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
             <div className="flex justify-center mb-3"><Icon name="check" size={48} className="text-success" /></div>
             <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>

@@ -426,12 +426,12 @@ export default function Pantry() {
 
       {/* Photo scan results modal */}
       {showPhotoResults && scannedItems.length > 0 && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl modal-sheet">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-bold text-textPrimary">📸 Photo scan results</h3>
-                <button onClick={() => setShowPhotoResults(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+                <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="aiScan" size={18} className="flex-shrink-0" /> Photo scan results</h3>
+                <button onClick={() => setShowPhotoResults(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
               </div>
               <p className="text-sm text-textMuted mb-4">
                 Found {scannedItems.length} items. Select which ones to add to your pantry.
@@ -562,11 +562,11 @@ export default function Pantry() {
       {/* Templates modal */}
       {showTemplates && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl">
+          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl modal-sheet">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="templates" size={18} /> Pantry starter templates</h3>
-                <button onClick={() => setShowTemplates(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+                <button onClick={() => setShowTemplates(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
               </div>
               <p className="text-sm text-textMuted mb-6">
                 Choose a grocery template to quickly populate your pantry with common staples. Existing items won't be duplicated.
@@ -989,8 +989,8 @@ export default function Pantry() {
 
       {/* Voice restock confirmation */}
       {voiceConfirm && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-card shadow-xl w-full max-w-sm p-6">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
             <div className="text-3xl mb-3 text-center">{voiceConfirm.existing.icon}</div>
             <h3 className="font-bold text-textPrimary text-center mb-1">Restock this item?</h3>
             <p className="text-sm text-textMuted text-center mb-5">

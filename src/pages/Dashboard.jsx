@@ -604,8 +604,8 @@ export default function Dashboard() {
 
       {/* Cook-along modal */}
       {cookAlong && tonightMeal && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto modal-sheet">
 
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white">
@@ -615,7 +615,7 @@ export default function Dashboard() {
                   {tonightMeal.recipeData?.icon} {tonightMeal.recipeName}
                 </h3>
               </div>
-              <button onClick={() => setCookAlong(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+              <button onClick={() => setCookAlong(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
 
             <div className="p-6">
