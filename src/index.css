@@ -66,7 +66,10 @@ html, body, #root {
   width: 100%;
 }
 
-.page-container, .card, [class*="grid-cols"] {
+/* NOTE: .card intentionally excluded — including it overrides max-w-* utilities on .card elements
+   due to cascade-layer priority (unlayered CSS beats @layer utilities in Tailwind v3.3+).
+   If you need max-width: 100% on a card, use w-full alongside it. */
+.page-container, [class*="grid-cols"] {
   max-width: 100%;
 }
 
