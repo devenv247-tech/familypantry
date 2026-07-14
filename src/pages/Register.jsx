@@ -119,7 +119,7 @@ const handleStep2 = async (e) => {
                 <input
                   type="text"
                   className="input"
-                  placeholder="e.g. Jas"
+                  placeholder="e.g. John"
                   value={form.name}
                   onChange={e => update('name', e.target.value)}
                 />
