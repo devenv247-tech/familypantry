@@ -50,6 +50,7 @@ export default function Dashboard() {
   const [dismissedNudges, setDismissedNudges] = useState([])
   const [tonightMeal, setTonightMeal] = useState(null) // null = loading, false = empty
   const [aiSuggestion, setAiSuggestion] = useState(null) // null = loading, false = empty
+  const [aiExpanded, setAiExpanded] = useState(false)
   const [cookAlong, setCookAlong] = useState(false)
   const [cookStep, setCookStep] = useState(0)
   const [cooking, setCooking] = useState(false)
@@ -267,26 +268,66 @@ export default function Dashboard() {
                 {aiSuggestion.recipe.difficulty && <span>{aiSuggestion.recipe.difficulty}</span>}
               </div>
             )}
-            {aiSuggestion.recipe.ingredients?.length > 0 && (
+            {!aiExpanded && aiSuggestion.recipe.ingredients?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-4">
-                {aiSuggestion.recipe.ingredients.slice(0, 6).map((ing, i) => (
+                {aiSuggestion.recipe.ingredients.slice(0, 4).map((ing, i) => (
                   <span key={i} className="text-xs bg-white border border-indigo-100 text-textPrimary px-2.5 py-1 rounded-pill">
                     {ing.name}
                   </span>
                 ))}
-                {aiSuggestion.recipe.ingredients.length > 6 && (
+                {aiSuggestion.recipe.ingredients.length > 4 && (
                   <span className="text-xs text-textMuted px-1 py-1">
-                    +{aiSuggestion.recipe.ingredients.length - 6} more
+                    +{aiSuggestion.recipe.ingredients.length - 4} more
                   </span>
                 )}
               </div>
             )}
-            <button
-              onClick={() => navigate('/app/recipes')}
-              className="btn-primary text-sm w-full sm:w-auto flex items-center justify-center gap-2"
-            >
-              <Icon name="recipes" size={16} /> Get full recipe
-            </button>
+            {aiExpanded && (
+              <div className="mb-4 space-y-4">
+                {aiSuggestion.recipe.ingredients?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">Ingredients</p>
+                    <ul className="space-y-1.5">
+                      {aiSuggestion.recipe.ingredients.map((ing, i) => (
+                        <li key={i} className="flex items-baseline gap-2 text-sm text-textPrimary">
+                          <span className="w-1 h-1 rounded-full bg-primary flex-shrink-0 mt-2" />
+                          {[ing.quantity, ing.unit, ing.name].filter(Boolean).join(' ')}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {aiSuggestion.recipe.steps?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">Steps</p>
+                    <ol className="space-y-2">
+                      {aiSuggestion.recipe.steps.map((step, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm text-textPrimary">
+                          <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                            {i + 1}
+                          </span>
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+              <button
+                onClick={() => setAiExpanded(prev => !prev)}
+                className="btn-primary text-sm w-full sm:w-auto"
+              >
+                {aiExpanded ? 'Hide recipe ↑' : 'See recipe →'}
+              </button>
+              <button
+                onClick={() => navigate('/app/recipes')}
+                className="text-sm text-primary font-medium hover:underline py-1 text-center sm:text-left"
+              >
+                Generate more ideas →
+              </button>
+            </div>
           </div>
         )}
       </div>
