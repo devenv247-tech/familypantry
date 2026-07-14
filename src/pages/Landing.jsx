@@ -256,8 +256,8 @@ export default function Landing() {
               {
                 icon: '📸',
                 title: 'AI photo scan',
-                badge: '✨ New',
-                badgeColor: 'bg-purple-50 text-purple-600 border-purple-100',
+                badge: 'Family',
+                badgeColor: 'bg-green-50 text-green-700 border-green-100',
                 desc: 'Take a photo of your fridge or pantry and Nooka automatically detects and adds all items instantly. Add 20 items in one photo!'
               },
               {
@@ -289,7 +289,8 @@ export default function Landing() {
               {
                 icon: '🚨',
                 title: 'Food recall alerts',
-                badge: null,
+                badge: 'Family',
+                badgeColor: 'bg-green-50 text-green-700 border-green-100',
                 desc: 'Automatically matched against live Health Canada recalls. Get instant alerts if anything in your pantry is recalled. Your family stays safe.'
               },
               {
@@ -419,7 +420,7 @@ export default function Landing() {
               },
               {
                 q: 'What\'s the difference between Family and Premium?',
-                a: 'Family adds smart grocery lists, predictive shopping, and pantry pattern insights on top of the free plan. Premium goes further with a full weekly meal planner, voice input, photo scanning, kids nutrition tracking, and more. Both are month-to-month with no commitment.'
+                a: 'Family adds smart grocery lists, predictive shopping, pantry pattern insights, and photo scanning (5 scans/month) on top of the free plan. Premium goes further with unlimited photo scans, a full weekly meal planner, voice input, kids nutrition tracking, and more. Both are month-to-month with no commitment.'
               },
             ].map((item, i) => (
               <FAQItem key={i} question={item.q} answer={item.a} />
