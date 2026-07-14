@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { addMember } from '../../api/family'
 import { addPantryItem } from '../../api/pantry'
+import { getTemplates, applyTemplate } from '../../api/pantryTools'
+import Icon from '../ui/Icon'
 
 const GOALS = [
   'Lose weight',
@@ -70,6 +72,14 @@ export default function Onboarding({ onComplete }) {
   })
   const [skippedMember, setSkippedMember] = useState(false)
   const [skippedPantry, setSkippedPantry] = useState(false)
+
+  const [templates, setTemplates] = useState([])
+  const [templatesLoading, setTemplatesLoading] = useState(false)
+  const [applyingTemplate, setApplyingTemplate] = useState(null)
+  const [templateSuccess, setTemplateSuccess] = useState(null)
+  const [showManualForm, setShowManualForm] = useState(false)
+  const [templateError, setTemplateError] = useState('')
+
   const formatHeight = (raw) => {
     if (!raw) return ''
     if (raw.length === 1) return `${raw}'0"`
@@ -81,6 +91,30 @@ export default function Onboarding({ onComplete }) {
     const selected = current.includes(allergen)
     const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
     setMember(p => ({ ...p, allergens: updated.join(', ') }))
+  }
+
+  useEffect(() => {
+    if (step === 3 && templates.length === 0 && !templatesLoading) {
+      setTemplatesLoading(true)
+      getTemplates()
+        .then(data => setTemplates(data))
+        .catch(() => {})
+        .finally(() => setTemplatesLoading(false))
+    }
+  }, [step])
+
+  const handleApplyTemplate = async (templateId) => {
+    setApplyingTemplate(templateId)
+    setTemplateError('')
+    try {
+      const result = await applyTemplate(templateId)
+      setTemplateSuccess({ message: result.message })
+      setTimeout(() => setStep(4), 2000)
+    } catch {
+      setTemplateError("Couldn't add template — try again or add items manually.")
+    } finally {
+      setApplyingTemplate(null)
+    }
   }
 
   const handleAddMember = async () => {
@@ -285,43 +319,120 @@ export default function Onboarding({ onComplete }) {
 
           {step === 3 && (
             <div>
-              <div className="mb-6">
+              <div className="mb-5">
                 <p className="text-xs text-textMuted mb-1">Step 2 of 2</p>
-                <h2 className="text-xl font-bold text-textPrimary">Add your first pantry item</h2>
-                <p className="text-sm text-textMuted mt-1">What's in your kitchen right now? Add one item to get started</p>
+                <h2 className="text-xl font-bold text-textPrimary">Stock your pantry</h2>
+                <p className="text-sm text-textMuted mt-1">Pick a starter kit to add 15–20 items in one tap</p>
               </div>
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="label">Item name</label>
-                  <input className="input" placeholder="e.g. Basmati rice, Chicken breast, Milk..." value={pantryItem.name} onChange={e => setPantryItem(p => ({ ...p, name: e.target.value }))} autoFocus />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="label">Quantity</label>
-                    <input className="input" type="number" placeholder="1" value={pantryItem.quantity} onChange={e => setPantryItem(p => ({ ...p, quantity: e.target.value }))} />
+
+              {templateSuccess ? (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-green-600 text-2xl font-bold">✓</span>
                   </div>
-                  <div>
-                    <label className="label">Unit</label>
-                    <select className="input" value={pantryItem.unit} onChange={e => setPantryItem(p => ({ ...p, unit: e.target.value }))}>
-                      {['pcs', 'kg', 'g', 'L', 'ml', 'lb', 'oz', 'cup'].map(u => <option key={u}>{u}</option>)}
-                    </select>
+                  <p className="font-semibold text-textPrimary text-lg">{templateSuccess.message}</p>
+                  <p className="text-sm text-textMuted mt-1 mb-6">Taking you to the next step...</p>
+                  <button onClick={() => setStep(4)} className="btn-primary w-full py-3">
+                    Continue →
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {templateError && (
+                    <div className="mb-4 bg-red-50 border border-red-100 text-danger text-sm px-4 py-3 rounded-btn">
+                      {templateError}
+                    </div>
+                  )}
+
+                  {templatesLoading ? (
+                    <div className="flex items-center justify-center gap-2 py-10 text-textMuted text-sm">
+                      <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Loading templates...
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                      {templates.map(template => {
+                        const isApplying = applyingTemplate === template.id
+                        return (
+                          <button
+                            key={template.id}
+                            type="button"
+                            disabled={!!applyingTemplate}
+                            onClick={() => handleApplyTemplate(template.id)}
+                            className={`text-left p-4 rounded-btn border transition-all w-full ${
+                              isApplying
+                                ? 'border-primary bg-blue-50 opacity-60'
+                                : 'border-border hover:border-primary hover:bg-blue-50 active:scale-[0.99]'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl leading-none flex-shrink-0 mt-0.5">{template.icon}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-textPrimary leading-snug">{template.name}</p>
+                                <p className="text-xs text-textMuted mt-0.5 line-clamp-2">{template.description}</p>
+                                <p className="text-xs text-primary font-medium mt-1.5">
+                                  {isApplying ? 'Adding items...' : `${template.itemCount} items`}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  <div className="border-t border-border pt-4 mb-5">
+                    <button
+                      type="button"
+                      onClick={() => setShowManualForm(p => !p)}
+                      className="flex items-center gap-2 text-sm text-textMuted hover:text-textPrimary transition-colors font-medium"
+                    >
+                      <span className={`text-base inline-block transition-transform duration-200 ${showManualForm ? 'rotate-90' : ''}`}>›</span>
+                      Or add items manually
+                    </button>
+                    {showManualForm && (
+                      <div className="space-y-4 mt-4">
+                        <div>
+                          <label className="label">Item name</label>
+                          <input className="input" placeholder="e.g. Basmati rice, Chicken breast, Milk..." value={pantryItem.name} onChange={e => setPantryItem(p => ({ ...p, name: e.target.value }))} autoFocus />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="label">Quantity</label>
+                            <input className="input" type="number" placeholder="1" value={pantryItem.quantity} onChange={e => setPantryItem(p => ({ ...p, quantity: e.target.value }))} />
+                          </div>
+                          <div>
+                            <label className="label">Unit</label>
+                            <select className="input" value={pantryItem.unit} onChange={e => setPantryItem(p => ({ ...p, unit: e.target.value }))}>
+                              {['pcs', 'kg', 'g', 'L', 'ml', 'lb', 'oz', 'cup'].map(u => <option key={u}>{u}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="label">Category</label>
+                          <select className="input" value={pantryItem.category} onChange={e => setPantryItem(p => ({ ...p, category: e.target.value }))}>
+                            {['Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks'].map(c => <option key={c}>{c}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div>
-                  <label className="label">Category</label>
-                  <select className="input" value={pantryItem.category} onChange={e => setPantryItem(p => ({ ...p, category: e.target.value }))}>
-                    {['Fridge', 'Freezer', 'Dry goods', 'Spices', 'Snacks'].map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => { setSkippedPantry(true); setStep(4) }} className="btn-secondary flex-1">
-                  Skip for now
-                </button>
-                <button onClick={handleAddPantryItem} disabled={!pantryItem.name.trim() || loading} className="btn-primary flex-1 disabled:opacity-50">
-                  {loading ? 'Adding...' : 'Add item →'}
-                </button>
-              </div>
+
+                  <div className="flex gap-3">
+                    <button type="button" onClick={() => { setSkippedPantry(true); setStep(4) }} className="btn-secondary flex-1">
+                      Skip for now
+                    </button>
+                    {showManualForm && (
+                      <button type="button" onClick={handleAddPantryItem} disabled={!pantryItem.name.trim() || loading} className="btn-primary flex-1 disabled:opacity-50">
+                        {loading ? 'Adding...' : 'Add item →'}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
