@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import Icon from '../components/ui/Icon'
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
@@ -70,6 +70,7 @@ const STAR_RATINGS = [1, 2, 3, 4, 5]
 
 export default function Recipes() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const isExpiringMode = searchParams.get('expiring') === 'true'
   const { family } = useAuthStore()
@@ -130,6 +131,21 @@ export default function Recipes() {
     fetchMembers()
     fetchCookingHistory()
     if (isExpiringMode) fetchExpiringItems()
+
+    const preloaded = location.state?.preloadedRecipes
+    if (preloaded) {
+      const { recipes: preloadRecipes, usage: preloadUsage, mealType: preloadMealType, members: preloadMembers } = preloaded
+      setRecipes(preloadRecipes)
+      setUsage(preloadUsage)
+      setGenerated(true)
+      setActiveFilter('all')
+      if (preloadMealType) setMealType(preloadMealType)
+      // Only hydrate member selection for real names — skip the 'Family' fallback
+      if (preloadMembers?.length && preloadMembers[0] !== 'Family') {
+        setSelectedMembers(preloadMembers)
+      }
+      window.history.replaceState({}, document.title)
+    }
   }, [])
 
   const fetchExpiringItems = async () => {

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { addMember } from '../../api/family'
 import { addPantryItem } from '../../api/pantry'
 import { getTemplates, applyTemplate } from '../../api/pantryTools'
+import { suggestRecipes } from '../../api/recipes'
 import Icon from '../ui/Icon'
 
 const GOALS = [
@@ -51,6 +53,10 @@ const ALLERGENS = ['Peanuts', 'Tree nuts', 'Milk', 'Eggs', 'Fish', 'Shellfish', 
 
 export default function Onboarding({ onComplete }) {
   const { user, family } = useAuthStore()
+  const navigate = useNavigate()
+  const aiDisclosureKey = `nooka_ai_disclosure_${family?.id}`
+  const hasAcknowledgedAI = () => localStorage.getItem(aiDisclosureKey) === 'true'
+  const acknowledgeAI = () => localStorage.setItem(aiDisclosureKey, 'true')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [member, setMember] = useState({
@@ -72,6 +78,10 @@ export default function Onboarding({ onComplete }) {
   })
   const [skippedMember, setSkippedMember] = useState(false)
   const [skippedPantry, setSkippedPantry] = useState(false)
+  const [firstRecipeData, setFirstRecipeData] = useState(null)
+  const [firstRecipeLoading, setFirstRecipeLoading] = useState(false)
+  const [firstRecipeError, setFirstRecipeError] = useState(false)
+  const [aiConsented, setAiConsented] = useState(false)
 
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
@@ -151,6 +161,26 @@ export default function Onboarding({ onComplete }) {
       setLoading(false)
       setStep(4)
     }
+  }
+
+  const handleGenerateFirstRecipe = async () => {
+    setFirstRecipeLoading(true)
+    setFirstRecipeError(false)
+    const membersToUse = !skippedMember && member.name.trim() ? [member.name] : ['Family']
+    try {
+      const data = await suggestRecipes(membersToUse, 'Dinner', 'Any cuisine', [])
+      setFirstRecipeData({ recipes: data.recipes, usage: data.usage, mealType: 'Dinner', members: membersToUse })
+    } catch {
+      setFirstRecipeError(true)
+    } finally {
+      setFirstRecipeLoading(false)
+    }
+  }
+
+  const handleCompleteToRecipes = () => {
+    localStorage.setItem(`onboarding_complete_${user?.id}`, 'true')
+    onComplete()
+    navigate('/app/recipes', { state: { preloadedRecipes: firstRecipeData } })
   }
 
   const handleComplete = () => {
@@ -437,34 +467,178 @@ export default function Onboarding({ onComplete }) {
           )}
 
           {step === 4 && (
-            <div className="text-center py-4">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-2xl font-bold text-textPrimary mb-2">You're all set!</h2>
-              <p className="text-textMuted mb-8 max-w-sm mx-auto">
-                Nooka is ready to use. Here's what you can do next:
-              </p>
-              <div className="grid grid-cols-1 gap-3 mb-8 text-left">
-                {[
-                  { icon: '🧺', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
-                  { icon: null, title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes', svgIcon: 'ai' },
-                  { icon: '🛒', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
-                  { icon: '📊', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
-                ].map((item, i) => (
-                  <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
-                    {item.svgIcon
-                      ? <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
-                      : <span className="text-2xl flex-shrink-0">{item.icon}</span>
-                    }
-                    <div>
-                      <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
-                      <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
+            <div className="py-4">
+
+              {/* ── Fallback: skipped pantry or generation failed ── */}
+              {(skippedPantry || firstRecipeError) && (
+                <div className="text-center">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h2 className="text-2xl font-bold text-textPrimary mb-2">You're all set!</h2>
+                  <p className="text-textMuted mb-8 max-w-sm mx-auto">
+                    Nooka is ready to use. Here's what you can do next:
+                  </p>
+                  <div className="grid grid-cols-1 gap-3 mb-8 text-left">
+                    {[
+                      { icon: '🧺', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
+                      { icon: null, title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes', svgIcon: 'ai' },
+                      { icon: '🛒', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
+                      { icon: '📊', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
+                    ].map((item, i) => (
+                      <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
+                        {item.svgIcon
+                          ? <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
+                          : <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                        }
+                        <div>
+                          <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
+                          <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                  <button onClick={handleComplete} className="btn-primary w-full py-3 text-base">
+                    Go to dashboard →
+                  </button>
+                </div>
+              )}
+
+              {/* ── Loading: inline spinner (no CookingLoader — z-index conflict) ── */}
+              {!skippedPantry && !firstRecipeError && firstRecipeLoading && (
+                <div className="text-center py-8">
+                  <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="animate-spin w-7 h-7 text-primary" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  </div>
+                  <p className="font-semibold text-textPrimary mb-1">Finding your first recipe...</p>
+                  <p className="text-sm text-textMuted">Checking your pantry and health goals</p>
+                  <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary underline mt-6 py-2">
+                    Skip — finish setup
+                  </button>
+                </div>
+              )}
+
+              {/* ── Recipe card ── */}
+              {!skippedPantry && !firstRecipeError && !firstRecipeLoading && firstRecipeData && (() => {
+                const recipe = firstRecipeData.recipes[0]
+                const pantryCount = recipe.ingredients?.length ?? 0
+                return (
+                  <div>
+                    <div className="text-center mb-4">
+                      <h2 className="text-xl font-bold text-textPrimary">Your first recipe is ready!</h2>
+                      <p className="text-sm text-textMuted mt-1">Based on your pantry — just a taste of what's possible</p>
                     </div>
-                  </a>
-                ))}
-              </div>
-              <button onClick={handleComplete} className="btn-primary w-full py-3 text-base">
-                Go to dashboard →
-              </button>
+                    <div className="border border-border rounded-card p-4 mb-3">
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className="text-3xl flex-shrink-0 leading-none mt-0.5">{recipe.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-textPrimary line-clamp-2 leading-snug">{recipe.name}</h3>
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <span className="text-xs text-textMuted">⏱ {recipe.time}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'}`}>
+                              {recipe.difficulty}
+                            </span>
+                            {pantryCount > 0 && (
+                              <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-pill font-medium">
+                                ✓ {pantryCount} pantry item{pantryCount !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {recipe.steps?.length > 0 && (
+                        <ol className="space-y-1.5 mb-4">
+                          {recipe.steps.slice(0, 3).map((stepText, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                              <p className="text-xs text-textMuted leading-relaxed line-clamp-2">{stepText}</p>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                      <button onClick={handleCompleteToRecipes} className="btn-primary w-full py-3 text-sm">
+                        See full recipe →
+                      </button>
+                    </div>
+                    <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                      Skip — go to dashboard
+                    </button>
+                  </div>
+                )
+              })()}
+
+              {/* ── Offer state: disclosure or direct generate ── */}
+              {!skippedPantry && !firstRecipeError && !firstRecipeLoading && !firstRecipeData && (
+                <div>
+                  {!(hasAcknowledgedAI() || aiConsented) ? (
+                    /* Compact AI disclosure */
+                    <div>
+                      <div className="text-center mb-5">
+                        <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Icon name="ai" size={24} className="text-primary" />
+                        </div>
+                        <h2 className="text-xl font-bold text-textPrimary">See AI in action</h2>
+                        <p className="text-sm text-textMuted mt-1">Generate your first recipe from your new pantry</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-card px-4 py-3 mb-4">
+                        <p className="text-xs font-semibold text-textPrimary mb-2">Before we generate — a quick note:</p>
+                        <p className="text-xs text-textMuted mb-2 leading-relaxed">
+                          To generate recipes, Nooka sends anonymous health and pantry data to Anthropic's AI (US servers). Your name, email, and account details are never shared.
+                        </p>
+                        <ul className="space-y-1 mb-3">
+                          {['Dietary preferences & health goals', 'Age ranges of family members', 'Items currently in your pantry'].map((item, i) => (
+                            <li key={i} className="flex items-center gap-2 text-xs text-textMuted">
+                              <svg className="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-xs text-textMuted">
+                          By continuing you consent per our{' '}
+                          <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { acknowledgeAI(); setAiConsented(true); handleGenerateFirstRecipe() }}
+                        className="btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 mb-3"
+                      >
+                        <Icon name="ai" size={16} />
+                        Generate my first recipe ✨
+                      </button>
+                      <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                        Skip — finish setup
+                      </button>
+                    </div>
+                  ) : (
+                    /* AI already acknowledged — direct generate */
+                    <div>
+                      <div className="text-center mb-6">
+                        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-7 h-7 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <h2 className="text-xl font-bold text-textPrimary">Your pantry is stocked!</h2>
+                        <p className="text-sm text-textMuted mt-1">Want to see a recipe made from your new pantry?</p>
+                      </div>
+                      <button
+                        onClick={handleGenerateFirstRecipe}
+                        className="btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 mb-3"
+                      >
+                        <Icon name="ai" size={16} />
+                        Generate my first recipe ✨
+                      </button>
+                      <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                        Skip — finish setup
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
 
