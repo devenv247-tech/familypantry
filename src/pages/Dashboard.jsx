@@ -64,8 +64,11 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData()
     fetchTonightMeal()
-    fetchAiSuggestion()
   }, [])
+
+  useEffect(() => {
+    if (tonightMeal === false) fetchAiSuggestion()
+  }, [tonightMeal])
 
   const fetchTonightMeal = async () => {
     try {
@@ -212,9 +215,47 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* What's for dinner tonight? — AI suggestion */}
+      {/* Tonight slot — planned meal, AI suggestion, or skeleton while resolving */}
       <div className="card mb-6 border border-indigo-100 bg-indigo-50/20">
-        {aiSuggestion === null ? (
+        {tonightMeal === null ? (
+          <div className="flex items-center gap-3 animate-pulse">
+            <div className="w-10 h-10 bg-gray-100 rounded-xl" />
+            <div className="flex-1">
+              <div className="h-4 bg-gray-100 rounded w-32 mb-1" />
+              <div className="h-3 bg-gray-100 rounded w-48" />
+            </div>
+          </div>
+        ) : tonightMeal !== false ? (
+          tonightMeal.cooked ? (
+            <div className="flex items-center gap-3">
+              <Icon name="check" size={22} className="text-success" />
+              <div>
+                <p className="text-sm font-semibold text-success">Dinner's done!</p>
+                <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook!</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {tonightMeal.recipeData?.icon
+                  ? <span className="text-2xl flex-shrink-0">{tonightMeal.recipeData.icon}</span>
+                  : <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0"><Icon name="mealplan" size={18} className="text-primary" /></div>
+                }
+                <div className="min-w-0">
+                  <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
+                  <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>
+                  <div className="flex gap-2 mt-0.5">
+                    {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
+                    {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
+                  </div>
+                </div>
+              </div>
+              <button onClick={handleCookAlong} className="btn-primary text-sm flex-shrink-0 flex items-center gap-2">
+                Start cooking
+              </button>
+            </div>
+          )
+        ) : aiSuggestion === null ? (
           <div className="animate-pulse">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-4 h-4 bg-gray-100 rounded" />
@@ -238,10 +279,7 @@ export default function Dashboard() {
               <p className="text-xs text-textMuted mt-0.5 mb-3">
                 Add at least 3 pantry items and Nooka will suggest tonight's dinner.
               </p>
-              <button
-                onClick={() => navigate('/app/pantry')}
-                className="btn-primary text-sm w-full sm:w-auto"
-              >
+              <button onClick={() => navigate('/app/pantry')} className="btn-primary text-sm w-full sm:w-auto">
                 Add pantry items
               </button>
             </div>
@@ -635,69 +673,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      {/* Tonight's dinner card */}
-      <div className="card mb-6 border border-indigo-100 bg-indigo-50/20">
-        {tonightMeal === null ? (
-          /* Loading */
-          <div className="flex items-center gap-3 animate-pulse">
-            <div className="w-10 h-10 bg-gray-100 rounded-xl" />
-            <div className="flex-1">
-              <div className="h-4 bg-gray-100 rounded w-32 mb-1" />
-              <div className="h-3 bg-gray-100 rounded w-48" />
-            </div>
-          </div>
-        ) : tonightMeal === false ? (
-          /* No meal planned */
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Icon name="ai" size={18} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-textPrimary">What's for dinner tonight?</p>
-                <p className="text-xs text-textMuted">Get suggestions based on your pantry</p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate('/app/recipes')}
-              className="btn-primary text-sm flex-shrink-0 flex items-center gap-2"
-            >
-              Show me
-            </button>
-          </div>
-        ) : tonightMeal.cooked ? (
-          /* Already cooked */
-          <div className="flex items-center gap-3">
-            <Icon name="check" size={22} className="text-success" />
-            <div>
-              <p className="text-sm font-semibold text-success">Dinner's done!</p>
-              <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook!</p>
-            </div>
-          </div>
-        ) : (
-          /* Meal planned — show cook card */
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <span className="text-2xl">{tonightMeal.recipeData?.icon || '🌙'}</span>
-              <div className="min-w-0">
-                <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
-                <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>
-                <div className="flex gap-2 mt-0.5">
-                  {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
-                  {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={handleCookAlong}
-              className="btn-primary text-sm flex-shrink-0 flex items-center gap-2"
-            >
-              Start cooking
-            </button>
-          </div>
-        )}
-      </div>
 
       {/* Nooka notices — household pattern nudges */}
       {isFeatureEnabled('meal_patterns', plan) && nudges.filter(n => !dismissedNudges.includes(n.message)).length > 0 && (
