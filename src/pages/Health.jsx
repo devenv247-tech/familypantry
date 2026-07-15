@@ -1120,8 +1120,8 @@ const getGoalNudges = (member) => {
 
       {/* ── Log weight modal ── */}
       {showWeightModal && createPortal(
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">Log weight</h3>
               <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary p-1">
@@ -1161,8 +1161,8 @@ const getGoalNudges = (member) => {
 
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-         <div className="bg-white w-full sm:max-w-lg sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+         <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
 
             {/* Header */}
             <div className="modal-header bg-white px-4 pt-4 pb-3 border-b border-border">
@@ -1667,8 +1667,8 @@ const getGoalNudges = (member) => {
 
       {/* ── Set goals modal ── */}
       {showGoalModal && createPortal(
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm sm:mx-auto rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
+          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-textPrimary">Set goals</h3>
               <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary p-1">

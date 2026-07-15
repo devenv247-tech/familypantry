@@ -1396,7 +1396,7 @@ export default function Recipes() {
 
           {/* I cooked this — confirmation modal */}
           {cookedModal && (
-            <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:p-4 backdrop-blur-sm">
+            <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
               <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
                 <div className="text-5xl text-center mb-3">🍳</div>
                 <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
