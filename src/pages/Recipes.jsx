@@ -248,7 +248,13 @@ export default function Recipes() {
 
   const handleCook = async (recipe, idx) => {
     try {
-      await cookRecipe(recipe)
+      const cookResult = await cookRecipe(recipe)
+      const _r = cookResult?.results || []
+      const _ok = _r.filter(r => !r.reason).length
+      const _skip = _r.filter(r => r.reason).length
+      const pantryLabel = _ok > 0
+        ? _skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`
+        : null
       setCookedId(idx)
       setTimeout(() => setCookedId(null), 3000)
 
@@ -297,7 +303,7 @@ export default function Recipes() {
         recipe,
         membersLogged: nutritionLogged ? membersToLog : [],
         mealPlanMarked,
-        pantryUpdated: true,
+        pantryLabel,
       })
 
       setRatingModal({ recipe, idx })
@@ -1396,14 +1402,16 @@ export default function Recipes() {
                 <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
                 <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
                 <div className="space-y-2.5 mb-6">
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryUpdated ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryLabel ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
                     }`}>
                     <Icon name="pantry" size={18} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">Pantry updated</p>
-                      <p className="text-xs text-textMuted">Ingredients subtracted from your pantry</p>
+                      <p className="text-sm font-medium text-textPrimary">{cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged'}</p>
+                      <p className="text-xs text-textMuted">{cookedModal.pantryLabel ?? 'No items matched'}</p>
                     </div>
-                    <span className="text-success text-lg">✓</span>
+                    {cookedModal.pantryLabel
+                      ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
+                      : <span className="text-textMuted text-lg">—</span>}
                   </div>
 
                   <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'

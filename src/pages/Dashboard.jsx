@@ -55,6 +55,7 @@ export default function Dashboard() {
   const [cookStep, setCookStep] = useState(0)
   const [cooking, setCooking] = useState(false)
   const [cookDone, setCookDone] = useState(false)
+  const [pantryLabel, setPantryLabel] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -111,7 +112,13 @@ export default function Dashboard() {
     try {
       // Decrement pantry
       if (tonightMeal.recipeData?.ingredients?.length) {
-        await cookRecipe({ ingredients: tonightMeal.recipeData.ingredients })
+        const cookResult = await cookRecipe({ ingredients: tonightMeal.recipeData.ingredients })
+        const _r = cookResult?.results || []
+        const _ok = _r.filter(r => !r.reason).length
+        const _skip = _r.filter(r => r.reason).length
+        setPantryLabel(_ok > 0
+          ? _skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`
+          : null)
       }
       // Log nutrition
       if (tonightMeal.recipeData?.nutrition && members.length > 0) {
@@ -624,7 +631,9 @@ export default function Dashboard() {
                 <div className="text-center py-6">
                   <div className="text-6xl mb-4">🍳</div>
                   <h3 className="text-xl font-bold text-textPrimary mb-2">Nice cook!</h3>
-                  <p className="text-sm text-textMuted mb-6">Pantry updated and nutrition logged for everyone.</p>
+                  <p className="text-sm text-textMuted mb-6">
+                    {pantryLabel ? `Pantry updated — ${pantryLabel}. ` : ''}Nutrition logged for everyone.
+                  </p>
                   <button onClick={() => setCookAlong(false)} className="btn-primary w-full">Done</button>
                 </div>
               ) : tonightMeal.recipeData?.steps?.length > 0 ? (
