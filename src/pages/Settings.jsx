@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold, updateDigestPreference } from '../api/family'
+import { getMembers, addMember, updateMember, deleteMember, inviteMember, updateRestockThreshold, updateDigestPreference, getNotificationPrefs, updateNotificationPrefs } from '../api/family'
 import { logGrowth } from '../api/baby'
 import { deleteAccount, updateAccount, exportMyData } from '../api/auth'
 import { useToast } from '../hooks/useToast'
@@ -376,11 +376,32 @@ export default function Settings() {
   }
 
   // ── Notifications ──────────────────────────────────────────────────────────
-  const [notifPrefs, setNotifPrefs] = useState({
-    recalls: true, expiry: true, grocery: true, monthly: false, recipes: false,
-  })
+  const [notifyExpiry, setNotifyExpiry] = useState(null) // null = loading
+  const [savingExpiry, setSavingExpiry] = useState(false)
   const [digestEnabled, setDigestEnabled] = useState(family?.digestEnabled ?? true)
   const [savingDigest, setSavingDigest] = useState(false)
+
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      getNotificationPrefs()
+        .then(data => setNotifyExpiry(data.notifyExpiry))
+        .catch(() => setNotifyExpiry(true))
+    }
+  }, [activeTab])
+
+  const handleExpiryToggle = async (val) => {
+    setNotifyExpiry(val)
+    setSavingExpiry(true)
+    try {
+      await updateNotificationPrefs({ notifyExpiry: val })
+      showToast(val ? 'Expiry reminders enabled' : 'Expiry reminders disabled')
+    } catch {
+      setNotifyExpiry(!val)
+      showToast('Failed to update preference', 'error')
+    } finally {
+      setSavingExpiry(false)
+    }
+  }
 
   const handleDigestToggle = async (val) => {
     setDigestEnabled(val)
@@ -1143,40 +1164,50 @@ export default function Settings() {
       {/* ── NOTIFICATIONS TAB ─────────────────────────────────────────────── */}
       {activeTab === 'notifications' && (
         <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-1">Notification preferences</h2>
-          <p className="text-xs text-textMuted mb-6">Email notifications are coming soon.</p>
-          <div className="space-y-5">
+          <h2 className="font-semibold text-textPrimary mb-5">Notification preferences</h2>
+          <div className="space-y-1">
             {[
-              { key: 'recalls', label: 'Food recall alerts',   sub: 'Instant alert when a recalled item matches your pantry' },
-              { key: 'expiry',  label: 'Expiry reminders',     sub: 'Alert before pantry items expire' },
-              { key: 'grocery', label: 'Weekly grocery list',  sub: 'Auto-generated list every Friday morning' },
-              { key: 'monthly', label: 'Monthly spend report', sub: 'Summary of grocery spending each month' },
-              { key: 'recipes', label: 'Recipe suggestions',   sub: 'Daily meal ideas based on your pantry' },
+              { key: 'recalls', label: 'Food recall alerts',   sub: 'Instant alert when a recalled item matches your pantry', coming: true },
+              { key: 'expiry',  label: 'Expiry reminders',     sub: 'Daily email when items expire within 2 days' },
+              { key: 'grocery', label: 'Weekly grocery list',  sub: 'Auto-generated list every Friday morning', coming: true },
+              { key: 'monthly', label: 'Monthly spend report', sub: 'Summary of grocery spending each month', coming: true },
+              { key: 'recipes', label: 'Recipe suggestions',   sub: 'Daily meal ideas based on your pantry', coming: true },
             ].map((n) => (
               <div key={n.key} className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-textPrimary">{n.label}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-medium text-textPrimary">{n.label}</p>
+                    {n.coming && (
+                      <span className="text-xs px-2 py-0.5 rounded-pill bg-gray-100 text-textMuted border border-border font-medium leading-none flex-shrink-0">Coming soon</span>
+                    )}
+                  </div>
                   <p className="text-xs text-textMuted mt-0.5">{n.sub}</p>
                 </div>
-                <ToggleSwitch on={notifPrefs[n.key]} onChange={(val) => setNotifPrefs(prev => ({ ...prev, [n.key]: val }))} />
+                {n.coming ? (
+                  <div style={{ opacity: 0.35, pointerEvents: 'none', flexShrink: 0 }}>
+                    <ToggleSwitch on={false} onChange={() => {}} />
+                  </div>
+                ) : (
+                  <div style={{ flexShrink: 0, pointerEvents: notifyExpiry === null || savingExpiry ? 'none' : 'auto' }}>
+                    <ToggleSwitch on={notifyExpiry ?? true} onChange={handleExpiryToggle} />
+                  </div>
+                )}
               </div>
             ))}
-          </div>
-          {/* Weekly digest */}
-          <div className="flex items-start justify-between gap-4 py-3 border-b border-border">
-            <div>
-              <p className="text-sm font-medium text-textPrimary">Weekly pantry digest</p>
-              <p className="text-xs text-textMuted mt-0.5">
-                Sunday email with expiring items
-                {family?.plan === 'free' ? '' : ' and recipe suggestions'}
-              </p>
+            {/* Weekly digest */}
+            <div className="flex items-start justify-between gap-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-textPrimary">Weekly pantry digest</p>
+                <p className="text-xs text-textMuted mt-0.5">
+                  Sunday email with expiring items
+                  {family?.plan === 'free' ? '' : ' and recipe suggestions'}
+                </p>
+              </div>
+              <div style={{ flexShrink: 0 }}>
+                <ToggleSwitch on={digestEnabled} onChange={handleDigestToggle} />
+              </div>
             </div>
-            <ToggleSwitch on={digestEnabled} onChange={handleDigestToggle} />
           </div>
-
-          <button onClick={() => showToast('Preferences saved!')} className="btn-primary mt-6 w-full">
-            Save preferences
-          </button>
         </div>
       )}
 

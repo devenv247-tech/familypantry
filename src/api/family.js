@@ -30,3 +30,13 @@ export const updateDigestPreference = async (enabled) => {
   const res = await client.put('/digest-preference', { enabled })
   return res.data
 }
+
+export const getNotificationPrefs = async () => {
+  const res = await client.get('/family/notification-prefs')
+  return res.data
+}
+
+export const updateNotificationPrefs = async (prefs) => {
+  const res = await client.patch('/family/notification-prefs', prefs)
+  return res.data
+}
