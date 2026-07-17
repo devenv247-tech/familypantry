@@ -32,6 +32,14 @@ const ALLERGENS = [
   'Sulphites', 'Celery', 'Lupin', 'Molluscs',
 ]
 
+const ACTIVITY_LEVELS = [
+  { value: 'sedentary',   label: 'Sedentary' },
+  { value: 'light',       label: 'Lightly active' },
+  { value: 'moderate',    label: 'Moderately active' },
+  { value: 'active',      label: 'Active' },
+  { value: 'very_active', label: 'Very active' },
+]
+
 const formatHeight = (raw) => {
   if (!raw) return ''
   if (raw.length === 1) return `${raw}'0"`
@@ -169,6 +177,7 @@ export default function Settings() {
   const EMPTY_MEMBER = {
     name: '', age: '', weight: '', weightUnit: 'kg', height: '',
     goals: [], dietary: [], allergens: '',
+    activityLevel: null,
     isBaby: false, birthDate: '', babyHeight: '', babyWeightUnit: 'kg', babyHeightUnit: 'cm',
   }
   const [newMember, setNewMember] = useState(EMPTY_MEMBER)
@@ -593,6 +602,28 @@ export default function Settings() {
                   </div>
                 )}
 
+                {/* Activity level — non-baby only */}
+                {!newMember.isBaby && (
+                  <div className="mb-5">
+                    <SectionLabel>Activity level</SectionLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {ACTIVITY_LEVELS.map(({ value, label }) => (
+                        <PillButton key={value}
+                          selected={newMember.activityLevel === value}
+                          variant="primary"
+                          onClick={() => setNewMember(p => ({ ...p, activityLevel: p.activityLevel === value ? null : value }))}>
+                          {newMember.activityLevel === value ? '✓ ' : '+ '}{label}
+                        </PillButton>
+                      ))}
+                    </div>
+                    <p className="text-xs text-textMuted mt-1">
+                      {!newMember.activityLevel
+                        ? 'Set your activity level for a more accurate calorie target.'
+                        : 'Used to calculate daily calorie targets.'}
+                    </p>
+                  </div>
+                )}
+
                 {/* Dietary — non-baby only */}
                 {!newMember.isBaby && (
                   <div className="mb-5">
@@ -738,6 +769,24 @@ export default function Settings() {
                                   )
                                 })}
                               </div>
+                            </div>
+                            <div className="mb-4">
+                              <SectionLabel>Activity level</SectionLabel>
+                              <div className="flex flex-wrap gap-2">
+                                {ACTIVITY_LEVELS.map(({ value, label }) => (
+                                  <PillButton key={value}
+                                    selected={editForm.activityLevel === value}
+                                    variant="primary"
+                                    onClick={() => setEditForm(p => ({ ...p, activityLevel: value }))}>
+                                    {editForm.activityLevel === value ? '✓ ' : '+ '}{label}
+                                  </PillButton>
+                                ))}
+                              </div>
+                              <p className="text-xs text-textMuted mt-1">
+                                {!editForm.activityLevel
+                                  ? 'Set your activity level for a more accurate calorie target.'
+                                  : 'Used to calculate daily calorie targets.'}
+                              </p>
                             </div>
                             <div className="mb-4">
                               <SectionLabel>Dietary preferences</SectionLabel>

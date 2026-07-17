@@ -51,6 +51,14 @@ const DIETARY = [
 
 const ALLERGENS = ['Peanuts', 'Tree nuts', 'Milk', 'Eggs', 'Fish', 'Shellfish', 'Soy', 'Wheat/Gluten', 'Sesame seeds']
 
+const ACTIVITY_LEVELS = [
+  { value: 'sedentary',   label: 'Sedentary' },
+  { value: 'light',       label: 'Lightly active' },
+  { value: 'moderate',    label: 'Moderately active' },
+  { value: 'active',      label: 'Active' },
+  { value: 'very_active', label: 'Very active' },
+]
+
 export default function Onboarding({ onComplete }) {
   const { user, family } = useAuthStore()
   const navigate = useNavigate()
@@ -68,6 +76,7 @@ export default function Onboarding({ onComplete }) {
     goals: [],
     dietary: [],
     allergens: '',
+    activityLevel: null,
   })
   const [pantryItem, setPantryItem] = useState({
     name: '',
@@ -135,6 +144,7 @@ export default function Onboarding({ onComplete }) {
         ...member,
         goals: member.goals.join(', '),
         dietary: member.dietary.join(', '),
+        activityLevel: effectiveActivityLevel,
       })
     } catch (err) {
       console.error(err)
@@ -187,6 +197,9 @@ export default function Onboarding({ onComplete }) {
     localStorage.setItem(`onboarding_complete_${user?.id}`, 'true')
     onComplete()
   }
+
+  const isKid = !!(member.age && parseInt(member.age) < 13)
+  const effectiveActivityLevel = member.activityLevel ?? (isKid ? 'very_active' : 'moderate')
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
@@ -299,6 +312,25 @@ export default function Onboarding({ onComplete }) {
                     })}
                   </div>
                   {member.goals.length > 0 && <p className="text-xs text-primary mt-2">Selected: {member.goals.join(', ')}</p>}
+                </div>
+
+                <div>
+                  <label className="label">Activity level</label>
+                  <div className="flex flex-wrap gap-2">
+                    {ACTIVITY_LEVELS.map(({ value, label }) => (
+                      <button key={value} type="button"
+                        onClick={() => setMember(p => ({ ...p, activityLevel: value }))}
+                        className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                          effectiveActivityLevel === value
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {effectiveActivityLevel === value ? '✓ ' : '+ '}{label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-textMuted mt-1">Used to calculate daily calorie targets.</p>
                 </div>
 
                 <div>
