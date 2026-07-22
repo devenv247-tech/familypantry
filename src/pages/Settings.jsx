@@ -177,7 +177,7 @@ export default function Settings() {
   const EMPTY_MEMBER = {
     name: '', age: '', weight: '', weightUnit: 'kg', height: '',
     goals: [], dietary: [], allergens: '',
-    activityLevel: null,
+    activityLevel: null, gender: null,
     isBaby: false, birthDate: '', babyHeight: '', babyWeightUnit: 'kg', babyHeightUnit: 'cm',
   }
   const [newMember, setNewMember] = useState(EMPTY_MEMBER)
@@ -624,6 +624,24 @@ export default function Settings() {
                   </div>
                 )}
 
+                {/* Gender — non-baby only */}
+                {!newMember.isBaby && (
+                  <div className="mb-5">
+                    <SectionLabel>Gender</SectionLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                        <PillButton key={value}
+                          selected={newMember.gender === value}
+                          variant="primary"
+                          onClick={() => setNewMember(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                          {newMember.gender === value ? '✓ ' : '+ '}{label}
+                        </PillButton>
+                      ))}
+                    </div>
+                    <p className="text-xs text-textMuted mt-1">Used for a more accurate calorie calculation.</p>
+                  </div>
+                )}
+
                 {/* Dietary — non-baby only */}
                 {!newMember.isBaby && (
                   <div className="mb-5">
@@ -787,6 +805,20 @@ export default function Settings() {
                                   ? 'Set your activity level for a more accurate calorie target.'
                                   : 'Used to calculate daily calorie targets.'}
                               </p>
+                            </div>
+                            <div className="mb-4">
+                              <SectionLabel>Gender</SectionLabel>
+                              <div className="flex flex-wrap gap-2">
+                                {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                                  <PillButton key={value}
+                                    selected={editForm.gender === value}
+                                    variant="primary"
+                                    onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                                    {editForm.gender === value ? '✓ ' : '+ '}{label}
+                                  </PillButton>
+                                ))}
+                              </div>
+                              <p className="text-xs text-textMuted mt-1">Used for a more accurate calorie calculation.</p>
                             </div>
                             <div className="mb-4">
                               <SectionLabel>Dietary preferences</SectionLabel>

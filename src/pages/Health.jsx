@@ -38,6 +38,7 @@ export default function Health() {
   const [showSavedSuggestions, setShowSavedSuggestions] = useState(false)
   const [mealDescription, setMealDescription] = useState('')
   const [describeError, setDescribeError] = useState('')
+  const [dismissedGenderBanner, setDismissedGenderBanner] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -844,6 +845,19 @@ const getGoalNudges = (member) => {
               </div>
             ))}
           </div>
+
+          {/* Gender missing banner */}
+          {activeMember.genderMissing && !dismissedGenderBanner && (
+            <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-blue-50 border-blue-100 mb-6">
+              <Icon name="info" size={15} className="text-blue-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-textPrimary leading-relaxed flex-1">
+                Set gender in Settings for a more accurate daily calorie target.
+              </p>
+              <button onClick={() => setDismissedGenderBanner(true)} className="text-textMuted hover:text-textPrimary flex-shrink-0 p-0.5">
+                <Icon name="close" size={14} />
+              </button>
+            </div>
+          )}
 
           {/* Calorie progress */}
           {activeMember.dailyCalorieGoal && (
