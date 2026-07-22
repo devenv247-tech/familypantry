@@ -6,6 +6,7 @@ import { saveRecipe, getSavedRecipes } from '../api/savedRecipes'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAppConfigStore } from '../store/appConfigStore'
+import { useAuthStore } from '../store/authStore'
 
 const FITNESS_GOAL_OPTS = [
   { value: 'cut',       label: 'Cut',       desc: 'Lose fat while keeping muscle' },
@@ -33,6 +34,8 @@ const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', main
 export default function Health() {
   const { toast, showToast, hideToast } = useToast()
   const { isFeatureEnabled } = useAppConfigStore()
+  const { family } = useAuthStore()
+  const plan = family?.plan?.toLowerCase() || 'free'
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeMemberId, setActiveMemberId] = useState(null)
@@ -1813,7 +1816,7 @@ const getGoalNudges = (member) => {
               {/* Fitness goal */}
               <div>
                 <label className="label">Fitness goal</label>
-                {!isFeatureEnabled('fitness_coach') ? (
+                {!isFeatureEnabled('fitness_coach', plan) ? (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 border border-border rounded-btn">
                     <Icon name="crown" size={18} className="text-textMuted flex-shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -1879,7 +1882,7 @@ const getGoalNudges = (member) => {
               </div>
 
               {/* Rate — only for cut / lean_bulk */}
-              {isFeatureEnabled('fitness_coach') && (goalForm.fitnessGoal === 'cut' || goalForm.fitnessGoal === 'lean_bulk') && (
+              {isFeatureEnabled('fitness_coach', plan) && (goalForm.fitnessGoal === 'cut' || goalForm.fitnessGoal === 'lean_bulk') && (
                 <div>
                   <label className="label">
                     Rate {goalForm.fitnessGoal === 'cut' ? '(fat loss)' : '(muscle gain)'}
