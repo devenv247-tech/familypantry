@@ -723,6 +723,29 @@ export default function Settings() {
                   </div>
                 )}
 
+                {/* Gender — baby variant */}
+                {newMember.isBaby && (
+                  <div className="mb-4">
+                    <CollapsibleSection
+                      label="Gender"
+                      summary={newMember.gender ? (newMember.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
+                      defaultOpen={false}
+                    >
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                          <PillButton key={value}
+                            selected={newMember.gender === value}
+                            variant="primary"
+                            onClick={() => setNewMember(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                            {newMember.gender === value ? '✓ ' : '+ '}{label}
+                          </PillButton>
+                        ))}
+                      </div>
+                      <p className="text-xs text-textMuted mt-2">Used for more accurate growth percentiles.</p>
+                    </CollapsibleSection>
+                  </div>
+                )}
+
                 {/* Allergens — always shown */}
                 <div className="mb-4">
                   <CollapsibleSection
@@ -921,6 +944,29 @@ export default function Settings() {
                               </CollapsibleSection>
                             </div>
                           </>
+                        )}
+
+                        {/* Gender — baby variant */}
+                        {editForm.isBaby && (
+                          <div className="mb-3">
+                            <CollapsibleSection
+                              label="Gender"
+                              summary={editForm.gender ? (editForm.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
+                              defaultOpen={false}
+                            >
+                              <div className="flex flex-wrap gap-2 pt-2">
+                                {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                                  <PillButton key={value}
+                                    selected={editForm.gender === value}
+                                    variant="primary"
+                                    onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                                    {editForm.gender === value ? '✓ ' : '+ '}{label}
+                                  </PillButton>
+                                ))}
+                              </div>
+                              <p className="text-xs text-textMuted mt-2">Used for more accurate growth percentiles.</p>
+                            </CollapsibleSection>
+                          </div>
                         )}
 
                         <div className="mb-3">
