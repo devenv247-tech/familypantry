@@ -17,7 +17,7 @@ export default function Privacy() {
 
         <div className="mb-10">
           <h1 className="text-3xl font-bold text-textPrimary mb-2">Privacy Policy</h1>
-          <p className="text-textMuted">Last updated: May 05, 2026</p>
+          <p className="text-textMuted">Last updated: July 22, 2026</p>
         </div>
 
         <div className="prose space-y-8">
@@ -34,7 +34,7 @@ export default function Privacy() {
             <p className="text-textMuted leading-relaxed mb-3">We collect the following information when you use Nooka:</p>
             <ul className="space-y-2 text-textMuted">
               <li className="flex gap-2"><span className="text-primary font-bold">·</span> Account information — your name, email address, and encrypted password</li>
-              <li className="flex gap-2"><span className="text-primary font-bold">·</span> Family member health information — age, weight, height, dietary preferences, and health goals that you voluntarily provide</li>
+              <li className="flex gap-2"><span className="text-primary font-bold">·</span> Family member health information — gender, age, weight, height, dietary preferences, health and fitness goals, calorie and macro targets, and weight history that you optionally provide to power personalized health features</li>
               <li className="flex gap-2"><span className="text-primary font-bold">·</span> Pantry and grocery data — items you add to your pantry and grocery lists</li>
               <li className="flex gap-2"><span className="text-primary font-bold">·</span> Usage data — how you interact with the app to improve our service</li>
             </ul>
