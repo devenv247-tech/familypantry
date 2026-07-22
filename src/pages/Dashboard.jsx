@@ -120,11 +120,15 @@ export default function Dashboard() {
           ? _skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`
           : null)
       }
-      // Log nutrition
+      // Log nutrition — use plannedFor when set, otherwise all non-baby members
       if (tonightMeal.recipeData?.nutrition && members.length > 0) {
         try {
+          const _plannedFor = tonightMeal.recipeData?.plannedFor
+          const membersToLog = (Array.isArray(_plannedFor) && _plannedFor.length > 0)
+            ? members.filter(m => _plannedFor.includes(m.name) && !m.isBaby).map(m => m.name)
+            : members.filter(m => !m.isBaby).map(m => m.name)
           await logNutrition(
-            members.map(m => m.name),
+            membersToLog,
             tonightMeal.recipeName,
             'Dinner',
             tonightMeal.recipeData.nutritionPerServing || tonightMeal.recipeData.nutrition

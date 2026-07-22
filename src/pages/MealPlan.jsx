@@ -201,8 +201,11 @@ export default function MealPlan() {
         ? _skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`
         : null
 
-      // 2. Log nutrition for all members — fall back to nutrition if nutritionPerServing missing
-      const membersToLog = members.map(m => m.name)
+      // 2. Log nutrition — use plannedFor when set, otherwise all non-baby members
+      const _plannedFor = meal.recipeData?.plannedFor
+      const membersToLog = (Array.isArray(_plannedFor) && _plannedFor.length > 0)
+        ? members.filter(m => _plannedFor.includes(m.name) && !m.isBaby).map(m => m.name)
+        : members.filter(m => !m.isBaby).map(m => m.name)
       let nutritionLogged = false
       const nutritionData = meal.recipeData.nutritionPerServing || meal.recipeData.nutrition
       if (nutritionData && membersToLog.length > 0) {
@@ -636,6 +639,9 @@ export default function MealPlan() {
                           {meal.recipeData?.time && (
                             <p className="text-xs text-textMuted">⏱ {meal.recipeData.time}</p>
                           )}
+                          {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
+                            <p className="text-xs text-textMuted mt-1 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                          )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
                             className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white text-danger opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-xs border border-red-100"
@@ -704,6 +710,9 @@ export default function MealPlan() {
                                 )}
                                 {meal.recipeData?.calories && (
                                   <p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
+                                )}
+                                {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
+                                  <p className="text-xs text-textMuted truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                                 )}
                               </div>
                               <button

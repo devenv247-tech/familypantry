@@ -20,7 +20,11 @@
       "Bash(git -C /Users/jasssangha/Desktop/familypantry add src/components/layout/AppShell.jsx src/components/ui/BarcodeScanner.jsx src/components/ui/Onboarding.jsx)",
       "Bash(git -C /Users/jasssangha/Desktop/familypantry commit -m ' *)",
       "WebFetch(domain:docs.expo.dev)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(node /Users/jasssangha/Desktop/familypantry-backend/scripts/test-units.js)",
+      "Bash(node scripts/test-macro-engine.js)",
+      "Bash(node -e \"require\\('./src/controllers/healthTrackerController'\\)\")",
+      "Bash(node scripts/test-units.js)"
     ]
   }
 }
