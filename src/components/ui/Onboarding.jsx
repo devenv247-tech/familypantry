@@ -59,6 +59,12 @@ const ACTIVITY_LEVELS = [
   { value: 'very_active', label: 'Very active' },
 ]
 
+const GENDER_OPTIONS = [
+  { value: 'male',   label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: null,     label: 'Prefer not to say' },
+]
+
 export default function Onboarding({ onComplete }) {
   const { user, family } = useAuthStore()
   const navigate = useNavigate()
@@ -77,6 +83,7 @@ export default function Onboarding({ onComplete }) {
     dietary: [],
     allergens: '',
     activityLevel: null,
+    gender: undefined,
   })
   const [pantryItem, setPantryItem] = useState({
     name: '',
@@ -331,6 +338,25 @@ export default function Onboarding({ onComplete }) {
                     ))}
                   </div>
                   <p className="text-xs text-textMuted mt-1">Used to calculate daily calorie targets.</p>
+                </div>
+
+                <div>
+                  <label className="label">Gender <span className="text-textMuted font-normal">(optional)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {GENDER_OPTIONS.map(({ value, label }) => (
+                      <button key={label} type="button"
+                        onClick={() => setMember(p => ({ ...p, gender: value }))}
+                        className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                          member.gender === value && member.gender !== undefined
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {member.gender === value && member.gender !== undefined ? '✓ ' : '+ '}{label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-textMuted mt-1">Used for accurate calorie math.</p>
                 </div>
 
                 <div>

@@ -20,6 +20,8 @@ const SEASONAL_DATA = {
   winter: { icon: '❄️', color: 'border-blue-200 bg-blue-50/30', badge: 'bg-blue-100 text-blue-700', items: ['Citrus', 'Oranges', 'Cabbage', 'Carrots', 'Kale', 'Potatoes', 'Grapefruit', 'Lemons'] },
 }
 
+const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', maintain: 'Maintain' }
+
 const getCurrentSeason = () => {
   const month = new Date().getMonth() + 1
   if (month >= 3 && month <= 5) return 'spring'
@@ -363,6 +365,17 @@ export default function Dashboard() {
                 )}
               </div>
             )}
+            {(() => {
+              const goalMember = members.find(m => m.userId === user?.id) || members.find(m => m.fitnessGoal)
+              const goalLabel = GOAL_LABELS[goalMember?.fitnessGoal]
+              if (!goalLabel || !isFeatureEnabled('fitness_coach', plan)) return null
+              return (
+                <p className="flex items-center gap-1 text-xs text-textMuted mb-3">
+                  <Icon name="bubble" size={12} className="text-primary flex-shrink-0" />
+                  Fits {goalMember.name}'s {goalLabel} plan
+                </p>
+              )
+            })()}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
               <button
                 onClick={() => setAiExpanded(prev => !prev)}
