@@ -24,7 +24,9 @@
       "Bash(node /Users/jasssangha/Desktop/familypantry-backend/scripts/test-units.js)",
       "Bash(node scripts/test-macro-engine.js)",
       "Bash(node -e \"require\\('./src/controllers/healthTrackerController'\\)\")",
-      "Bash(node scripts/test-units.js)"
+      "Bash(node scripts/test-units.js)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

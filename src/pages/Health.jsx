@@ -5,9 +5,34 @@ import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog
 import { saveRecipe, getSavedRecipes } from '../api/savedRecipes'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import { useAppConfigStore } from '../store/appConfigStore'
+
+const FITNESS_GOAL_OPTS = [
+  { value: 'cut',       label: 'Cut',       desc: 'Lose fat while keeping muscle' },
+  { value: 'lean_bulk', label: 'Lean Bulk', desc: 'Build muscle with minimal fat gain' },
+  { value: 'recomp',    label: 'Recomp',    desc: 'Lose fat and gain muscle simultaneously' },
+  { value: 'maintain',  label: 'Maintain',  desc: 'Hold your current weight and composition' },
+  { value: null,        label: 'None',       desc: '' },
+]
+
+const CUT_RATES = [
+  { label: 'Relaxed',    sub: '−0.25%/wk', value: 0.0025 },
+  { label: 'Steady',     sub: '−0.5%/wk',  value: 0.005  },
+  { label: 'Aggressive', sub: '−0.75%/wk', value: 0.0075 },
+  { label: 'Rapid',      sub: '−1%/wk',    value: 0.01   },
+]
+
+const LEAN_BULK_RATES = [
+  { label: 'Slow',   sub: '+0.1%/wk',   value: 0.001  },
+  { label: 'Steady', sub: '+0.25%/wk',  value: 0.0025 },
+  { label: 'Fast',   sub: '+0.4%/wk',   value: 0.004  },
+]
+
+const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', maintain: 'Maintain' }
 
 export default function Health() {
   const { toast, showToast, hideToast } = useToast()
+  const { isFeatureEnabled } = useAppConfigStore()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeMemberId, setActiveMemberId] = useState(null)
@@ -17,7 +42,7 @@ export default function Health() {
   const [showGoalModal, setShowGoalModal] = useState(false)
   const [weightForm, setWeightForm] = useState({ weight: '', unit: 'kg', note: '' })
   const [mealForm, setMealForm] = useState({ recipeName: '', mealType: 'Breakfast', calories: '', protein: '', carbs: '', fat: '', calcium: '', iron: '', vitaminD: '' })
-  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg', goalType: '' })
+  const [goalForm, setGoalForm] = useState({ dailyCalorieGoal: '', goalWeight: '', goalWeightUnit: 'kg', goalType: '', fitnessGoal: null, goalRatePct: null, gender: null })
   const [saving, setSaving] = useState(false)
   const [lookingUp, setLookingUp] = useState(false)
   const [lookupResult, setLookupResult] = useState(null)
@@ -569,7 +594,7 @@ const getGoalNudges = (member) => {
     setShowSavedSuggestions(false)
   }
 
- const handleUpdateGoal = async () => {
+  const handleUpdateGoal = async () => {
     setSaving(true)
     try {
       const weightInKg = goalForm.goalWeight && goalForm.goalWeightUnit === 'lbs'
@@ -577,15 +602,18 @@ const getGoalNudges = (member) => {
         : goalForm.goalWeight
       await updateMemberGoal({
         memberId: activeMemberId,
-        ...goalForm,
+        dailyCalorieGoal: goalForm.dailyCalorieGoal,
         goalWeight: weightInKg,
         goals: goalForm.goalType,
+        fitnessGoal: goalForm.fitnessGoal,
+        goalRatePct: goalForm.goalRatePct,
+        gender: goalForm.gender,
       })
       showToast('Goals updated!')
       setShowGoalModal(false)
       fetchData()
     } catch (err) {
-      showToast('Failed to update goals', 'error')
+      showToast(err.response?.data?.error || 'Failed to update goals', 'error')
     } finally {
       setSaving(false)
     }
@@ -684,6 +712,9 @@ const getGoalNudges = (member) => {
                 goalWeight: activeMember?.goalWeight || '',
                 goalWeightUnit: 'kg',
                 goalType: activeMember?.goals || '',
+                fitnessGoal: activeMember?.fitnessGoal ?? null,
+                goalRatePct: activeMember?.goalRatePct ?? null,
+                gender: activeMember?.gender ?? null,
               })
               setShowGoalModal(true)
             }}
@@ -846,6 +877,59 @@ const getGoalNudges = (member) => {
             ))}
           </div>
 
+          {/* Targets card */}
+          {activeMember.targets && (
+            <div className="card mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-textPrimary">Daily targets</h2>
+                <span className="text-xs px-2.5 py-1 rounded-pill font-medium bg-primary/10 text-primary border border-primary/20">
+                  {GOAL_LABELS[activeMember.fitnessGoal] || activeMember.fitnessGoal}
+                  {activeMember.goalRatePct != null && (
+                    <span>
+                      {' · '}{activeMember.fitnessGoal === 'lean_bulk' ? '+' : '−'}{parseFloat((activeMember.goalRatePct * 100).toFixed(2))}%/wk
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div className="text-center mb-5">
+                <p className="text-4xl font-bold text-textPrimary">{activeMember.targets.calories}</p>
+                <p className="text-sm text-textMuted mt-0.5">kcal / day</p>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                {[
+                  { label: 'Protein', value: activeMember.targets.macros.protein, color: 'text-blue-600' },
+                  { label: 'Carbs',   value: activeMember.targets.macros.carbs,   color: 'text-yellow-600' },
+                  { label: 'Fat',     value: activeMember.targets.macros.fat,     color: 'text-red-500' },
+                  { label: 'Fiber',   value: activeMember.targets.macros.fiber,   color: 'text-green-600' },
+                ].map((m, i) => (
+                  <div key={i} className="text-center bg-gray-50 rounded-btn py-2.5 px-1">
+                    <p className={`text-base font-bold ${m.color}`}>{m.value}g</p>
+                    <p className="text-xs text-textMuted">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {activeMember.targets.flooredRatePct != null && activeMember.goalRatePct != null &&
+                activeMember.targets.flooredRatePct < activeMember.goalRatePct && (
+                <div className="flex items-start gap-2 mb-3 px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-btn">
+                  <Icon name="warning" size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-800">
+                    Your rate was capped at {parseFloat((activeMember.targets.flooredRatePct * 100).toFixed(2))}%/wk to keep calories at a safe minimum.
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs text-textMuted flex items-center gap-1.5">
+                <Icon name="info" size={12} />
+                {activeMember.targets.source === 'adaptive'
+                  ? 'Calibrated from your real data'
+                  : 'Estimated — log meals and weigh-ins to unlock adaptive targets'}
+              </p>
+            </div>
+          )}
+
           {/* Gender missing banner */}
           {activeMember.genderMissing && !dismissedGenderBanner && (
             <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-blue-50 border-blue-100 mb-6">
@@ -951,7 +1035,7 @@ const getGoalNudges = (member) => {
                 {!activeMember.goals && (
                   <button
                     onClick={() => {
-                      setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg', goalType: activeMember?.goals || '' })
+                      setGoalForm({ dailyCalorieGoal: activeMember?.dailyCalorieGoal || '', goalWeight: activeMember?.goalWeight || '', goalWeightUnit: 'kg', goalType: activeMember?.goals || '', fitnessGoal: activeMember?.fitnessGoal ?? null, goalRatePct: activeMember?.goalRatePct ?? null, gender: activeMember?.gender ?? null })
                       setShowGoalModal(true)
                     }}
                     className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
@@ -1682,49 +1766,142 @@ const getGoalNudges = (member) => {
       {/* ── Set goals modal ── */}
       {showGoalModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">Set goals</h3>
-              <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary p-1">
-                <Icon name="close" size={20} />
-              </button>
-            </div>
-           <p className="text-sm text-textMuted mb-4">Setting goals for <strong>{activeMember?.name}</strong></p>
+          <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
 
-            <div className="space-y-4 mb-4">
-              {/* Goal type selector */}
+            {/* Header */}
+            <div className="modal-header bg-white px-6 pt-5 pb-4 border-b border-border flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-textPrimary">Set goals</h3>
+                  <p className="text-sm text-textMuted mt-0.5">For <strong>{activeMember?.name}</strong></p>
+                </div>
+                <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary p-1">
+                  <Icon name="close" size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="modal-body px-6 py-5 space-y-5">
+
+              {/* Gender */}
               <div>
-                <label className="label">What's your goal?</label>
-                <div className="grid grid-cols-2 gap-2">
+                <label className="label">Gender</label>
+                <div className="flex gap-2 flex-wrap">
                   {[
-                    { value: 'lose weight', icon: 'leaf', label: 'Lose weight', desc: 'Calorie deficit · balanced macros', color: 'border-green-200 bg-green-50', activeColor: 'border-green-500 bg-green-50', iconClass: 'text-green-600' },
-                    { value: 'gain muscle', icon: 'star', label: 'Gain muscle', desc: 'Calorie surplus · high protein', color: 'border-blue-200 bg-blue-50', activeColor: 'border-blue-500 bg-blue-50', iconClass: 'text-blue-600' },
-                    { value: 'maintain', icon: 'check', label: 'Maintain', desc: 'Hit calorie goal · balanced', color: 'border-purple-200 bg-purple-50', activeColor: 'border-purple-500 bg-purple-50', iconClass: 'text-purple-600' },
-                    { value: 'improve energy', icon: 'sun', label: 'Improve energy', desc: 'Focus on fiber · complex carbs', color: 'border-orange-200 bg-orange-50', activeColor: 'border-orange-500 bg-orange-50', iconClass: 'text-orange-600' },
+                    { label: 'Male', value: 'male' },
+                    { label: 'Female', value: 'female' },
+                    { label: 'Prefer not to say', value: null },
                   ].map(opt => (
                     <button
-                      key={opt.value}
+                      key={String(opt.value)}
                       type="button"
-                      onClick={() => setGoalForm(p => ({ ...p, goalType: p.goalType === opt.value ? '' : opt.value }))}
-                      className={`text-left p-3 rounded-btn border-2 transition-all ${
-                        goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-gray-300'
+                      onClick={() => setGoalForm(p => ({ ...p, gender: opt.value }))}
+                      className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                        goalForm.gender === opt.value
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                       }`}
                     >
-                      <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-textMuted'}`} />
-                      <p className={`text-sm font-semibold ${goalForm.goalType === opt.value ? 'text-textPrimary' : 'text-textMuted'}`}>
-                        {opt.label}
-                      </p>
-                      <p className="text-xs text-textMuted mt-0.5 leading-tight">{opt.desc}</p>
+                      {goalForm.gender === opt.value ? '✓ ' : ''}{opt.label}
                     </button>
                   ))}
                 </div>
-                {goalForm.goalType && (
-                  <p className="text-xs text-primary mt-2 flex items-center gap-1">
-                    <Icon name="sparkle" size={12} />
-                    Macro targets will auto-adjust for your goal
-                  </p>
+                <p className="text-xs text-textMuted mt-1.5">Used for accurate calorie math.</p>
+              </div>
+
+              {/* Fitness goal */}
+              <div>
+                <label className="label">Fitness goal</label>
+                {!isFeatureEnabled('fitness_coach') ? (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 border border-border rounded-btn">
+                    <Icon name="crown" size={18} className="text-textMuted flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-textPrimary">Unlock with Premium</p>
+                      <p className="text-xs text-textMuted">Smart fitness goals, adaptive calorie targets and macro splits.</p>
+                    </div>
+                    <a href="/app/settings?tab=plan" className="text-xs text-primary font-medium hover:underline flex-shrink-0">Upgrade →</a>
+                  </div>
+                ) : activeMember?.age && activeMember.age < 18 ? (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { label: 'Maintain', value: 'maintain' },
+                        { label: 'None', value: null },
+                      ].map(opt => (
+                        <button
+                          key={String(opt.value)}
+                          type="button"
+                          onClick={() => setGoalForm(p => ({ ...p, fitnessGoal: opt.value, goalRatePct: null }))}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            goalForm.fitnessGoal === opt.value
+                              ? 'bg-primary text-white border-primary'
+                              : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {goalForm.fitnessGoal === opt.value ? '✓ ' : ''}{opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-amber-700 flex items-start gap-1.5">
+                      <Icon name="info" size={12} className="flex-shrink-0 mt-0.5" />
+                      Growth-focused — deficit goals unlock at 18.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      {FITNESS_GOAL_OPTS.map(opt => (
+                        <button
+                          key={String(opt.value)}
+                          type="button"
+                          onClick={() => {
+                            const defaultRate = opt.value === 'cut' ? 0.005 : opt.value === 'lean_bulk' ? 0.0025 : null
+                            setGoalForm(p => ({ ...p, fitnessGoal: opt.value, goalRatePct: defaultRate }))
+                          }}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                            goalForm.fitnessGoal === opt.value
+                              ? 'bg-primary text-white border-primary'
+                              : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {goalForm.fitnessGoal === opt.value ? '✓ ' : ''}{opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    {goalForm.fitnessGoal != null && (
+                      <p className="text-xs text-textMuted leading-relaxed">
+                        {FITNESS_GOAL_OPTS.find(o => o.value === goalForm.fitnessGoal)?.desc}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
+
+              {/* Rate — only for cut / lean_bulk */}
+              {isFeatureEnabled('fitness_coach') && (goalForm.fitnessGoal === 'cut' || goalForm.fitnessGoal === 'lean_bulk') && (
+                <div>
+                  <label className="label">
+                    Rate {goalForm.fitnessGoal === 'cut' ? '(fat loss)' : '(muscle gain)'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {(goalForm.fitnessGoal === 'cut' ? CUT_RATES : LEAN_BULK_RATES).map(rate => (
+                      <button
+                        key={rate.value}
+                        type="button"
+                        onClick={() => setGoalForm(p => ({ ...p, goalRatePct: rate.value }))}
+                        className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
+                          goalForm.goalRatePct === rate.value
+                            ? 'bg-primary text-white border-primary'
+                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        }`}
+                      >
+                        {goalForm.goalRatePct === rate.value ? '✓ ' : ''}{rate.label} <span className={goalForm.goalRatePct === rate.value ? 'opacity-80' : 'opacity-60'}>{rate.sub}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Goal weight */}
               <div>
@@ -1761,9 +1938,44 @@ const getGoalNudges = (member) => {
                 />
                 <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal based on your profile</p>
               </div>
+
+              {/* Focus area — feeds the nudge system */}
+              <div>
+                <label className="label">Focus area <span className="text-textMuted font-normal">(for personalized insights)</span></label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'lose weight',   icon: 'leaf',  label: 'Lose weight',    desc: 'Calorie deficit · balanced macros', color: 'border-green-200 bg-green-50',  activeColor: 'border-green-500 bg-green-50',  iconClass: 'text-green-600'  },
+                    { value: 'gain muscle',   icon: 'star',  label: 'Gain muscle',    desc: 'Calorie surplus · high protein',   color: 'border-blue-200 bg-blue-50',    activeColor: 'border-blue-500 bg-blue-50',    iconClass: 'text-blue-600'   },
+                    { value: 'maintain',      icon: 'check', label: 'Maintain',       desc: 'Hit calorie goal · balanced',      color: 'border-purple-200 bg-purple-50', activeColor: 'border-purple-500 bg-purple-50', iconClass: 'text-purple-600' },
+                    { value: 'improve energy',icon: 'sun',   label: 'Improve energy', desc: 'Focus on fiber · complex carbs',   color: 'border-orange-200 bg-orange-50', activeColor: 'border-orange-500 bg-orange-50', iconClass: 'text-orange-600' },
+                  ].map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setGoalForm(p => ({ ...p, goalType: p.goalType === opt.value ? '' : opt.value }))}
+                      className={`text-left p-3 rounded-btn border-2 transition-all ${
+                        goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-gray-300'
+                      }`}
+                    >
+                      <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-textMuted'}`} />
+                      <p className={`text-sm font-semibold ${goalForm.goalType === opt.value ? 'text-textPrimary' : 'text-textMuted'}`}>
+                        {opt.label}
+                      </p>
+                      <p className="text-xs text-textMuted mt-0.5 leading-tight">{opt.desc}</p>
+                    </button>
+                  ))}
+                </div>
+                {goalForm.goalType && (
+                  <p className="text-xs text-primary mt-2 flex items-center gap-1">
+                    <Icon name="sparkle" size={12} />
+                    Macro targets will auto-adjust for your goal
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-3">
+            {/* Footer */}
+            <div className="modal-footer bg-white border-t border-border px-6 py-4 flex gap-3 flex-shrink-0">
               <button onClick={() => setShowGoalModal(false)} className="btn-secondary flex-1">Cancel</button>
               <button onClick={handleUpdateGoal} disabled={saving} className="btn-primary flex-1 disabled:opacity-50 flex items-center justify-center gap-2">
                 {saving ? 'Saving...' : <><Icon name="check" size={14} /> Save goals</>}
