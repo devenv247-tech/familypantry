@@ -672,8 +672,8 @@ export default function Settings() {
                   </div>
                 )}
 
-                {/* Gender — non-baby only */}
-                {!newMember.isBaby && (
+                {/* Gender — non-baby only, and 13+ only */}
+                {!newMember.isBaby && (!newMember.age || parseInt(newMember.age, 10) >= 13) && (
                   <div className="mb-4">
                     <CollapsibleSection
                       label="Gender"
@@ -879,25 +879,27 @@ export default function Settings() {
                                 </p>
                               </CollapsibleSection>
                             </div>
-                            <div className="mb-3">
-                              <CollapsibleSection
-                                label="Gender"
-                                summary={editForm.gender ? (editForm.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
-                                defaultOpen={false}
-                              >
-                                <div className="flex flex-wrap gap-2 pt-2">
-                                  {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
-                                    <PillButton key={value}
-                                      selected={editForm.gender === value}
-                                      variant="primary"
-                                      onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
-                                      {editForm.gender === value ? '✓ ' : '+ '}{label}
-                                    </PillButton>
-                                  ))}
-                                </div>
-                                <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
-                              </CollapsibleSection>
-                            </div>
+                            {(!editForm.age || parseInt(editForm.age, 10) >= 13) && (
+                              <div className="mb-3">
+                                <CollapsibleSection
+                                  label="Gender"
+                                  summary={editForm.gender ? (editForm.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
+                                  defaultOpen={false}
+                                >
+                                  <div className="flex flex-wrap gap-2 pt-2">
+                                    {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                                      <PillButton key={value}
+                                        selected={editForm.gender === value}
+                                        variant="primary"
+                                        onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                                        {editForm.gender === value ? '✓ ' : '+ '}{label}
+                                      </PillButton>
+                                    ))}
+                                  </div>
+                                  <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
+                                </CollapsibleSection>
+                              </div>
+                            )}
                             <div className="mb-3">
                               <CollapsibleSection
                                 label="Dietary preferences"
