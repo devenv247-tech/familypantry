@@ -19,7 +19,8 @@
       "Bash(git -C /Users/jasssangha/Desktop/familypantry log --oneline -5)",
       "Bash(git -C /Users/jasssangha/Desktop/familypantry add src/components/layout/AppShell.jsx src/components/ui/BarcodeScanner.jsx src/components/ui/Onboarding.jsx)",
       "Bash(git -C /Users/jasssangha/Desktop/familypantry commit -m ' *)",
-      "WebFetch(domain:docs.expo.dev)"
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(npx vite *)"
     ]
   }
 }

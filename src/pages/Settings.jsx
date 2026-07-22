@@ -116,6 +116,44 @@ function SectionLabel({ children }) {
   return <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">{children}</p>
 }
 
+const multiSummary = (items) => {
+  if (!items || items.length === 0) return 'None selected'
+  if (items.length <= 2) return items.join(', ')
+  return `${items.slice(0, 2).join(', ')} +${items.length - 2}`
+}
+
+// ─── Collapsible section ──────────────────────────────────────────────────────
+function CollapsibleSection({ label, summary, defaultOpen = false, children }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+  return (
+    <div className="border border-border rounded-btn overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setIsOpen(o => !o)}
+        className="w-full flex items-center gap-2 px-3 py-3 text-left hover:bg-gray-50 transition-colors"
+        style={{ minHeight: '44px' }}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-textMuted uppercase tracking-wide leading-none">{label}</p>
+          {!isOpen && (
+            <p className="text-xs text-textMuted truncate mt-1 leading-none">{summary}</p>
+          )}
+        </div>
+        <Icon
+          name="chevronDown"
+          size={16}
+          className={`flex-shrink-0 text-textMuted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="px-3 pb-3">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Settings() {
   const { user, family, logout, setAuth, token } = useAuthStore()
   const { isFeatureEnabled } = useAppConfigStore()
@@ -581,114 +619,139 @@ export default function Settings() {
 
                 {/* Goals — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-5">
-                    <SectionLabel>Health goals</SectionLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {GOALS.map(goal => {
-                        const selected = (newMember.goals || []).includes(goal)
-                        return (
-                          <PillButton key={goal} selected={selected} variant="primary"
-                            onClick={() => setNewMember(p => ({
-                              ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
-                            }))}>
-                            {selected ? '✓ ' : '+ '}{goal}
-                          </PillButton>
-                        )
-                      })}
-                    </div>
-                    {newMember.goals.length > 0 && (
-                      <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
-                    )}
+                  <div className="mb-4">
+                    <CollapsibleSection
+                      label="Health goals"
+                      summary={multiSummary(newMember.goals)}
+                      defaultOpen={true}
+                    >
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {GOALS.map(goal => {
+                          const selected = (newMember.goals || []).includes(goal)
+                          return (
+                            <PillButton key={goal} selected={selected} variant="primary"
+                              onClick={() => setNewMember(p => ({
+                                ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
+                              }))}>
+                              {selected ? '✓ ' : '+ '}{goal}
+                            </PillButton>
+                          )
+                        })}
+                      </div>
+                      {newMember.goals.length > 0 && (
+                        <p className="text-xs text-primary mt-2">Selected: {newMember.goals.join(', ')}</p>
+                      )}
+                    </CollapsibleSection>
                   </div>
                 )}
 
                 {/* Activity level — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-5">
-                    <SectionLabel>Activity level</SectionLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {ACTIVITY_LEVELS.map(({ value, label }) => (
-                        <PillButton key={value}
-                          selected={newMember.activityLevel === value}
-                          variant="primary"
-                          onClick={() => setNewMember(p => ({ ...p, activityLevel: p.activityLevel === value ? null : value }))}>
-                          {newMember.activityLevel === value ? '✓ ' : '+ '}{label}
-                        </PillButton>
-                      ))}
-                    </div>
-                    <p className="text-xs text-textMuted mt-1">
-                      {!newMember.activityLevel
-                        ? 'Set your activity level for a more accurate calorie target.'
-                        : 'Used to calculate daily calorie targets.'}
-                    </p>
+                  <div className="mb-4">
+                    <CollapsibleSection
+                      label="Activity level"
+                      summary={newMember.activityLevel ? (ACTIVITY_LEVELS.find(a => a.value === newMember.activityLevel)?.label ?? 'None selected') : 'None selected'}
+                      defaultOpen={false}
+                    >
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {ACTIVITY_LEVELS.map(({ value, label }) => (
+                          <PillButton key={value}
+                            selected={newMember.activityLevel === value}
+                            variant="primary"
+                            onClick={() => setNewMember(p => ({ ...p, activityLevel: p.activityLevel === value ? null : value }))}>
+                            {newMember.activityLevel === value ? '✓ ' : '+ '}{label}
+                          </PillButton>
+                        ))}
+                      </div>
+                      <p className="text-xs text-textMuted mt-2">
+                        {!newMember.activityLevel
+                          ? 'Set your activity level for a more accurate calorie target.'
+                          : 'Used to calculate daily calorie targets.'}
+                      </p>
+                    </CollapsibleSection>
                   </div>
                 )}
 
                 {/* Gender — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-5">
-                    <SectionLabel>Gender</SectionLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
-                        <PillButton key={value}
-                          selected={newMember.gender === value}
-                          variant="primary"
-                          onClick={() => setNewMember(p => ({ ...p, gender: p.gender === value ? null : value }))}>
-                          {newMember.gender === value ? '✓ ' : '+ '}{label}
-                        </PillButton>
-                      ))}
-                    </div>
-                    <p className="text-xs text-textMuted mt-1">Used for a more accurate calorie calculation.</p>
+                  <div className="mb-4">
+                    <CollapsibleSection
+                      label="Gender"
+                      summary={newMember.gender ? (newMember.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
+                      defaultOpen={false}
+                    >
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                          <PillButton key={value}
+                            selected={newMember.gender === value}
+                            variant="primary"
+                            onClick={() => setNewMember(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                            {newMember.gender === value ? '✓ ' : '+ '}{label}
+                          </PillButton>
+                        ))}
+                      </div>
+                      <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
+                    </CollapsibleSection>
                   </div>
                 )}
 
                 {/* Dietary — non-baby only */}
                 {!newMember.isBaby && (
-                  <div className="mb-5">
-                    <SectionLabel>Dietary preferences</SectionLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {DIETARY.map(diet => {
-                        const selected = (newMember.dietary || []).includes(diet)
-                        return (
-                          <PillButton key={diet} selected={selected} variant="green"
-                            onClick={() => setNewMember(p => ({
-                              ...p, dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
-                            }))}>
-                            {selected ? '✓ ' : '+ '}{diet}
-                          </PillButton>
-                        )
-                      })}
-                    </div>
-                    {newMember.dietary.length > 0 && (
-                      <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
-                    )}
+                  <div className="mb-4">
+                    <CollapsibleSection
+                      label="Dietary preferences"
+                      summary={multiSummary(newMember.dietary)}
+                      defaultOpen={false}
+                    >
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {DIETARY.map(diet => {
+                          const selected = (newMember.dietary || []).includes(diet)
+                          return (
+                            <PillButton key={diet} selected={selected} variant="green"
+                              onClick={() => setNewMember(p => ({
+                                ...p, dietary: selected ? p.dietary.filter(d => d !== diet) : [...(p.dietary || []), diet]
+                              }))}>
+                              {selected ? '✓ ' : '+ '}{diet}
+                            </PillButton>
+                          )
+                        })}
+                      </div>
+                      {newMember.dietary.length > 0 && (
+                        <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
+                      )}
+                    </CollapsibleSection>
                   </div>
                 )}
 
                 {/* Allergens — always shown */}
-                <div className="mb-5">
-                  <SectionLabel>Allergens</SectionLabel>
-                  {newMember.isBaby && (
-                    <p className="text-xs text-pink-600 mb-2">💡 Track introductions step by step in the baby profile after adding.</p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {ALLERGENS.map(allergen => {
-                      const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
-                      return (
-                        <PillButton key={allergen} selected={selected} variant="red"
-                          onClick={() => {
-                            const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
-                            const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
-                            setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
-                          }}>
-                          {selected ? '✕ ' : '+ '}{allergen}
-                        </PillButton>
-                      )
-                    })}
-                  </div>
-                  {newMember.allergens && (
-                    <p className="text-xs text-danger mt-2">⚠️ {newMember.allergens}</p>
-                  )}
+                <div className="mb-4">
+                  <CollapsibleSection
+                    label="Allergens"
+                    summary={multiSummary((newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean))}
+                    defaultOpen={false}
+                  >
+                    {newMember.isBaby && (
+                      <p className="text-xs text-pink-600 pt-2 mb-2">💡 Track introductions step by step in the baby profile after adding.</p>
+                    )}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {ALLERGENS.map(allergen => {
+                        const selected = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+                        return (
+                          <PillButton key={allergen} selected={selected} variant="red"
+                            onClick={() => {
+                              const current = (newMember.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+                              const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
+                              setNewMember(p => ({ ...p, allergens: updated.join(', ') }))
+                            }}>
+                            {selected ? '✕ ' : '+ '}{allergen}
+                          </PillButton>
+                        )
+                      })}
+                    </div>
+                    {newMember.allergens && (
+                      <p className="text-xs text-danger mt-2">⚠️ {newMember.allergens}</p>
+                    )}
+                  </CollapsibleSection>
                 </div>
 
                 <div className="flex gap-3 justify-end pt-2 border-t border-border">
@@ -773,89 +836,114 @@ export default function Settings() {
 
                         {!editForm.isBaby && (
                           <>
-                            <div className="mb-4">
-                              <SectionLabel>Health goals</SectionLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {GOALS.map(goal => {
-                                  const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
-                                  const selected = current.includes(goal)
-                                  return (
-                                    <PillButton key={goal} selected={selected} variant="primary"
-                                      onClick={() => setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))}>
-                                      {selected ? '✓ ' : '+ '}{goal}
+                            <div className="mb-3">
+                              <CollapsibleSection
+                                label="Health goals"
+                                summary={multiSummary(Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean))}
+                                defaultOpen={false}
+                              >
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  {GOALS.map(goal => {
+                                    const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
+                                    const selected = current.includes(goal)
+                                    return (
+                                      <PillButton key={goal} selected={selected} variant="primary"
+                                        onClick={() => setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))}>
+                                        {selected ? '✓ ' : '+ '}{goal}
+                                      </PillButton>
+                                    )
+                                  })}
+                                </div>
+                              </CollapsibleSection>
+                            </div>
+                            <div className="mb-3">
+                              <CollapsibleSection
+                                label="Activity level"
+                                summary={editForm.activityLevel ? (ACTIVITY_LEVELS.find(a => a.value === editForm.activityLevel)?.label ?? 'None selected') : 'None selected'}
+                                defaultOpen={false}
+                              >
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  {ACTIVITY_LEVELS.map(({ value, label }) => (
+                                    <PillButton key={value}
+                                      selected={editForm.activityLevel === value}
+                                      variant="primary"
+                                      onClick={() => setEditForm(p => ({ ...p, activityLevel: value }))}>
+                                      {editForm.activityLevel === value ? '✓ ' : '+ '}{label}
                                     </PillButton>
-                                  )
-                                })}
-                              </div>
+                                  ))}
+                                </div>
+                                <p className="text-xs text-textMuted mt-2">
+                                  {!editForm.activityLevel
+                                    ? 'Set your activity level for a more accurate calorie target.'
+                                    : 'Used to calculate daily calorie targets.'}
+                                </p>
+                              </CollapsibleSection>
                             </div>
-                            <div className="mb-4">
-                              <SectionLabel>Activity level</SectionLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {ACTIVITY_LEVELS.map(({ value, label }) => (
-                                  <PillButton key={value}
-                                    selected={editForm.activityLevel === value}
-                                    variant="primary"
-                                    onClick={() => setEditForm(p => ({ ...p, activityLevel: value }))}>
-                                    {editForm.activityLevel === value ? '✓ ' : '+ '}{label}
-                                  </PillButton>
-                                ))}
-                              </div>
-                              <p className="text-xs text-textMuted mt-1">
-                                {!editForm.activityLevel
-                                  ? 'Set your activity level for a more accurate calorie target.'
-                                  : 'Used to calculate daily calorie targets.'}
-                              </p>
-                            </div>
-                            <div className="mb-4">
-                              <SectionLabel>Gender</SectionLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
-                                  <PillButton key={value}
-                                    selected={editForm.gender === value}
-                                    variant="primary"
-                                    onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
-                                    {editForm.gender === value ? '✓ ' : '+ '}{label}
-                                  </PillButton>
-                                ))}
-                              </div>
-                              <p className="text-xs text-textMuted mt-1">Used for a more accurate calorie calculation.</p>
-                            </div>
-                            <div className="mb-4">
-                              <SectionLabel>Dietary preferences</SectionLabel>
-                              <div className="flex flex-wrap gap-2">
-                                {DIETARY.map(diet => {
-                                  const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
-                                  const selected = current.includes(diet)
-                                  return (
-                                    <PillButton key={diet} selected={selected} variant="green"
-                                      onClick={() => setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))}>
-                                      {selected ? '✓ ' : '+ '}{diet}
+                            <div className="mb-3">
+                              <CollapsibleSection
+                                label="Gender"
+                                summary={editForm.gender ? (editForm.gender === 'male' ? 'Male' : 'Female') : 'None selected'}
+                                defaultOpen={false}
+                              >
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  {[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }].map(({ value, label }) => (
+                                    <PillButton key={value}
+                                      selected={editForm.gender === value}
+                                      variant="primary"
+                                      onClick={() => setEditForm(p => ({ ...p, gender: p.gender === value ? null : value }))}>
+                                      {editForm.gender === value ? '✓ ' : '+ '}{label}
                                     </PillButton>
-                                  )
-                                })}
-                              </div>
+                                  ))}
+                                </div>
+                                <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
+                              </CollapsibleSection>
+                            </div>
+                            <div className="mb-3">
+                              <CollapsibleSection
+                                label="Dietary preferences"
+                                summary={multiSummary(Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean))}
+                                defaultOpen={false}
+                              >
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  {DIETARY.map(diet => {
+                                    const current = Array.isArray(editForm.dietary) ? editForm.dietary : (editForm.dietary || '').split(',').map(d => d.trim()).filter(Boolean)
+                                    const selected = current.includes(diet)
+                                    return (
+                                      <PillButton key={diet} selected={selected} variant="green"
+                                        onClick={() => setEditForm(p => ({ ...p, dietary: selected ? current.filter(d => d !== diet) : [...current, diet] }))}>
+                                        {selected ? '✓ ' : '+ '}{diet}
+                                      </PillButton>
+                                    )
+                                  })}
+                                </div>
+                              </CollapsibleSection>
                             </div>
                           </>
                         )}
 
-                        <div className="mb-4">
-                          <SectionLabel>Allergens</SectionLabel>
-                          <div className="flex flex-wrap gap-2">
-                            {ALLERGENS.map(allergen => {
-                              const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
-                              return (
-                                <PillButton key={allergen} selected={selected} variant="red"
-                                  onClick={() => {
-                                    const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
-                                    const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
-                                    setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
-                                  }}>
-                                  {selected ? '✕ ' : '+ '}{allergen}
-                                </PillButton>
-                              )
-                            })}
-                          </div>
-                          {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ {editForm.allergens}</p>}
+                        <div className="mb-3">
+                          <CollapsibleSection
+                            label="Allergens"
+                            summary={multiSummary((editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean))}
+                            defaultOpen={false}
+                          >
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {ALLERGENS.map(allergen => {
+                                const selected = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
+                                return (
+                                  <PillButton key={allergen} selected={selected} variant="red"
+                                    onClick={() => {
+                                      const current = (editForm.allergens || '').split(',').map(a => a.trim()).filter(Boolean)
+                                      const updated = selected ? current.filter(a => a !== allergen) : [...current, allergen]
+                                      setEditForm(p => ({ ...p, allergens: updated.join(', ') }))
+                                    }}>
+                                    {selected ? '✕ ' : '+ '}{allergen}
+                                  </PillButton>
+                                )
+                              })}
+                            </div>
+                            {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ {editForm.allergens}</p>}
+                          </CollapsibleSection>
                         </div>
 
                         <div className="flex gap-3 justify-end pt-3 border-t border-border">
