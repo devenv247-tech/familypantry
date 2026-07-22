@@ -6,15 +6,12 @@ import { useState, useEffect } from 'react'
 // Props:
 //   mode: 'recipes' | 'family' | 'weekplan'
 //   visible: boolean
+//   done: boolean  — signal that the API call succeeded; completes the final step
+//   error: boolean — signal that the API call failed; stops animation
 //
-// Usage in Recipes.jsx:
-//   import CookingLoader from '../components/ui/CookingLoader'
-//   <CookingLoader mode="recipes" visible={loading} />
-//   <CookingLoader mode="family" visible={familyLoading} />
-//
-// Usage in MealPlan.jsx:
-//   import CookingLoader from '../components/ui/CookingLoader'
-//   <CookingLoader mode="weekplan" visible={generatingWeek} />
+// For weekplan, the final step ("Finalising your week") is gated: it activates
+// but never auto-completes. It only completes when done=true, so the bar
+// never reaches 100% on a fake timer. Steps 0-5 pace over ~3 minutes.
 
 const STEPS = {
   recipes: [
@@ -32,13 +29,13 @@ const STEPS = {
     { icon: '✨', label: 'Adding finishing touches', duration: 3000 },
   ],
   weekplan: [
-    { icon: '🧺', label: 'Scanning your pantry', duration: 4000 },
-    { icon: '💪', label: 'Reading family health goals', duration: 4000 },
-    { icon: '🌅', label: 'Planning breakfasts', duration: 5000 },
-    { icon: '☀️', label: 'Planning lunches', duration: 5000 },
-    { icon: '🌙', label: 'Planning dinners', duration: 5000 },
-    { icon: '🍎', label: 'Planning snacks', duration: 4000 },
-    { icon: '✨', label: 'Finalising your week', duration: 3000 },
+    { icon: '🧺', label: 'Scanning your pantry', duration: 25000 },
+    { icon: '💪', label: 'Reading family health goals', duration: 25000 },
+    { icon: '🌅', label: 'Planning breakfasts', duration: 30000 },
+    { icon: '☀️', label: 'Planning lunches', duration: 30000 },
+    { icon: '🌙', label: 'Planning dinners', duration: 35000 },
+    { icon: '🍎', label: 'Planning snacks', duration: 35000 },
+    { icon: '✨', label: 'Finalising your week', duration: 3000 }, // gated — only completes on done=true
   ],
 }
 
@@ -51,10 +48,9 @@ const TITLES = {
 const SUBTITLES = {
   recipes: 'AI is matching pantry items to each member\'s health goals.',
   family: 'AI is crafting one perfect recipe that works for everyone.',
-  weekplan: 'AI is generating 28 personalized meals. This takes about 20–30 seconds.',
+  weekplan: 'AI is generating 28 personalized meals. This usually takes 2–4 minutes.',
 }
 
-// Fun cooking tips shown while waiting
 const TIPS = [
   '🧂 Tip: Salt pasta water until it tastes like the sea.',
   '🔪 Tip: Let meat rest 5 minutes after cooking — juicier every time.',
@@ -68,8 +64,10 @@ const TIPS = [
   '🍳 Tip: A hot pan before adding oil prevents sticking.',
 ]
 
-export default function CookingLoader({ mode = 'recipes', visible }) {
+export default function CookingLoader({ mode = 'recipes', visible, done = false, error = false }) {
   const steps = STEPS[mode] || STEPS.recipes
+  const isWeekplan = mode === 'weekplan'
+
   const [currentStep, setCurrentStep] = useState(0)
   const [progress, setProgress] = useState(0)
   const [tipIndex, setTipIndex] = useState(0)
@@ -85,38 +83,63 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
     }
   }, [visible])
 
+  // When API returns successfully: immediately complete all steps and show 100%
+  useEffect(() => {
+    if (!done || !visible || error) return
+    setCurrentStep(steps.length)
+    setProgress(100)
+  }, [done, visible, error, steps.length])
+
   // Advance through steps
   useEffect(() => {
-    if (!visible) return
+    if (!visible || error) return
     if (currentStep >= steps.length) return
+
+    // weekplan final step is gated — it becomes active but never auto-advances
+    const isGatedStep = isWeekplan && currentStep === steps.length - 1
 
     const step = steps[currentStep]
     const stepStartTime = Date.now()
-    const totalDuration = steps.reduce((a, s) => a + s.duration, 0)
-    const doneUpTo = steps.slice(0, currentStep).reduce((a, s) => a + s.duration, 0)
 
-    // Tick every 80ms for smooth progress
+    // Progress math:
+    // weekplan:  steps 0-5 fill 0–90%; gated step (6) holds at 90%
+    // others:    all steps fill 0–99%
+    const progressSteps = isWeekplan ? steps.slice(0, -1) : steps
+    const totalProgressDuration = progressSteps.reduce((a, s) => a + s.duration, 0)
+    const progressableDoneUpTo = progressSteps
+      .slice(0, Math.min(currentStep, progressSteps.length))
+      .reduce((a, s) => a + s.duration, 0)
+    const progressCap = isWeekplan ? 90 : 99
+
     const ticker = setInterval(() => {
       const elapsed = Date.now() - stepStartTime
-      const stepPct = Math.min(elapsed / step.duration, 1)
-      setStepProgress(stepPct)
 
-      const overallPct = ((doneUpTo + elapsed) / totalDuration) * 100
-      setProgress(Math.min(overallPct, 99)) // never show 100 until actually done
+      if (isGatedStep) {
+        setStepProgress(0)
+        setProgress(90)
+      } else {
+        const stepPct = Math.min(elapsed / step.duration, 1)
+        setStepProgress(stepPct)
+        const overallPct = ((progressableDoneUpTo + elapsed) / totalProgressDuration) * progressCap
+        setProgress(Math.min(overallPct, progressCap))
+      }
     }, 80)
 
-    // Move to next step after duration
-    const timer = setTimeout(() => {
-      clearInterval(ticker)
-      setStepProgress(1)
-      setCurrentStep(prev => prev + 1)
-    }, step.duration)
+    // Gated step never fires the advance timer — it waits for done=true
+    let timer = null
+    if (!isGatedStep) {
+      timer = setTimeout(() => {
+        clearInterval(ticker)
+        setStepProgress(1)
+        setCurrentStep(prev => prev + 1)
+      }, step.duration)
+    }
 
     return () => {
       clearInterval(ticker)
-      clearTimeout(timer)
+      if (timer) clearTimeout(timer)
     }
-  }, [currentStep, visible])
+  }, [currentStep, visible, error, isWeekplan, steps])
 
   // Rotate tips every 6 seconds
   useEffect(() => {
@@ -128,6 +151,8 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
   }, [visible])
 
   if (!visible) return null
+
+  const isGatedActiveStep = isWeekplan && currentStep === steps.length - 1
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center"
@@ -173,14 +198,13 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
           {steps.map((step, i) => {
             const isDone = i < currentStep
             const isActive = i === currentStep
-            const isPending = i > currentStep
 
             return (
               <div
                 key={i}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-500 ${
                   isActive
-                    ? 'bg-blue-50 border border-blue-100'
+                    ? error ? 'bg-red-50 border border-red-100' : 'bg-blue-50 border border-blue-100'
                     : isDone
                     ? 'bg-green-50 border border-green-100'
                     : 'bg-gray-50 border border-transparent'
@@ -191,10 +215,14 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
                   {isDone ? (
                     <span className="text-success text-base">✓</span>
                   ) : isActive ? (
-                    <svg className="animate-spin w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                    </svg>
+                    error ? (
+                      <span className="text-red-500 text-base font-bold">✕</span>
+                    ) : (
+                      <svg className="animate-spin w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                    )
                   ) : (
                     <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
                   )}
@@ -203,13 +231,13 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
                 {/* Step icon + label */}
                 <span className="text-base">{step.icon}</span>
                 <span className={`text-sm font-medium flex-1 text-left ${
-                  isDone ? 'text-success' : isActive ? 'text-primary' : 'text-textMuted'
+                  isDone ? 'text-success' : isActive ? (error ? 'text-red-500' : 'text-primary') : 'text-textMuted'
                 }`}>
                   {step.label}
                 </span>
 
-                {/* Per-step progress bar for active step */}
-                {isActive && (
+                {/* Per-step mini bar — only for non-gated active steps */}
+                {isActive && !isGatedActiveStep && !error && (
                   <div className="w-12 h-1 bg-blue-100 rounded-pill overflow-hidden flex-shrink-0">
                     <div
                       className="h-full bg-primary rounded-pill transition-all"
@@ -226,11 +254,13 @@ export default function CookingLoader({ mode = 'recipes', visible }) {
         <div className="w-full mb-6">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs text-textMuted">Overall progress</span>
-            <span className="text-xs font-semibold text-primary">{Math.round(progress)}%</span>
+            <span className={`text-xs font-semibold ${error ? 'text-red-500' : 'text-primary'}`}>
+              {error ? 'Failed' : `${Math.round(progress)}%`}
+            </span>
           </div>
           <div className="w-full h-2 bg-gray-100 rounded-pill overflow-hidden">
             <div
-              className="h-full bg-primary rounded-pill transition-all duration-300"
+              className={`h-full rounded-pill transition-all duration-300 ${error ? 'bg-red-400' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}
             />
           </div>

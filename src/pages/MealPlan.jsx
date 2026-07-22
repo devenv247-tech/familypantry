@@ -62,6 +62,8 @@ export default function MealPlan() {
   const [error, setError] = useState('')
   const [generating, setGenerating] = useState(false)
   const [generatingWeek, setGeneratingWeek] = useState(false)
+  const [weekGenDone, setWeekGenDone] = useState(false)
+  const [weekGenError, setWeekGenError] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -172,16 +174,24 @@ export default function MealPlan() {
   const handleConfirmGenerate = async () => {
     setShowMemberModal(false)
     setGeneratingWeek(true)
+    setWeekGenDone(false)
+    setWeekGenError(false)
     try {
       const res = await generateWeekPlan(weekStart, selectedMembers, selectedCuisines)
       setMeals(res.meals || [])
       showToast(`Generated ${res.count} meals for the week!`)
+      setWeekGenDone(true)
+      await new Promise(r => setTimeout(r, 800))
     } catch (err) {
       console.error('Week plan error:', err)
       const msg = err.response?.data?.error || 'Failed to generate week plan. Please try again.'
+      setWeekGenError(true)
+      await new Promise(r => setTimeout(r, 400))
       showToast(msg, 'error')
     } finally {
       setGeneratingWeek(false)
+      setWeekGenDone(false)
+      setWeekGenError(false)
     }
   }
 
@@ -386,7 +396,7 @@ export default function MealPlan() {
         </div>
       )}
       {/* Full screen generation overlay — prevents navigation */}
-      <CookingLoader mode="weekplan" visible={generatingWeek} />
+      <CookingLoader mode="weekplan" visible={generatingWeek} done={weekGenDone} error={weekGenError} />
       {/* Member selector modal for week generation */}
       {showMemberModal && (
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
