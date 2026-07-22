@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Icon from '../components/ui/Icon'
-import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients, describeIngredients } from '../api/healthTracker'
+import { getHealthData, logWeight, logMeal, updateMemberGoal, deleteNutritionLog, lookupNutrition, searchNutritionCache, getKidsNutritionSummary, calculateIngredients, describeIngredients, getLatestAudit } from '../api/healthTracker'
 import { saveRecipe, getSavedRecipes } from '../api/savedRecipes'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -30,6 +30,14 @@ const LEAN_BULK_RATES = [
 ]
 
 const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', maintain: 'Maintain' }
+
+const VERDICT_CONFIG = {
+  on_track:          { label: 'On track',        color: 'bg-green-50 text-green-700 border-green-200' },
+  plateau:           { label: 'Plateau detected', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  over_target:       { label: 'Over target',      color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  under_eating:      { label: 'Under eating',     color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  insufficient_data: { label: 'Not enough data',  color: 'bg-gray-50 text-gray-600 border-gray-200' },
+}
 
 export default function Health() {
   const { toast, showToast, hideToast } = useToast()
@@ -67,6 +75,8 @@ export default function Health() {
   const [mealDescription, setMealDescription] = useState('')
   const [describeError, setDescribeError] = useState('')
   const [dismissedGenderBanner, setDismissedGenderBanner] = useState(false)
+  const [audit, setAudit] = useState(null)
+  const [applyingDropCalories, setApplyingDropCalories] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -84,6 +94,18 @@ export default function Health() {
         .finally(() => setKidsLoading(false))
     } else {
       setKidsData(null)
+    }
+  }, [activeMemberId, data])
+
+  useEffect(() => {
+    if (!activeMemberId || !data) return
+    const member = data.members?.find(m => m.id === activeMemberId)
+    if (member?.fitnessGoal && isFeatureEnabled('fitness_coach', plan)) {
+      getLatestAudit(activeMemberId)
+        .then(res => setAudit(res.audit || null))
+        .catch(() => setAudit(null))
+    } else {
+      setAudit(null)
     }
   }, [activeMemberId, data])
 
@@ -632,6 +654,23 @@ const getGoalNudges = (member) => {
     }
   }
 
+  const handleDropCalories = async () => {
+    if (!audit?.metrics?.options?.dropCalories || !activeMember?.targets?.calories) return
+    setApplyingDropCalories(true)
+    try {
+      await updateMemberGoal({
+        memberId: activeMemberId,
+        dailyCalorieGoal: activeMember.targets.calories - audit.metrics.options.dropCalories,
+      })
+      showToast('Calorie target updated!')
+      fetchData()
+    } catch {
+      showToast('Failed to update calorie target', 'error')
+    } finally {
+      setApplyingDropCalories(false)
+    }
+  }
+
   const handleMealNameChange = (value) => {
     setMealForm(p => ({ ...p, recipeName: value }))
     setLookupResult(null)
@@ -933,6 +972,60 @@ const getGoalNudges = (member) => {
             </div>
           )}
 
+          {/* Coach audit card */}
+          {audit && (
+            <div className="card mb-6">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Icon name="bubble" size={18} className="text-primary" />
+                  <h2 className="font-semibold text-textPrimary">Weekly coach check-in</h2>
+                </div>
+                {(() => {
+                  const vc = VERDICT_CONFIG[audit.verdict]
+                  return vc ? (
+                    <span className={`text-xs px-2.5 py-1 rounded-pill font-medium border ${vc.color}`}>
+                      {vc.label}
+                    </span>
+                  ) : null
+                })()}
+              </div>
+              <p className="text-sm text-textPrimary leading-relaxed mb-2">{audit.coachSummary}</p>
+              <p className="text-xs text-textMuted">
+                Week of {new Date(audit.weekStart).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
+              </p>
+
+              {audit.verdict === 'plateau' && audit.metrics?.options && (
+                <div className="mt-4 pt-4 border-t border-border space-y-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-textPrimary">Drop {audit.metrics.options.dropCalories} kcal</p>
+                      <p className="text-xs text-textMuted">Reduce daily target to break the plateau</p>
+                    </div>
+                    <button
+                      onClick={handleDropCalories}
+                      disabled={applyingDropCalories}
+                      className="btn-primary text-xs py-1.5 px-3 flex-shrink-0 disabled:opacity-50"
+                    >
+                      {applyingDropCalories ? 'Applying…' : 'Apply'}
+                    </button>
+                  </div>
+                  <div className="flex items-start gap-3 px-3 py-2.5 bg-amber-50 border border-amber-100 rounded-btn">
+                    <Icon name="info" size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-textPrimary">
+                      Diet break: {audit.metrics.options.dietBreakDays} days at {audit.metrics.options.dietBreakCalories} kcal
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3 px-3 py-2.5 bg-blue-50 border border-blue-100 rounded-btn">
+                    <Icon name="info" size={14} className="text-blue-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-textPrimary">
+                      +{audit.metrics.options.extraStepsMinutes} min daily steps
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Gender missing banner */}
           {activeMember.genderMissing && !dismissedGenderBanner && (
             <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-blue-50 border-blue-100 mb-6">
@@ -1187,32 +1280,113 @@ const getGoalNudges = (member) => {
                   <p className="text-xs text-textMuted mt-1">Log your weight to track progress over time</p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {activeMember.weightHistory.map((log, i) => (
-                    <div key={i} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
-                      <div>
-                        <p className="text-sm font-semibold text-textPrimary">{log.weight} {log.unit}</p>
-                        {log.note && <p className="text-xs text-textMuted">{log.note}</p>}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {i < activeMember.weightHistory.length - 1 && (
-                          <span className={`text-xs font-medium flex items-center gap-0.5 ${
-                            log.weight < activeMember.weightHistory[i + 1].weight ? 'text-success' :
-                            log.weight > activeMember.weightHistory[i + 1].weight ? 'text-danger' :
-                            'text-textMuted'
-                          }`}>
-                            {log.weight < activeMember.weightHistory[i + 1].weight ? '↓' :
-                             log.weight > activeMember.weightHistory[i + 1].weight ? '↑' : '→'}
-                            {Math.abs(log.weight - activeMember.weightHistory[i + 1].weight).toFixed(1)} kg
-                          </span>
+                <>
+                  {activeMember.weightHistory.length >= 2 && (() => {
+                    const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000
+                    const all = [...activeMember.weightHistory]
+                      .map(log => ({
+                        date: new Date(log.date),
+                        kg: log.unit === 'lbs' ? parseFloat(log.weight) / 2.2046 : parseFloat(log.weight),
+                      }))
+                      .sort((a, b) => a.date - b.date)
+                    const recent = all.filter(l => l.date.getTime() >= cutoff)
+                    const logs = recent.length >= 2 ? recent : all
+                    if (logs.length < 2) return null
+
+                    const trend = logs.reduce((acc, l, i) => {
+                      acc.push(i === 0 ? l.kg : acc[i - 1] + 0.25 * (l.kg - acc[i - 1]))
+                      return acc
+                    }, [])
+
+                    const goalKg = activeMember.goalWeight ? parseFloat(activeMember.goalWeight) : null
+                    const allKg = [...logs.map(l => l.kg), ...trend, ...(goalKg != null ? [goalKg] : [])]
+                    const rawMin = Math.min(...allKg)
+                    const rawMax = Math.max(...allKg)
+                    const pad = Math.max((rawMax - rawMin) * 0.15, 0.5)
+                    const yMin = rawMin - pad
+                    const yMax = rawMax + pad
+
+                    const minT = logs[0].date.getTime()
+                    const maxT = logs[logs.length - 1].date.getTime()
+                    const tRange = maxT - minT || 1
+
+                    const VW = 300, VH = 110, LX = 38, PT = 14, PB = 14
+                    const toX = t => LX + ((t - minT) / tRange) * (VW - LX)
+                    const toY = kg => PT + (VH - PT - PB) - ((kg - yMin) / (yMax - yMin)) * (VH - PT - PB)
+
+                    const trendPath = logs.map((l, i) =>
+                      `${i === 0 ? 'M' : 'L'}${toX(l.date.getTime()).toFixed(1)} ${toY(trend[i]).toFixed(1)}`
+                    ).join(' ')
+
+                    const goalY = goalKg != null ? toY(goalKg) : null
+
+                    const velocity = activeMember.targets?.weeklyVelocity
+                    let velColor = 'text-textMuted'
+                    if (velocity != null) {
+                      if (activeMember.fitnessGoal === 'cut') velColor = velocity < 0 ? 'text-success' : 'text-orange-500'
+                      else if (activeMember.fitnessGoal === 'lean_bulk') velColor = velocity > 0 ? 'text-success' : 'text-orange-500'
+                    }
+
+                    return (
+                      <div className="mb-5 pb-4 border-b border-border">
+                        <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full">
+                          <text x="0" y="11" fontSize="9" textAnchor="start" fill="#9ca3af">{yMax.toFixed(1)}</text>
+                          <text x="0" y={VH - 4} fontSize="9" textAnchor="start" fill="#9ca3af">{yMin.toFixed(1)}</text>
+                          {goalY != null && goalY >= PT && goalY <= VH - PB && (
+                            <>
+                              <line x1={LX} y1={goalY.toFixed(1)} x2={VW} y2={goalY.toFixed(1)}
+                                stroke="#d1d5db" strokeWidth="1" strokeDasharray="4 3" />
+                              <text x={VW} y={goalY > VH / 2 ? goalY - 3 : goalY + 9}
+                                fontSize="8" textAnchor="end" fill="#9ca3af">goal</text>
+                            </>
+                          )}
+                          {logs.map((l, i) => (
+                            <circle key={i}
+                              cx={toX(l.date.getTime()).toFixed(1)}
+                              cy={toY(l.kg).toFixed(1)}
+                              r="2.5" fill="#d1d5db" />
+                          ))}
+                          <path d={trendPath} fill="none" stroke="#3B5BDB" strokeWidth="2"
+                            strokeLinejoin="round" strokeLinecap="round" />
+                        </svg>
+                        {velocity != null && (
+                          <p className="text-xs mt-0.5 pl-9">
+                            <span className="text-textMuted">Trending </span>
+                            <span className={`font-medium ${velColor}`}>
+                              {velocity < 0 ? '−' : '+'}{Math.abs(velocity).toFixed(2)} kg/week
+                            </span>
+                          </p>
                         )}
-                        <p className="text-xs text-textMuted">
-                          {new Date(log.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
-                        </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    )
+                  })()}
+                  <div className="space-y-2">
+                    {activeMember.weightHistory.map((log, i) => (
+                      <div key={i} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+                        <div>
+                          <p className="text-sm font-semibold text-textPrimary">{log.weight} {log.unit}</p>
+                          {log.note && <p className="text-xs text-textMuted">{log.note}</p>}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {i < activeMember.weightHistory.length - 1 && (
+                            <span className={`text-xs font-medium flex items-center gap-0.5 ${
+                              log.weight < activeMember.weightHistory[i + 1].weight ? 'text-success' :
+                              log.weight > activeMember.weightHistory[i + 1].weight ? 'text-danger' :
+                              'text-textMuted'
+                            }`}>
+                              {log.weight < activeMember.weightHistory[i + 1].weight ? '↓' :
+                               log.weight > activeMember.weightHistory[i + 1].weight ? '↑' : '→'}
+                              {Math.abs(log.weight - activeMember.weightHistory[i + 1].weight).toFixed(1)} kg
+                            </span>
+                          )}
+                          <p className="text-xs text-textMuted">
+                            {new Date(log.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}

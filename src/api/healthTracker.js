@@ -31,3 +31,6 @@ export const searchNutritionCache = async (query) => {
 
 export const getKidsNutritionSummary = (memberId) =>
   api.get(`/health-tracker/kids-summary/${memberId}`).then(r => r.data)
+
+export const getLatestAudit = (memberId) =>
+  api.get(`/health-tracker/audit/${memberId}`).then(r => r.data)
