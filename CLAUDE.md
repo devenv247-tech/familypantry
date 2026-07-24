@@ -33,7 +33,7 @@ Never commit `.env`, `.env.production`, or `.claude/`.
 ## Design system
 - Warm light mode: background `#fafaf9`, primary `#3B5BDB` (indigo blue), warm off-white tones — never cold white.
 - Reuse existing classes: `.card`, `.btn-primary`, `.btn-secondary`, pill badges, existing toast/skeleton patterns.
-- **Icons: never raw emoji in UI chrome.** Use the SVG component `src/components/ui/Icon.jsx` (`<Icon name="..." />`). Unicode 14+ emoji break on older Windows. (Emoji inside AI-generated recipe content from the backend is fine.)
+- **Icons: No raw emoji in UI chrome (buttons, headings, nav, badges, meta rows) — use Icon.jsx SVG components.** Use the SVG component `src/components/ui/Icon.jsx` (`<Icon name="..." />`). Allowed exceptions: 🫧 for AI features; emoji as *content pictographs* in cuisine/mood/dish filter chips (Recipes.jsx, MealPlan.jsx), pantry item icon picker data, admin announcement icons, and CookingLoader tip strings — these are data/content, not chrome, and use pre-Unicode-14 emoji only.
 - AI-related UI elements use the 🫧 bubble concept, never 🤖 — but rendered via Icon component, not raw emoji.
 
 ## Responsive rules (non-negotiable)

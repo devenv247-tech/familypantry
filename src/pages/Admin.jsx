@@ -562,7 +562,7 @@ export default function Admin() {
                         <p className="text-xs opacity-90">{newAnnouncement.message}</p>
                       </div>
                     </div>
-                    <span className="text-white/70 text-xl ml-4">✕</span>
+                    <Icon name="close" size={16} className="text-white/70 ml-4 flex-shrink-0" />
                   </div>
                 )}
 
@@ -817,11 +817,11 @@ export default function Admin() {
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-gray-500" />Monthly costs</h3>
               <div className="space-y-3">
                 {[
-                  { service: 'DigitalOcean', cost: '$12.00', note: 'Backend server — fixed monthly', status: '🟢 Active' },
-                  { service: 'Supabase', cost: '$0.00', note: 'Database — free tier', status: '🟢 Active' },
-                  { service: 'Vercel', cost: '$0.00', note: 'Frontend hosting — free tier', status: '🟢 Active' },
-                  { service: 'Anthropic API', cost: 'Variable', note: 'AI recipe + meal generation — pay per use', status: '🟢 Active' },
-                  { service: 'Stripe', cost: '2.9% + 30¢', note: 'Per transaction fee only', status: '🟢 Active' },
+                  { service: 'DigitalOcean', cost: '$12.00', note: 'Backend server — fixed monthly', status: 'Active' },
+                  { service: 'Supabase', cost: '$0.00', note: 'Database — free tier', status: 'Active' },
+                  { service: 'Vercel', cost: '$0.00', note: 'Frontend hosting — free tier', status: 'Active' },
+                  { service: 'Anthropic API', cost: 'Variable', note: 'AI recipe + meal generation — pay per use', status: 'Active' },
+                  { service: 'Stripe', cost: '2.9% + 30¢', note: 'Per transaction fee only', status: 'Active' },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                     <div>
@@ -830,7 +830,7 @@ export default function Admin() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold text-gray-900">{s.cost}</p>
-                      <p className="text-xs text-gray-400">{s.status}</p>
+                      <p className="text-xs text-green-600 flex items-center justify-end gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />{s.status}</p>
                     </div>
                   </div>
                 ))}

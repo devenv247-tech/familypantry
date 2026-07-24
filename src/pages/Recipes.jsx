@@ -836,7 +836,7 @@ export default function Recipes() {
                     className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${mealType === t ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
                       }`}
                   >
-                    {t === 'Breakfast' ? '🌅' : t === 'Lunch' ? '☀️' : t === 'Dinner' ? '🌙' : '🍎'} {t}
+                    <Icon name={t === 'Breakfast' ? 'sunrise' : t === 'Lunch' ? 'sun' : t === 'Dinner' ? 'moon' : 'leaf'} size={14} className="inline-block align-middle mr-1" />{t}
                   </button>
                 ))}
               </div>
@@ -1135,9 +1135,9 @@ export default function Recipes() {
                 return (
                   <div className="grid grid-cols-3 gap-3 mb-6">
                     {[
-                      { key: 'cookNow', label: 'Cook now', sublabel: '100% in pantry', icon: '🟢', count: cookNow.length, color: activeFilter === 'cookNow' ? 'border-green-400 bg-green-50' : 'border-green-100 bg-green-50/40 hover:border-green-300' },
-                      { key: 'tonight', label: 'Tonight', sublabel: 'Need 1 item', icon: '🟡', count: tonight.length, color: activeFilter === 'tonight' ? 'border-yellow-400 bg-yellow-50' : 'border-yellow-100 bg-yellow-50/40 hover:border-yellow-300' },
-                      { key: 'planAhead', label: 'Plan ahead', sublabel: 'Need a shop', icon: '🔵', count: planAhead.length, color: activeFilter === 'planAhead' ? 'border-blue-400 bg-blue-50' : 'border-blue-100 bg-blue-50/40 hover:border-blue-300' },
+                      { key: 'cookNow', label: 'Cook now', sublabel: '100% in pantry', dotClass: 'bg-green-500', count: cookNow.length, color: activeFilter === 'cookNow' ? 'border-green-400 bg-green-50' : 'border-green-100 bg-green-50/40 hover:border-green-300' },
+                      { key: 'tonight', label: 'Tonight', sublabel: 'Need 1 item', dotClass: 'bg-yellow-400', count: tonight.length, color: activeFilter === 'tonight' ? 'border-yellow-400 bg-yellow-50' : 'border-yellow-100 bg-yellow-50/40 hover:border-yellow-300' },
+                      { key: 'planAhead', label: 'Plan ahead', sublabel: 'Need a shop', dotClass: 'bg-blue-400', count: planAhead.length, color: activeFilter === 'planAhead' ? 'border-blue-400 bg-blue-50' : 'border-blue-100 bg-blue-50/40 hover:border-blue-300' },
                     ].map(tier => (
                       <button
                         key={tier.key}
@@ -1145,7 +1145,7 @@ export default function Recipes() {
                         className={`rounded-card border-2 px-3 py-3 text-center transition-all ${tier.color} ${tier.count === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
                         disabled={tier.count === 0}
                       >
-                        <div className="text-xl mb-1">{tier.icon}</div>
+                        <div className="flex justify-center mb-1"><span className={`w-4 h-4 rounded-full inline-block ${tier.dotClass}`} /></div>
                         <p className="text-sm font-semibold text-textPrimary">{tier.label}</p>
                         <p className="text-xs text-textMuted">{tier.sublabel}</p>
                         <p className="text-lg font-bold text-textPrimary mt-1">{tier.count}</p>

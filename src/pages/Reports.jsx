@@ -346,7 +346,7 @@ export default function Reports() {
       {isFeatureEnabled('costco_optimizer', plan) && (
       <div className="card mb-6 border border-orange-100 bg-orange-50/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary">📦 Costco bulk optimizer</h2>
+          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="package" size={16} className="text-stone-500 flex-shrink-0" />Costco bulk optimizer</h2>
           <div className="flex items-center gap-2">
             {costcoData?.recommendations?.length > 0 && (
               <button onClick={() => setShowCostco(!showCostco)} className="text-xs text-primary hover:underline font-medium">

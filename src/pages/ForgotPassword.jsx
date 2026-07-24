@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { forgotPassword } from '../api/auth'
+import Icon from '../components/ui/Icon'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -27,7 +28,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🔑</div>
+          <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-3"><Icon name="key" size={24} className="text-stone-500" /></div>
           <h1 className="text-2xl font-bold text-textPrimary">Reset your password</h1>
           <p className="text-textMuted mt-2 text-sm">
             Enter your email and we'll send you a reset link
@@ -37,7 +38,7 @@ export default function ForgotPassword() {
         <div className="card">
           {sent ? (
             <div className="text-center py-4">
-              <div className="text-5xl mb-4">📧</div>
+              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"><Icon name="mail" size={28} className="text-primary" /></div>
               <h2 className="font-semibold text-textPrimary mb-2">Check your email</h2>
               <p className="text-sm text-textMuted mb-6">
                 If <strong>{email}</strong> is registered, you'll receive a password reset link shortly.
