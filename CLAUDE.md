@@ -42,6 +42,31 @@ Never commit `.env`, `.env.production`, or `.claude/`.
 - Long text: use `line-clamp-*` / `truncate` rather than letting cards grow or overflow.
 - **Modals:** bottom sheet on mobile, centered on desktop. Overlay gets `sm:justify-center`; the box gets `sm:w-auto sm:min-w-[480px]` (never full-width stretch on desktop). Use the `.modal-sheet` safe-area pattern, `.modal-body` for the scrollable region, `.modal-header`/`.modal-footer` non-shrinking. A global `* { max-width: 100% }` rule and Safari flex quirks mean modals sometimes need **inline styles with `dvh` units** — follow existing modal implementations.
 
+## Color system
+
+Named palettes available in `tailwind.config.js` (all under `theme.extend.colors`):
+
+| Token family | Shades | Purpose |
+|---|---|---|
+| `indigo-*` (default Tailwind) | full scale | App structure, navigation, primary CTAs, links, billing, AI/trust features |
+| `food-*` | 50 100 200 500 600 700 | Anything food-related: tonight's dinner card, Start Cooking buttons, meal-type chips, kcal indicators, cooking-time highlights |
+| `fresh-*` | 50 100 600 700 | Health and freshness: in-stock states, health goal tags, fresh pantry items, nutrition wins |
+| `red-600` (default Tailwind) | single shade | Health Canada recalls **only** — nothing else |
+| `amber-*` (default Tailwind) | full scale | Expiring / expired items and warnings |
+| `stone-*` (default Tailwind) | full scale | All neutral grays — **always warm stone-\*, never gray-\*/slate-\*/zinc-\*** |
+
+**Usage rules:**
+- Text on a tinted background must use the `700` shade of the same family (e.g. `text-food-700` on `bg-food-50`, `text-fresh-700` on `bg-fresh-50`).
+- `stone-*` for all UI neutrals; never reach for `gray-*`, `slate-*`, or `zinc-*`.
+- `indigo-*` is reserved for app chrome and trust/AI surfaces — do not use it for food or health content.
+- `red-600` is a reserved semantic: Health Canada recall badges only. For errors and destructive actions use the existing `danger` token.
+
+**Responsive requirements for all new/modified UI:**
+- Test at 375 px, 768 px, and 1280 px widths.
+- Cards and grids must stack on mobile: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`.
+- Buttons that span the full available width on desktop must be `w-full` on mobile.
+- Zero horizontal overflow at 375 px — verify in DevTools device mode.
+
 ## Tailwind gotchas (learned the hard way)
 - **JIT dynamic classes are unreliable.** Never build class names from template literals (e.g. `translate-x-[${x}px]`). Use static class pairs (`left-0.5` ↔ `left-5`) or inline styles. Toggle switches in this codebase use inline styles for knob position — keep that pattern.
 - Test at 320px and at `sm:` (640px) breakpoints when touching layout.
