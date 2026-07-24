@@ -539,7 +539,7 @@ export default function MealPlan() {
             <button
               onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
               disabled={generatingWeek}
-              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-purple-200 text-purple-600 hover:bg-purple-50"
+              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
             >
               {generatingWeek ? (
                 <>
@@ -593,7 +593,7 @@ export default function MealPlan() {
         </div>
         <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
           <div
-            className="h-full bg-primary rounded-pill transition-all duration-500"
+            className="h-full bg-food-600 rounded-pill transition-all duration-500"
             style={{ width: `${(plannedCount / totalSlots) * 100}%` }}
           />
         </div>
@@ -620,8 +620,8 @@ export default function MealPlan() {
             {MEAL_TYPES.map(mealType => (
               <div key={mealType} className="grid grid-cols-8 gap-2 mb-2">
                 <div className="flex items-center gap-1.5 py-2">
-                  <span className="flex items-center text-stone-500"><Icon name={MEAL_ICONS[mealType]} size={16} /></span>
-                  <span className="text-xs font-medium text-textMuted">{mealType}</span>
+                  <span className="flex items-center text-food-600"><Icon name={MEAL_ICONS[mealType]} size={16} /></span>
+                  <span className="text-xs font-medium text-stone-700">{mealType}</span>
                 </div>
                 {DAYS.map(day => {
                   const meal = getMealForSlot(day, mealType)
@@ -636,7 +636,7 @@ export default function MealPlan() {
                     >
                       {meal ? (
                         <div className="h-full">
-                          <p className="text-xs font-medium text-primary leading-tight">
+                          <p className="text-xs font-medium text-stone-900 hover:text-food-700 leading-tight">
                             {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
                             {meal.recipeName}
                           </p>
@@ -644,13 +644,13 @@ export default function MealPlan() {
                             <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
                           )}
                           {meal.recipeData?.calories && (
-                            <p className="text-xs text-textMuted mt-1 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
+                            <p className="text-xs text-stone-600 mt-1 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
                           )}
                           {meal.recipeData?.time && (
-                            <p className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{meal.recipeData.time}</p>
+                            <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{meal.recipeData.time}</p>
                           )}
                           {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                            <p className="text-xs text-textMuted mt-1 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                            <p className="text-xs text-stone-500 mt-1 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
@@ -702,8 +702,8 @@ export default function MealPlan() {
                       return (
                         <div key={mealType} className="flex items-center gap-3">
                           <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
-                            <span className="flex items-center text-stone-500"><Icon name={MEAL_ICONS[mealType]} size={14} /></span>
-                            <span className="text-xs text-textMuted">{mealType}</span>
+                            <span className="flex items-center text-food-600"><Icon name={MEAL_ICONS[mealType]} size={14} /></span>
+                            <span className="text-xs text-stone-700">{mealType}</span>
                           </div>
                           {meal ? (
                             <div
@@ -711,7 +711,7 @@ export default function MealPlan() {
                               onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
                             >
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-primary truncate">
+                                <p className="text-xs font-medium text-stone-900 hover:text-food-700 truncate">
                                   {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
                                   {meal.recipeName}
                                 </p>
@@ -719,10 +719,10 @@ export default function MealPlan() {
                                   <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
                                 )}
                                 {meal.recipeData?.calories && (
-                                  <p className="text-xs text-textMuted flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
+                                  <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
                                 )}
                                 {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                                  <p className="text-xs text-textMuted truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                                  <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                                 )}
                               </div>
                               <button

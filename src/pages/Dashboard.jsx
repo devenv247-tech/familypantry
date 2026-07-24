@@ -229,7 +229,7 @@ export default function Dashboard() {
       </div>
 
       {/* Tonight slot — planned meal, AI suggestion, or skeleton while resolving */}
-      <div className="card mb-6 border border-indigo-100 bg-indigo-50/20">
+      <div className="card mb-6 border border-food-100 bg-food-50">
         {tonightMeal === null ? (
           <div className="flex items-center gap-3 animate-pulse">
             <div className="w-10 h-10 bg-gray-100 rounded-xl" />
@@ -248,22 +248,22 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 {tonightMeal.recipeData?.icon
                   ? <span className="text-2xl flex-shrink-0">{tonightMeal.recipeData.icon}</span>
                   : <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0"><Icon name="mealplan" size={18} className="text-primary" /></div>
                 }
                 <div className="min-w-0">
-                  <p className="text-xs text-textMuted font-medium">Tonight's dinner</p>
+                  <p className="text-xs text-food-700 font-medium">Tonight's dinner</p>
                   <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>
                   <div className="flex gap-2 mt-0.5">
-                    {tonightMeal.recipeData?.time && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
-                    {tonightMeal.recipeData?.calories && <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
+                    {tonightMeal.recipeData?.time && <span className="text-xs text-stone-600 flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" /> {tonightMeal.recipeData.time}</span>}
+                    {tonightMeal.recipeData?.calories && <span className="text-xs text-stone-600 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" /> {tonightMeal.recipeData.calories} kcal</span>}
                   </div>
                 </div>
               </div>
-              <button onClick={handleCookAlong} className="btn-primary text-sm flex-shrink-0 flex items-center gap-2">
+              <button onClick={handleCookAlong} className="bg-food-600 hover:bg-food-700 text-white px-5 py-2.5 rounded-btn font-medium text-sm active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 w-full sm:w-auto">
                 Start cooking
               </button>
             </div>
@@ -310,10 +310,10 @@ export default function Dashboard() {
               </p>
             </div>
             {(aiSuggestion.recipe.time || aiSuggestion.recipe.difficulty) && (
-              <div className="flex items-center gap-3 mb-3 text-xs text-textMuted">
+              <div className="flex items-center gap-3 mb-3 text-xs text-stone-600">
                 {aiSuggestion.recipe.time && (
                   <span className="flex items-center gap-1">
-                    <Icon name="recipes" size={11} /> {aiSuggestion.recipe.time}
+                    <Icon name="clock" size={11} className="text-stone-500" /> {aiSuggestion.recipe.time}
                   </span>
                 )}
                 {aiSuggestion.recipe.difficulty && <span>{aiSuggestion.recipe.difficulty}</span>}
@@ -500,7 +500,7 @@ export default function Dashboard() {
                     <p className="text-xs text-textMuted">{item.quantity} {item.unit}</p>
                   </div>
                 </div>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-pill whitespace-nowrap ${item.urgency === 'expired' ? 'bg-amber-100 text-amber-700' :
                   item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
                     item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-blue-100 text-blue-700'
@@ -683,8 +683,8 @@ export default function Dashboard() {
 
                   {/* Quick info */}
                   <div className="flex flex-wrap gap-2 mb-6 text-xs text-textMuted">
-                    {tonightMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="recipes" size={11} /> {tonightMeal.recipeData.time}</span>}
-                    {tonightMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="health" size={11} /> {tonightMeal.recipeData.calories} kcal</span>}
+                    {tonightMeal.recipeData?.time && <span className="flex items-center gap-1 text-stone-600"><Icon name="clock" size={11} className="text-stone-500" /> {tonightMeal.recipeData.time}</span>}
+                    {tonightMeal.recipeData?.calories && <span className="flex items-center gap-1 text-stone-600"><Icon name="flame" size={11} className="text-food-600" /> {tonightMeal.recipeData.calories} kcal</span>}
                     {tonightMeal.recipeData?.serves && <span className="flex items-center gap-1"><Icon name="family" size={11} /> Serves {tonightMeal.recipeData.serves}</span>}
                   </div>
 
