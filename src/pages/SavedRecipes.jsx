@@ -3,6 +3,7 @@ import { getSavedRecipes, deleteSavedRecipe } from '../api/savedRecipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import Icon from '../components/ui/Icon'
 
 export default function SavedRecipes() {
   const { toast, showToast, hideToast } = useToast()
@@ -108,13 +109,13 @@ export default function SavedRecipes() {
         <ErrorState message={error} onRetry={fetchRecipes} />
       ) : filtered.length === 0 && recipes.length === 0 ? (
         <EmptyState
-          icon="📖"
+          icon="cookbook"
           title="Your cookbook is empty"
           subtitle="Save recipes from the Recipe suggestions page by clicking the bookmark button"
         />
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon="🔍"
+          icon="search"
           title="No recipes found"
           subtitle="Try a different search term"
         />
@@ -124,7 +125,7 @@ export default function SavedRecipes() {
             <div key={recipe.id} className="card hover:shadow-md transition-all">
 
               <div className="flex items-start justify-between mb-3">
-                <div className="text-4xl">{recipe.icon || '🍽️'}</div>
+                {recipe.icon ? <div className="text-4xl">{recipe.icon}</div> : <div className="text-food-600"><Icon name="utensils" size={40} /></div>}
                 <div className="flex items-center gap-2">
                   {recipe.difficulty && (
                     <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
@@ -137,7 +138,7 @@ export default function SavedRecipes() {
                     onClick={() => handleDelete(recipe.id)}
                     className="w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
                   >
-                    ✕
+                    <Icon name="close" size={14} />
                   </button>
                 </div>
               </div>
@@ -158,17 +159,17 @@ export default function SavedRecipes() {
               )}
 
               <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3 flex-wrap">
-                {recipe.time && <span>⏱ {recipe.time}</span>}
-                {recipe.serves && <span>👥 Serves {recipe.serves}</span>}
-                <span className="text-textMuted">
-                  🔖 Saved {new Date(recipe.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
+                {recipe.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} className="text-stone-500" />{recipe.time}</span>}
+                {recipe.serves && <span className="flex items-center gap-1"><Icon name="family" size={12} className="text-stone-500" />Serves {recipe.serves}</span>}
+                <span className="text-textMuted flex items-center gap-1">
+                  <Icon name="bookmark" size={12} />Saved {new Date(recipe.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
                 </span>
               </div>
 
               {/* Allergen warnings */}
               {recipe.allergenWarnings?.length > 0 && (
                 <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-3">
-                  <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
+                  <p className="text-xs font-semibold text-danger mb-1 flex items-center gap-1"><Icon name="warning" size={12} />Allergen warnings</p>
                   {recipe.allergenWarnings.map((w, i) => (
                     <p key={i} className="text-xs text-red-600">
                       contains {w.allergen} ({w.ingredient})
@@ -223,7 +224,7 @@ export default function SavedRecipes() {
                       <ul className="space-y-1.5 mb-5">
                         {recipe.ingredients.map((ing, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                            <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center text-xs flex-shrink-0">✓</span>
+                            <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                           </li>
                         ))}

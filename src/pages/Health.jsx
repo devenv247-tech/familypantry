@@ -728,7 +728,7 @@ const getGoalNudges = (member) => {
     return (
       <div className="page-container">
         <div className="text-center py-16">
-          <div className="text-5xl mb-4">👨‍👩‍👧‍👦</div>
+          <div className="mb-4 flex justify-center text-stone-300"><Icon name="family" size={56} /></div>
           <h2 className="text-xl font-bold text-textPrimary mb-2">No family members yet</h2>
           <p className="text-textMuted mb-6">Add family members in Settings to start tracking health goals</p>
           <a href="/app/settings" className="btn-primary">Go to Settings</a>

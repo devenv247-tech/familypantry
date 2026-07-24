@@ -14,10 +14,10 @@ import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
 const SEASONAL_DATA = {
-  spring: { icon: '🌱', color: 'border-green-200 bg-green-50/30', badge: 'bg-green-100 text-green-700', items: ['Asparagus', 'Spinach', 'Peas', 'Rhubarb', 'Radishes', 'Arugula', 'Leeks', 'Lettuce'] },
-  summer: { icon: '☀️', color: 'border-yellow-200 bg-yellow-50/30', badge: 'bg-yellow-100 text-yellow-700', items: ['Strawberries', 'Corn', 'Tomatoes', 'Zucchini', 'Peaches', 'Blueberries', 'Cucumbers', 'Bell peppers'] },
-  fall: { icon: '🍂', color: 'border-orange-200 bg-orange-50/30', badge: 'bg-orange-100 text-orange-700', items: ['Squash', 'Apples', 'Pears', 'Beets', 'Brussels sprouts', 'Sweet potatoes', 'Cranberries', 'Cauliflower'] },
-  winter: { icon: '❄️', color: 'border-blue-200 bg-blue-50/30', badge: 'bg-blue-100 text-blue-700', items: ['Citrus', 'Oranges', 'Cabbage', 'Carrots', 'Kale', 'Potatoes', 'Grapefruit', 'Lemons'] },
+  spring: { icon: 'spring', color: 'border-green-200 bg-green-50/30', badge: 'bg-green-100 text-green-700', items: ['Asparagus', 'Spinach', 'Peas', 'Rhubarb', 'Radishes', 'Arugula', 'Leeks', 'Lettuce'] },
+  summer: { icon: 'sun', color: 'border-yellow-200 bg-yellow-50/30', badge: 'bg-yellow-100 text-yellow-700', items: ['Strawberries', 'Corn', 'Tomatoes', 'Zucchini', 'Peaches', 'Blueberries', 'Cucumbers', 'Bell peppers'] },
+  fall: { icon: 'leaf', color: 'border-orange-200 bg-orange-50/30', badge: 'bg-orange-100 text-orange-700', items: ['Squash', 'Apples', 'Pears', 'Beets', 'Brussels sprouts', 'Sweet potatoes', 'Cranberries', 'Cauliflower'] },
+  winter: { icon: 'snowflake', color: 'border-blue-200 bg-blue-50/30', badge: 'bg-blue-100 text-blue-700', items: ['Citrus', 'Oranges', 'Cabbage', 'Carrots', 'Kale', 'Potatoes', 'Grapefruit', 'Lemons'] },
 }
 
 const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', maintain: 'Maintain' }
@@ -218,7 +218,7 @@ export default function Dashboard() {
 
       {/* Recall alert */}
       <div className="bg-red-50 border border-red-100 rounded-card px-5 py-4 mb-8 flex items-start gap-3">
-        <span className="text-xl">🚨</span>
+        <Icon name="recalls" size={20} className="text-red-600 flex-shrink-0" />
         <div>
           <p className="text-sm font-semibold text-danger">Health Canada Recall Alert</p>
           <p className="text-sm text-red-600 mt-0.5">
@@ -418,7 +418,7 @@ export default function Dashboard() {
       {(stats?.pantryCount ?? 0) < 15 && (
         <div className="card mb-6 border border-green-200 bg-green-50/30">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-textPrimary">🛒 Set up your pantry</p>
+            <p className="text-sm font-semibold text-textPrimary flex items-center gap-1.5"><Icon name="grocery" size={14} className="text-stone-500" /> Set up your pantry</p>
             <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium py-1">
               Add items →
             </button>
@@ -536,7 +536,7 @@ export default function Dashboard() {
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {expiringSoon.filter(i => !i.isExpired).slice(0, 6).map((item, i) => (
                   <span key={i} className="text-xs bg-white border border-orange-200 text-orange-700 font-medium px-2.5 py-1 rounded-pill">
-                    {item.icon || '🥘'} {item.name}
+                    {item.icon} {item.name}
                     <span className="text-orange-400 ml-1">
                       {item.daysLeft === 0 ? '· today' : `· ${item.daysLeft}d`}
                     </span>
@@ -646,7 +646,7 @@ export default function Dashboard() {
               {cookDone ? (
                 /* Done state */
                 <div className="text-center py-6">
-                  <div className="text-6xl mb-4">🍳</div>
+                  <div className="mb-4 flex justify-center text-food-600"><Icon name="utensils" size={56} /></div>
                   <h3 className="text-xl font-bold text-textPrimary mb-2">Nice cook!</h3>
                   <p className="text-sm text-textMuted mb-6">
                     {pantryLabel ? `Pantry updated — ${pantryLabel}. ` : ''}Nutrition logged for everyone.
@@ -710,7 +710,7 @@ export default function Dashboard() {
                         disabled={cooking}
                         className="btn-primary flex-1 text-base bg-green-600 hover:bg-green-700"
                       >
-                        {cooking ? 'Saving...' : '🍳 Done cooking!'}
+                        {cooking ? 'Saving...' : <><Icon name="utensils" size={15} className="inline-block mr-1" />Done cooking!</>}
                       </button>
                     )}
                   </div>
@@ -724,7 +724,7 @@ export default function Dashboard() {
                     disabled={cooking}
                     className="btn-primary w-full"
                   >
-                    {cooking ? 'Saving...' : '🍳 Mark as cooked'}
+                    {cooking ? 'Saving...' : <><Icon name="utensils" size={15} className="inline-block mr-1" />Mark as cooked</>}
                   </button>
                 </div>
               )}
@@ -760,9 +760,9 @@ export default function Dashboard() {
                 </div>
                 <button
                   onClick={() => setDismissedNudges(prev => [...prev, nudge.message])}
-                  className="text-textMuted hover:text-textPrimary text-sm flex-shrink-0"
+                  className="text-textMuted hover:text-textPrimary flex-shrink-0 p-1"
                 >
-                  ✕
+                  <Icon name="close" size={14} />
                 </button>
               </div>
             ))}
@@ -816,7 +816,7 @@ export default function Dashboard() {
       {isFeatureEnabled('health_progress', plan) && healthProgress?.hasData && (
         <div className="card mt-6 border border-green-100 bg-green-50/20">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-textPrimary">💪 Health goal progress</h2>
+            <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="health" size={16} className="text-fresh-600" /> Health goal progress</h2>
             <span className="text-xs text-textMuted">Last 7 days</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -870,7 +870,7 @@ export default function Dashboard() {
         return (
           <div className={`card mt-6 border ${s.color}`}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-textPrimary">{s.icon} Seasonal picks — {month}</h2>
+              <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name={s.icon} size={16} /> Seasonal picks — {month}</h2>
               <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${s.badge}`}>
                 {season.charAt(0).toUpperCase() + season.slice(1)}
               </span>

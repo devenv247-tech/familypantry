@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense, useState, useEffect } from 'react'
 import { useAuthStore } from './store/authStore'
+import Icon from './components/ui/Icon'
 
 // Eagerly loaded (public, fast-path pages)
 import Landing from './pages/Landing'
@@ -101,7 +102,7 @@ function SplashScreen({ fadeOut }) {
       <div style={{ fontSize:16, color:'#64748b', marginTop:12, fontWeight:400, letterSpacing:0.2, opacity:0, animation:'textIn 0.6s ease 0.95s forwards' }}>Meal planning for Canadian families</div>
 
       {/* Bottom tag */}
-      <div style={{ position:'absolute', bottom:52, fontSize:13, color:'#94a3b8', letterSpacing:1.5, opacity:0, animation:'tagIn 0.6s ease 1.3s forwards', textTransform:'uppercase', fontWeight:500 }}>🍁 Made for Canada</div>
+      <div style={{ position:'absolute', bottom:52, fontSize:13, color:'#94a3b8', letterSpacing:1.5, opacity:0, animation:'tagIn 0.6s ease 1.3s forwards', textTransform:'uppercase', fontWeight:500 }} className="flex items-center gap-1.5 justify-center"><Icon name="canada" size={13} /> Made for Canada</div>
     </div>
   )
 }

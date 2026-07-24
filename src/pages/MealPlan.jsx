@@ -24,10 +24,10 @@ const CUISINES = [
   { label: 'Canadian / Western', icon: '🍁' },
 ]
 const MEAL_ICONS = {
-  Breakfast: '🌅',
-  Lunch: '☀️',
-  Dinner: '🌙',
-  Snack: '🍎',
+  Breakfast: 'sunrise',
+  Lunch: 'sun',
+  Dinner: 'moon',
+  Snack: 'leaf',
 }
 
 const getWeekStart = (offset = 0) => {
@@ -268,7 +268,7 @@ export default function MealPlan() {
           <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
               <h3 className="font-semibold text-textPrimary flex items-center gap-2">
-                <span>{selectedMeal.recipeData?.icon || MEAL_ICONS[selectedMeal.mealType]}</span>
+                {selectedMeal.recipeData?.icon ? <span>{selectedMeal.recipeData.icon}</span> : <Icon name={MEAL_ICONS[selectedMeal.mealType]} size={16} />}
                 <span>{selectedMeal.mealType} — {selectedMeal.day}</span>
               </h3>
               <button onClick={() => setShowDetailModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
@@ -281,8 +281,8 @@ export default function MealPlan() {
               )}
 
               <div className="flex items-center gap-4 text-xs text-textMuted mb-4 flex-wrap">
-                {selectedMeal.recipeData?.time && <span>⏱ {selectedMeal.recipeData.time}</span>}
-                {selectedMeal.recipeData?.calories && <span>🔥 {selectedMeal.recipeData.calories} kcal</span>}
+                {selectedMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} className="text-stone-500" />{selectedMeal.recipeData.time}</span>}
+                {selectedMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="flame" size={12} className="text-food-600" />{selectedMeal.recipeData.calories} kcal</span>}
               </div>
 
               {/* Nutrition macros */}
@@ -310,7 +310,7 @@ export default function MealPlan() {
                   <div className="space-y-1">
                     {selectedMeal.recipeData.ingredients.map((ing, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs text-textMuted">
-                        <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0">✓</span>
+                        <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                       </div>
                     ))}
@@ -351,7 +351,7 @@ export default function MealPlan() {
               {/* Already cooked badge */}
               {selectedMeal.cooked && (
                 <div className="mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-3 flex items-center gap-2">
-                  <span className="text-success text-lg">✓</span>
+                  <Icon name="check" size={18} className="text-success flex-shrink-0" />
                   <p className="text-sm font-medium text-success">
                     Cooked {selectedMeal.cookedAt
                       ? new Date(selectedMeal.cookedAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })
@@ -381,7 +381,7 @@ export default function MealPlan() {
                         </svg>
                         Cooking...
                       </>
-                    ) : '🍳 I cooked this'}
+                    ) : <><Icon name="utensils" size={15} className="inline-block mr-1" />I cooked this</>}
                   </button>
                 )}
                 <button
@@ -402,7 +402,7 @@ export default function MealPlan() {
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h3 className="font-semibold text-textPrimary">✨ Auto-plan this week</h3>
+              <h3 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="sparkle" size={15} /> Auto-plan this week</h3>
               <button onClick={() => setShowMemberModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
@@ -450,7 +450,7 @@ export default function MealPlan() {
               </div>
               <div className="bg-yellow-50 border border-yellow-100 rounded-btn px-4 py-3 mb-6">
                 <p className="text-xs text-yellow-700">
-                  ⚠️ This will replace all existing meals for this week with AI suggestions.
+                  <span className="flex items-center gap-1.5"><Icon name="warning" size={14} className="text-yellow-600 flex-shrink-0" />This will replace all existing meals for this week with AI suggestions.</span>
                 </p>
               </div>
 
@@ -472,8 +472,8 @@ export default function MealPlan() {
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
           <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
             <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h3 className="font-semibold text-textPrimary">
-                {MEAL_ICONS[selectedSlot?.mealType]} {selectedSlot?.mealType} — {selectedSlot?.day}
+              <h3 className="font-semibold text-textPrimary flex items-center gap-2">
+                <Icon name={MEAL_ICONS[selectedSlot?.mealType] || 'utensils'} size={15} />{selectedSlot?.mealType} — {selectedSlot?.day}
               </h3>
               <button onClick={() => setShowAddModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
             </div>
@@ -620,7 +620,7 @@ export default function MealPlan() {
             {MEAL_TYPES.map(mealType => (
               <div key={mealType} className="grid grid-cols-8 gap-2 mb-2">
                 <div className="flex items-center gap-1.5 py-2">
-                  <span className="text-base">{MEAL_ICONS[mealType]}</span>
+                  <span className="flex items-center text-stone-500"><Icon name={MEAL_ICONS[mealType]} size={16} /></span>
                   <span className="text-xs font-medium text-textMuted">{mealType}</span>
                 </div>
                 {DAYS.map(day => {
@@ -641,13 +641,13 @@ export default function MealPlan() {
                             {meal.recipeName}
                           </p>
                           {meal.cooked && (
-                            <span className="text-xs text-success font-medium">✓ Cooked</span>
+                            <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
                           )}
                           {meal.recipeData?.calories && (
-                            <p className="text-xs text-textMuted mt-1">🔥 {meal.recipeData.calories} kcal</p>
+                            <p className="text-xs text-textMuted mt-1 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
                           )}
                           {meal.recipeData?.time && (
-                            <p className="text-xs text-textMuted">⏱ {meal.recipeData.time}</p>
+                            <p className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{meal.recipeData.time}</p>
                           )}
                           {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
                             <p className="text-xs text-textMuted mt-1 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
@@ -656,7 +656,7 @@ export default function MealPlan() {
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
                             className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white text-danger opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-xs border border-red-100"
                           >
-                            ✕
+                            <Icon name="close" size={10} />
                           </button>
                         </div>
                       ) : (
@@ -702,7 +702,7 @@ export default function MealPlan() {
                       return (
                         <div key={mealType} className="flex items-center gap-3">
                           <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
-                            <span className="text-sm">{MEAL_ICONS[mealType]}</span>
+                            <span className="flex items-center text-stone-500"><Icon name={MEAL_ICONS[mealType]} size={14} /></span>
                             <span className="text-xs text-textMuted">{mealType}</span>
                           </div>
                           {meal ? (
@@ -716,10 +716,10 @@ export default function MealPlan() {
                                   {meal.recipeName}
                                 </p>
                                 {meal.cooked && (
-                                  <span className="text-xs text-success font-medium">✓ Cooked</span>
+                                  <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
                                 )}
                                 {meal.recipeData?.calories && (
-                                  <p className="text-xs text-textMuted">🔥 {meal.recipeData.calories} kcal</p>
+                                  <p className="text-xs text-textMuted flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
                                 )}
                                 {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
                                   <p className="text-xs text-textMuted truncate">{meal.recipeData.plannedFor.join(', ')}</p>
@@ -729,7 +729,7 @@ export default function MealPlan() {
                                 onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
                                 className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                               >
-                                ✕
+                                <Icon name="close" size={12} />
                               </button>
                             </div>
                           ) : (
@@ -785,12 +785,12 @@ export default function MealPlan() {
                   : <span className="text-textMuted text-lg">—</span>}
               </div>
               <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">
-                <span className="text-lg">📅</span>
+                <Icon name="mealplan" size={20} className="text-primary flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-textPrimary">Meal plan</p>
                   <p className="text-xs text-textMuted">Slot marked as done</p>
                 </div>
-                <span className="text-success text-lg">✓</span>
+                <Icon name="check" size={18} className="text-success flex-shrink-0" />
               </div>
             </div>
             <button onClick={() => setCookedModal(null)} className="btn-primary w-full">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Icon from './Icon'
 
 // ─── Shared cooking progress loader ───────────────────────────────────────────
 // Used by both Recipes.jsx and MealPlan.jsx
@@ -15,27 +16,27 @@ import { useState, useEffect } from 'react'
 
 const STEPS = {
   recipes: [
-    { icon: '🧺', label: 'Checking your pantry', duration: 4000 },
-    { icon: '💪', label: 'Reading health goals', duration: 4000 },
-    { icon: '⚠️', label: 'Checking allergens', duration: 3000 },
-    { icon: '🍽️', label: 'Crafting recipe ideas', duration: 6000 },
-    { icon: '✨', label: 'Finalising suggestions', duration: 4000 },
+    { icon: 'pantry', label: 'Checking your pantry', duration: 4000 },
+    { icon: 'health', label: 'Reading health goals', duration: 4000 },
+    { icon: 'warning', label: 'Checking allergens', duration: 3000 },
+    { icon: 'utensils', label: 'Crafting recipe ideas', duration: 6000 },
+    { icon: 'sparkle', label: 'Finalising suggestions', duration: 4000 },
   ],
   family: [
-    { icon: '👨‍👩‍👧‍👦', label: 'Reading all member profiles', duration: 4000 },
-    { icon: '⚖️', label: 'Balancing health goals', duration: 4000 },
-    { icon: '⚠️', label: 'Checking everyone\'s allergens', duration: 3000 },
-    { icon: '🍳', label: 'Crafting the perfect family recipe', duration: 7000 },
-    { icon: '✨', label: 'Adding finishing touches', duration: 3000 },
+    { icon: 'family', label: 'Reading all member profiles', duration: 4000 },
+    { icon: 'health', label: 'Balancing health goals', duration: 4000 },
+    { icon: 'warning', label: 'Checking everyone\'s allergens', duration: 3000 },
+    { icon: 'utensils', label: 'Crafting the perfect family recipe', duration: 7000 },
+    { icon: 'sparkle', label: 'Adding finishing touches', duration: 3000 },
   ],
   weekplan: [
-    { icon: '🧺', label: 'Scanning your pantry', duration: 25000 },
-    { icon: '💪', label: 'Reading family health goals', duration: 25000 },
-    { icon: '🌅', label: 'Planning breakfasts', duration: 30000 },
-    { icon: '☀️', label: 'Planning lunches', duration: 30000 },
-    { icon: '🌙', label: 'Planning dinners', duration: 35000 },
-    { icon: '🍎', label: 'Planning snacks', duration: 35000 },
-    { icon: '✨', label: 'Finalising your week', duration: 3000 }, // gated — only completes on done=true
+    { icon: 'pantry', label: 'Scanning your pantry', duration: 25000 },
+    { icon: 'health', label: 'Reading family health goals', duration: 25000 },
+    { icon: 'sunrise', label: 'Planning breakfasts', duration: 30000 },
+    { icon: 'sun', label: 'Planning lunches', duration: 30000 },
+    { icon: 'moon', label: 'Planning dinners', duration: 35000 },
+    { icon: 'leaf', label: 'Planning snacks', duration: 35000 },
+    { icon: 'sparkle', label: 'Finalising your week', duration: 3000 }, // gated — only completes on done=true
   ],
 }
 
@@ -163,10 +164,10 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
         {/* Animated pot / cooking icon */}
         <div className="relative mb-6">
           <div
-            className="text-7xl select-none"
+            className="text-primary select-none"
             style={{ animation: 'gentleBob 2s ease-in-out infinite' }}
           >
-            {steps[Math.min(currentStep, steps.length - 1)]?.icon || '🍳'}
+            <Icon name={steps[Math.min(currentStep, steps.length - 1)]?.icon || 'utensils'} size={72} />
           </div>
           {/* Steam lines */}
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-2">
@@ -213,10 +214,10 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
                 {/* Status icon */}
                 <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                   {isDone ? (
-                    <span className="text-success text-base">✓</span>
+                    <span className="text-success flex items-center"><Icon name="check" size={14} /></span>
                   ) : isActive ? (
                     error ? (
-                      <span className="text-red-500 text-base font-bold">✕</span>
+                      <span className="text-red-500 flex items-center"><Icon name="close" size={14} /></span>
                     ) : (
                       <svg className="animate-spin w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -229,7 +230,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
                 </div>
 
                 {/* Step icon + label */}
-                <span className="text-base">{step.icon}</span>
+                <span className="flex-shrink-0 text-stone-400"><Icon name={step.icon} size={16} /></span>
                 <span className={`text-sm font-medium flex-1 text-left ${
                   isDone ? 'text-success' : isActive ? (error ? 'text-red-500' : 'text-primary') : 'text-textMuted'
                 }`}>

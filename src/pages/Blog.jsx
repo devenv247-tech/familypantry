@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom'
 import NookaIcon from '../components/ui/NookaIcon'
+import Icon from '../components/ui/Icon'
 import { blogPosts } from '../data/blogPosts'
 
 export default function Blog() {
@@ -35,7 +36,7 @@ export default function Blog() {
               to={`/blog/${post.slug}`}
               className="card hover:shadow-md transition-shadow duration-200 flex flex-col group"
             >
-              <div className="text-4xl mb-4">{post.image}</div>
+              <div className="mb-4 flex justify-center text-primary"><Icon name={post.image} size={40} /></div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xs font-medium px-2.5 py-1 rounded-pill bg-blue-50 text-primary border border-blue-100">
                   {post.category}

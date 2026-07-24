@@ -118,7 +118,7 @@ export default function Grocery() {
     setPredictions(remaining)
     setAutoGenerating(false)
     if (added > 0) {
-      showToast(`🫧 Added ${added} predicted item${added > 1 ? 's' : ''} to your list!`)
+      showToast(`Added ${added} predicted item${added > 1 ? 's' : ''} to your list!`)
     } else {
       showToast('All predictions are already on your list')
     }
@@ -134,7 +134,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           qty: parsed.quantity ? `${parsed.quantity} ${parsed.unit || 'pcs'}`.trim() : '',
         }))
         setShowForm(true)
-        showToast(`🎙️ Heard: "${transcript}"`)
+        showToast(`Heard: "${transcript}"`)
       } catch (err) {
         showToast('Could not understand. Please try again.', 'error')
       } finally {
@@ -325,7 +325,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                   <span>Listening...</span>
                 </>
               ) : (
-                <>🎙️ <span>Voice add</span></>
+                <><Icon name="mic" size={15} /> <span>Voice add</span></>
               )}
             </button>
           )}
@@ -357,7 +357,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <div className="card mb-6 border border-blue-100 bg-blue-50/20">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-lg">🔮</span>
+                <Icon name="sparkle" size={18} className="text-primary" />
                 <h2 className="font-semibold text-textPrimary">You might need these soon</h2>
               </div>
               <span className="text-xs text-textMuted">Stock levels & purchase history</span>
@@ -369,8 +369,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     : 'bg-white border-blue-100'
                   }`}>
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-base flex-shrink-0">
-                      {p.urgent ? '🚨' : p.source === 'low_stock' ? '📉' : '🔁'}
+                    <span className="flex-shrink-0 flex items-center">
+                      {p.urgent ? <Icon name="warning" size={16} className="text-red-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-500" /> : <Icon name="refresh" size={16} className="text-stone-500" />}
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-textPrimary truncate">{p.name}</p>
@@ -398,7 +398,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
         <div className="card mb-6 border border-dashed border-blue-200 bg-blue-50/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🔮</span>
+              <Icon name="sparkle" size={24} className="text-primary flex-shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-textPrimary">Predictive grocery list</p>
                 <p className="text-xs text-textMuted">Nooka learns your habits and reminds you before you run out</p>
@@ -417,7 +417,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Price alerts */}
       {isFeatureEnabled('price_anomaly', plan) && priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
-          <h2 className="font-semibold text-textPrimary mb-3">💰 Price alerts</h2>
+          <h2 className="font-semibold text-textPrimary mb-3 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" /> Price alerts</h2>
           <div className="space-y-2">
             {priceAlerts.map((alert, i) => (
               <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
@@ -465,7 +465,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
         <div className="card mb-6 border-2 border-primary">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">Add item</h2>
-            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100"><Icon name="close" size={16} /></button>
           </div>
           <form onSubmit={handleAdd}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -575,7 +575,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
         <div className="card p-0 overflow-hidden">
           {filtered.length === 0 ? (
             <div className="text-center py-12 text-textMuted">
-              <div className="text-4xl mb-3">🛒</div>
+              <div className="mb-3 flex justify-center text-stone-300"><Icon name="grocery" size={48} /></div>
               <p className="font-medium">No items yet</p>
               <p className="text-sm mt-1">Click Add item to get started</p>
             </div>
@@ -656,7 +656,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             : 'border-border hover:border-primary'
                           }`}
                       >
-                        {item.checked && <span className="text-xs">✓</span>}
+                        {item.checked && <Icon name="check" size={10} />}
                       </button>
 
                       <div className="flex-1 min-w-0">
@@ -704,16 +704,16 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             isCustomStore: false,
                           })
                         }}
-                        className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm"
+                        className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
-                        ✎
+                        <Icon name="edit" size={14} />
                       </button>
 
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm"
+                        className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
-                        ✕
+                        <Icon name="close" size={14} />
                       </button>
                     </div>
                   )}

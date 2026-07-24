@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { resetPassword } from '../api/auth'
+import Icon from '../components/ui/Icon'
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams()
@@ -43,7 +44,7 @@ export default function ResetPassword() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🔐</div>
+          <div className="mb-3 flex justify-center text-primary"><Icon name="lock" size={44} /></div>
           <h1 className="text-2xl font-bold text-textPrimary">Set new password</h1>
           <p className="text-textMuted mt-2 text-sm">Choose a strong password for your account</p>
         </div>
@@ -51,7 +52,7 @@ export default function ResetPassword() {
         <div className="card">
           {success ? (
             <div className="text-center py-4">
-              <div className="text-5xl mb-4">✅</div>
+              <div className="mb-4 flex justify-center"><Icon name="check" size={52} className="text-success" /></div>
               <h2 className="font-semibold text-textPrimary mb-2">Password reset!</h2>
               <p className="text-sm text-textMuted mb-6">
                 Your password has been updated. Redirecting to login...

@@ -209,7 +209,7 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl mb-4 animate-pulse">🔐</div>
+          <div className="mb-4 flex justify-center text-primary animate-pulse"><Icon name="lock" size={40} /></div>
           <p className="text-textMuted">Loading admin panel...</p>
         </div>
       </div>
@@ -263,7 +263,7 @@ export default function Admin() {
             {/* API Status Alert */}
             {apiStatus && !apiStatus.anthropic.alive && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                <span className="text-2xl">🚨</span>
+                <Icon name="recalls" size={22} className="text-red-600 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="font-semibold text-red-800">Anthropic API is down!</p>
                   <p className="text-sm text-red-600 mt-1">{apiStatus.anthropic.error}</p>
@@ -279,7 +279,7 @@ export default function Admin() {
 
             {apiStatus?.anthropic.alive && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
-                <span className="text-green-500">✓</span>
+                <Icon name="check" size={16} className="text-green-500 flex-shrink-0" />
                 <p className="text-sm text-green-700 font-medium">Anthropic API is healthy</p>
                 <span className="text-xs text-green-500 ml-auto">Last checked: {new Date(apiStatus.anthropic.lastChecked).toLocaleTimeString()}</span>
               </div>
@@ -288,13 +288,13 @@ export default function Admin() {
             {/* Key metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Total families', value: stats.families.total, icon: '👨‍👩‍👧‍👦', color: 'bg-blue-50 border-blue-100' },
-                { label: 'New this week', value: stats.families.newThisWeek, icon: '✨', color: 'bg-green-50 border-green-100' },
-                { label: 'New this month', value: stats.families.newThisMonth, icon: '📅', color: 'bg-purple-50 border-purple-100' },
-                { label: 'Total users', value: stats.users.total, icon: '👤', color: 'bg-orange-50 border-orange-100' },
+                { label: 'Total families', value: stats.families.total, icon: 'family', color: 'bg-blue-50 border-blue-100' },
+                { label: 'New this week', value: stats.families.newThisWeek, icon: 'sparkle', color: 'bg-green-50 border-green-100' },
+                { label: 'New this month', value: stats.families.newThisMonth, icon: 'mealplan', color: 'bg-purple-50 border-purple-100' },
+                { label: 'Total users', value: stats.users.total, icon: 'family', color: 'bg-orange-50 border-orange-100' },
               ].map((s, i) => (
                 <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
-                  <div className="text-2xl mb-2">{s.icon}</div>
+                  <div className="mb-2 text-gray-500"><Icon name={s.icon} size={22} /></div>
                   <p className="text-2xl font-bold text-gray-900">{s.value}</p>
                   <p className="text-xs text-gray-500 mt-1">{s.label}</p>
                 </div>
@@ -323,15 +323,15 @@ export default function Admin() {
               <h3 className="font-semibold text-gray-900 mb-4">Platform content</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
-                  { label: 'Pantry items', value: stats.content.pantryItems, icon: '🧺' },
-                  { label: 'Grocery items', value: stats.content.groceryItems, icon: '🛒' },
-                  { label: 'Meal plans', value: stats.content.mealPlans, icon: '📅' },
-                  { label: 'Saved recipes', value: stats.content.savedRecipes, icon: '📖' },
-                  { label: 'Cooked meals', value: stats.content.cookedMeals, icon: '🍳' },
-                  { label: 'Family members', value: stats.members.total, icon: '👥' },
+                  { label: 'Pantry items', value: stats.content.pantryItems, icon: 'pantry' },
+                  { label: 'Grocery items', value: stats.content.groceryItems, icon: 'grocery' },
+                  { label: 'Meal plans', value: stats.content.mealPlans, icon: 'mealplan' },
+                  { label: 'Saved recipes', value: stats.content.savedRecipes, icon: 'cookbook' },
+                  { label: 'Cooked meals', value: stats.content.cookedMeals, icon: 'utensils' },
+                  { label: 'Family members', value: stats.members.total, icon: 'family' },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
-                    <span className="text-xl">{s.icon}</span>
+                    <Icon name={s.icon} size={20} className="text-gray-500 flex-shrink-0" />
                     <div>
                       <p className="font-bold text-gray-900">{s.value}</p>
                       <p className="text-xs text-gray-500">{s.label}</p>
@@ -613,13 +613,13 @@ export default function Admin() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Meals cooked (7d)', value: usage.meals.cooked7Days, icon: '🍳' },
-                { label: 'Meals cooked (30d)', value: usage.meals.cooked30Days, icon: '📅' },
-                { label: 'Recipes logged (7d)', value: usage.recipes.last7Days, icon: '📖' },
-                { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: '🫧' },
+                { label: 'Meals cooked (7d)', value: usage.meals.cooked7Days, icon: 'utensils' },
+                { label: 'Meals cooked (30d)', value: usage.meals.cooked30Days, icon: 'mealplan' },
+                { label: 'Recipes logged (7d)', value: usage.recipes.last7Days, icon: 'cookbook' },
+                { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: 'bubble' },
               ].map((s, i) => (
                 <div key={i} className="bg-white rounded-xl border border-gray-200 p-5">
-                  <div className="text-2xl mb-2">{s.icon}</div>
+                  <div className="mb-2 text-gray-500"><Icon name={s.icon} size={22} /></div>
                   <p className="text-2xl font-bold text-gray-900">{s.value}</p>
                   <p className="text-xs text-gray-500 mt-1">{s.label}</p>
                 </div>
@@ -697,12 +697,12 @@ export default function Admin() {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { label: 'Total cached items', value: cacheStats.total, icon: '🗄️', color: 'bg-blue-50 border-blue-100' },
-                    { label: 'Active (not expired)', value: cacheStats.active, icon: '✅', color: 'bg-green-50 border-green-100' },
-                    { label: 'Expired items', value: cacheStats.expired, icon: '⏰', color: 'bg-orange-50 border-orange-100' },
+                    { label: 'Total cached items', value: cacheStats.total, icon: 'database', color: 'bg-blue-50 border-blue-100' },
+                    { label: 'Active (not expired)', value: cacheStats.active, icon: 'check', color: 'bg-green-50 border-green-100' },
+                    { label: 'Expired items', value: cacheStats.expired, icon: 'clock', color: 'bg-orange-50 border-orange-100' },
                   ].map((s, i) => (
                     <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
-                      <div className="text-2xl mb-2">{s.icon}</div>
+                      <div className="mb-2 text-gray-500"><Icon name={s.icon} size={22} /></div>
                       <p className="text-2xl font-bold text-gray-900">{s.value}</p>
                       <p className="text-xs text-gray-500 mt-1">{s.label}</p>
                     </div>
@@ -774,7 +774,7 @@ export default function Admin() {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                  <p className="text-sm font-medium text-blue-800 mb-1">💡 How caching works</p>
+                  <p className="text-sm font-medium text-blue-800 mb-1 flex items-center gap-1.5"><Icon name="info" size={14} className="text-blue-600 flex-shrink-0" />How caching works</p>
                   <p className="text-xs text-blue-600 leading-relaxed">
                     When a user looks up nutrition for a meal, the result is cached for 90 days.
                     Any other user searching for the same meal gets the cached result instantly — no API call made.
@@ -796,7 +796,7 @@ export default function Admin() {
 
             {/* Revenue */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">💰 Revenue</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-gray-500" />Revenue</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { label: 'Monthly recurring revenue', value: `$${stats.revenue.mrr}`, sub: 'Active subscriptions', color: 'text-green-600' },
@@ -814,7 +814,7 @@ export default function Admin() {
 
             {/* Costs */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">💸 Monthly costs</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-gray-500" />Monthly costs</h3>
               <div className="space-y-3">
                 {[
                   { service: 'DigitalOcean', cost: '$12.00', note: 'Backend server — fixed monthly', status: '🟢 Active' },

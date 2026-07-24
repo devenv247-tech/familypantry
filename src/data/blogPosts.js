@@ -6,7 +6,7 @@ export const blogPosts = [
     date: 'June 1, 2026',
     readTime: '5 min read',
     category: 'Food Waste',
-    image: '🗑️',
+    image: 'trash',
   },
   {
     slug: 'best-meal-planning-apps-canada-2026',
@@ -15,7 +15,7 @@ export const blogPosts = [
     date: 'June 1, 2026',
     readTime: '7 min read',
     category: 'Meal Planning',
-    image: '📱',
+    image: 'mealplan',
   },
   {
     slug: 'eat-healthy-on-a-budget-canada',
@@ -24,7 +24,7 @@ export const blogPosts = [
     date: 'June 1, 2026',
     readTime: '6 min read',
     category: 'Budget',
-    image: '🛒',
+    image: 'grocery',
   },
   {
     slug: 'what-is-pipeda-and-why-it-matters',
@@ -33,6 +33,6 @@ export const blogPosts = [
     date: 'June 1, 2026',
     readTime: '4 min read',
     category: 'Privacy',
-    image: '🔒',
+    image: 'lock',
   },
 ]

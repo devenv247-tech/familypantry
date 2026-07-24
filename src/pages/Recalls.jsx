@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { checkPantryMatches, getRecentRecalls } from '../api/recalls'
 import { LoadingSpinner, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
+import Icon from '../components/ui/Icon'
 import { useAuthStore } from '../store/authStore'
 import { useAppConfigStore } from '../store/appConfigStore'
 
@@ -41,7 +42,7 @@ export default function Recalls() {
       setMatches(data.matches || [])
       setLastChecked(new Date().toLocaleTimeString())
       if (data.matches?.length > 0) {
-        showToast(`⚠️ ${data.matches.length} recalled item(s) found in your pantry!`, 'error')
+        showToast(`${data.matches.length} recalled item(s) found in your pantry!`, 'error')
       } else {
         showToast('Pantry scanned — no recalled items found', 'success')
       }
@@ -98,7 +99,7 @@ export default function Recalls() {
           <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
         </div>
         <div className="card text-center py-16 border-2 border-orange-100 bg-orange-50/20">
-          <div className="text-6xl mb-4">🚨</div>
+          <div className="mb-4 flex justify-center"><Icon name="recalls" size={64} className="text-red-600" /></div>
           <h2 className="text-xl font-bold text-textPrimary mb-2">Health Canada Recall Alerts</h2>
           <p className="text-textMuted max-w-sm mx-auto mb-2">
             Get notified when recalled food products match items in your pantry. Stay safe with live Health Canada data.
@@ -106,7 +107,7 @@ export default function Recalls() {
           <div className="flex flex-col items-center gap-2 mb-8 mt-6">
             {['Live Health Canada recall data', 'Automatic pantry matching', 'Instant alerts for your family', 'All recent Canadian food recalls'].map((f, i) => (
               <div key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                <span className="text-success">✓</span>
+                <Icon name="check" size={14} className="text-success flex-shrink-0" />
                 {f}
               </div>
             ))}
@@ -137,7 +138,7 @@ export default function Recalls() {
               </svg>
               Scanning...
             </>
-          ) : '🔍 Check my pantry'}
+          ) : <><Icon name="search" size={15} /> Check my pantry</>}
         </button>
       </div>
 
@@ -150,7 +151,7 @@ export default function Recalls() {
         {visibleMatches.length > 0 ? (
           <div className="card border-2 border-danger bg-red-50/20">
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-2xl">🚨</span>
+              <Icon name="recalls" size={24} className="text-red-600 flex-shrink-0" />
               <div>
                 <p className="font-semibold text-danger">
                   {visibleMatches.length} recalled item{visibleMatches.length !== 1 ? 's' : ''} found in your pantry!
@@ -183,7 +184,7 @@ export default function Recalls() {
                             onClick={() => { setDismissedMatches(prev => [...prev, key]); showToast('Match dismissed — not your product') }}
                             className="text-xs text-textMuted hover:text-danger transition-colors"
                           >
-                            ✕ Not my product
+                            <Icon name="close" size={12} className="inline-block mr-1" />Not my product
                           </button>
                         </div>
                       </div>
@@ -199,7 +200,7 @@ export default function Recalls() {
         ) : (
           <div className="card border border-green-100 bg-green-50/20">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">✅</span>
+              <Icon name="check" size={24} className="text-success flex-shrink-0" />
               <div>
                 <p className="font-semibold text-success">No recalled items found in your pantry</p>
                 <p className="text-sm text-textMuted mt-0.5">
@@ -233,13 +234,13 @@ export default function Recalls() {
           <LoadingSpinner />
         ) : error ? (
           <div className="text-center py-12 text-textMuted">
-            <div className="text-4xl mb-3">⚠️</div>
+            <div className="mb-3 flex justify-center"><Icon name="warning" size={48} className="text-amber-500" /></div>
             <p className="font-medium text-danger">{error}</p>
             <button onClick={fetchRecentRecalls} className="btn-secondary mt-4 text-sm">Try again</button>
           </div>
         ) : filteredRecalls.length === 0 ? (
           <div className="text-center py-12 text-textMuted">
-            <div className="text-4xl mb-3">✅</div>
+            <div className="mb-3 flex justify-center"><Icon name="check" size={48} className="text-success" /></div>
             <p className="font-medium">No recent recalls in this category</p>
           </div>
         ) : (
@@ -258,8 +259,8 @@ export default function Recalls() {
                     </div>
                     {recall.reason && <p className="text-xs text-textMuted mt-1">{recall.reason}</p>}
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-xs text-textMuted">📅 {new Date(recall.date).toLocaleDateString('en-CA')}</span>
-                      <span className="text-xs text-textMuted">🏢 {recall.distribution}</span>
+                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="mealplan" size={12} />{new Date(recall.date).toLocaleDateString('en-CA')}</span>
+                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="globe" size={12} />{recall.distribution}</span>
                     </div>
                   </div>
                   <span className={`text-xs px-2.5 py-1 rounded-pill border font-medium flex-shrink-0 ${getRiskColor(recall.risk)}`}>

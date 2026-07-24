@@ -55,9 +55,9 @@ useEffect(() => {
         {/* Close button mobile only */}
         <button
           onClick={onClose}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-btn hover:bg-gray-100"
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"
         >
-          ✕
+          <Icon name="close" size={16} />
         </button>
       </div>
 

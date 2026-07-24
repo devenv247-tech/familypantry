@@ -91,7 +91,7 @@ export default function Pantry() {
             isCustomCategory: false,
           })
           setShowForm(true)
-          showToast(`🎙️ Heard: "${transcript}"`)
+          showToast(`Heard: "${transcript}"`)
         }
       } catch (err) {
         showToast('Could not understand. Please try again.', 'error')
@@ -329,7 +329,7 @@ export default function Pantry() {
           } else if (err.response?.status === 429) {
             showToast('Too many scan attempts — please wait 10 minutes and try again.', 'error')
           } else if (err.response?.data?.notFood) {
-            showToast('📸 No food detected — please photograph your fridge, pantry, or groceries.', 'error')
+            showToast('No food detected — please photograph your fridge, pantry, or groceries.', 'error')
           } else if (err.response?.data?.creditsExhausted) {
             showToast('AI service temporarily unavailable. Please try again later.', 'error')
           } else {
@@ -467,7 +467,7 @@ export default function Pantry() {
                   >
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedScannedItems.includes(i) ? 'border-primary bg-primary' : 'border-gray-300'
                       }`}>
-                      {selectedScannedItems.includes(i) && <span className="text-white text-xs">✓</span>}
+                      {selectedScannedItems.includes(i) && <Icon name="check" size={10} className="text-white" />}
                     </div>
                     <span className="text-xl">{item.icon}</span>
                     <div className="flex-1 min-w-0" onClick={e => e.stopPropagation()}>
@@ -607,7 +607,7 @@ export default function Pantry() {
             <div>
               <p className="text-sm font-semibold text-textPrimary">{scanResult.name}</p>
               {scanResult.brand && <p className="text-xs text-textMuted">{scanResult.brand}</p>}
-              <p className="text-xs text-success mt-0.5">✓ Product found — form filled automatically</p>
+              <p className="text-xs text-success mt-0.5 flex items-center gap-1"><Icon name="check" size={12} />Product found — form filled automatically</p>
             </div>
           </div>
         </div>
@@ -712,7 +712,7 @@ export default function Pantry() {
                   <span>Listening...</span>
                 </>
               ) : (
-                <>🎙️ <span>Voice add</span></>
+                <><Icon name="mic" size={15} /> <span>Voice add</span></>
               )}
             </button>
           )}
@@ -728,7 +728,7 @@ export default function Pantry() {
       {isFeatureEnabled('co2_tracking', plan) && co2Data?.locked && (
         <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-green-800">🌍 CO2 footprint tracking</p>
+            <p className="text-sm font-semibold text-green-800 flex items-center gap-1.5"><Icon name="globe" size={14} className="text-green-700" />CO2 footprint tracking</p>
             <p className="text-xs text-green-600 mt-1">Available on Family plan ($7/mo)</p>
           </div>
           <a href="/app/settings?tab=plan" className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-pill font-medium hover:bg-green-700 transition-all">
@@ -740,7 +740,7 @@ export default function Pantry() {
       {isFeatureEnabled('co2_tracking', plan) && co2Data && !co2Data.locked && co2Data.totalCO2 > 0 && (
         <div className="mb-6 rounded-card border border-green-200 bg-green-50 p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-green-800">🌍 Pantry CO2 footprint</p>
+            <p className="text-sm font-semibold text-green-800 flex items-center gap-1.5"><Icon name="globe" size={14} className="text-green-700" />Pantry CO2 footprint</p>
             <button onClick={() => setShowCO2(!showCO2)} className="text-xs text-green-700 hover:underline font-medium">
               {showCO2 ? 'Hide details' : 'Show details'}
             </button>
@@ -779,7 +779,7 @@ export default function Pantry() {
       {/* Expiring soon banner */}
       {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
         <div className="mb-6 rounded-card border border-yellow-200 bg-yellow-50 p-4">
-          <p className="text-sm font-semibold text-yellow-800 mb-2">⚠️ Expiring Soon</p>
+          <p className="text-sm font-semibold text-yellow-800 mb-2 flex items-center gap-1.5"><Icon name="warning" size={14} className="text-yellow-700" />Expiring Soon</p>
           <div className="flex flex-col gap-1">
             {expiringSoon.map(item => (
               <div key={item.id} className="flex items-center justify-between text-xs">
@@ -802,7 +802,7 @@ export default function Pantry() {
         <div className="card mb-6 border-primary border-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">Add new item</h2>
-            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-textMuted hover:text-textPrimary text-xl leading-none">✕</button>
+            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100"><Icon name="close" size={16} /></button>
           </div>
           {formError && (
             <div className="bg-red-50 border border-red-100 text-danger text-sm px-4 py-3 rounded-btn mb-4">{formError}</div>
@@ -839,7 +839,7 @@ export default function Pantry() {
                     }))
                   }}
                 />
-                <p className="text-xs text-textMuted mt-1.5">💡 Start typing to search 400+ Canadian grocery items</p>
+                <p className="text-xs text-textMuted mt-1.5 flex items-center gap-1"><Icon name="info" size={12} />Start typing to search 400+ Canadian grocery items</p>
               </div>
               <div>
                 <label className="label">Quantity</label>
@@ -890,9 +890,9 @@ export default function Pantry() {
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted hover:text-textPrimary text-lg leading-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted hover:text-textPrimary w-5 h-5 flex items-center justify-center"
             >
-              ✕
+              <Icon name="close" size={14} />
             </button>
           )}
         </div>
@@ -928,7 +928,7 @@ export default function Pantry() {
 
       {/* Items grid */}
       {loading ? <LoadingSpinner /> : error ? <ErrorState message={error} onRetry={fetchItems} /> : filtered.length === 0 ? (
-        <EmptyState icon="🧺" title="No items found" subtitle="Try a different search or add a new item" />
+        <EmptyState icon="pantry" title="No items found" subtitle="Try a different search or add a new item" />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(item => {
@@ -936,8 +936,8 @@ export default function Pantry() {
             return (
               <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
                 <button onClick={() => handleDelete(item.id)}
-                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-sm">
-                  ✕
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center">
+                  <Icon name="close" size={14} />
                 </button>
                 <button onClick={() => { setRestockingId(item.id); setRestockQty('') }}
                   className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-all font-medium hover:bg-green-100">
@@ -966,8 +966,8 @@ export default function Pantry() {
                     </div>
                   )
                 })()}
-                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1">🫧 AI predicted expiry</p>}
-                {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-purple-400 mt-1">📊 Learned from your history</p>}
+                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1 flex items-center gap-1"><Icon name="bubble" size={10} />AI predicted expiry</p>}
+                {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-purple-400 mt-1 flex items-center gap-1"><Icon name="chart" size={10} />Learned from your history</p>}
                 {itemCO2?.co2Label && <p className="text-xs text-green-600 mt-1">{itemCO2.co2Label.icon} {itemCO2.co2Label.label} CO2</p>}
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">{item.category}</span>
@@ -1024,7 +1024,7 @@ export default function Pantry() {
                   try {
                     const updated = await restockPantryItem(voiceConfirm.existing.id, parseFloat(voiceConfirm.parsed.quantity) || 1)
                     setItems(prev => prev.map(i => i.id === voiceConfirm.existing.id ? updated : i))
-                    showToast(`✓ ${updated.name} restocked — now ${updated.quantity} ${updated.unit}`)
+                    showToast(`${updated.name} restocked — now ${updated.quantity} ${updated.unit}`)
                   } catch (err) {
                     showToast('Failed to restock', 'error')
                   } finally {

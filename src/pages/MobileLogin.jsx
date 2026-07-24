@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../api/auth'
 import { useAuthStore } from '../store/authStore'
+import Icon from '../components/ui/Icon'
 
 export default function MobileLogin() {
   const [email, setEmail] = useState('')
@@ -177,7 +178,7 @@ export default function MobileLogin() {
 
         {/* Footer */}
         <div style={{ marginTop:'auto', paddingBottom:'calc(env(safe-area-inset-bottom, 0px) + 36px)', textAlign:'center' }}>
-          <div style={{ fontSize:11, color:'#cbd5e1', letterSpacing:'1.2px', textTransform:'uppercase', fontWeight:500 }}>🍁 Made for Canada</div>
+          <div style={{ fontSize:11, color:'#cbd5e1', letterSpacing:'1.2px', textTransform:'uppercase', fontWeight:500 }} className="flex items-center gap-1 justify-center"><Icon name="canada" size={11} /> Made for Canada</div>
         </div>
       </div>
     </div>

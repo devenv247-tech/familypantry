@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import NookaIcon from '../components/ui/NookaIcon'
+import Icon from '../components/ui/Icon'
 import client from '../api/client'
 
 export default function Unsubscribe() {
@@ -32,7 +33,7 @@ export default function Unsubscribe() {
 
         {status === 'success' && (
           <>
-            <p className="text-3xl mb-3">✅</p>
+            <div className="mb-3 flex justify-center"><Icon name="check" size={40} className="text-success" /></div>
             <h2 className="font-bold text-textPrimary text-lg">Unsubscribed</h2>
             <p className="text-sm text-textMuted mt-2">You've been removed from weekly digest emails.</p>
             <p className="text-xs text-textMuted mt-1">You can re-enable this anytime in Settings.</p>
@@ -44,7 +45,7 @@ export default function Unsubscribe() {
 
         {status === 'error' && (
           <>
-            <p className="text-3xl mb-3">❌</p>
+            <div className="mb-3 flex justify-center"><Icon name="close" size={40} className="text-danger" /></div>
             <h2 className="font-bold text-textPrimary text-lg">Link not found</h2>
             <p className="text-sm text-textMuted mt-2">This unsubscribe link is invalid or has already been used.</p>
             <Link to="/" className="btn-secondary mt-6 inline-block text-sm">

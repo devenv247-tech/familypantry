@@ -326,7 +326,7 @@ export default function Recipes() {
         pendingRating || null
       )
       await fetchCookingHistory()
-      showToast(pendingRating ? `Logged with ${pendingRating} ⭐ rating!` : 'Meal logged!')
+      showToast(pendingRating ? `Logged with ${pendingRating}-star rating!` : 'Meal logged!')
     } catch (err) {
       console.error('Failed to log cooked meal:', err)
     } finally {
@@ -416,7 +416,7 @@ export default function Recipes() {
         allergenWarnings: recipe.allergenWarnings,
       })
       setSavedRecipes(prev => ({ ...prev, [idx]: true }))
-      showToast('Recipe saved to cookbook! 📖')
+      showToast('Recipe saved to cookbook!')
     } catch (err) {
       if (err.response?.data?.alreadySaved) {
         showToast('Recipe already in cookbook!', 'error')
@@ -435,8 +435,8 @@ export default function Recipes() {
   }
 
   const qualityLabel = (quality) => {
-    if (quality === 'perfect') return '✓ Perfect match'
-    if (quality === 'good') return '👍 Good substitute'
+    if (quality === 'perfect') return 'Perfect match'
+    if (quality === 'good') return 'Good substitute'
     return '~ Works'
   }
 
@@ -513,7 +513,7 @@ export default function Recipes() {
       {ratingModal && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
-            <h3 className="font-semibold text-textPrimary text-lg mb-1">How was it? 🍽️</h3>
+            <h3 className="font-semibold text-textPrimary text-lg mb-1">How was it?</h3>
             <p className="text-sm text-textMuted mb-5">Rate <span className="font-medium text-textPrimary">{ratingModal.recipe.name}</span> so we can learn your family's preferences</p>
             <div className="flex justify-center gap-3 mb-6">
               {STAR_RATINGS.map(star => (
@@ -570,14 +570,14 @@ export default function Recipes() {
           className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
-          🍽️ Food
+          <Icon name="utensils" size={14} className="inline-block mr-1" />Food
         </button>
         <button
           onClick={() => setMode('drinks')}
           className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
-          🥤 Drinks & Remedies
+          <Icon name="drinks" size={14} className="inline-block mr-1" />Drinks & Remedies
         </button>
       </div>
 
@@ -586,7 +586,7 @@ export default function Recipes() {
         <div>
           {/* Disclaimer */}
           <div className="bg-blue-50 border border-blue-100 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
-            <span className="text-lg">ℹ️</span>
+            <Icon name="info" size={18} className="flex-shrink-0 text-primary" />
             <p className="text-xs text-primary leading-relaxed">
               Drink suggestions are home wellness ideas inspired by traditional remedies from around the world. They are not medical advice. Consult a healthcare professional for serious symptoms.
             </p>
@@ -683,9 +683,9 @@ export default function Recipes() {
                         drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
                           'bg-gray-50 text-textMuted'
                         }`}>
-                        {drink.temp === 'hot' ? '♨️ Hot' : drink.temp === 'cold' ? '🧊 Cold' : '🌡️ Either'}
+                        {drink.temp === 'hot' ? 'Hot' : drink.temp === 'cold' ? 'Cold' : 'Either'}
                       </span>
-                      <span className="text-xs text-textMuted">⏱ {drink.prepTime}</span>
+                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} />{drink.prepTime}</span>
                     </div>
                   </div>
 
@@ -699,7 +699,7 @@ export default function Recipes() {
                   {/* Pantry badge */}
                   {drink.fullyFromPantry && (
                     <div className="flex items-center gap-1.5 mb-3">
-                      <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-pill font-medium">✓ All in your pantry</span>
+                      <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="check" size={10} />All in your pantry</span>
                     </div>
                   )}
 
@@ -738,7 +738,7 @@ export default function Recipes() {
 
                       {drink.tip && (
                         <div className="bg-amber-50 border border-amber-100 rounded-btn px-3 py-2">
-                          <p className="text-xs text-amber-700">💡 {drink.tip}</p>
+                          <p className="text-xs text-amber-700 flex items-center gap-1"><Icon name="info" size={12} className="text-amber-600 flex-shrink-0" />{drink.tip}</p>
                         </div>
                       )}
                     </div>
@@ -756,7 +756,7 @@ export default function Recipes() {
 
           {/* Health disclaimer */}
           <div className="bg-blue-50 border border-blue-100 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
-            <span className="text-lg">ℹ️</span>
+            <Icon name="info" size={18} className="flex-shrink-0 text-primary" />
             <p className="text-xs text-primary leading-relaxed">
               Recipe suggestions and nutritional information are generated by AI for general wellness purposes only and are not medical advice. Consult a healthcare professional for specific dietary needs.
             </p>
@@ -766,7 +766,7 @@ export default function Recipes() {
           {canUseMealPatterns && cookingHistory.length > 0 && (
             <div className="card mb-6 border border-purple-100 bg-purple-50/20">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold text-textPrimary">📖 Recently cooked</h2>
+                <h2 className="font-semibold text-textPrimary flex items-center gap-1.5"><Icon name="cookbook" size={16} />Recently cooked</h2>
                 <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-primary hover:underline font-medium">
                   {showHistory ? 'Hide' : `Show all ${cookingHistory.length}`}
                 </button>
@@ -781,7 +781,7 @@ export default function Recipes() {
                         <p className="text-xs text-textMuted">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        {meal.rating && <span className="text-xs text-yellow-500 font-medium">{'⭐'.repeat(meal.rating)}</span>}
+                        {meal.rating && <span className="text-xs text-yellow-500 font-medium flex items-center gap-0.5"><Icon name="star" size={11} className="text-yellow-400" />{meal.rating}</span>}
                         <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-pill">{meal.cuisine || 'Any'}</span>
                       </div>
                     </div>
@@ -884,7 +884,7 @@ export default function Recipes() {
                       </svg>
                       Generating...
                     </>
-                  ) : '👨‍👩‍👧‍👦 Generate for whole family'}
+                  ) : <><Icon name="family" size={15} className="inline-block mr-1" />Generate for whole family</>}
                 </button>
               </div>
             </div>
@@ -962,8 +962,8 @@ export default function Recipes() {
               )}
 
               <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3 flex-wrap">
-                <span>⏱ {familyRecipe.time}</span>
-                <span>👥 Serves {familyRecipe.serves}</span>
+                <span className="flex items-center gap-1"><Icon name="clock" size={11} />{familyRecipe.time}</span>
+                <span>Serves {familyRecipe.serves}</span>
                 <span className={`px-2 py-0.5 rounded-pill font-medium ${familyRecipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'}`}>
                   {familyRecipe.difficulty}
                 </span>
@@ -971,7 +971,7 @@ export default function Recipes() {
 
               {familyRecipe.allergenWarnings?.length > 0 && (
                 <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-4">
-                  <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
+                  <p className="text-xs font-semibold text-danger mb-1 flex items-center gap-1"><Icon name="warning" size={12} />Allergen warnings</p>
                   {familyRecipe.allergenWarnings.map((w, i) => (
                     <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
                   ))}
@@ -1003,7 +1003,7 @@ export default function Recipes() {
                               onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings?tab=plan')}
                               className="text-xs text-primary hover:underline font-medium ml-2 flex-shrink-0"
                             >
-                              {!isPaidPlan ? '🔒 Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                              {!isPaidPlan ? 'Upgrade' : activeSubstitution === key ? 'Hide' : 'Substitute'}
                             </button>
                           </div>
                           {activeSubstitution === key && (
@@ -1021,7 +1021,7 @@ export default function Recipes() {
                                         <div className="flex-1 min-w-0">
                                           <div className="flex items-center gap-1 flex-wrap">
                                             <span className="text-xs font-medium">{sub.name}</span>
-                                            {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill">✓ In pantry</span>}
+                                            {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill flex items-center gap-1"><Icon name="check" size={10} />In pantry</span>}
                                           </div>
                                           <p className="text-xs opacity-75 mt-0.5">{sub.ratio} · {sub.note}</p>
                                         </div>
@@ -1083,7 +1083,7 @@ export default function Recipes() {
                   className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
                     }`}
                 >
-                  {cookedId === 'family' ? '✓ Cooked! Pantry updated' : '🍳 I cooked this — update pantry'}
+                  {cookedId === 'family' ? <><Icon name="check" size={13} className="inline-block mr-1" />Cooked! Pantry updated</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this — update pantry</>}
                 </button>
                 {canSaveRecipes && (
                   <button
@@ -1094,7 +1094,7 @@ export default function Recipes() {
                       : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
                       } disabled:opacity-50`}
                   >
-                    {savingRecipe['family'] ? '...' : savedRecipes['family'] ? '🔖 Saved' : '🔖 Save'}
+                    {savingRecipe['family'] ? '...' : savedRecipes['family'] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
                   </button>
                 )}
               </div>
@@ -1180,8 +1180,8 @@ export default function Recipes() {
                     <h3 className="font-semibold text-textPrimary text-lg mb-1">{recipe.name}</h3>
                     {recipeCosts[recipe.name] && (
                       <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-pill font-medium">
-                          💰 ~${recipeCosts[recipe.name].costPerServing}/serving
+                        <span className="text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-pill font-medium flex items-center gap-1">
+                          <Icon name="dollar" size={11} />~${recipeCosts[recipe.name].costPerServing}/serving
                         </span>
                         {recipeCosts[recipe.name].isEstimate && (
                           <span className="text-xs text-textMuted">estimated</span>
@@ -1197,14 +1197,14 @@ export default function Recipes() {
                     </div>
 
                     <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3">
-                      <span>⏱ {recipe.time}</span>
-                      <span>👥 Serves {recipe.serves}</span>
+                      <span className="flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
+                      <span>Serves {recipe.serves}</span>
                     </div>
 
                     {/* Allergen warnings */}
                     {recipe.allergenWarnings?.length > 0 && (
                       <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-3">
-                        <p className="text-xs font-semibold text-danger mb-1">⚠️ Allergen warnings</p>
+                        <p className="text-xs font-semibold text-danger mb-1 flex items-center gap-1"><Icon name="warning" size={12} />Allergen warnings</p>
                         {recipe.allergenWarnings.map((w, i) => (
                           <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
                         ))}
@@ -1238,7 +1238,7 @@ export default function Recipes() {
                                       onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
                                       className="text-xs text-primary hover:underline font-medium ml-2 whitespace-nowrap"
                                     >
-                                      {!canUseSubstitutions ? '⭐ Upgrade' : activeSubstitution === key ? 'Hide' : '🔄 Substitute'}
+                                      {!canUseSubstitutions ? 'Upgrade' : activeSubstitution === key ? 'Hide' : 'Substitute'}
                                     </button>
                                   )}
                                 </div>
@@ -1257,7 +1257,7 @@ export default function Recipes() {
                                               <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-1 flex-wrap">
                                                   <span className="text-xs font-medium">{sub.name}</span>
-                                                  {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill">✓ In pantry</span>}
+                                                  {sub.inPantry && <span className="text-xs bg-green-100 text-success px-1.5 py-0.5 rounded-pill flex items-center gap-1"><Icon name="check" size={10} />In pantry</span>}
                                                 </div>
                                                 <p className="text-xs opacity-75 mt-0.5">{sub.ratio} · {sub.note}</p>
                                               </div>
@@ -1278,7 +1278,7 @@ export default function Recipes() {
 
                     {recipe.missing?.length === 0 && (
                       <div className="bg-green-50 border border-green-100 rounded-btn px-3 py-2 mb-4">
-                        <p className="text-xs font-medium text-success">✓ All ingredients in stock!</p>
+                        <p className="text-xs font-medium text-success flex items-center gap-1"><Icon name="check" size={12} />All ingredients in stock!</p>
                       </div>
                     )}
 
@@ -1294,7 +1294,7 @@ export default function Recipes() {
                         className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${cookedId === idx ? 'bg-success text-white' : 'bg-green-50 text-success border border-green-200 hover:bg-green-100'
                           }`}
                       >
-                        {cookedId === idx ? '✓ Pantry updated!' : '🍳 I cooked this'}
+                        {cookedId === idx ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
                       </button>
                       {canSaveRecipes && (
                         <button
@@ -1305,7 +1305,7 @@ export default function Recipes() {
                             : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
                             } disabled:opacity-50`}
                         >
-                          {savingRecipe[idx] ? '...' : savedRecipes[idx] ? '🔖 Saved' : '🔖 Save'}
+                          {savingRecipe[idx] ? '...' : savedRecipes[idx] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
                         </button>
                       )}
                     </div>
@@ -1316,7 +1316,7 @@ export default function Recipes() {
                         <ul className="space-y-1.5 mb-5">
                           {recipe.ingredients?.map(ing => (
                             <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-textMuted">
-                              <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center text-xs flex-shrink-0">✓</span>
+                              <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             </li>
                           ))}
@@ -1398,7 +1398,7 @@ export default function Recipes() {
           {cookedModal && (
             <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
               <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
-                <div className="text-5xl text-center mb-3">🍳</div>
+                <div className="mb-3 flex justify-center text-food-600"><Icon name="utensils" size={48} /></div>
                 <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
                 <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
                 <div className="space-y-2.5 mb-6">
@@ -1426,7 +1426,7 @@ export default function Recipes() {
                       </p>
                     </div>
                     {cookedModal.membersLogged.length > 0
-                      ? <span className="text-success text-lg">✓</span>
+                      ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
                       : <span className="text-textMuted text-lg">—</span>
                     }
                   </div>
@@ -1443,7 +1443,7 @@ export default function Recipes() {
                       </p>
                     </div>
                     {cookedModal.mealPlanMarked
-                      ? <span className="text-success text-lg">✓</span>
+                      ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
                       : <span className="text-textMuted text-lg">—</span>
                     }
                   </div>

@@ -1,4 +1,5 @@
 import NookaIcon from '../components/ui/NookaIcon'
+import Icon from '../components/ui/Icon'
 import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
@@ -55,7 +56,7 @@ const PLAN_META = [
     price: '$17.99',
     period: '/month',
     highlight: false,
-    badge: '⭐ Most features',
+    badge: 'Most features',
     cta: 'Choose Premium',
     baseFeatures: [
       'Everything in Family',
@@ -141,7 +142,7 @@ function DynamicPricingCards() {
             <ul className="space-y-2.5 mb-8 flex-1">
               {features.map((f, j) => (
                 <li key={j} className="flex items-start gap-2 text-sm text-textPrimary">
-                  <span className="text-success font-bold flex-shrink-0 mt-0.5">✓</span>
+                  <Icon name="check" size={14} className="text-success flex-shrink-0 mt-0.5" />
                   {f}
                 </li>
               ))}
@@ -206,7 +207,7 @@ export default function Landing() {
         {/* Hero */}
         <section className="flex flex-col items-center text-center px-6 py-24 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-primary text-xs font-medium px-4 py-1.5 rounded-pill mb-6 border border-blue-100">
-            🇨🇦 Built for Canadian families
+            <Icon name="canada" size={14} className="text-red-600" />Built for Canadian families
           </div>
           <h1 className="text-5xl font-bold text-textPrimary leading-tight mb-6">
             Less time planning,<br />
@@ -236,11 +237,11 @@ export default function Landing() {
             {[
               { value: '15+', label: 'Smart features' },
               { value: '100+', label: 'Recipe suggestions' },
-              { value: '🇨🇦', label: 'PIPEDA compliant' },
+              { value: null, icon: 'canada', label: 'PIPEDA compliant' },
               { value: '$9.99', label: 'Starting per month' },
             ].map((s, i) => (
               <div key={i}>
-                <p className="text-2xl font-bold text-primary">{s.value}</p>
+                <p className="text-2xl font-bold text-primary">{s.icon ? <Icon name={s.icon} size={32} className="mx-auto text-red-600" /> : s.value}</p>
                 <p className="text-sm text-gray-500 mt-1">{s.label}</p>
               </div>
             ))}
@@ -254,59 +255,59 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: '📸',
+                icon: 'aiScan',
                 title: 'AI photo scan',
                 badge: 'Family',
                 badgeColor: 'bg-green-50 text-green-700 border-green-100',
                 desc: 'Take a photo of your fridge or pantry and Nooka automatically detects and adds all items instantly. Add 20 items in one photo!'
               },
               {
-                icon: '🍽️',
+                icon: 'utensils',
                 title: 'Smart recipe suggestions',
                 badge: null,
                 desc: "Get personalized meal ideas based on what you already have and each family member's health goals, allergens, and dietary preferences."
               },
               {
-                icon: '📅',
+                icon: 'mealplan',
                 title: 'Weekly meal planner',
-                badge: '👑 Premium',
+                badge: 'Premium',
                 badgeColor: 'bg-yellow-50 text-yellow-600 border-yellow-100',
                 desc: 'Generate a full week of personalized meals with one click. Choose cuisines, filter by family member, and get detailed recipes with nutrition.'
               },
               {
-                icon: '🧺',
+                icon: 'pantry',
                 title: 'Smart pantry tracking',
                 badge: null,
                 desc: 'Track everything in your fridge, freezer, and cupboards. Nooka predicts expiry dates and alerts you before food goes to waste.'
               },
               {
-                icon: '🗂️',
+                icon: 'templates',
                 title: 'Pantry templates',
-                badge: '✨ New',
+                badge: 'New',
                 badgeColor: 'bg-purple-50 text-purple-600 border-purple-100',
                 desc: 'Get started instantly with 10+ global pantry templates — Indian, Mediterranean, Mexican, Japanese, Keto, Vegan and more.'
               },
               {
-                icon: '🚨',
+                icon: 'recalls',
                 title: 'Food recall alerts',
                 badge: 'Family',
                 badgeColor: 'bg-green-50 text-green-700 border-green-100',
                 desc: 'Automatically matched against live Health Canada recalls. Get instant alerts if anything in your pantry is recalled. Your family stays safe.'
               },
               {
-                icon: '👨‍👩‍👧‍👦',
+                icon: 'family',
                 title: 'Multi-member profiles',
                 badge: null,
                 desc: 'Each family member gets their own health profile — age, weight, allergens, dietary needs, and goals. Personalized for everyone.'
               },
               {
-                icon: '📊',
+                icon: 'reports',
                 title: 'Spending reports',
                 badge: null,
                 desc: 'Track grocery spending with detailed monthly reports, budget forecasting, and Costco bulk buying optimizer to save money.'
               },
               {
-                icon: '🌍',
+                icon: 'globe',
                 title: 'CO2 footprint tracking',
                 badge: null,
                 desc: "See the environmental impact of your pantry. Track your family's food carbon footprint and compare to Canadian averages."
@@ -318,7 +319,7 @@ export default function Landing() {
                     {f.badge}
                   </span>
                 )}
-                <div className="text-3xl mb-4">{f.icon}</div>
+                <div className="mb-4 text-primary"><Icon name={f.icon} size={32} /></div>
                 <h3 className="font-semibold text-textPrimary text-lg mb-2">{f.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{f.desc}</p>
               </div>
@@ -333,15 +334,15 @@ export default function Landing() {
             <p className="text-gray-600 text-center mb-12 text-lg">No setup required. Just sign up and go.</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { step: '1', icon: '📸', title: 'Scan or add your pantry', desc: 'Take a photo of your fridge or manually add items. Nooka handles the rest.' },
-                { step: '2', icon: '👨‍👩‍👧‍👦', title: 'Add your family', desc: 'Set up health profiles for each family member — allergens, goals, dietary needs.' },
-                { step: '3', icon: '✨', title: 'Get personalized meals', desc: "Smart recipes using what you have, tailored to everyone's needs." },
+                { step: '1', icon: 'aiScan', title: 'Scan or add your pantry', desc: 'Take a photo of your fridge or manually add items. Nooka handles the rest.' },
+                { step: '2', icon: 'family', title: 'Add your family', desc: 'Set up health profiles for each family member — allergens, goals, dietary needs.' },
+                { step: '3', icon: 'sparkle', title: 'Get personalized meals', desc: "Smart recipes using what you have, tailored to everyone's needs." },
               ].map((s, i) => (
                 <div key={i} className="text-center">
                   <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-4">
                     {s.step}
                   </div>
-                  <div className="text-3xl mb-3">{s.icon}</div>
+                  <div className="mb-3 flex justify-center text-primary"><Icon name={s.icon} size={32} /></div>
                   <h3 className="font-semibold text-textPrimary mb-2">{s.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{s.desc}</p>
                 </div>
@@ -370,12 +371,12 @@ export default function Landing() {
             <h2 className="text-2xl font-bold text-textPrimary mb-8">Built for Canadian families</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { icon: '🔒', title: 'PIPEDA compliant', desc: 'Your data stays in Canada. We follow BC PIPA and federal PIPEDA privacy laws.' },
-                { icon: '🇨🇦', title: 'Canadian data storage', desc: "Database and servers hosted in Canada. Your family's data never leaves the country." },
-                { icon: '🔐', title: 'Privacy-first design', desc: 'We never send your name or personal details to any AI model. Only anonymous health preferences.' },
+                { icon: 'lock', title: 'PIPEDA compliant', desc: 'Your data stays in Canada. We follow BC PIPA and federal PIPEDA privacy laws.' },
+                { icon: 'canada', title: 'Canadian data storage', desc: "Database and servers hosted in Canada. Your family's data never leaves the country." },
+                { icon: 'lock', title: 'Privacy-first design', desc: 'We never send your name or personal details to any AI model. Only anonymous health preferences.' },
               ].map((t, i) => (
                 <div key={i} className="flex flex-col items-center text-center p-6 rounded-card border border-border">
-                  <div className="text-3xl mb-3">{t.icon}</div>
+                  <div className="mb-3 flex justify-center text-primary"><Icon name={t.icon} size={32} /></div>
                   <h3 className="font-semibold text-textPrimary mb-2">{t.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{t.desc}</p>
                 </div>

@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import NookaIcon from '../components/ui/NookaIcon'
+import Icon from '../components/ui/Icon'
 import { blogPosts } from '../data/blogPosts'
 
 export default function BlogPost() {
@@ -64,7 +65,7 @@ export default function BlogPost() {
           <span className="text-xs text-gray-500">{post.readTime}</span>
           <span className="text-xs text-gray-400">· {post.date}</span>
         </div>
-        <div className="text-5xl mb-6">{post.image}</div>
+        <div className="mb-6 flex justify-center text-primary"><Icon name={post.image} size={56} /></div>
       </section>
 
       {/* Post content */}
@@ -81,7 +82,7 @@ export default function BlogPost() {
 
         {/* CTA at bottom of post */}
         <div className="mt-16 p-8 bg-blue-50 rounded-card border border-blue-100 text-center">
-          <p className="text-2xl mb-2">🫧</p>
+          <div className="mb-2 flex justify-center text-primary"><Icon name="bubble" size={24} /></div>
           <h3 className="text-xl font-bold text-textPrimary mb-2">Try Nooka free</h3>
           <p className="text-gray-600 text-sm mb-6">Smart meal planning and pantry tracking for Canadian families. No credit card needed.</p>
           <button onClick={() => navigate('/register')} className="btn-primary px-8 py-3">

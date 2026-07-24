@@ -386,7 +386,7 @@ export default function Settings() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('success') === 'true') {
-      showToast('🎉 Subscription activated!')
+      showToast('Subscription activated!')
       setActiveTab('plan')
       fetchSubscription()
       window.history.replaceState({}, '', '/app/settings')
@@ -530,7 +530,7 @@ export default function Settings() {
                     <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${newMember.isBaby ? 'translate-x-5' : 'translate-x-0'}`} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-textPrimary">This is a baby or toddler 🍼</p>
+                    <p className="text-sm font-medium text-textPrimary flex items-center gap-1.5">This is a baby or toddler <Icon name="bottle" size={14} className="text-pink-500" /></p>
                     <p className="text-xs text-textMuted">Enables stage tracking, allergen scheduler, and growth monitoring</p>
                   </div>
                 </button>
@@ -754,7 +754,7 @@ export default function Settings() {
                     defaultOpen={false}
                   >
                     {newMember.isBaby && (
-                      <p className="text-xs text-pink-600 pt-2 mb-2">💡 Track introductions step by step in the baby profile after adding.</p>
+                      <p className="text-xs text-pink-600 pt-2 mb-2 flex items-center gap-1"><Icon name="info" size={12} className="flex-shrink-0" />Track introductions step by step in the baby profile after adding.</p>
                     )}
                     <div className="flex flex-wrap gap-2 pt-2">
                       {ALLERGENS.map(allergen => {
@@ -772,7 +772,7 @@ export default function Settings() {
                       })}
                     </div>
                     {newMember.allergens && (
-                      <p className="text-xs text-danger mt-2">⚠️ {newMember.allergens}</p>
+                      <p className="text-xs text-danger mt-2 flex items-center gap-1"><Icon name="warning" size={12} className="flex-shrink-0" />{newMember.allergens}</p>
                     )}
                   </CollapsibleSection>
                 </div>
@@ -990,7 +990,7 @@ export default function Settings() {
                                 )
                               })}
                             </div>
-                            {editForm.allergens && <p className="text-xs text-danger mt-2">⚠️ {editForm.allergens}</p>}
+                            {editForm.allergens && <p className="text-xs text-danger mt-2 flex items-center gap-1"><Icon name="warning" size={12} className="flex-shrink-0" />{editForm.allergens}</p>}
                           </CollapsibleSection>
                         </div>
 
@@ -1004,7 +1004,7 @@ export default function Settings() {
                       <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                         {/* Avatar */}
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${member.isBaby ? 'bg-pink-400' : 'bg-primary'}`}>
-                          {member.isBaby ? '🍼' : (member.name?.[0]?.toUpperCase() || '?')}
+                          {member.isBaby ? <Icon name="bottle" size={20} /> : (member.name?.[0]?.toUpperCase() || '?')}
                         </div>
 
                         {/* Info */}
@@ -1016,7 +1016,7 @@ export default function Settings() {
                             }`}>{member.role}</span>
                             {member.isBaby && (
                               <span className="text-xs px-2 py-0.5 rounded-pill font-medium bg-pink-50 text-pink-600 border border-pink-100">
-                                🍼 Baby & Toddler
+                                <Icon name="bottle" size={11} className="inline-block mr-1" />Baby & Toddler
                               </span>
                             )}
                             {member.inviteAccepted && (
@@ -1072,7 +1072,7 @@ export default function Settings() {
                               </span>
                               {member.allergens && member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
                                 <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
-                                  ⚠️ {allergen}
+                                  <Icon name="warning" size={10} className="inline-block mr-1 flex-shrink-0" />{allergen}
                                 </span>
                               ))}
                             </div>
@@ -1081,7 +1081,7 @@ export default function Settings() {
                             <div className="mt-2 flex flex-wrap gap-1.5">
                               {member.allergens.split(',').map(a => a.trim()).filter(Boolean).map((allergen, i) => (
                                 <span key={i} className="text-xs bg-red-50 text-danger px-2.5 py-1 rounded-pill border border-red-100 font-medium">
-                                  ⚠️ {allergen}
+                                  <Icon name="warning" size={10} className="inline-block mr-1 flex-shrink-0" />{allergen}
                                 </span>
                               ))}
                             </div>
@@ -1096,7 +1096,7 @@ export default function Settings() {
                           {member.isBaby && (
                             <button onClick={() => navigate(`/app/baby/${member.id}`)}
                               className="text-xs px-3 py-1.5 rounded-btn border border-pink-200 text-pink-600 hover:bg-pink-50 transition-all">
-                              🍼 View profile
+                              <Icon name="bottle" size={13} className="inline-block mr-1" />View profile
                             </button>
                           )}
                           {member.role !== 'Admin' && !member.inviteAccepted && (
@@ -1298,7 +1298,7 @@ export default function Settings() {
                     )}
                     {plan.name === 'Premium' && !isCurrent && (
                       <span className="inline-block bg-purple-50 text-purple-600 text-xs font-semibold px-3 py-1 rounded-pill border border-purple-100">
-                        ⭐ Most features
+                        <Icon name="star" size={11} className="inline-block mr-1 text-amber-400" />Most features
                       </span>
                     )}
                   </div>

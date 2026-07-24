@@ -6,6 +6,7 @@ import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
 import { useAppConfigStore } from '../store/appConfigStore'
+import Icon from '../components/ui/Icon'
 
 const CATEGORY_COLORS = [
   'bg-primary', 'bg-success', 'bg-yellow-400',
@@ -13,11 +14,11 @@ const CATEGORY_COLORS = [
 ]
 
 const STORE_ICONS = {
-  'Superstore': '🛒',
-  'Walmart': '🏬',
-  'T&T Supermarket': '🏪',
-  'Costco': '📦',
-  'No Frills': '🧺',
+  'Superstore': 'grocery',
+  'Walmart': 'grocery',
+  'T&T Supermarket': 'grocery',
+  'Costco': 'package',
+  'No Frills': 'pantry',
 }
 
 export default function Reports() {
@@ -166,7 +167,7 @@ export default function Reports() {
       {/* No data state */}
       {!hasData && (
         <div className="card text-center py-12 mb-8 border border-blue-100 bg-blue-50/20">
-          <div className="text-5xl mb-4">📊</div>
+          <div className="mb-4 flex justify-center text-stone-300"><Icon name="reports" size={56} /></div>
           <p className="font-semibold text-textPrimary mb-2">No spending data yet</p>
           <p className="text-sm text-textMuted max-w-sm mx-auto">
             Start checking off items in your grocery list when you buy them. Your spending reports will appear here automatically.
@@ -259,7 +260,7 @@ export default function Reports() {
       {isFeatureEnabled('co2_tracking', plan) && (
       <div className="card mb-6 border border-green-200 bg-green-50/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary">🌍 CO2 Food Footprint</h2>
+          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="globe" size={16} className="text-green-700" /> CO2 Food Footprint</h2>
           <button onClick={fetchCO2} disabled={co2Loading} className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50">
             {co2Loading ? 'Loading...' : 'Refresh'}
           </button>
@@ -330,7 +331,7 @@ export default function Reports() {
             {/* Swap suggestion */}
             {co2Data.items.some(i => i.co2PerKg >= 20) && (
               <div className="mt-3 bg-green-100 rounded-btn px-3 py-2 border border-green-200">
-                <p className="text-xs text-green-800 font-medium">💡 Tip: Swapping beef for chicken or lentils twice a week can cut your food CO2 by up to 30%</p>
+                <p className="text-xs text-green-800 font-medium flex items-center gap-1.5"><Icon name="info" size={12} className="text-green-700 flex-shrink-0" />Tip: Swapping beef for chicken or lentils twice a week can cut your food CO2 by up to 30%</p>
               </div>
             )}
           </>
@@ -422,7 +423,7 @@ export default function Reports() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {data.stores.map((store, i) => (
               <div key={i} className="bg-gray-50 rounded-btn p-3 text-center border border-border">
-                <div className="text-2xl mb-1">{STORE_ICONS[store.name] || '🏪'}</div>
+                <div className="mb-1 flex justify-center text-stone-500"><Icon name={STORE_ICONS[store.name] || 'grocery'} size={22} /></div>
                 <p className="text-sm font-semibold text-textPrimary">${store.amount}</p>
                 <p className="text-xs text-textMuted truncate">{store.name}</p>
               </div>
@@ -435,7 +436,7 @@ export default function Reports() {
       {isFeatureEnabled('budget_forecast', plan) && (
       <div className="card mb-6 border-2 border-yellow-100 bg-yellow-50/30">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary">💡 Budget intelligence</h2>
+          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="info" size={16} className="text-stone-500" /> Budget intelligence</h2>
           <button
             onClick={() => { fetchForecast(); fetchTips() }}
             disabled={tipsLoading || forecastLoading}
@@ -464,7 +465,7 @@ export default function Reports() {
           <>
             {forecast.forecast?.alert && (
               <div className="bg-red-50 border border-red-100 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
-                <span className="text-lg">⚠️</span>
+                <Icon name="warning" size={18} className="text-danger flex-shrink-0" />
                 <p className="text-sm text-danger">{forecast.forecast.alert}</p>
               </div>
             )}
@@ -498,7 +499,7 @@ export default function Reports() {
             </div>
             {forecast.forecast?.insights?.length > 0 && (
               <div className="mb-5">
-                <p className="text-xs font-semibold text-textPrimary mb-2">🔮 Forecast insights</p>
+                <p className="text-xs font-semibold text-textPrimary mb-2 flex items-center gap-1.5"><Icon name="sparkle" size={12} className="text-primary" />Forecast insights</p>
                 <div className="space-y-2">
                   {forecast.forecast.insights.map((insight, i) => (
                     <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-blue-100">
@@ -524,7 +525,7 @@ export default function Reports() {
 
         {forecast?.hasData && <div className="border-t border-yellow-100 mb-5" />}
 
-        <p className="text-xs font-semibold text-textPrimary mb-2">💰 Savings tips</p>
+        <p className="text-xs font-semibold text-textPrimary mb-2 flex items-center gap-1.5"><Icon name="dollar" size={12} className="text-stone-500" />Savings tips</p>
         {tips.length > 0 ? (
           <div className="space-y-3">
             {tips.map((t, i) => (
@@ -552,8 +553,8 @@ export default function Reports() {
           <ul className="divide-y divide-border">
             {data.recentTrips.map((t, i) => (
               <li key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
-                  {STORE_ICONS[t.store] || '🏪'}
+                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-stone-500">
+                  <Icon name={STORE_ICONS[t.store] || 'grocery'} size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-textPrimary">{t.store}</p>

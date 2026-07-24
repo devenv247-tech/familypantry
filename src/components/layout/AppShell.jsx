@@ -73,9 +73,9 @@ export default function AppShell() {
             <div key={announcement.id} className="bg-white w-full sm:w-auto sm:min-w-[480px] sm:max-w-lg rounded-t-2xl sm:rounded-card shadow-xl p-6 relative modal-sheet">
               <button
                 onClick={() => dismissAnnouncement(announcement.id)}
-                className="absolute top-4 right-4 text-textMuted hover:text-textPrimary text-xl"
+                className="absolute top-4 right-4 text-textMuted hover:text-textPrimary p-1"
               >
-                ✕
+                <Icon name="close" size={16} />
               </button>
               <div className="text-center">
                 <div className="text-5xl mb-4">{announcement.icon}</div>
@@ -85,7 +85,7 @@ export default function AppShell() {
                   onClick={() => dismissAnnouncement(announcement.id)}
                   className="btn-primary w-full py-2.5"
                 >
-                  Got it! 🎉
+                  Got it! <Icon name="sparkle" size={14} className="inline-block align-middle ml-0.5" />
                 </button>
               </div>
             </div>

@@ -23,9 +23,9 @@ const BIG_9 = ['Peanuts', 'Egg', 'Milk', 'Tree nuts', 'Wheat', 'Soy', 'Sesame', 
 const TEXTURES = ['Smooth purée', 'Mashed', 'Lumpy', 'Soft chunks', 'Soft family food', 'Family table']
 
 const REACTIONS = [
-  { value: 'none', label: '✅ No reaction', color: 'bg-green-50 text-green-700 border-green-200' },
-  { value: 'mild', label: '⚠️ Mild reaction', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  { value: 'severe', label: '🚨 Severe reaction', color: 'bg-red-50 text-red-700 border-red-200' },
+  { value: 'none', label: 'No reaction', color: 'bg-green-50 text-green-700 border-green-200' },
+  { value: 'mild', label: 'Mild reaction', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  { value: 'severe', label: 'Severe reaction', color: 'bg-red-50 text-red-700 border-red-200' },
 ]
 
 const STAGE_INFO = [
@@ -232,7 +232,7 @@ export default function BabyProfile() {
 
   if (!profile) return (
     <div className="text-center py-20 text-textMuted">
-      <p className="text-4xl mb-3">🍼</p>
+      <div className="mb-3 flex justify-center text-stone-300"><Icon name="bottle" size={40} /></div>
       <p className="font-medium">Baby profile not found</p>
       <button onClick={() => navigate('/app/settings')} className="btn-secondary mt-4">← Back to settings</button>
     </div>
@@ -251,8 +251,8 @@ export default function BabyProfile() {
 
       <div className="card mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center text-2xl flex-shrink-0">
-            🍼
+          <div className="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center flex-shrink-0 text-pink-400">
+            <Icon name="bottle" size={28} />
           </div>
           <div>
             <h1 className="page-heading">{profile.member.name}</h1>
@@ -334,7 +334,7 @@ export default function BabyProfile() {
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                       isCurrent ? 'bg-white shadow' : isPast ? 'bg-gray-200 text-gray-500' : 'bg-gray-200 text-gray-400'
                     }`}>
-                      {isPast ? '✓' : i}
+                      {isPast ? <Icon name="check" size={12} /> : i}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
@@ -353,7 +353,7 @@ export default function BabyProfile() {
 
           {/* Health Canada note */}
           <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
-            <span className="text-lg flex-shrink-0">🇨🇦</span>
+            <Icon name="canada" size={18} className="flex-shrink-0 text-red-600" />
             <p className="text-xs text-blue-700 leading-relaxed">
               Stage guidance follows <strong>Health Canada's infant feeding recommendations</strong>. Always consult your pediatrician or public health nurse for personalized advice.
             </p>
@@ -366,7 +366,7 @@ export default function BabyProfile() {
         <div className="space-y-4">
           {!canUseAllergenTracker ? (
             <div className="card text-center py-10">
-              <p className="text-3xl mb-3">🧪</p>
+              <div className="mb-3 flex justify-center text-stone-300"><Icon name="leaf" size={40} /></div>
               <p className="font-semibold text-textPrimary mb-1">Family plan required</p>
               <p className="text-sm text-textMuted mb-4">Upgrade to track allergen introductions and keep a safety record.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
@@ -374,7 +374,7 @@ export default function BabyProfile() {
           ) : (
             <>
               <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
-                <span className="text-lg flex-shrink-0">💡</span>
+                <Icon name="info" size={18} className="flex-shrink-0 text-blue-600" />
                 <p className="text-xs text-blue-700 leading-relaxed">
                   Health Canada recommends introducing the top 9 allergens <strong>early and repeatedly</strong>, starting around 6 months. Track each introduction and any reactions below.
                 </p>
@@ -395,7 +395,7 @@ export default function BabyProfile() {
                         {intro ? (
                           <>
                             <p className="text-xs text-textMuted">{new Date(intro.introducedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}</p>
-                            <p className="text-xs font-medium mt-0.5">{reaction?.label || '✅ Introduced'}</p>
+                            <p className="text-xs font-medium mt-0.5">{reaction?.label || 'Introduced'}</p>
                           </>
                         ) : (
                           <p className="text-xs text-textMuted">Not yet</p>
@@ -479,7 +479,7 @@ export default function BabyProfile() {
         <div className="space-y-4">
           {!canUseFeedingLog ? (
             <div className="card text-center py-10">
-              <p className="text-3xl mb-3">📓</p>
+              <div className="mb-3 flex justify-center text-stone-300"><Icon name="bookmark" size={40} /></div>
               <p className="font-semibold text-textPrimary mb-1">Family plan required</p>
               <p className="text-sm text-textMuted mb-4">Upgrade to keep a daily feeding log for your baby.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
@@ -533,7 +533,7 @@ export default function BabyProfile() {
               {/* Log entries */}
               {feedingLogs.length === 0 ? (
                 <div className="card text-center py-10 text-textMuted">
-                  <p className="text-3xl mb-2">📓</p>
+                  <div className="mb-2 flex justify-center text-stone-300"><Icon name="bookmark" size={40} /></div>
                   <p className="text-sm">No feeding entries yet — log your first one above</p>
                 </div>
               ) : (
@@ -673,7 +673,7 @@ export default function BabyProfile() {
               </div>
               {growthData.nextDue && (
                 <p className="text-xs text-textMuted mt-3">
-                  📅 Next recommended measurement: <strong>{growthData.nextDue} months</strong>
+                  <span className="flex items-center gap-1"><Icon name="mealplan" size={12} />Next recommended measurement: <strong>{growthData.nextDue} months</strong></span>
                 </p>
               )}
             </div>
@@ -742,7 +742,7 @@ export default function BabyProfile() {
 
           {/* Health Canada note */}
           <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
-            <span className="text-lg flex-shrink-0">🇨🇦</span>
+            <Icon name="canada" size={18} className="flex-shrink-0 text-red-600" />
             <p className="text-xs text-blue-700 leading-relaxed">
               Percentiles are based on <strong>WHO Child Growth Standards</strong>, used by Canadian pediatricians. A healthy baby can fall anywhere between the 5th and 95th percentile. Always discuss growth with your healthcare provider.
             </p>
@@ -763,7 +763,7 @@ export default function BabyProfile() {
           ) : (
             <>
               <div className="flex items-start gap-2 p-3 bg-pink-50 border border-pink-100 rounded-card">
-                <span className="text-lg flex-shrink-0">🍼</span>
+                <Icon name="bottle" size={18} className="flex-shrink-0 text-pink-400" />
                 <p className="text-xs text-pink-700 leading-relaxed">
                   Recipes are generated for <strong>Stage {profile.stage} ({profile.label})</strong> using what's in your pantry. All recipes follow Health Canada safety guidelines — no honey, no choking hazards, no added salt.
                 </p>
@@ -771,7 +771,7 @@ export default function BabyProfile() {
 
               {/* Meal type selector */}
               <div className="card">
-                <p className="font-semibold text-textPrimary mb-3">🫧 Generate a baby-safe recipe</p>
+                <p className="font-semibold text-textPrimary mb-3 flex items-center gap-2"><Icon name="bubble" size={16} />Generate a baby-safe recipe</p>
                 <div className="mb-4">
                   <label className="label">Meal type</label>
                   <div className="flex flex-wrap gap-2">
@@ -819,10 +819,10 @@ export default function BabyProfile() {
                       <h3 className="font-bold text-textPrimary">{recipe.name}</h3>
                       <div className="flex items-center gap-2 flex-wrap mt-1">
                         <span className="text-xs bg-pink-50 text-pink-600 border border-pink-100 px-2 py-0.5 rounded-pill font-medium">Stage {recipe.stage}</span>
-                        <span className="text-xs text-textMuted">⏱ {recipe.time}</span>
-                        <span className="text-xs text-textMuted">👶 {recipe.ageRange}</span>
-                        <span className="text-xs text-textMuted">🥄 {recipe.texture}</span>
-                        {recipe.freezable && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-pill font-medium">❄️ Freezable</span>}
+                        <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
+                        <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="bottle" size={11} />{recipe.ageRange}</span>
+                        <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="utensils" size={11} />{recipe.texture}</span>
+                        {recipe.freezable && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="snowflake" size={11} />Freezable</span>}
                       </div>
                     </div>
                   </div>
@@ -830,7 +830,7 @@ export default function BabyProfile() {
                   {/* Health note */}
                   {recipe.healthNote && (
                     <div className="bg-green-50 border border-green-100 rounded-card px-3 py-2 mb-4">
-                      <p className="text-xs font-semibold text-green-700 mb-0.5">💚 Nutrition note</p>
+                      <p className="text-xs font-semibold text-green-700 mb-0.5 flex items-center gap-1"><Icon name="health" size={12} />Nutrition note</p>
                       <p className="text-xs text-green-700">{recipe.healthNote}</p>
                     </div>
                   )}
@@ -838,7 +838,7 @@ export default function BabyProfile() {
                   {/* Safety note */}
                   {recipe.safetyNote && (
                     <div className="bg-yellow-50 border border-yellow-100 rounded-card px-3 py-2 mb-4">
-                      <p className="text-xs font-semibold text-yellow-700 mb-0.5">⚠️ Safety reminder</p>
+                      <p className="text-xs font-semibold text-yellow-700 mb-0.5 flex items-center gap-1"><Icon name="warning" size={12} />Safety reminder</p>
                       <p className="text-xs text-yellow-700">{recipe.safetyNote}</p>
                     </div>
                   )}
@@ -873,7 +873,7 @@ export default function BabyProfile() {
                   {/* Freezing tip */}
                   {recipe.freezingTip && (
                     <div className="bg-blue-50 border border-blue-100 rounded-card px-3 py-2">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5">❄️ Freeze & reheat</p>
+                      <p className="text-xs font-semibold text-blue-700 mb-0.5 flex items-center gap-1"><Icon name="snowflake" size={12} />Freeze & reheat</p>
                       <p className="text-xs text-blue-700">{recipe.freezingTip}</p>
                     </div>
                   )}

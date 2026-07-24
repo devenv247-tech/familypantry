@@ -220,7 +220,7 @@ export default function Onboarding({ onComplete }) {
 
           {step === 1 && (
             <div className="text-center py-4">
-              <div className="text-6xl mb-4">👋</div>
+              <div className="mb-4 flex justify-center text-primary"><Icon name="family" size={56} /></div>
               <h2 className="text-2xl font-bold text-textPrimary mb-2">
                 Welcome to Nooka, {user?.name?.split(' ')[0]}!
               </h2>
@@ -232,12 +232,12 @@ export default function Onboarding({ onComplete }) {
               </p>
               <div className="grid grid-cols-1 gap-3 mb-8 text-left">
                 {[
-                  { icon: '👨‍👩‍👧‍👦', title: 'Add a family member', desc: 'Health goals and allergens for personalized recipes' },
-                  { icon: '🧺', title: 'Add a pantry item', desc: 'Start tracking what you have at home' },
-                  { icon: '🫧', title: 'Get AI recipes', desc: 'Personalized meals based on your pantry and health goals' },
+                  { svgIcon: 'family', title: 'Add a family member', desc: 'Health goals and allergens for personalized recipes' },
+                  { svgIcon: 'pantry', title: 'Add a pantry item', desc: 'Start tracking what you have at home' },
+                  { svgIcon: 'bubble', title: 'Get AI recipes', desc: 'Personalized meals based on your pantry and health goals' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3">
-                    <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                    <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                     <div>
                       <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
                       <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
@@ -416,7 +416,7 @@ export default function Onboarding({ onComplete }) {
               {templateSuccess ? (
                 <div className="text-center py-8">
                   <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-green-600 text-2xl font-bold">✓</span>
+                    <Icon name="check" size={22} className="text-green-600" />
                   </div>
                   <p className="font-semibold text-textPrimary text-lg">{templateSuccess.message}</p>
                   <p className="text-sm text-textMuted mt-1 mb-6">Taking you to the next step...</p>
@@ -530,23 +530,20 @@ export default function Onboarding({ onComplete }) {
               {/* ── Fallback: skipped pantry or generation failed ── */}
               {(skippedPantry || firstRecipeError) && (
                 <div className="text-center">
-                  <div className="text-6xl mb-4">🎉</div>
+                  <div className="mb-4 flex justify-center text-primary"><Icon name="sparkle" size={56} /></div>
                   <h2 className="text-2xl font-bold text-textPrimary mb-2">You're all set!</h2>
                   <p className="text-textMuted mb-8 max-w-sm mx-auto">
                     Nooka is ready to use. Here's what you can do next:
                   </p>
                   <div className="grid grid-cols-1 gap-3 mb-8 text-left">
                     {[
-                      { icon: '🧺', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
-                      { icon: null, title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes', svgIcon: 'ai' },
-                      { icon: '🛒', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
-                      { icon: '📊', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
+                      { svgIcon: 'pantry', title: 'Add more pantry items', desc: 'The more you add, the better your recipes', link: '/app/pantry' },
+                      { svgIcon: 'ai', title: 'Get recipe suggestions', desc: 'AI recipes based on your pantry and health goals', link: '/app/recipes' },
+                      { svgIcon: 'grocery', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
+                      { svgIcon: 'chart', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
                     ].map((item, i) => (
                       <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
-                        {item.svgIcon
-                          ? <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
-                          : <span className="text-2xl flex-shrink-0">{item.icon}</span>
-                        }
+                        <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                         <div>
                           <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
                           <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
@@ -593,7 +590,7 @@ export default function Onboarding({ onComplete }) {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-textPrimary line-clamp-2 leading-snug">{recipe.name}</h3>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <span className="text-xs text-textMuted">⏱ {recipe.time}</span>
+                            <span className="flex items-center gap-1 text-xs text-textMuted"><Icon name="clock" size={12} />{recipe.time}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'}`}>
                               {recipe.difficulty}
                             </span>
@@ -664,7 +661,7 @@ export default function Onboarding({ onComplete }) {
                         className="btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 mb-3"
                       >
                         <Icon name="ai" size={16} />
-                        Generate my first recipe ✨
+                        Generate my first recipe <Icon name="sparkle" size={14} className="inline-block ml-0.5" />
                       </button>
                       <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
                         Skip — finish setup
@@ -687,7 +684,7 @@ export default function Onboarding({ onComplete }) {
                         className="btn-primary w-full py-3 text-sm flex items-center justify-center gap-2 mb-3"
                       >
                         <Icon name="ai" size={16} />
-                        Generate my first recipe ✨
+                        Generate my first recipe <Icon name="sparkle" size={14} className="inline-block ml-0.5" />
                       </button>
                       <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
                         Skip — finish setup

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BrowserMultiFormatReader } from '@zxing/library'
+import Icon from './Icon'
 
 export default function BarcodeScanner({ onScan, onClose }) {
   const videoRef = useRef(null)
@@ -32,7 +33,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
 
         <div className="modal-header flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="font-semibold text-textPrimary">Scan barcode</h3>
-          <button onClick={onClose} className="text-textMuted hover:text-textPrimary text-xl">✕</button>
+          <button onClick={onClose} className="text-textMuted hover:text-textPrimary p-1"><Icon name="close" size={16} /></button>
         </div>
 
         <div className="p-5">
