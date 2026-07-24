@@ -567,14 +567,14 @@ export default function Recipes() {
       <div className="flex gap-2 mb-6 bg-surface border border-border rounded-card p-1">
         <button
           onClick={() => setMode('food')}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
           <Icon name="utensils" size={14} className="inline-block mr-1" />Food
         </button>
         <button
           onClick={() => setMode('drinks')}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
           <Icon name="drinks" size={14} className="inline-block mr-1" />Drinks & Remedies
@@ -777,12 +777,12 @@ export default function Recipes() {
                   return (
                     <div key={meal.id} className="flex items-center justify-between bg-white rounded-btn px-3 py-2 border border-purple-100">
                       <div>
-                        <p className="text-sm font-medium text-textPrimary">{meal.recipeName}</p>
+                        <p className="text-sm font-medium text-stone-900">{meal.recipeName}</p>
                         <p className="text-xs text-textMuted">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {meal.rating && <span className="text-xs text-yellow-500 font-medium flex items-center gap-0.5"><Icon name="star" size={11} className="text-yellow-400" />{meal.rating}</span>}
-                        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-pill">{meal.cuisine || 'Any'}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-pill ${meal.cuisine ? 'bg-purple-100 text-purple-600' : 'bg-stone-100 text-stone-600'}`}>{meal.cuisine || 'Any'}</span>
                       </div>
                     </div>
                   )
@@ -833,10 +833,10 @@ export default function Recipes() {
                   <button
                     key={t}
                     onClick={() => setMealType(t)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${mealType === t ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                    className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${mealType === t ? 'bg-food-600 text-white border-food-600' : 'bg-white border-stone-200 text-stone-600 hover:border-food-300'
                       }`}
                   >
-                    <Icon name={t === 'Breakfast' ? 'sunrise' : t === 'Lunch' ? 'sun' : t === 'Dinner' ? 'moon' : 'leaf'} size={14} className="inline-block align-middle mr-1" />{t}
+                    <Icon name={t === 'Breakfast' ? 'sunrise' : t === 'Lunch' ? 'sun' : t === 'Dinner' ? 'moon' : 'leaf'} size={14} className={`inline-block align-middle mr-1 ${mealType === t ? '' : 'text-food-600'}`} />{t}
                   </button>
                 ))}
               </div>
@@ -964,28 +964,28 @@ export default function Recipes() {
               <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3 flex-wrap">
                 <span className="flex items-center gap-1"><Icon name="clock" size={11} />{familyRecipe.time}</span>
                 <span>Serves {familyRecipe.serves}</span>
-                <span className={`px-2 py-0.5 rounded-pill font-medium ${familyRecipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'}`}>
+                <span className={`px-2 py-0.5 rounded-pill font-medium ${familyRecipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : familyRecipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'}`}>
                   {familyRecipe.difficulty}
                 </span>
               </div>
 
               {familyRecipe.allergenWarnings?.length > 0 && (
-                <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-4">
-                  <p className="text-xs font-semibold text-danger mb-1 flex items-center gap-1"><Icon name="warning" size={12} />Allergen warnings</p>
+                <div className="bg-amber-100 border border-amber-200 rounded-btn px-3 py-2 mb-4">
+                  <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><Icon name="warning" size={12} className="text-amber-600" />Allergen warnings</p>
                   {familyRecipe.allergenWarnings.map((w, i) => (
-                    <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
+                    <p key={i} className="text-xs text-amber-700">contains {w.allergen} ({w.ingredient})</p>
                   ))}
                 </div>
               )}
 
               {familyRecipe.missing?.length > 0 && (
-                <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
+                <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-orange-600">Need to buy:</p>
+                    <p className="text-xs font-medium text-food-700">Need to buy:</p>
                     <button
                       onClick={() => handleAddToGrocery(familyRecipe, 'family')}
                       disabled={addingToGrocery['family']}
-                      className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery['family'] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                      className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery['family'] ? 'bg-success text-white' : 'bg-food-600 text-white hover:bg-food-700'
                         }`}
                     >
                       {addingToGrocery['family'] ? 'Adding...' : addedToGrocery['family'] ? '✓ Added!' : '+ Add to grocery'}
@@ -998,7 +998,7 @@ export default function Recipes() {
                       return (
                         <div key={i}>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                            <span className="text-xs text-stone-600">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                             <button
                               onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings?tab=plan')}
                               className="text-xs text-primary hover:underline font-medium ml-2 flex-shrink-0"
@@ -1171,13 +1171,13 @@ export default function Recipes() {
 
                     <div className="flex items-start justify-between mb-3">
                       <div className="text-4xl">{recipe.icon}</div>
-                      <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'
+                      <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : recipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'
                         }`}>
                         {recipe.difficulty}
                       </span>
                     </div>
 
-                    <h3 className="font-semibold text-textPrimary text-lg mb-1">{recipe.name}</h3>
+                    <h3 className="font-semibold text-stone-900 text-lg mb-1">{recipe.name}</h3>
                     {recipeCosts[recipe.name] && (
                       <div className="flex items-center gap-1.5 mb-2">
                         <span className="text-xs bg-green-50 text-green-700 border border-green-100 px-2.5 py-1 rounded-pill font-medium flex items-center gap-1">
@@ -1188,38 +1188,38 @@ export default function Recipes() {
                         )}
                       </div>
                     )}
-                    <p className="text-sm text-textMuted mb-3 leading-relaxed">{recipe.description}</p>
+                    <p className="text-sm text-textMuted mb-3 leading-relaxed line-clamp-2">{recipe.description}</p>
 
                     <div className="flex gap-2 flex-wrap mb-3">
                       {recipe.tags?.map(tag => (
-                        <span key={tag} className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100">{tag}</span>
+                        <span key={tag} className="text-xs bg-fresh-50 text-fresh-700 px-2.5 py-1 rounded-pill border border-fresh-100">{tag}</span>
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3">
-                      <span className="flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
+                    <div className="flex items-center gap-4 text-xs text-stone-600 mb-4 border-t border-border pt-3">
+                      <span className="flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{recipe.time}</span>
                       <span>Serves {recipe.serves}</span>
                     </div>
 
                     {/* Allergen warnings */}
                     {recipe.allergenWarnings?.length > 0 && (
-                      <div className="bg-red-50 border border-red-100 rounded-btn px-3 py-2 mb-3">
-                        <p className="text-xs font-semibold text-danger mb-1 flex items-center gap-1"><Icon name="warning" size={12} />Allergen warnings</p>
+                      <div className="bg-amber-100 border border-amber-200 rounded-btn px-3 py-2 mb-3">
+                        <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><Icon name="warning" size={12} className="text-amber-600" />Allergen warnings</p>
                         {recipe.allergenWarnings.map((w, i) => (
-                          <p key={i} className="text-xs text-red-600">contains {w.allergen} ({w.ingredient})</p>
+                          <p key={i} className="text-xs text-amber-700">contains {w.allergen} ({w.ingredient})</p>
                         ))}
                       </div>
                     )}
 
                     {/* Missing ingredients */}
                     {recipe.missing?.length > 0 && (
-                      <div className="bg-orange-50 border border-orange-100 rounded-btn px-3 py-2 mb-4">
+                      <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-medium text-orange-600">Need to buy:</p>
+                          <p className="text-xs font-medium text-food-700">Need to buy:</p>
                           <button
                             onClick={() => handleAddToGrocery(recipe, idx)}
                             disabled={addingToGrocery[idx]}
-                            className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery[idx] ? 'bg-success text-white' : 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                            className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${addedToGrocery[idx] ? 'bg-success text-white' : 'bg-food-600 text-white hover:bg-food-700'
                               }`}
                           >
                             {addingToGrocery[idx] ? 'Adding...' : addedToGrocery[idx] ? '✓ Added!' : '+ Add to grocery'}
@@ -1232,7 +1232,7 @@ export default function Recipes() {
                             return (
                               <div key={i}>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs text-orange-500">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                                  <span className="text-xs text-stone-600">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                                   {isFeatureEnabled('smart_substitutions', plan) && (
                                     <button
                                       onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
@@ -1277,15 +1277,15 @@ export default function Recipes() {
                     )}
 
                     {recipe.missing?.length === 0 && (
-                      <div className="bg-green-50 border border-green-100 rounded-btn px-3 py-2 mb-4">
-                        <p className="text-xs font-medium text-success flex items-center gap-1"><Icon name="check" size={12} />All ingredients in stock!</p>
+                      <div className="bg-fresh-50 border border-fresh-100 rounded-btn px-3 py-2 mb-4">
+                        <p className="text-xs font-medium text-fresh-700 flex items-center gap-1"><Icon name="check" size={12} />All ingredients in stock!</p>
                       </div>
                     )}
 
                     <div className="flex gap-2 flex-wrap">
                       <button
                         onClick={() => setExpandedId(expandedId === idx ? null : idx)}
-                        className="btn-secondary flex-1 text-sm"
+                        className="btn-secondary flex-1 text-sm hover:border-food-600 hover:text-food-700"
                       >
                         {expandedId === idx ? 'Hide' : 'View ingredients'}
                       </button>
