@@ -56,20 +56,21 @@ const getBabyAgeMonths = (birthDate) => {
 
 const getBabyStageLabel = (months) => {
   if (months === null) return null
-  if (months < 6)  return { stage: 0, label: 'Breast milk / formula only', color: 'bg-gray-100 text-gray-600 border-gray-200' }
+  if (months < 6)  return { stage: 0, label: 'Breast milk / formula only', color: 'bg-stone-100 text-stone-600 border-stone-200' }
   if (months < 7)  return { stage: 1, label: 'Stage 1 — first purées',      color: 'bg-pink-50 text-pink-600 border-pink-200' }
   if (months < 9)  return { stage: 2, label: 'Stage 2 — mashed textures',   color: 'bg-orange-50 text-orange-600 border-orange-200' }
-  if (months < 12) return { stage: 3, label: 'Stage 3 — soft finger foods', color: 'bg-yellow-50 text-yellow-600 border-yellow-200' }
-  if (months < 18) return { stage: 4, label: 'Stage 4 — family foods',      color: 'bg-green-50 text-green-600 border-green-200' }
-  if (months < 36) return { stage: 5, label: 'Stage 5 — toddler foods',     color: 'bg-blue-50 text-blue-600 border-blue-200' }
-  return { stage: 5, label: 'Toddler (36+ months)', color: 'bg-blue-50 text-blue-600 border-blue-200' }
+  if (months < 12) return { stage: 3, label: 'Stage 3 — soft finger foods', color: 'bg-amber-50 text-amber-600 border-amber-200' }
+  if (months < 18) return { stage: 4, label: 'Stage 4 — family foods',      color: 'bg-fresh-50 text-fresh-600 border-fresh-100' }
+  if (months < 36) return { stage: 5, label: 'Stage 5 — toddler foods',     color: 'bg-indigo-50 text-primary border-indigo-100' }
+  return { stage: 5, label: 'Toddler (36+ months)', color: 'bg-indigo-50 text-primary border-indigo-100' }
 }
 
 // ─── Pill toggle button ───────────────────────────────────────────────────────
 function PillButton({ selected, onClick, children, variant = 'primary' }) {
   const colors = {
     primary: selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary',
-    green:   selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600',
+    fresh:   selected ? 'bg-fresh-600 text-white border-fresh-600' : 'bg-surface text-textMuted border-border hover:border-fresh-600 hover:text-fresh-700',
+    green:   selected ? 'bg-food-600 text-white border-food-600' : 'bg-surface text-textMuted border-border hover:border-food-500 hover:text-food-600',
     red:     selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger',
   }
   return (
@@ -93,7 +94,7 @@ function ToggleSwitch({ on, onChange }) {
         position: 'relative',
         cursor: 'pointer',
         transition: 'background 0.2s',
-        background: on ? '#2563eb' : '#d1d5db',
+        background: on ? '#2F9E44' : '#d1d5db',
         display: 'inline-block',
       }}
     >
@@ -130,7 +131,7 @@ function CollapsibleSection({ label, summary, defaultOpen = false, children }) {
       <button
         type="button"
         onClick={() => setIsOpen(o => !o)}
-        className="w-full flex items-center gap-2 px-3 py-3 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-3 text-left hover:bg-stone-50 transition-colors"
         style={{ minHeight: '44px' }}
       >
         <div className="flex-1 min-w-0">
@@ -479,7 +480,7 @@ export default function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-8 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 bg-stone-100 p-1 rounded-card mb-8 overflow-x-auto scrollbar-hide">
         {TABS.map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
@@ -514,7 +515,7 @@ export default function Settings() {
                   <p className="text-xs text-textMuted mt-0.5">Fill in the details below</p>
                 </div>
                 <button onClick={() => { setShowAddMember(false); setNewMember(EMPTY_MEMBER) }}
-                  className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                  className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
                   <Icon name="close" size={16} />
                 </button>
               </div>
@@ -524,9 +525,9 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setNewMember(p => ({ ...EMPTY_MEMBER, isBaby: !p.isBaby }))}
-                  className={`w-full flex items-center gap-3 mb-5 p-3 rounded-card border transition-all text-left ${newMember.isBaby ? 'bg-pink-50 border-pink-200' : 'bg-gray-50 border-border hover:border-gray-300'}`}
+                  className={`w-full flex items-center gap-3 mb-5 p-3 rounded-card border transition-all text-left ${newMember.isBaby ? 'bg-pink-50 border-pink-200' : 'bg-stone-50 border-border hover:border-stone-300'}`}
                 >
-                  <div className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-gray-300'}`}>
+                  <div className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${newMember.isBaby ? 'bg-pink-400' : 'bg-stone-300'}`}>
                     <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${newMember.isBaby ? 'translate-x-5' : 'translate-x-0'}`} />
                   </div>
                   <div>
@@ -629,7 +630,7 @@ export default function Settings() {
                         {GOALS.map(goal => {
                           const selected = (newMember.goals || []).includes(goal)
                           return (
-                            <PillButton key={goal} selected={selected} variant="primary"
+                            <PillButton key={goal} selected={selected} variant="fresh"
                               onClick={() => setNewMember(p => ({
                                 ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...(p.goals || []), goal]
                               }))}>
@@ -657,7 +658,7 @@ export default function Settings() {
                         {ACTIVITY_LEVELS.map(({ value, label }) => (
                           <PillButton key={value}
                             selected={newMember.activityLevel === value}
-                            variant="primary"
+                            variant="fresh"
                             onClick={() => setNewMember(p => ({ ...p, activityLevel: p.activityLevel === value ? null : value }))}>
                             {newMember.activityLevel === value ? '✓ ' : '+ '}{label}
                           </PillButton>
@@ -717,7 +718,7 @@ export default function Settings() {
                         })}
                       </div>
                       {newMember.dietary.length > 0 && (
-                        <p className="text-xs text-green-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
+                        <p className="text-xs text-food-600 mt-2">Selected: {newMember.dietary.join(', ')}</p>
                       )}
                     </CollapsibleSection>
                   </div>
@@ -804,7 +805,7 @@ export default function Settings() {
                       <div>
                         <div className="flex items-center justify-between mb-4">
                           <p className="font-semibold text-textPrimary">Edit {member.name}</p>
-                          <button onClick={() => setEditingId(null)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                          <button onClick={() => setEditingId(null)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
                             <Icon name="close" size={16} />
                           </button>
                         </div>
@@ -870,7 +871,7 @@ export default function Settings() {
                                     const current = Array.isArray(editForm.goals) ? editForm.goals : (editForm.goals || '').split(',').map(g => g.trim()).filter(Boolean)
                                     const selected = current.includes(goal)
                                     return (
-                                      <PillButton key={goal} selected={selected} variant="primary"
+                                      <PillButton key={goal} selected={selected} variant="fresh"
                                         onClick={() => setEditForm(p => ({ ...p, goals: selected ? current.filter(g => g !== goal) : [...current, goal] }))}>
                                         {selected ? '✓ ' : '+ '}{goal}
                                       </PillButton>
@@ -889,7 +890,7 @@ export default function Settings() {
                                   {ACTIVITY_LEVELS.map(({ value, label }) => (
                                     <PillButton key={value}
                                       selected={editForm.activityLevel === value}
-                                      variant="primary"
+                                      variant="fresh"
                                       onClick={() => setEditForm(p => ({ ...p, activityLevel: value }))}>
                                       {editForm.activityLevel === value ? '✓ ' : '+ '}{label}
                                     </PillButton>
@@ -1012,7 +1013,7 @@ export default function Settings() {
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             <p className="font-semibold text-textPrimary">{member.name}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-pill font-medium border ${
-                              member.role === 'Admin' ? 'bg-blue-50 text-primary border-blue-100' : 'bg-gray-100 text-textMuted border-gray-200'
+                              member.role === 'Admin' ? 'bg-indigo-50 text-primary border-indigo-100' : 'bg-stone-100 text-textMuted border-stone-200'
                             }`}>{member.role}</span>
                             {member.isBaby && (
                               <span className="text-xs px-2 py-0.5 rounded-pill font-medium bg-pink-50 text-pink-600 border border-pink-100">
@@ -1020,7 +1021,7 @@ export default function Settings() {
                               </span>
                             )}
                             {member.inviteAccepted && (
-                              <span className="text-xs px-2 py-0.5 rounded-pill bg-green-50 text-success border border-green-100 font-medium">
+                              <span className="text-xs px-2 py-0.5 rounded-pill bg-fresh-50 text-fresh-700 border border-fresh-100 font-medium">
                                 ✓ Has login
                               </span>
                             )}
@@ -1041,7 +1042,7 @@ export default function Settings() {
                                 { label: 'Born',     value: member.birthDate ? new Date(member.birthDate).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' }) : '—' },
                                 { label: 'Allergens', value: member.allergens ? member.allergens.split(',').filter(Boolean).length + ' flagged' : 'None' },
                               ].map((item, i) => (
-                                <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
+                                <div key={i} className="bg-stone-50 rounded-btn px-3 py-2">
                                   <p className="text-xs text-textMuted">{item.label}</p>
                                   <p className="text-sm font-medium text-textPrimary">{item.value}</p>
                                 </div>
@@ -1055,7 +1056,7 @@ export default function Settings() {
                                 { label: 'Height',  value: member.height || '—' },
                                 { label: 'Dietary', value: member.dietary || '—' },
                               ].map((item, i) => (
-                                <div key={i} className="bg-gray-50 rounded-btn px-3 py-2">
+                                <div key={i} className="bg-stone-50 rounded-btn px-3 py-2">
                                   <p className="text-xs text-textMuted">{item.label}</p>
                                   <p className="text-sm font-medium text-textPrimary truncate">{item.value}</p>
                                 </div>
@@ -1066,7 +1067,7 @@ export default function Settings() {
                           {/* Tags */}
                           {!member.isBaby && member.goals && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
-                              <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill border border-green-100 font-medium">
+                              <span className="text-xs bg-fresh-50 text-fresh-700 px-2.5 py-1 rounded-pill border border-fresh-100 font-medium">
                                 {member.goals.split(',')[0]?.trim()}
                                 {member.goals.split(',').length > 1 && ` +${member.goals.split(',').length - 1}`}
                               </span>
@@ -1129,7 +1130,7 @@ export default function Settings() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
               <button onClick={() => { setInviteModal(null); setInviteEmail('') }}
-                className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted">
+                className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
                 <Icon name="close" size={16} />
               </button>
             </div>
@@ -1223,14 +1224,14 @@ export default function Settings() {
             <button
               onClick={handleExportData}
               disabled={exporting}
-              className="text-sm border border-border px-4 py-2 rounded-btn hover:bg-gray-50 transition-all disabled:opacity-50 flex items-center gap-2">
+              className="text-sm border border-border px-4 py-2 rounded-btn hover:bg-stone-50 transition-all disabled:opacity-50 flex items-center gap-2">
               <Icon name="download" size={14} />
               {exporting ? 'Preparing export...' : 'Download my data'}
             </button>
           </div>
 
           {/* Danger zone */}
-          <div className="card border border-red-100">
+          <div className="card border border-red-200 bg-red-50/20">
             <h3 className="font-semibold text-danger mb-1">Danger zone</h3>
             <p className="text-sm text-textMuted mb-4">
               Permanently deletes your account, all members, pantry items, and history. Cannot be undone.
@@ -1241,7 +1242,7 @@ export default function Settings() {
                 Delete family account
               </button>
             ) : (
-              <div className="bg-red-50 border border-red-100 rounded-card p-4">
+              <div className="bg-red-50 border border-red-200 rounded-card p-4">
                 <p className="text-sm font-semibold text-danger mb-1">Are you absolutely sure?</p>
                 <p className="text-xs text-red-600 mb-3">Type <strong>DELETE</strong> to confirm.</p>
                 <input className="input mb-3 text-sm" placeholder="Type DELETE to confirm"
@@ -1282,7 +1283,7 @@ export default function Settings() {
               return (
                 <div key={plan.name} className={`card border-2 transition-all flex flex-col ${
                   isCurrent          ? 'border-primary'      :
-                  plan.highlight     ? 'border-green-200'    :
+                  plan.highlight     ? 'border-indigo-200'   :
                   plan.name === 'Premium' ? 'border-purple-200' : 'border-border'
                 }`}>
                   <div className="mb-3">
@@ -1292,7 +1293,7 @@ export default function Settings() {
                       </span>
                     )}
                     {plan.highlight && !isCurrent && (
-                      <span className="inline-block bg-green-50 text-success text-xs font-semibold px-3 py-1 rounded-pill border border-green-100">
+                      <span className="inline-block bg-indigo-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill border border-indigo-100">
                         Most popular
                       </span>
                     )}
@@ -1319,8 +1320,8 @@ export default function Settings() {
                     onClick={() => !isCurrent && plan.name !== 'Free' && handleUpgrade(plan.name)}
                     disabled={isCurrent || plan.name === 'Free' || !!upgradingPlan}
                     className={`w-full text-sm py-2.5 rounded-btn font-medium transition-all disabled:opacity-50 ${
-                      isCurrent        ? 'bg-gray-100 text-textMuted cursor-default' :
-                      plan.name === 'Free'    ? 'bg-gray-100 text-textMuted cursor-default' :
+                      isCurrent        ? 'bg-stone-100 text-textMuted cursor-default' :
+                      plan.name === 'Free'    ? 'bg-stone-100 text-textMuted cursor-default' :
                       plan.name === 'Premium' ? 'bg-purple-600 text-white hover:bg-purple-700' :
                       'btn-primary'
                     }`}>
@@ -1360,7 +1361,7 @@ export default function Settings() {
             ) : subscription?.subscription ? (
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <p className="text-sm text-textPrimary">{currentPlanName} plan — active</p>
-                <span className="text-xs bg-green-50 text-success px-2.5 py-1 rounded-pill font-medium border border-green-100">
+                <span className="text-xs bg-indigo-50 text-primary px-2.5 py-1 rounded-pill font-medium border border-indigo-100">
                   {subscription.subscription.status}
                 </span>
               </div>
@@ -1395,7 +1396,7 @@ export default function Settings() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium text-textPrimary">{n.label}</p>
                     {n.coming && (
-                      <span className="text-xs px-2 py-0.5 rounded-pill bg-gray-100 text-textMuted border border-border font-medium leading-none flex-shrink-0">Coming soon</span>
+                      <span className="text-xs px-2 py-0.5 rounded-pill bg-stone-100 text-textMuted border border-border font-medium leading-none flex-shrink-0">Coming soon</span>
                     )}
                   </div>
                   <p className="text-xs text-textMuted mt-0.5">{n.sub}</p>

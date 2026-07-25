@@ -32,11 +32,11 @@ const LEAN_BULK_RATES = [
 const GOAL_LABELS = { cut: 'Cut', lean_bulk: 'Lean Bulk', recomp: 'Recomp', maintain: 'Maintain' }
 
 const VERDICT_CONFIG = {
-  on_track:          { label: 'On track',        color: 'bg-green-50 text-green-700 border-green-200' },
+  on_track:          { label: 'On track',        color: 'bg-fresh-50 text-fresh-700 border-fresh-100' },
   plateau:           { label: 'Plateau detected', color: 'bg-amber-50 text-amber-700 border-amber-200' },
   over_target:       { label: 'Over target',      color: 'bg-orange-50 text-orange-700 border-orange-200' },
   under_eating:      { label: 'Under eating',     color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  insufficient_data: { label: 'Not enough data',  color: 'bg-gray-50 text-gray-600 border-gray-200' },
+  insufficient_data: { label: 'Not enough data',  color: 'bg-stone-50 text-stone-500 border-stone-200' },
 }
 
 export default function Health() {
@@ -153,14 +153,14 @@ const getGoalNudges = (member) => {
 
     // Not enough data
     if (loggedDays === 0) return [{
-      icon: 'health', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+      icon: 'health', color: 'bg-indigo-50 border-indigo-100', iconClass: 'text-primary',
       text: 'Start logging meals to see personalized insights based on your goal.'
     }]
 
     // Low logging rate
     if (loggedDays < 4) {
       nudges.push({
-        icon: 'info', color: 'bg-yellow-50 border-yellow-100', iconClass: 'text-yellow-500',
+        icon: 'info', color: 'bg-amber-50 border-amber-100', iconClass: 'text-amber-600',
         text: `Only ${loggedDays} of ${totalDays} days logged this week — track more meals for accurate insights.`
       })
     }
@@ -190,18 +190,18 @@ const getGoalNudges = (member) => {
       const proteinTarget = macroTargets?.protein || 120
       if (avgProtein > 0 && avgProtein < proteinTarget * 0.8) {
         nudges.push({
-          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          icon: 'warning', color: 'bg-amber-50 border-amber-100', iconClass: 'text-amber-600',
           text: `Protein is averaging ${avgProtein}g vs your ${proteinTarget}g target — try adding chicken, eggs, or legumes to more meals.`
         })
       } else if (avgProtein >= proteinTarget * 0.9) {
         nudges.push({
-          icon: 'star', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          icon: 'star', color: 'bg-fresh-50 border-fresh-100', iconClass: 'text-fresh-600',
           text: `Protein is on track at ${avgProtein}g avg this week — keep it up to support muscle growth!`
         })
       }
       if (avgCalories > 0 && dailyCalorieGoal && avgCalories < dailyCalorieGoal * 0.85) {
         nudges.push({
-          icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+          icon: 'info', color: 'bg-indigo-50 border-indigo-100', iconClass: 'text-primary',
           text: `Averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal goal — a slight surplus helps muscle gain.`
         })
       }
@@ -211,18 +211,18 @@ const getGoalNudges = (member) => {
       const proteinTarget = macroTargets?.protein || 100
       if (avgProtein > 0 && avgProtein < proteinTarget * 0.8) {
         nudges.push({
-          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          icon: 'warning', color: 'bg-amber-50 border-amber-100', iconClass: 'text-amber-600',
           text: `Protein is low at ${avgProtein}g avg — keeping protein high helps preserve muscle while losing weight.`
         })
       }
       if (daysHittingGoal >= 5) {
         nudges.push({
-          icon: 'star', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          icon: 'star', color: 'bg-fresh-50 border-fresh-100', iconClass: 'text-fresh-600',
           text: `You've hit your calorie goal ${daysHittingGoal} of ${loggedDays} days logged — excellent consistency!`
         })
       } else if (avgCalories > 0 && dailyCalorieGoal && avgCalories > dailyCalorieGoal * 1.1) {
         nudges.push({
-          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          icon: 'warning', color: 'bg-amber-50 border-amber-100', iconClass: 'text-amber-600',
           text: `Averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal target — try trimming portions or snacks to stay in deficit.`
         })
       }
@@ -231,12 +231,12 @@ const getGoalNudges = (member) => {
     if (goal.includes('maintain')) {
       if (daysHittingGoal >= 4) {
         nudges.push({
-          icon: 'check', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          icon: 'check', color: 'bg-fresh-50 border-fresh-100', iconClass: 'text-fresh-600',
           text: `Calories are consistent this week — ${daysHittingGoal} days within your maintenance range. Great work.`
         })
       } else if (loggedDays >= 4) {
         nudges.push({
-          icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+          icon: 'info', color: 'bg-indigo-50 border-indigo-100', iconClass: 'text-primary',
           text: `Calorie consistency could be better this week — aim to stay within 10% of your ${dailyCalorieGoal} kcal goal daily.`
         })
       }
@@ -245,13 +245,13 @@ const getGoalNudges = (member) => {
     if (goal.includes('improve energy') || goal.includes('energy')) {
       if (avgFiber > 0 && avgFiber < 20) {
         nudges.push({
-          icon: 'leaf', color: 'bg-green-50 border-green-100', iconClass: 'text-green-500',
+          icon: 'leaf', color: 'bg-fresh-50 border-fresh-100', iconClass: 'text-fresh-600',
           text: `Fiber is averaging ${avgFiber}g per meal — aim for 25g/day with more vegetables, legumes, and whole grains.`
         })
       }
       if (avgCalories > 0 && dailyCalorieGoal && avgCalories < dailyCalorieGoal * 0.8) {
         nudges.push({
-          icon: 'warning', color: 'bg-orange-50 border-orange-100', iconClass: 'text-orange-500',
+          icon: 'warning', color: 'bg-amber-50 border-amber-100', iconClass: 'text-amber-600',
           text: `Under-eating can cause fatigue — you're averaging ${avgCalories} kcal vs your ${dailyCalorieGoal} kcal goal.`
         })
       }
@@ -260,7 +260,7 @@ const getGoalNudges = (member) => {
     // Universal streak nudge
     if (streak >= 5 && nudges.filter(n => n.icon === 'star').length === 0) {
       nudges.push({
-        icon: 'star', color: 'bg-yellow-50 border-yellow-100', iconClass: 'text-yellow-500',
+        icon: 'star', color: 'bg-fresh-50 border-fresh-100', iconClass: 'text-fresh-600',
         text: `${streak}-day logging streak — consistency is the most important factor in reaching your goal.`
       })
     }
@@ -268,7 +268,7 @@ const getGoalNudges = (member) => {
     // No goal set
     if (!goals && nudges.length === 0) {
       nudges.push({
-        icon: 'info', color: 'bg-blue-50 border-blue-100', iconClass: 'text-blue-500',
+        icon: 'info', color: 'bg-indigo-50 border-indigo-100', iconClass: 'text-primary',
         text: 'Set a goal to get personalized insights — tap "Set goals" above.'
       })
     }
@@ -817,8 +817,8 @@ const getGoalNudges = (member) => {
                 </div>
                 {kidsData && (
                   <div className={`text-center px-3 py-1.5 rounded-pill text-sm font-semibold border ${
-                    kidsData.overallPct >= 75 ? 'bg-green-50 text-green-700 border-green-200' :
-                    kidsData.overallPct >= 45 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                    kidsData.overallPct >= 75 ? 'bg-fresh-50 text-fresh-700 border-fresh-100' :
+                    kidsData.overallPct >= 45 ? 'bg-amber-50 text-amber-700 border-amber-200' :
                     'bg-purple-50 text-purple-700 border-purple-200'
                   }`}>
                     {kidsData.overallPct >= 75 ? 'Looking great!' :
@@ -858,17 +858,17 @@ const getGoalNudges = (member) => {
                               {nutrient.consumed}<span className="text-xs font-normal text-textMuted"> / {nutrient.target}{nutrient.unit} wk</span>
                             </p>
                             <p className={`text-xs font-medium ${
-                              nutrient.pct >= 80 ? 'text-green-600' :
-                              nutrient.pct >= 50 ? 'text-yellow-600' :
+                              nutrient.pct >= 80 ? 'text-fresh-600' :
+                              nutrient.pct >= 50 ? 'text-amber-600' :
                               'text-purple-600'
                             }`}>{nutrient.pct}%</p>
                           </div>
                         </div>
-                        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-3 bg-stone-100 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
-                              nutrient.pct >= 80 ? 'bg-green-400' :
-                              nutrient.pct >= 50 ? 'bg-yellow-400' :
+                              nutrient.pct >= 80 ? 'bg-fresh-600' :
+                              nutrient.pct >= 50 ? 'bg-amber-400' :
                               'bg-purple-400'
                             }`}
                             style={{ width: `${Math.max(nutrient.pct, 2)}%` }}
@@ -884,13 +884,13 @@ const getGoalNudges = (member) => {
                   </div>
 
                   {kidsData.aiTip ? (
-                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
-                      <Icon name="sparkle" size={18} className="text-purple-500 flex-shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-indigo-100">
+                      <Icon name="bubble" size={18} className="text-primary flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-textPrimary leading-relaxed">{kidsData.aiTip}</p>
                     </div>
                   ) : kidsData.hasData && (
-                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-purple-100">
-                      <Icon name="sparkle" size={18} className="text-purple-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-indigo-100">
+                      <Icon name="bubble" size={18} className="text-primary flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-textMuted">Log more meals this week to get personalized nutrition tips for {kidsData.member.name}.</p>
                     </div>
                   )}
@@ -906,10 +906,10 @@ const getGoalNudges = (member) => {
           {/* Member overview cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Daily goal', value: activeMember.dailyCalorieGoal ? `${activeMember.dailyCalorieGoal}` : 'Not set', unit: activeMember.dailyCalorieGoal ? 'kcal' : '', icon: 'reports', color: 'bg-blue-50 border-blue-100' },
-              { label: 'Consumed today', value: activeMember.todayTotals.calories, unit: 'kcal', icon: 'health', color: 'bg-orange-50 border-orange-100' },
-              { label: 'Current weight', value: activeMember.currentWeight || '—', unit: activeMember.currentWeight ? 'kg' : '', icon: 'dashboard', color: 'bg-purple-50 border-purple-100' },
-              { label: 'Logging streak', value: activeMember.streak, unit: activeMember.streak === 1 ? 'day' : 'days', icon: 'star', color: 'bg-green-50 border-green-100' },
+              { label: 'Daily goal', value: activeMember.dailyCalorieGoal ? `${activeMember.dailyCalorieGoal}` : 'Not set', unit: activeMember.dailyCalorieGoal ? 'kcal' : '', icon: 'reports', color: 'bg-indigo-50 border-indigo-100' },
+              { label: 'Consumed today', value: activeMember.todayTotals.calories, unit: 'kcal', icon: 'health', color: 'bg-food-50 border-food-100' },
+              { label: 'Current weight', value: activeMember.currentWeight || '—', unit: activeMember.currentWeight ? 'kg' : '', icon: 'dashboard', color: 'bg-stone-50 border-stone-200' },
+              { label: 'Logging streak', value: activeMember.streak, unit: activeMember.streak === 1 ? 'day' : 'days', icon: 'star', color: 'bg-fresh-50 border-fresh-100' },
             ].map((card, i) => (
               <div key={i} className={`card border ${card.color}`}>
                 <Icon name={card.icon} size={22} className="mb-1 text-textMuted" />
@@ -946,7 +946,7 @@ const getGoalNudges = (member) => {
                   { label: 'Fat',     value: activeMember.targets.macros.fat,     color: 'text-red-500' },
                   { label: 'Fiber',   value: activeMember.targets.macros.fiber,   color: 'text-green-600' },
                 ].map((m, i) => (
-                  <div key={i} className="text-center bg-gray-50 rounded-btn py-2.5 px-1">
+                  <div key={i} className="text-center bg-stone-50 rounded-btn py-2.5 px-1">
                     <p className={`text-base font-bold ${m.color}`}>{m.value}g</p>
                     <p className="text-xs text-textMuted">{m.label}</p>
                   </div>
@@ -1015,8 +1015,8 @@ const getGoalNudges = (member) => {
                       Diet break: {audit.metrics.options.dietBreakDays} days at {audit.metrics.options.dietBreakCalories} kcal
                     </p>
                   </div>
-                  <div className="flex items-start gap-3 px-3 py-2.5 bg-blue-50 border border-blue-100 rounded-btn">
-                    <Icon name="info" size={14} className="text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 px-3 py-2.5 bg-indigo-50 border border-indigo-100 rounded-btn">
+                    <Icon name="info" size={14} className="text-primary flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-textPrimary">
                       +{audit.metrics.options.extraStepsMinutes} min daily steps
                     </p>
@@ -1028,8 +1028,8 @@ const getGoalNudges = (member) => {
 
           {/* Gender missing banner */}
           {activeMember.genderMissing && !dismissedGenderBanner && (
-            <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-blue-50 border-blue-100 mb-6">
-              <Icon name="info" size={15} className="text-blue-500 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-indigo-50 border-indigo-100 mb-6">
+              <Icon name="info" size={15} className="text-primary flex-shrink-0 mt-0.5" />
               <p className="text-sm text-textPrimary leading-relaxed flex-1">
                 Set gender in Settings for a more accurate daily calorie target.
               </p>
@@ -1052,10 +1052,10 @@ const getGoalNudges = (member) => {
                 {/* Calorie ring */}
                 <div className="relative w-32 h-32 flex-shrink-0">
                   <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="#f0f0f0" strokeWidth="12"/>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#f5f5f4" strokeWidth="12"/>
                     <circle
                       cx="60" cy="60" r="50" fill="none"
-                      stroke={activeMember.todayTotals.calories >= activeMember.dailyCalorieGoal ? '#ef4444' : '#3b82f6'}
+                      stroke={activeMember.todayTotals.calories >= activeMember.dailyCalorieGoal ? '#ef4444' : '#2F9E44'}
                       strokeWidth="12"
                       strokeLinecap="round"
                       strokeDasharray={`${Math.min((activeMember.todayTotals.calories / activeMember.dailyCalorieGoal) * 314, 314)} 314`}
@@ -1080,7 +1080,7 @@ const getGoalNudges = (member) => {
                         <span className="text-xs font-medium text-textMuted">{macro.label}</span>
                         <span className="text-xs text-textMuted">{macro.consumed}g / {macro.goal}g</span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
+                      <div className="h-2 bg-stone-100 rounded-pill overflow-hidden">
                         <div
                           className={`h-full rounded-pill transition-all ${macro.color}`}
                           style={{ width: `${Math.min((macro.consumed / (macro.goal || 1)) * 100, 100)}%` }}
@@ -1144,7 +1144,7 @@ const getGoalNudges = (member) => {
           })()}
 
           {/* Tabs */}
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 bg-stone-100 p-1 rounded-card mb-6 overflow-x-auto scrollbar-hide">
             {[
               { id: 'today', label: "Today's meals" },
               { id: 'week', label: '7-day history' },
@@ -1173,14 +1173,14 @@ const getGoalNudges = (member) => {
               </div>
               {activeMember.todayMeals.length === 0 ? (
                 <div className="text-center py-8">
-                  <Icon name="recipes" size={40} className="text-gray-200 mx-auto mb-3" />
+                  <Icon name="recipes" size={40} className="text-stone-200 mx-auto mb-3" />
                   <p className="text-textMuted text-sm">No meals logged today</p>
                   <p className="text-xs text-textMuted mt-1">Cook a recipe or add a meal manually</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {activeMember.todayMeals.map((meal, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-btn">
+                    <div key={i} className="flex items-center justify-between p-3 bg-stone-50 rounded-btn">
                       <div className="min-w-0 flex-1 pr-3">
                         <p className="text-sm font-medium text-textPrimary truncate">{meal.recipeName}</p>
                         <p className="text-xs text-textMuted">{meal.mealType} · {new Date(meal.loggedAt).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}</p>
@@ -1209,13 +1209,13 @@ const getGoalNudges = (member) => {
                 {activeMember.last7Days.map((day, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <p className="text-xs text-textMuted w-20 flex-shrink-0">{day.date}</p>
-                    <div className="flex-1 h-6 bg-gray-100 rounded-pill overflow-hidden relative">
+                    <div className="flex-1 h-6 bg-stone-100 rounded-pill overflow-hidden relative">
                       <div
                         className={`h-full rounded-pill transition-all ${
-                          day.calories === 0 ? 'bg-gray-200' :
+                          day.calories === 0 ? 'bg-stone-200' :
                           day.goal && day.calories > day.goal ? 'bg-danger' :
                           day.goal && day.calories >= day.goal * 0.85 ? 'bg-orange-400' :
-                          'bg-primary'
+                          'bg-fresh-600'
                         }`}
                         style={{ width: day.goal ? `${Math.min((day.calories / day.goal) * 100, 100)}%` : `${Math.min(day.calories / 30, 100)}%` }}
                       />
@@ -1230,10 +1230,10 @@ const getGoalNudges = (member) => {
               </div>
               {activeMember.dailyCalorieGoal && (
                 <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-textMuted flex-wrap">
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-primary"/><span>On track</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-fresh-600"/><span>On track</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-orange-400"/><span>Near goal</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-danger"/><span>Over goal</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-gray-200"/><span>Not logged</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-stone-200"/><span>Not logged</span></div>
                 </div>
               )}
             </div>
@@ -1250,10 +1250,10 @@ const getGoalNudges = (member) => {
               </div>
 
               {activeMember.goalWeight && (
-                <div className="bg-blue-50 border border-blue-100 rounded-btn px-4 py-3 mb-4">
+                <div className="bg-fresh-50 border border-fresh-100 rounded-btn px-4 py-3 mb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-primary">Goal weight: {activeMember.goalWeight} kg</p>
+                      <p className="text-sm font-medium text-fresh-700">Goal weight: {activeMember.goalWeight} kg</p>
                       {activeMember.currentWeight && (
                         <p className="text-xs text-textMuted mt-0.5">
                           {(() => {
@@ -1275,7 +1275,7 @@ const getGoalNudges = (member) => {
 
               {activeMember.weightHistory.length === 0 ? (
                 <div className="text-center py-8">
-                  <Icon name="dashboard" size={40} className="text-gray-200 mx-auto mb-3" />
+                  <Icon name="dashboard" size={40} className="text-stone-200 mx-auto mb-3" />
                   <p className="text-textMuted text-sm">No weight logged yet</p>
                   <p className="text-xs text-textMuted mt-1">Log your weight to track progress over time</p>
                 </div>
@@ -1330,23 +1330,23 @@ const getGoalNudges = (member) => {
                     return (
                       <div className="mb-5 pb-4 border-b border-border">
                         <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full">
-                          <text x="0" y="11" fontSize="9" textAnchor="start" fill="#9ca3af">{yMax.toFixed(1)}</text>
-                          <text x="0" y={VH - 4} fontSize="9" textAnchor="start" fill="#9ca3af">{yMin.toFixed(1)}</text>
+                          <text x="0" y="11" fontSize="9" textAnchor="start" fill="#a8a29e">{yMax.toFixed(1)}</text>
+                          <text x="0" y={VH - 4} fontSize="9" textAnchor="start" fill="#a8a29e">{yMin.toFixed(1)}</text>
                           {goalY != null && goalY >= PT && goalY <= VH - PB && (
                             <>
                               <line x1={LX} y1={goalY.toFixed(1)} x2={VW} y2={goalY.toFixed(1)}
-                                stroke="#d1d5db" strokeWidth="1" strokeDasharray="4 3" />
+                                stroke="#d6d3d1" strokeWidth="1" strokeDasharray="4 3" />
                               <text x={VW} y={goalY > VH / 2 ? goalY - 3 : goalY + 9}
-                                fontSize="8" textAnchor="end" fill="#9ca3af">goal</text>
+                                fontSize="8" textAnchor="end" fill="#a8a29e">goal</text>
                             </>
                           )}
                           {logs.map((l, i) => (
                             <circle key={i}
                               cx={toX(l.date.getTime()).toFixed(1)}
                               cy={toY(l.kg).toFixed(1)}
-                              r="2.5" fill="#d1d5db" />
+                              r="2.5" fill="#d6d3d1" />
                           ))}
-                          <path d={trendPath} fill="none" stroke="#3B5BDB" strokeWidth="2"
+                          <path d={trendPath} fill="none" stroke="#2F9E44" strokeWidth="2"
                             strokeLinejoin="round" strokeLinecap="round" />
                         </svg>
                         {velocity != null && (
@@ -1521,10 +1521,10 @@ const getGoalNudges = (member) => {
 
                   {calcResult && (
                     <>
-                      <div className="rounded-btn bg-green-50 border border-green-100 p-4">
+                      <div className="rounded-btn bg-fresh-50 border border-fresh-100 p-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <Icon name="check" size={16} className="text-success" />
-                          <p className="text-sm font-semibold text-success">{calcResult.mealName}</p>
+                          <Icon name="check" size={16} className="text-fresh-600" />
+                          <p className="text-sm font-semibold text-fresh-700">{calcResult.mealName}</p>
                         </div>
                         <div className="grid grid-cols-4 gap-2 text-center mb-3">
                           {[
@@ -1533,7 +1533,7 @@ const getGoalNudges = (member) => {
                             { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
                             { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
                           ].map((m, i) => (
-                            <div key={i} className="bg-white rounded-btn p-2 border border-green-100">
+                            <div key={i} className="bg-white rounded-btn p-2 border border-fresh-100">
                               <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
                               <p className="text-xs text-textMuted">{m.label}</p>
                             </div>
@@ -1588,11 +1588,11 @@ const getGoalNudges = (member) => {
                         type="button"
                         onClick={() => setSaveAsRecipe(p => !p)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-btn border transition-colors ${
-                          saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-border'
+                          saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-stone-50 border-border'
                         }`}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                          saveAsRecipe ? 'bg-primary border-primary' : 'border-gray-300'
+                          saveAsRecipe ? 'bg-primary border-primary' : 'border-stone-300'
                         }`}>
                           {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
                         </div>
@@ -1629,7 +1629,7 @@ const getGoalNudges = (member) => {
                                 key={i}
                                 type="button"
                                 onMouseDown={() => handleSelectSuggestion(item)}
-                                className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0 transition-colors"
+                                className="w-full text-left px-3 py-2.5 hover:bg-stone-50 border-b border-border last:border-0 transition-colors"
                               >
                                 <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
                                 <p className="text-xs text-textMuted">
@@ -1660,7 +1660,7 @@ const getGoalNudges = (member) => {
                   {/* Lookup result badge */}
                   {lookupResult && (
                     <div className={`rounded-btn px-3 py-2 border text-xs flex items-start gap-2 ${
-                      lookupResult.confidence === 'high' ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'
+                      lookupResult.confidence === 'high' ? 'bg-fresh-50 border-fresh-100' : 'bg-amber-50 border-amber-100'
                     }`}>
                       <Icon name="check" size={14} className="text-success mt-0.5 flex-shrink-0" />
                       <div>
@@ -1748,7 +1748,7 @@ const getGoalNudges = (member) => {
                               key={i}
                               type="button"
                               onMouseDown={() => handleLoadSavedMeal(recipe)}
-                              className="w-full text-left px-3 py-2.5 hover:bg-gray-50 border-b border-border last:border-0"
+                              className="w-full text-left px-3 py-2.5 hover:bg-stone-50 border-b border-border last:border-0"
                             >
                               <p className="text-sm font-medium text-textPrimary">{recipe.name}</p>
                               {recipe.nutrition && (
@@ -1832,10 +1832,10 @@ const getGoalNudges = (member) => {
 
                   {/* Calc result */}
                   {calcResult && (
-                    <div className="rounded-btn bg-green-50 border border-green-100 p-4">
+                    <div className="rounded-btn bg-fresh-50 border border-fresh-100 p-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <Icon name="check" size={16} className="text-success" />
-                        <p className="text-sm font-semibold text-success">Macros calculated</p>
+                        <Icon name="check" size={16} className="text-fresh-600" />
+                        <p className="text-sm font-semibold text-fresh-700">Macros calculated</p>
                       </div>
                       <div className="grid grid-cols-4 gap-2 text-center mb-3">
                         {[
@@ -1844,7 +1844,7 @@ const getGoalNudges = (member) => {
                           { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
                           { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
                         ].map((m, i) => (
-                          <div key={i} className="bg-white rounded-btn p-2 border border-green-100">
+                          <div key={i} className="bg-white rounded-btn p-2 border border-fresh-100">
                             <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
                             <p className="text-xs text-textMuted">{m.label}</p>
                           </div>
@@ -1862,11 +1862,11 @@ const getGoalNudges = (member) => {
                       type="button"
                       onClick={() => setSaveAsRecipe(p => !p)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-btn border transition-colors ${
-                        saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-border'
+                        saveAsRecipe ? 'bg-primary/5 border-primary' : 'bg-stone-50 border-border'
                       }`}
                     >
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                        saveAsRecipe ? 'bg-primary border-primary' : 'border-gray-300'
+                        saveAsRecipe ? 'bg-primary border-primary' : 'border-stone-300'
                       }`}>
                         {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
                       </div>
@@ -1991,7 +1991,7 @@ const getGoalNudges = (member) => {
               <div>
                 <label className="label">Fitness goal</label>
                 {!isFeatureEnabled('fitness_coach', plan) ? (
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 border border-border rounded-btn">
+                  <div className="flex items-center gap-3 p-3 bg-stone-50 border border-border rounded-btn">
                     <Icon name="crown" size={18} className="text-textMuted flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-textPrimary">Unlock with Premium</p>
@@ -2121,9 +2121,9 @@ const getGoalNudges = (member) => {
                 <label className="label">Focus area <span className="text-textMuted font-normal">(for personalized insights)</span></label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { value: 'lose weight',   icon: 'leaf',  label: 'Lose weight',    desc: 'Calorie deficit · balanced macros', color: 'border-green-200 bg-green-50',  activeColor: 'border-green-500 bg-green-50',  iconClass: 'text-green-600'  },
+                    { value: 'lose weight',   icon: 'leaf',  label: 'Lose weight',    desc: 'Calorie deficit · balanced macros', color: 'border-fresh-100 bg-fresh-50',  activeColor: 'border-fresh-600 bg-fresh-50',  iconClass: 'text-fresh-600'  },
                     { value: 'gain muscle',   icon: 'star',  label: 'Gain muscle',    desc: 'Calorie surplus · high protein',   color: 'border-blue-200 bg-blue-50',    activeColor: 'border-blue-500 bg-blue-50',    iconClass: 'text-blue-600'   },
-                    { value: 'maintain',      icon: 'check', label: 'Maintain',       desc: 'Hit calorie goal · balanced',      color: 'border-purple-200 bg-purple-50', activeColor: 'border-purple-500 bg-purple-50', iconClass: 'text-purple-600' },
+                    { value: 'maintain',      icon: 'check', label: 'Maintain',       desc: 'Hit calorie goal · balanced',      color: 'border-indigo-100 bg-indigo-50', activeColor: 'border-indigo-400 bg-indigo-50', iconClass: 'text-primary' },
                     { value: 'improve energy',icon: 'sun',   label: 'Improve energy', desc: 'Focus on fiber · complex carbs',   color: 'border-orange-200 bg-orange-50', activeColor: 'border-orange-500 bg-orange-50', iconClass: 'text-orange-600' },
                   ].map(opt => (
                     <button
@@ -2131,7 +2131,7 @@ const getGoalNudges = (member) => {
                       type="button"
                       onClick={() => setGoalForm(p => ({ ...p, goalType: p.goalType === opt.value ? '' : opt.value }))}
                       className={`text-left p-3 rounded-btn border-2 transition-all ${
-                        goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-gray-300'
+                        goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-stone-300'
                       }`}
                     >
                       <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-textMuted'}`} />

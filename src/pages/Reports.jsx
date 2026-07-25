@@ -166,7 +166,7 @@ export default function Reports() {
 
       {/* No data state */}
       {!hasData && (
-        <div className="card text-center py-12 mb-8 border border-blue-100 bg-blue-50/20">
+        <div className="card text-center py-12 mb-8 border border-stone-200 bg-stone-50">
           <div className="mb-4 flex justify-center text-stone-300"><Icon name="reports" size={56} /></div>
           <p className="font-semibold text-textPrimary mb-2">No spending data yet</p>
           <p className="text-sm text-textMuted max-w-sm mx-auto">
@@ -240,7 +240,7 @@ export default function Reports() {
                     <span className="text-xs text-textPrimary font-medium truncate max-w-[140px]">{cat.name}</span>
                     <span className="text-xs font-semibold text-textPrimary">${cat.amount}</span>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-pill overflow-hidden">
+                  <div className="h-1.5 bg-stone-100 rounded-pill overflow-hidden">
                     <div
                       className={`h-full rounded-pill ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]} transition-all duration-500`}
                       style={{ width: `${cat.percent}%` }}
@@ -258,9 +258,9 @@ export default function Reports() {
 
       {/* CO2 Footprint widget */}
       {isFeatureEnabled('co2_tracking', plan) && (
-      <div className="card mb-6 border border-green-200 bg-green-50/20">
+      <div className="card mb-6 border border-fresh-100 bg-fresh-50/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="globe" size={16} className="text-green-700" /> CO2 Food Footprint</h2>
+          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="globe" size={16} className="text-fresh-700" /> CO2 Food Footprint</h2>
           <button onClick={fetchCO2} disabled={co2Loading} className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50">
             {co2Loading ? 'Loading...' : 'Refresh'}
           </button>
@@ -268,35 +268,35 @@ export default function Reports() {
 
         {co2Loading ? (
           <div className="flex items-center justify-center py-6">
-            <svg className="animate-spin w-6 h-6 text-success" viewBox="0 0 24 24" fill="none">
+            <svg className="animate-spin w-6 h-6 text-fresh-600" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
             </svg>
           </div>
        ) : co2Data?.locked && isFeatureEnabled('co2_tracking', plan) ? (
-          <div className="flex items-center justify-between bg-green-50 rounded-btn px-4 py-3 border border-green-100">
+          <div className="flex items-center justify-between bg-indigo-50 rounded-btn px-4 py-3 border border-indigo-100">
             <div>
-              <p className="text-sm font-medium text-green-800">CO2 tracking available on Family plan</p>
-              <p className="text-xs text-green-600 mt-0.5">Upgrade to see your food carbon footprint</p>
+              <p className="text-sm font-medium text-primary">CO2 tracking available on Family plan</p>
+              <p className="text-xs text-textMuted mt-0.5">Upgrade to see your food carbon footprint</p>
             </div>
-            <a href="/app/settings?tab=plan" className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
+            <a href="/app/settings?tab=plan" className="text-xs bg-primary text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
           </div>
         ) : co2Data && co2Data.totalCO2 > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-              <div className="bg-white rounded-btn p-3 border border-green-100 text-center">
+              <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center">
                 <p className="text-xs text-textMuted mb-1">Pantry footprint</p>
-                <p className="text-2xl font-bold text-green-600">{co2Data.totalCO2}kg</p>
+                <p className="text-2xl font-bold text-fresh-600">{co2Data.totalCO2}kg</p>
                 <p className="text-xs text-textMuted mt-1">CO2 equivalent</p>
               </div>
-              <div className="bg-white rounded-btn p-3 border border-green-100 text-center">
+              <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center">
                 <p className="text-xs text-textMuted mb-1">Canadian avg</p>
                 <p className="text-2xl font-bold text-textPrimary">{co2Data.canadianAvgMonthly}kg</p>
                 <p className="text-xs text-textMuted mt-1">per month</p>
               </div>
-              <div className="bg-white rounded-btn p-3 border border-green-100 text-center col-span-2 sm:col-span-1">
+              <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center col-span-2 sm:col-span-1">
                 <p className="text-xs text-textMuted mb-1">Your status</p>
-                <p className={`text-xl font-bold ${co2Data.comparison <= 0 ? 'text-success' : 'text-orange-500'}`}>
+                <p className={`text-xl font-bold ${co2Data.comparison <= 0 ? 'text-fresh-600' : 'text-orange-500'}`}>
                   {co2Data.comparison !== null
                     ? co2Data.comparison <= 0
                       ? `${Math.abs(co2Data.comparison)}% below`
@@ -315,7 +315,7 @@ export default function Reports() {
                 .sort((a, b) => b.co2Total - a.co2Total)
                 .slice(0, 5)
                 .map((item, i) => (
-                  <div key={i} className="flex items-center justify-between bg-white rounded-btn px-3 py-2 border border-green-100">
+                  <div key={i} className="flex items-center justify-between bg-white rounded-btn px-3 py-2 border border-fresh-100">
                     <div className="flex items-center gap-2">
                       <span>{item.co2Label?.icon}</span>
                       <div>
@@ -323,15 +323,15 @@ export default function Reports() {
                         <p className="text-xs text-textMuted">{item.co2Label?.label} impact · {item.co2PerKg}kg CO2/kg</p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-green-700">{item.co2Total}kg</span>
+                    <span className="text-xs font-bold text-fresh-700">{item.co2Total}kg</span>
                   </div>
                 ))}
             </div>
 
             {/* Swap suggestion */}
             {co2Data.items.some(i => i.co2PerKg >= 20) && (
-              <div className="mt-3 bg-green-100 rounded-btn px-3 py-2 border border-green-200">
-                <p className="text-xs text-green-800 font-medium flex items-center gap-1.5"><Icon name="info" size={12} className="text-green-700 flex-shrink-0" />Tip: Swapping beef for chicken or lentils twice a week can cut your food CO2 by up to 30%</p>
+              <div className="mt-3 bg-fresh-50 rounded-btn px-3 py-2 border border-fresh-100">
+                <p className="text-xs text-fresh-700 font-medium flex items-center gap-1.5"><Icon name="info" size={12} className="text-fresh-600 flex-shrink-0" />Tip: Swapping beef for chicken or lentils twice a week can cut your food CO2 by up to 30%</p>
               </div>
             )}
           </>
@@ -380,9 +380,9 @@ export default function Reports() {
             <div className="space-y-2">
               {(showCostco ? costcoData.recommendations : costcoData.recommendations.slice(0, 4)).map((rec, i) => (
                 <div key={i} className={`rounded-btn px-3 py-3 border ${
-                  rec.bulkRecommended === true ? 'bg-green-50 border-green-100' :
-                  rec.bulkRecommended === false ? 'bg-red-50 border-red-100' :
-                  'bg-yellow-50 border-yellow-100'
+                  rec.bulkRecommended === true ? 'bg-food-50 border-food-100' :
+                  rec.bulkRecommended === false ? 'bg-stone-50 border-stone-200' :
+                  'bg-amber-50 border-amber-100'
                 }`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -390,7 +390,7 @@ export default function Reports() {
                         <span className="text-sm">{rec.icon}</span>
                         <p className="text-sm font-semibold text-textPrimary">{rec.itemName}</p>
                         {rec.savingsPercent > 0 && (
-                          <span className="text-xs bg-green-100 text-success px-2 py-0.5 rounded-pill font-medium">
+                          <span className="text-xs bg-food-50 text-food-700 px-2 py-0.5 rounded-pill font-medium border border-food-100">
                             Save {rec.savingsPercent}%
                           </span>
                         )}
@@ -422,7 +422,7 @@ export default function Reports() {
           <h2 className="font-semibold text-textPrimary mb-4">Spending by store</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {data.stores.map((store, i) => (
-              <div key={i} className="bg-gray-50 rounded-btn p-3 text-center border border-border">
+              <div key={i} className="bg-stone-50 rounded-btn p-3 text-center border border-border">
                 <div className="mb-1 flex justify-center text-stone-500"><Icon name={STORE_ICONS[store.name] || 'grocery'} size={22} /></div>
                 <p className="text-sm font-semibold text-textPrimary">${store.amount}</p>
                 <p className="text-xs text-textMuted truncate">{store.name}</p>
@@ -464,26 +464,26 @@ export default function Reports() {
         ) : forecast?.hasData ? (
           <>
             {forecast.forecast?.alert && (
-              <div className="bg-red-50 border border-red-100 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
-                <Icon name="warning" size={18} className="text-danger flex-shrink-0" />
-                <p className="text-sm text-danger">{forecast.forecast.alert}</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-btn px-4 py-3 mb-4 flex items-start gap-2">
+                <Icon name="warning" size={18} className="text-amber-600 flex-shrink-0" />
+                <p className="text-sm text-amber-700">{forecast.forecast.alert}</p>
               </div>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-              <div className="bg-white rounded-btn p-3 border border-blue-100 text-center">
+              <div className="bg-white rounded-btn p-3 border border-stone-100 text-center">
                 <p className="text-xs text-textMuted mb-1">Next month</p>
                 <p className="text-xl font-bold text-primary">${forecast.forecast?.nextMonthForecast}</p>
                 <p className={`text-xs font-medium mt-1 ${
-                  forecast.forecast?.trend === 'increasing' ? 'text-danger' :
-                  forecast.forecast?.trend === 'decreasing' ? 'text-success' : 'text-textMuted'
+                  forecast.forecast?.trend === 'increasing' ? 'text-amber-600' :
+                  forecast.forecast?.trend === 'decreasing' ? 'text-fresh-600' : 'text-textMuted'
                 }`}>
                   {forecast.forecast?.trend === 'increasing' ? '↑' :
                    forecast.forecast?.trend === 'decreasing' ? '↓' : '→'} {Math.abs(forecast.forecast?.trendPercent)}%
                 </p>
               </div>
-              <div className="bg-white rounded-btn p-3 border border-green-100 text-center">
+              <div className="bg-white rounded-btn p-3 border border-food-100 text-center">
                 <p className="text-xs text-textMuted mb-1">Could save</p>
-                <p className="text-xl font-bold text-success">${forecast.forecast?.savingsOpportunity}</p>
+                <p className="text-xl font-bold text-food-600">${forecast.forecast?.savingsOpportunity}</p>
                 <p className="text-xs text-textMuted mt-1">per month</p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-purple-100 text-center">
@@ -502,7 +502,7 @@ export default function Reports() {
                 <p className="text-xs font-semibold text-textPrimary mb-2 flex items-center gap-1.5"><Icon name="sparkle" size={12} className="text-primary" />Forecast insights</p>
                 <div className="space-y-2">
                   {forecast.forecast.insights.map((insight, i) => (
-                    <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-blue-100">
+                    <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-indigo-100">
                       <span className="text-primary font-bold text-xs mt-0.5">→</span>
                       <p className="text-xs text-textMuted">{insight}</p>
                     </div>
@@ -552,8 +552,8 @@ export default function Reports() {
         {data?.recentTrips?.length > 0 ? (
           <ul className="divide-y divide-border">
             {data.recentTrips.map((t, i) => (
-              <li key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors">
-                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-stone-500">
+              <li key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-stone-50 transition-colors">
+                <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center flex-shrink-0 text-stone-500">
                   <Icon name={STORE_ICONS[t.store] || 'grocery'} size={20} />
                 </div>
                 <div className="flex-1 min-w-0">

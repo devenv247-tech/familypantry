@@ -23,18 +23,18 @@ const BIG_9 = ['Peanuts', 'Egg', 'Milk', 'Tree nuts', 'Wheat', 'Soy', 'Sesame', 
 const TEXTURES = ['Smooth purée', 'Mashed', 'Lumpy', 'Soft chunks', 'Soft family food', 'Family table']
 
 const REACTIONS = [
-  { value: 'none', label: 'No reaction', color: 'bg-green-50 text-green-700 border-green-200' },
-  { value: 'mild', label: 'Mild reaction', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  { value: 'none', label: 'No reaction', color: 'bg-fresh-50 text-fresh-700 border-fresh-100' },
+  { value: 'mild', label: 'Mild reaction', color: 'bg-amber-100 text-amber-700 border-amber-200' },
   { value: 'severe', label: 'Severe reaction', color: 'bg-red-50 text-red-700 border-red-200' },
 ]
 
 const STAGE_INFO = [
-  { stage: 0, color: 'bg-gray-100 text-gray-600 border-gray-200',     foods: 'Breast milk or formula only. No solids yet.' },
+  { stage: 0, color: 'bg-stone-100 text-stone-600 border-stone-200',  foods: 'Breast milk or formula only. No solids yet.' },
   { stage: 1, color: 'bg-pink-50 text-pink-700 border-pink-200',      foods: 'Iron-fortified cereals, pureed meat, mashed legumes, pureed vegetables and fruits.' },
   { stage: 2, color: 'bg-orange-50 text-orange-700 border-orange-200',foods: 'Mashed or minced foods. Soft cooked vegetables, mashed banana, yogurt, soft tofu.' },
-  { stage: 3, color: 'bg-yellow-50 text-yellow-700 border-yellow-200',foods: 'Soft finger foods. Small soft pieces of cooked veg, ripe fruit, cheese cubes, pasta.' },
-  { stage: 4, color: 'bg-green-50 text-green-700 border-green-200',   foods: 'Most family foods cut small. Avoid honey, whole nuts, hard raw vegetables, large grapes.' },
-  { stage: 5, color: 'bg-blue-50 text-blue-700 border-blue-200',      foods: 'Full toddler diet. Focus on variety, iron-rich foods, and healthy fats.' },
+  { stage: 3, color: 'bg-amber-50 text-amber-700 border-amber-200',   foods: 'Soft finger foods. Small soft pieces of cooked veg, ripe fruit, cheese cubes, pasta.' },
+  { stage: 4, color: 'bg-fresh-50 text-fresh-700 border-fresh-100',   foods: 'Most family foods cut small. Avoid honey, whole nuts, hard raw vegetables, large grapes.' },
+  { stage: 5, color: 'bg-indigo-50 text-primary border-indigo-100',   foods: 'Full toddler diet. Focus on variety, iron-rich foods, and healthy fats.' },
 ]
 
 export default function BabyProfile() {
@@ -280,7 +280,7 @@ export default function BabyProfile() {
                 }
               }}
               disabled={downloadingReport}
-              className="mt-2 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-btn border border-purple-200 text-purple-600 hover:bg-purple-50 transition-all disabled:opacity-50"
+              className="mt-2 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-btn border border-indigo-200 text-primary hover:bg-indigo-50 transition-all disabled:opacity-50"
             >
               <Icon name="cookbook" size={13} />
               {downloadingReport ? 'Generating PDF...' : 'Export pediatrician report'}
@@ -291,7 +291,7 @@ export default function BabyProfile() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-card mb-6">
+      <div className="flex gap-1 bg-stone-100 p-1 rounded-card mb-6">
         {[
           { id: 'stage',    label: 'Stage tracker',   iconComponent: 'chart' },
       { id: 'growth',   label: 'Growth',          iconComponent: 'reports' },
@@ -329,10 +329,10 @@ export default function BabyProfile() {
                 const isPast = i < (profile.stage ?? 0)
                 return (
                   <div key={i} className={`flex items-start gap-3 p-3 rounded-card border transition-all ${
-                    isCurrent ? `${s.color} border-current` : isPast ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-gray-50 border-gray-100'
+                    isCurrent ? `${s.color} border-current` : isPast ? 'bg-stone-50 border-stone-200 opacity-60' : 'bg-stone-50 border-stone-200'
                   }`}>
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                      isCurrent ? 'bg-white shadow' : isPast ? 'bg-gray-200 text-gray-500' : 'bg-gray-200 text-gray-400'
+                      isCurrent ? 'bg-white shadow' : isPast ? 'bg-stone-200 text-stone-500' : 'bg-stone-200 text-stone-400'
                     }`}>
                       {isPast ? <Icon name="check" size={12} /> : i}
                     </div>
@@ -352,9 +352,9 @@ export default function BabyProfile() {
           </div>
 
           {/* Health Canada note */}
-          <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
+          <div className="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-card">
             <Icon name="canada" size={18} className="flex-shrink-0 text-red-600" />
-            <p className="text-xs text-blue-700 leading-relaxed">
+            <p className="text-xs text-indigo-700 leading-relaxed">
               Stage guidance follows <strong>Health Canada's infant feeding recommendations</strong>. Always consult your pediatrician or public health nurse for personalized advice.
             </p>
           </div>
@@ -373,9 +373,9 @@ export default function BabyProfile() {
             </div>
           ) : (
             <>
-              <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
-                <Icon name="info" size={18} className="flex-shrink-0 text-blue-600" />
-                <p className="text-xs text-blue-700 leading-relaxed">
+              <div className="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-card">
+                <Icon name="info" size={18} className="flex-shrink-0 text-primary" />
+                <p className="text-xs text-indigo-700 leading-relaxed">
                   Health Canada recommends introducing the top 9 allergens <strong>early and repeatedly</strong>, starting around 6 months. Track each introduction and any reactions below.
                 </p>
               </div>
@@ -389,7 +389,7 @@ export default function BabyProfile() {
                     const reaction = REACTIONS.find(r => r.value === intro?.reaction)
                     return (
                       <div key={allergen} className={`p-2.5 rounded-card border text-center transition-all ${
-                        intro ? (reaction?.color || 'bg-green-50 text-green-700 border-green-200') : 'bg-gray-50 border-gray-100'
+                        intro ? (reaction?.color || 'bg-fresh-50 text-fresh-700 border-fresh-100') : 'bg-stone-50 border-stone-200'
                       }`}>
                         <p className="text-xs font-semibold text-textPrimary mb-0.5">{allergen}</p>
                         {intro ? (
@@ -441,7 +441,7 @@ export default function BabyProfile() {
                   <label className="label">Notes <span className="text-textMuted font-normal">(optional)</span></label>
                   <input className="input" placeholder="e.g. mixed into oatmeal, ate well" value={introForm.notes} onChange={e => setIntroForm(p => ({ ...p, notes: e.target.value }))} />
                 </div>
-                <button onClick={handleLogAllergen} disabled={savingIntro || !introForm.allergen} className="btn-primary w-full disabled:opacity-50">
+                <button onClick={handleLogAllergen} disabled={savingIntro || !introForm.allergen} className="w-full py-2 px-4 rounded-btn font-medium bg-fresh-600 hover:bg-fresh-700 text-white disabled:opacity-50 transition-all">
                   {savingIntro ? 'Saving...' : 'Log introduction'}
                 </button>
               </div>
@@ -456,7 +456,7 @@ export default function BabyProfile() {
                       return (
                         <div key={a.id} className="flex items-center justify-between gap-3 py-2 border-b border-border last:border-0">
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <span className={`text-xs px-2 py-0.5 rounded-pill border font-medium flex-shrink-0 ${reaction?.color || 'bg-green-50 text-green-700 border-green-200'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-pill border font-medium flex-shrink-0 ${reaction?.color || 'bg-fresh-50 text-fresh-700 border-fresh-100'}`}>
                               {a.allergen}
                             </span>
                             <span className="text-xs text-textMuted">{new Date(a.introducedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
@@ -525,7 +525,7 @@ export default function BabyProfile() {
                   <label className="label">Notes <span className="text-textMuted font-normal">(optional)</span></label>
                   <input className="input" placeholder="e.g. loved it, ate the whole portion" value={feedForm.notes} onChange={e => setFeedForm(p => ({ ...p, notes: e.target.value }))} />
                 </div>
-                <button onClick={handleAddFeedingLog} disabled={savingFeed || !feedForm.foodName.trim()} className="btn-primary w-full disabled:opacity-50">
+                <button onClick={handleAddFeedingLog} disabled={savingFeed || !feedForm.foodName.trim()} className="w-full py-2 px-4 rounded-btn font-medium bg-fresh-600 hover:bg-fresh-700 text-white disabled:opacity-50 transition-all">
                   {savingFeed ? 'Saving...' : 'Log feeding'}
                 </button>
               </div>
@@ -638,7 +638,7 @@ export default function BabyProfile() {
             <button
               onClick={handleLogGrowth}
               disabled={savingGrowth || !growthForm.weight || !growthForm.height}
-              className="btn-primary w-full disabled:opacity-50"
+              className="w-full py-2 px-4 rounded-btn font-medium bg-fresh-600 hover:bg-fresh-700 text-white disabled:opacity-50 transition-all"
             >
               {savingGrowth ? 'Saving...' : 'Log measurement'}
             </button>
@@ -647,9 +647,9 @@ export default function BabyProfile() {
           {/* WHO Assessment */}
           {growthData?.assessment && (
             <div className={`card border-2 ${
-              growthData.assessment.color === 'green'  ? 'border-green-200 bg-green-50' :
-              growthData.assessment.color === 'blue'   ? 'border-blue-200 bg-blue-50' :
-              growthData.assessment.color === 'yellow' ? 'border-yellow-200 bg-yellow-50' :
+              growthData.assessment.color === 'green'  ? 'border-fresh-100 bg-fresh-50' :
+              growthData.assessment.color === 'blue'   ? 'border-indigo-200 bg-indigo-50' :
+              growthData.assessment.color === 'yellow' ? 'border-amber-200 bg-amber-50' :
               'border-red-200 bg-red-50'
             }`}>
               <div className="flex items-center gap-2 mb-3">
@@ -701,7 +701,7 @@ export default function BabyProfile() {
                       <div key={log.id} className="flex flex-col items-center gap-1">
                         <span className="text-xs text-textMuted">{log.weight}kg</span>
                         <div
-                          className="w-8 bg-primary rounded-t-sm transition-all"
+                          className="w-8 bg-fresh-600 rounded-t-sm transition-all"
                           style={{ height: `${Math.max(pct * 0.5, 8)}px` }}
                           title={`${log.weight}kg · ${log.height}cm`}
                         />
@@ -741,9 +741,9 @@ export default function BabyProfile() {
           )}
 
           {/* Health Canada note */}
-          <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-card">
+          <div className="flex items-start gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-card">
             <Icon name="canada" size={18} className="flex-shrink-0 text-red-600" />
-            <p className="text-xs text-blue-700 leading-relaxed">
+            <p className="text-xs text-indigo-700 leading-relaxed">
               Percentiles are based on <strong>WHO Child Growth Standards</strong>, used by Canadian pediatricians. A healthy baby can fall anywhere between the 5th and 95th percentile. Always discuss growth with your healthcare provider.
             </p>
           </div>
@@ -822,24 +822,24 @@ export default function BabyProfile() {
                         <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
                         <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="bottle" size={11} />{recipe.ageRange}</span>
                         <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="utensils" size={11} />{recipe.texture}</span>
-                        {recipe.freezable && <span className="text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="snowflake" size={11} />Freezable</span>}
+                        {recipe.freezable && <span className="text-xs bg-indigo-50 text-primary border border-indigo-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="snowflake" size={11} />Freezable</span>}
                       </div>
                     </div>
                   </div>
 
                   {/* Health note */}
                   {recipe.healthNote && (
-                    <div className="bg-green-50 border border-green-100 rounded-card px-3 py-2 mb-4">
-                      <p className="text-xs font-semibold text-green-700 mb-0.5 flex items-center gap-1"><Icon name="health" size={12} />Nutrition note</p>
-                      <p className="text-xs text-green-700">{recipe.healthNote}</p>
+                    <div className="bg-fresh-50 border border-fresh-100 rounded-card px-3 py-2 mb-4">
+                      <p className="text-xs font-semibold text-fresh-700 mb-0.5 flex items-center gap-1"><Icon name="health" size={12} />Nutrition note</p>
+                      <p className="text-xs text-fresh-700">{recipe.healthNote}</p>
                     </div>
                   )}
 
                   {/* Safety note */}
                   {recipe.safetyNote && (
-                    <div className="bg-yellow-50 border border-yellow-100 rounded-card px-3 py-2 mb-4">
-                      <p className="text-xs font-semibold text-yellow-700 mb-0.5 flex items-center gap-1"><Icon name="warning" size={12} />Safety reminder</p>
-                      <p className="text-xs text-yellow-700">{recipe.safetyNote}</p>
+                    <div className="bg-amber-50 border border-amber-100 rounded-card px-3 py-2 mb-4">
+                      <p className="text-xs font-semibold text-amber-700 mb-0.5 flex items-center gap-1"><Icon name="warning" size={12} />Safety reminder</p>
+                      <p className="text-xs text-amber-700">{recipe.safetyNote}</p>
                     </div>
                   )}
 
@@ -872,9 +872,9 @@ export default function BabyProfile() {
 
                   {/* Freezing tip */}
                   {recipe.freezingTip && (
-                    <div className="bg-blue-50 border border-blue-100 rounded-card px-3 py-2">
-                      <p className="text-xs font-semibold text-blue-700 mb-0.5 flex items-center gap-1"><Icon name="snowflake" size={12} />Freeze & reheat</p>
-                      <p className="text-xs text-blue-700">{recipe.freezingTip}</p>
+                    <div className="bg-indigo-50 border border-indigo-100 rounded-card px-3 py-2">
+                      <p className="text-xs font-semibold text-indigo-700 mb-0.5 flex items-center gap-1"><Icon name="snowflake" size={12} />Freeze & reheat</p>
+                      <p className="text-xs text-indigo-700">{recipe.freezingTip}</p>
                     </div>
                   )}
                 </div>
