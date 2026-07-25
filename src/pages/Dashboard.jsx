@@ -11,6 +11,8 @@ import { getExpiringSoon } from '../api/expiry'
 import { getHealthProgress } from '../api/healthProgress'
 import { useAppConfigStore } from '../store/appConfigStore'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
+import DishArt from '../components/ui/DishArt'
+import { getRecipeCategory } from '../utils/recipeImagery'
 import { useToast } from '../hooks/useToast'
 
 const SEASONAL_DATA = {
@@ -244,16 +246,15 @@ export default function Dashboard() {
               <Icon name="check" size={22} className="text-success" />
               <div>
                 <p className="text-sm font-semibold text-success">Dinner's done!</p>
-                <p className="text-xs text-textMuted">{tonightMeal.recipeData?.icon} {tonightMeal.recipeName} — nice cook!</p>
+                <p className="text-xs text-textMuted flex items-center gap-1"><Icon name="check" size={12} className="text-fresh-600 flex-shrink-0" />{tonightMeal.recipeName} — nice cook!</p>
               </div>
             </div>
           ) : (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                {tonightMeal.recipeData?.icon
-                  ? <span className="text-2xl flex-shrink-0">{tonightMeal.recipeData.icon}</span>
-                  : <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0"><Icon name="mealplan" size={18} className="text-primary" /></div>
-                }
+                <div className="hidden sm:block flex-shrink-0">
+                  <DishArt category={getRecipeCategory(tonightMeal.recipeName)} size="sm" />
+                </div>
                 <div className="min-w-0">
                   <p className="text-xs text-food-700 font-medium">Tonight's dinner</p>
                   <p className="text-sm font-semibold text-textPrimary truncate">{tonightMeal.recipeName}</p>

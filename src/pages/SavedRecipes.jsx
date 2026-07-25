@@ -4,6 +4,7 @@ import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/groce
 import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 import Icon from '../components/ui/Icon'
+import RecipeCardHeader from '../components/ui/RecipeCardHeader'
 
 export default function SavedRecipes() {
   const { toast, showToast, hideToast } = useToast()
@@ -124,23 +125,22 @@ export default function SavedRecipes() {
           {filtered.map((recipe, idx) => (
             <div key={recipe.id} className="card hover:shadow-md transition-all">
 
-              <div className="flex items-start justify-between mb-3">
-                {recipe.icon ? <div className="text-4xl">{recipe.icon}</div> : <div className="text-food-600"><Icon name="utensils" size={40} /></div>}
-                <div className="flex items-center gap-2">
-                  {recipe.difficulty && (
-                    <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
-                      recipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : recipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {recipe.difficulty}
-                    </span>
-                  )}
-                  <button
-                    onClick={() => handleDelete(recipe.id)}
-                    className="w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
-                  >
-                    <Icon name="close" size={14} />
-                  </button>
-                </div>
+              <RecipeCardHeader title={recipe.name} />
+
+              <div className="flex items-center justify-end gap-2 mb-3">
+                {recipe.difficulty && (
+                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${
+                    recipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : recipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {recipe.difficulty}
+                  </span>
+                )}
+                <button
+                  onClick={() => handleDelete(recipe.id)}
+                  className="w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
+                >
+                  <Icon name="close" size={14} />
+                </button>
               </div>
 
               <h3 className="font-semibold text-stone-900 text-lg mb-1">{recipe.name}</h3>

@@ -27,7 +27,8 @@
       "Bash(node scripts/test-units.js)",
       "Bash(npm run *)",
       "Bash(npx tsc *)",
-      "Bash(node --input-type=module)"
+      "Bash(node --input-type=module)",
+      "Bash(node --input-type=module --eval ' *)"
     ]
   }
 }

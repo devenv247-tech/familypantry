@@ -11,6 +11,7 @@ import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWee
 import { logNutrition } from '../api/healthProgress'
 import { saveRecipe, checkSaved } from '../api/savedRecipes'
 import { Toast } from '../components/ui/PageState'
+import RecipeCardHeader from '../components/ui/RecipeCardHeader'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
 import { useAppConfigStore } from '../store/appConfigStore'
@@ -1169,8 +1170,9 @@ export default function Recipes() {
                 }).map((recipe, idx) => (
                   <div key={idx} className="card hover:shadow-md transition-all">
 
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="text-4xl">{recipe.icon}</div>
+                    <RecipeCardHeader title={recipe.name} />
+
+                    <div className="flex items-center justify-end mb-3">
                       <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : recipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'
                         }`}>
                         {recipe.difficulty}
