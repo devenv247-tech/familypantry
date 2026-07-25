@@ -6,7 +6,7 @@ import { getRecipeCategory } from '../../utils/recipeImagery'
 export default function RecipeCardHeader({ title }) {
   const category = getRecipeCategory(title)
   return (
-    <div className="bg-food-50 rounded-t-card -mx-5 -mt-5 mb-4 flex justify-center items-center py-5 sm:py-6 overflow-hidden">
+    <div className="bg-food-50 rounded-t-card -mx-5 -mt-5 mb-4 flex justify-center items-center py-5 sm:py-6 overflow-hidden" style={{ maxWidth: 'calc(100% + 2.5rem)' }}>
       <DishArt category={category} size="md" />
     </div>
   )

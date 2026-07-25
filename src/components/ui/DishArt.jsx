@@ -63,11 +63,9 @@ const DISH_ART = {
   ),
 
   // ── wrap ───────────────────────────────────────────────────────────────────
-  // Side view: rolled wrap with open left end showing filling, plate below.
+  // Side view: rolled wrap with open left end showing filling.
   wrap: (
     <>
-      {/* plate */}
-      <ellipse cx="110" cy="152" rx="76" ry="12" fill="#D6D3D1"/>
       {/* wrap body */}
       <rect x="38" y="80" width="144" height="58" rx="29" fill="#E8590C"/>
       {/* left open end — cream lining */}
