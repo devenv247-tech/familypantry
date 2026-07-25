@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CookingLoader from '../components/ui/CookingLoader'
 import Icon from '../components/ui/Icon'
+import DishArt from '../components/ui/DishArt'
+import { getRecipeCategory } from '../utils/recipeImagery'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { cookRecipe } from '../api/recipes'
 import { logNutrition } from '../api/healthProgress'
@@ -635,8 +637,9 @@ export default function MealPlan() {
                       onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => { } }) : handleSlotClick(day, mealType)}
                     >
                       {meal ? (
-                        <div className="h-full">
-                          <p className="text-xs font-medium text-stone-900 hover:text-food-700 leading-tight">
+                        <div className="h-full flex flex-col gap-1">
+                          <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" />
+                          <p className="text-xs font-medium text-stone-900 hover:text-food-700 leading-tight line-clamp-2">
                             {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
                             {meal.recipeName}
                           </p>
@@ -644,13 +647,13 @@ export default function MealPlan() {
                             <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
                           )}
                           {meal.recipeData?.calories && (
-                            <p className="text-xs text-stone-600 mt-1 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
+                            <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
                           )}
                           {meal.recipeData?.time && (
                             <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{meal.recipeData.time}</p>
                           )}
                           {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                            <p className="text-xs text-stone-500 mt-1 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                            <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
@@ -710,6 +713,7 @@ export default function MealPlan() {
                               className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all"
                               onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
                             >
+                              <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0 mr-2" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium text-stone-900 hover:text-food-700 truncate">
                                   {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}

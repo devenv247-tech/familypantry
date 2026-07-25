@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import Icon from '../components/ui/Icon'
+import DishArt from '../components/ui/DishArt'
+import { getRecipeCategory } from '../utils/recipeImagery'
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
@@ -776,9 +778,10 @@ export default function Recipes() {
                 {(showHistory ? cookingHistory : cookingHistory.slice(0, 3)).map((meal, i) => {
                   const daysAgo = Math.floor((new Date() - new Date(meal.cookedAt)) / (1000 * 60 * 60 * 24))
                   return (
-                    <div key={meal.id} className="flex items-center justify-between bg-white rounded-btn px-3 py-2 border border-purple-100">
-                      <div>
-                        <p className="text-sm font-medium text-stone-900">{meal.recipeName}</p>
+                    <div key={meal.id} className="flex items-center gap-2 bg-white rounded-btn px-3 py-2 border border-purple-100">
+                      <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-stone-900 truncate">{meal.recipeName}</p>
                         <p className="text-xs text-textMuted">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
                       </div>
                       <div className="flex items-center gap-2">
