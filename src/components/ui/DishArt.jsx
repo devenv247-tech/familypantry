@@ -109,8 +109,6 @@ const DISH_ART = {
   // 3-stack pancakes on plate, syrup pool + drips, butter block on top.
   pancakes: (
     <>
-      {/* plate */}
-      <ellipse cx="110" cy="158" rx="76" ry="12" fill="#D6D3D1"/>
       {/* bottom pancake */}
       <ellipse cx="110" cy="142" rx="65" ry="13" fill="#E8590C"/>
       {/* middle pancake */}
@@ -128,25 +126,31 @@ const DISH_ART = {
   ),
 
   // ── salad ──────────────────────────────────────────────────────────────────
-  // Pale bowl, layered greens, tomato & cheese toppings, herb dots on rim.
+  // Stone-100 bowl with overflowing leaf mounds in fresh-600/700, orange
+  // tomatoes and amber cheese tucked among the greens. Green is dominant.
+  // Draw order: bowl → green base → rim → leaf mounds (overflow rim) → toppings.
   salad: (
     <>
-      {/* bowl body — lighter stone for contrast with greens */}
-      <path d="M30 102 a80 56 0 0 0 160 0 z" fill="#F5F5F4"/>
-      {/* greens base */}
-      <ellipse cx="110" cy="122" rx="66" ry="24" fill="#2F9E44"/>
-      {/* lighter green layer */}
-      <ellipse cx="96" cy="110" rx="42" ry="18" fill="#2B8A3E"/>
-      {/* tomato */}
-      <circle cx="88" cy="106" r="12" fill="#F76707"/>
-      <circle cx="138" cy="108" r="11" fill="#E8590C"/>
-      {/* cheese dot */}
-      <circle cx="114" cy="120" r="9" fill="#FBBF24"/>
-      {/* bowl rim */}
-      <path d="M30 102 a80 20 0 0 1 160 0 a80 20 0 0 1 -160 0" fill="#D6D3D1"/>
-      {/* herb garnish */}
-      <circle cx="97" cy="98" r="5" fill="#2B8A3E"/>
-      <circle cx="122" cy="96" r="4" fill="#2B8A3E"/>
+      {/* bowl body */}
+      <path d="M28 106 a82 56 0 0 0 164 0 z" fill="#F5F5F4"/>
+      {/* green fill base inside bowl */}
+      <ellipse cx="110" cy="130" rx="70" ry="24" fill="#2F9E44"/>
+      {/* bowl rim — painted before mounds so leaves can overflow above it */}
+      <path d="M28 106 a82 20 0 0 1 164 0 a82 20 0 0 1 -164 0" fill="#D6D3D1"/>
+      {/* left leaf mound — rises above rim */}
+      <ellipse cx="72" cy="88" rx="34" ry="32" fill="#2B8A3E"/>
+      {/* right leaf mound */}
+      <ellipse cx="150" cy="90" rx="30" ry="28" fill="#2F9E44"/>
+      {/* center leaf mound — tallest, dominant */}
+      <ellipse cx="112" cy="78" rx="40" ry="38" fill="#2B8A3E"/>
+      {/* tomato left */}
+      <circle cx="60" cy="110" r="13" fill="#F76707"/>
+      {/* tomato right */}
+      <circle cx="162" cy="111" r="11" fill="#E8590C"/>
+      {/* tomato center-front */}
+      <circle cx="104" cy="120" r="9" fill="#F76707"/>
+      {/* cheese dot — tucked front-right, outside center mound */}
+      <circle cx="140" cy="116" r="8" fill="#FBBF24"/>
     </>
   ),
 
@@ -199,8 +203,6 @@ const DISH_ART = {
   // Plate + domed cloche lid + knob. Used when no category matches.
   dish: (
     <>
-      {/* plate rim */}
-      <ellipse cx="110" cy="148" rx="84" ry="16" fill="#D6D3D1"/>
       {/* plate surface */}
       <ellipse cx="110" cy="141" rx="78" ry="12" fill="#F5F5F4"/>
       {/* cloche dome */}

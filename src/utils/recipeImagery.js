@@ -1,22 +1,23 @@
 // Two-tier keyword matcher for recipe illustration categories.
 //
-// TIER 1 — dish-format words (the *form* of the dish). Always checked first.
-// If a title contains any tier-1 keyword the match is returned immediately;
-// tier-2 words are never consulted. This means "Vindaloo Smash Burger" →
-// burger, not curry, and "Chicken Tikka Wrap" → wrap, not curry.
+// TIER1_SPECIFIC — dish-format words (the *form* of the dish). Always wins.
+//   "Vindaloo Smash Burger" → burger, not curry.
+//   "Chicken Tikka Wrap" → wrap, not curry.
 //
-// TIER 2 — cuisine/flavor modifiers. Only reached if no tier-1 word matched.
-// Covers curry-family titles like "Butter Chicken" or "Dal Tadka" where there
-// is no dish-format word to anchor on.
+// TIER1_GENERIC — broad form fallbacks. Checked after all TIER1_SPECIFIC pass.
+//   "Protein Bowl" → ricebowl via "bowl" only when no specific tier-1 matched.
+//   "Punjabi Masala Egg Omelette" → dish (tier-2 masala no longer fires).
 //
-// Within each tier keywords are sorted longest-first so multi-word phrases
-// ("oat bowl", "stir fry") resolve before their sub-strings.
+// TIER2 — cuisine/flavor modifiers. Only reached if no tier-1 word matched.
+//   "Butter Chicken with Garlic Naan" → curry via "butter chicken".
 //
-// Known edge case (deferred to Part B when an egg/omelette category is added):
-// "Punjabi Masala Egg Omelette" has no tier-1 match, so tier-2 "masala" fires
-// and returns curry. Acceptable for now.
+// Within each tier, findEarliest() returns the category whose keyword appears
+// earliest in the title — so "Wrap with Summer Slaw" → wrap (pos 0) not salad
+// (pos 17). Longest-first sort is kept to break ties consistently.
 
-const TIER1 = [
+const byLengthDesc = (a, b) => b[0].length - a[0].length
+
+const TIER1_SPECIFIC = [
   ['french toast',  'pancakes'],
   ['quinoa bowl',   'ricebowl'],
   ['grain bowl',    'ricebowl'],
@@ -49,7 +50,14 @@ const TIER1 = [
   ['soup',          'soup'],
   ['stew',          'soup'],
   ['slaw',          'salad'],
-].sort((a, b) => b[0].length - a[0].length)
+].sort(byLengthDesc)
+
+const TIER1_GENERIC = [
+  ['omelette', 'dish'],
+  ['frittata', 'dish'],
+  ['omelet',   'dish'],
+  ['bowl',     'ricebowl'],
+].sort(byLengthDesc)
 
 const TIER2 = [
   ['butter chicken', 'curry'],
@@ -59,18 +67,31 @@ const TIER2 = [
   ['korma',          'curry'],
   ['curry',          'curry'],
   ['dal',            'curry'],
-].sort((a, b) => b[0].length - a[0].length)
+].sort(byLengthDesc)
 
 export const DEFAULT_CATEGORY = 'dish'
 
+function findEarliest(keywords, lower) {
+  let best = null
+  let bestPos = Infinity
+  for (const [kw, cat] of keywords) {
+    const pos = lower.indexOf(kw)
+    if (pos !== -1 && pos < bestPos) {
+      bestPos = pos
+      best = cat
+    }
+  }
+  return best
+}
+
 export function getRecipeCategory(title) {
   if (!title) return DEFAULT_CATEGORY
-  const lower = title.toLowerCase()
-  for (const [kw, cat] of TIER1) {
-    if (lower.includes(kw)) return cat
-  }
-  for (const [kw, cat] of TIER2) {
-    if (lower.includes(kw)) return cat
-  }
-  return DEFAULT_CATEGORY
+  // Normalize whitespace (handles double-spaces and non-breaking spaces from API)
+  const lower = title.toLowerCase().replace(/[\s ]+/g, ' ').trim()
+  return (
+    findEarliest(TIER1_SPECIFIC, lower) ||
+    findEarliest(TIER1_GENERIC, lower) ||
+    findEarliest(TIER2, lower) ||
+    DEFAULT_CATEGORY
+  )
 }
