@@ -330,7 +330,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             </button>
           )}
 
-          <button onClick={() => setShowForm(true)} className="btn-secondary flex items-center gap-2">
+          <button onClick={() => setShowForm(true)} className="bg-food-600 text-white px-5 py-2.5 rounded-btn font-medium text-sm hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer flex items-center gap-2">
             + Add item
           </button>
           <button
@@ -365,16 +365,16 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <div className="space-y-2">
               {predictions.map((p, i) => (
                 <div key={i} className={`flex items-center justify-between rounded-btn border px-3 py-2.5 ${p.urgent
-                    ? 'bg-red-50 border-red-200'
+                    ? 'bg-amber-50 border-amber-200'
                     : 'bg-white border-blue-100'
                   }`}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="flex-shrink-0 flex items-center">
-                      {p.urgent ? <Icon name="warning" size={16} className="text-red-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-500" /> : <Icon name="refresh" size={16} className="text-stone-500" />}
+                      {p.urgent ? <Icon name="warning" size={16} className="text-amber-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-500" /> : <Icon name="refresh" size={16} className="text-stone-500" />}
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-textPrimary truncate">{p.name}</p>
-                      <p className={`text-xs truncate ${p.urgent ? 'text-red-500' : 'text-textMuted'}`}>
+                      <p className={`text-xs truncate ${p.urgent ? 'text-amber-700' : 'text-textMuted'}`}>
                         {p.reason}
                       </p>
                     </div>
@@ -383,8 +383,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     onClick={() => handleAddPrediction(p)}
                     disabled={addingPrediction[p.name]}
                     className={`text-xs px-3 py-1.5 rounded-btn font-medium transition-all disabled:opacity-50 flex-shrink-0 ml-3 ${p.urgent
-                        ? 'bg-red-500 text-white hover:bg-red-600'
-                        : 'bg-primary text-white hover:bg-blue-600'
+                        ? 'bg-food-600 text-white hover:bg-food-700'
+                        : 'bg-primary text-white hover:bg-indigo-600'
                       }`}
                   >
                     {addingPrediction[p.name] ? '...' : '+ Add'}
@@ -462,10 +462,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
 
       {/* Add item form */}
       {showForm && (
-        <div className="card mb-6 border-2 border-primary">
+        <div className="card mb-6 border-2 border-food-600">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">Add item</h2>
-            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100"><Icon name="close" size={16} /></button>
+            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
           </div>
           <form onSubmit={handleAdd}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -500,7 +500,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
               <div>
                 <label className="label">Estimated price <span className="text-textMuted font-normal">(for anomaly detection)</span></label>
                 <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                  <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+                  <span className="px-3 text-textMuted text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                   <input
                     className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
                     placeholder="0.00"
@@ -528,7 +528,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             </div>
             <div className="flex gap-3 justify-end">
               <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancel</button>
-              <button type="submit" className="btn-primary">Add to list</button>
+              <button type="submit" className="bg-food-600 text-white px-5 py-2.5 rounded-btn font-medium text-sm hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer">Add to list</button>
             </div>
           </form>
         </div>
@@ -541,8 +541,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             key={store}
             onClick={() => setActiveStore(store)}
             className={`px-4 py-2 rounded-pill border text-sm font-medium transition-all ${activeStore === store
-                ? 'bg-primary text-white border-primary'
-                : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                ? 'bg-food-600 text-white border-food-600'
+                : 'bg-white border-stone-200 text-stone-600 hover:border-food-200 hover:text-food-600'
               }`}
           >
             {store}
@@ -557,9 +557,9 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <span>Shopping progress</span>
             <span>{Math.round((checkedCount / items.length) * 100)}%</span>
           </div>
-          <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
+          <div className="h-2 bg-stone-100 rounded-pill overflow-hidden">
             <div
-              className="h-full bg-success rounded-pill transition-all duration-500"
+              className="h-full bg-fresh-600 rounded-pill transition-all duration-500"
               style={{ width: `${(checkedCount / items.length) * 100}%` }}
             />
           </div>
@@ -584,7 +584,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
               {filtered.map(item => (
                 <li key={item.id} className="border-b border-border last:border-0">
                   {editingId === item.id ? (
-                    <div className="px-5 py-4 bg-blue-50/30">
+                    <div className="px-5 py-4 bg-stone-50">
                       <p className="text-xs font-semibold text-textPrimary mb-3">Edit item</p>
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
@@ -632,7 +632,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                         <div>
                           <label className="label">Price</label>
                           <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                            <span className="px-3 text-textMuted text-sm border-r border-border bg-gray-50 rounded-l-btn py-2.5">$</span>
+                            <span className="px-3 text-textMuted text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                             <input
                               className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
                               placeholder="0.00"
@@ -648,12 +648,12 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                       </div>
                     </div>
                   ) : (
-                    <div className={`flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}>
+                    <div className={`flex items-center gap-4 px-5 py-4 hover:bg-stone-50 transition-colors group ${item.checked ? 'opacity-50' : ''}`}>
                       <button
                         onClick={() => toggleCheck(item.id)}
                         className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${item.checked
-                            ? 'bg-success border-success text-white'
-                            : 'border-border hover:border-primary'
+                            ? 'bg-fresh-600 border-fresh-600 text-white'
+                            : 'border-stone-300 hover:border-food-500'
                           }`}
                       >
                         {item.checked && <Icon name="check" size={10} />}
@@ -661,7 +661,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className={`text-sm font-medium ${item.checked ? 'line-through text-textMuted' : 'text-textPrimary'}`}>
+                          <p className={`text-sm font-medium ${item.checked ? 'line-through text-stone-400' : 'text-textPrimary'}`}>
                             {item.name}
                           </p>
                           {/* Price alert badge on item */}
@@ -679,12 +679,12 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-textMuted">{item.qty}</span>
                           {item.category && (
-                            <span className="text-xs bg-gray-100 text-textMuted px-2 py-0.5 rounded-pill">{item.category}</span>
+                            <span className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-pill">{item.category}</span>
                           )}
                         </div>
                       </div>
 
-                      <span className="text-xs bg-blue-50 text-primary px-2.5 py-1 rounded-pill border border-blue-100 hidden sm:block">
+                      <span className="text-xs bg-stone-100 text-stone-600 px-2.5 py-1 rounded-pill border border-stone-200 hidden sm:block">
                         {item.store || 'No store'}
                       </span>
 
@@ -704,14 +704,14 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             isCustomStore: false,
                           })
                         }}
-                        className="w-7 h-7 rounded-full hover:bg-blue-50 hover:text-primary text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
+                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-700 text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
                         <Icon name="edit" size={14} />
                       </button>
 
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="w-7 h-7 rounded-full hover:bg-red-50 hover:text-danger text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
+                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-600 text-stone-400 transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
                         <Icon name="close" size={14} />
                       </button>
@@ -727,7 +727,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Clear checked */}
       {checkedCount > 0 && (
         <div className="mt-4 flex justify-end">
-          <button onClick={handleClearChecked} className="text-sm text-danger hover:underline font-medium">
+          <button onClick={handleClearChecked} className="text-sm text-stone-500 hover:text-stone-700 hover:underline font-medium">
             Remove {checkedCount} checked item{checkedCount > 1 ? 's' : ''}
           </button>
         </div>

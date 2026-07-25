@@ -137,7 +137,7 @@ export default function SavedRecipes() {
                 )}
                 <button
                   onClick={() => handleDelete(recipe.id)}
-                  className="w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
+                  className="w-7 h-7 rounded-full bg-stone-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
                 >
                   <Icon name="close" size={14} />
                 </button>
@@ -224,13 +224,13 @@ export default function SavedRecipes() {
                       <ul className="space-y-1.5 mb-5">
                         {recipe.ingredients.map((ing, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                            <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
+                            <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                           </li>
                         ))}
                         {recipe.missing?.map((ing, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                            <span className="w-4 h-4 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xs flex-shrink-0">+</span>
+                            <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             <span className="text-xs text-orange-400">(need to buy)</span>
                           </li>
@@ -246,7 +246,7 @@ export default function SavedRecipes() {
                       <ol className="space-y-3 mb-4">
                         {recipe.steps.map((step, i) => (
                           <li key={i} className="flex items-start gap-3">
-                            <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                            <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                               {i + 1}
                             </span>
                             <p className="text-sm text-textMuted leading-relaxed">{step}</p>
@@ -264,7 +264,7 @@ export default function SavedRecipes() {
                           onClick={() => setNutritionView(prev => ({ ...prev, [recipe.id]: 'serving' }))}
                           className={`text-xs px-3 py-1 rounded-pill border transition-all ${
                             (nutritionView[recipe.id] || 'serving') === 'serving'
-                              ? 'bg-primary text-white border-primary'
+                              ? 'bg-food-600 text-white border-food-600'
                               : 'text-textMuted border-border'
                           }`}
                         >
@@ -274,7 +274,7 @@ export default function SavedRecipes() {
                           onClick={() => setNutritionView(prev => ({ ...prev, [recipe.id]: 'total' }))}
                           className={`text-xs px-3 py-1 rounded-pill border transition-all ${
                             nutritionView[recipe.id] === 'total'
-                              ? 'bg-primary text-white border-primary'
+                              ? 'bg-food-600 text-white border-food-600'
                               : 'text-textMuted border-border'
                           }`}
                         >

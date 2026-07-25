@@ -719,7 +719,7 @@ export default function Recipes() {
                       <ul className="space-y-1.5 mb-4">
                         {drink.ingredients?.map((ing, i) => (
                           <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
-                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${ing.inPantry ? 'bg-green-100 text-success' : 'bg-orange-100 text-orange-500'
+                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${ing.inPantry ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600'
                               }`}>
                               {ing.inPantry ? '✓' : '+'}
                             </span>
@@ -733,7 +733,7 @@ export default function Recipes() {
                       <ol className="space-y-2 mb-4">
                         {drink.steps?.map((step, i) => (
                           <li key={i} className="flex items-start gap-3">
-                            <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                            <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                             <p className="text-sm text-textMuted leading-relaxed">{step}</p>
                           </li>
                         ))}
@@ -1050,7 +1050,7 @@ export default function Recipes() {
                   <ol className="space-y-3">
                     {familyRecipe.steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                        <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                         <p className="text-sm text-textMuted leading-relaxed">{step}</p>
                       </li>
                     ))}
@@ -1084,7 +1084,7 @@ export default function Recipes() {
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => handleCook(familyRecipe, 'family')}
-                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-success text-white' : 'bg-purple-600 text-white hover:bg-purple-700'
+                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                     }`}
                 >
                   {cookedId === 'family' ? <><Icon name="check" size={13} className="inline-block mr-1" />Cooked! Pantry updated</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this — update pantry</>}
@@ -1095,7 +1095,7 @@ export default function Recipes() {
                     disabled={savingRecipe['family'] || savedRecipes['family']}
                     className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${savedRecipes['family']
                       ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                      : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+                      : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                       } disabled:opacity-50`}
                   >
                     {savingRecipe['family'] ? '...' : savedRecipes['family'] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
@@ -1296,7 +1296,7 @@ export default function Recipes() {
                       </button>
                       <button
                         onClick={() => handleCook(recipe, idx)}
-                        className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${cookedId === idx ? 'bg-success text-white' : 'bg-green-50 text-success border border-green-200 hover:bg-green-100'
+                        className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${cookedId === idx ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                           }`}
                       >
                         {cookedId === idx ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
@@ -1307,7 +1307,7 @@ export default function Recipes() {
                           disabled={savingRecipe[idx] || savedRecipes[idx]}
                           className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${savedRecipes[idx]
                             ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                            : 'bg-surface text-textMuted border-border hover:border-yellow-300 hover:text-yellow-600'
+                            : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                             } disabled:opacity-50`}
                         >
                           {savingRecipe[idx] ? '...' : savedRecipes[idx] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
@@ -1321,13 +1321,13 @@ export default function Recipes() {
                         <ul className="space-y-1.5 mb-5">
                           {recipe.ingredients?.map(ing => (
                             <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-textMuted">
-                              <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
+                              <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             </li>
                           ))}
                           {recipe.missing?.map(ing => (
                             <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-textMuted">
-                              <span className="w-4 h-4 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xs flex-shrink-0">+</span>
+                              <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                               <span className="text-xs text-orange-400">(need to buy)</span>
                             </li>
@@ -1340,7 +1340,7 @@ export default function Recipes() {
                             <ol className="space-y-3">
                               {recipe.steps.map((step, i) => (
                                 <li key={i} className="flex items-start gap-3">
-                                  <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                                  <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                                   <p className="text-sm text-textMuted leading-relaxed">{step}</p>
                                 </li>
                               ))}
@@ -1354,14 +1354,14 @@ export default function Recipes() {
                             <div className="flex gap-2 mb-3">
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'serving' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${(nutritionView[idx] || 'serving') === 'serving' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${(nutritionView[idx] || 'serving') === 'serving' ? 'bg-food-600 text-white border-food-600' : 'text-textMuted border-border'
                                   }`}
                               >
                                 Per serving
                               </button>
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'total' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${nutritionView[idx] === 'total' ? 'bg-primary text-white border-primary' : 'text-textMuted border-border'
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${nutritionView[idx] === 'total' ? 'bg-food-600 text-white border-food-600' : 'text-textMuted border-border'
                                   }`}
                               >
                                 Total recipe

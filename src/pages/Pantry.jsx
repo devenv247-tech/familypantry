@@ -431,7 +431,7 @@ export default function Pantry() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="aiScan" size={18} className="flex-shrink-0" /> Photo scan results</h3>
-                <button onClick={() => setShowPhotoResults(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
+                <button onClick={() => setShowPhotoResults(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted"><Icon name="close" size={16} /></button>
               </div>
               <p className="text-sm text-textMuted mb-4">
                 Found {scannedItems.length} items. Select which ones to add to your pantry.
@@ -461,11 +461,11 @@ export default function Pantry() {
                       prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
                     )}
                     className={`flex items-center gap-3 p-3 rounded-btn border cursor-pointer transition-all ${selectedScannedItems.includes(i)
-                        ? 'border-primary bg-blue-50'
-                        : 'border-border hover:border-gray-300'
+                        ? 'border-primary bg-indigo-50'
+                        : 'border-border hover:border-stone-300'
                       }`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedScannedItems.includes(i) ? 'border-primary bg-primary' : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedScannedItems.includes(i) ? 'border-primary bg-primary' : 'border-stone-300'
                       }`}>
                       {selectedScannedItems.includes(i) && <Icon name="check" size={10} className="text-white" />}
                     </div>
@@ -530,7 +530,7 @@ export default function Pantry() {
                     <p className="text-xs text-textMuted">Adding items...</p>
                     <p className="text-xs font-medium text-primary">{addProgress}%</p>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-pill overflow-hidden">
+                  <div className="h-1.5 bg-stone-100 rounded-pill overflow-hidden">
                     <div
                       className="h-full bg-primary rounded-pill transition-all duration-300"
                       style={{ width: `${addProgress}%` }}
@@ -566,7 +566,7 @@ export default function Pantry() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="templates" size={18} /> Pantry starter templates</h3>
-                <button onClick={() => setShowTemplates(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
+                <button onClick={() => setShowTemplates(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted"><Icon name="close" size={16} /></button>
               </div>
               <p className="text-sm text-textMuted mb-6">
                 Choose a grocery template to quickly populate your pantry with common staples. Existing items won't be duplicated.
@@ -642,7 +642,7 @@ export default function Pantry() {
             <button
               onClick={() => photoInputRef.current?.click()}
               disabled={photoScanning}
-              className="btn-secondary flex items-center gap-2 text-sm border-purple-200 text-purple-600 hover:bg-purple-50"
+              className="btn-secondary flex items-center gap-2 text-sm border-indigo-200 text-indigo-600 hover:bg-indigo-50"
             >
               {photoScanning ? (
                 <>
@@ -656,7 +656,7 @@ export default function Pantry() {
                 <>
                   <Icon name="aiScan" size={16} /> AI photo scan
                   {scanStatus?.scansRemaining !== null && scanStatus?.scansRemaining !== undefined && (
-                    <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-pill">
+                    <span className="text-xs bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-pill">
                       {scanStatus.scansRemaining} left
                     </span>
                   )}
@@ -669,7 +669,7 @@ export default function Pantry() {
           {canUseTemplates && (
             <button
               onClick={() => setShowTemplates(true)}
-              className="btn-secondary flex items-center gap-2 text-sm border-orange-200 text-orange-600 hover:bg-orange-50"
+              className="btn-secondary flex items-center gap-2 text-sm border-food-200 text-food-600 hover:bg-food-50"
             >
               <Icon name="templates" size={16} /> Grocery Templates
             </button>
@@ -718,7 +718,7 @@ export default function Pantry() {
           )}
 
           {/* Add item */}
-          <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
+          <button onClick={() => setShowForm(true)} className="bg-food-600 text-white px-5 py-2.5 rounded-btn font-medium text-sm hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer flex items-center gap-2">
             <span className="text-lg">+</span> Add item
           </button>
         </div>
@@ -778,16 +778,16 @@ export default function Pantry() {
 
       {/* Expiring soon banner */}
       {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
-        <div className="mb-6 rounded-card border border-yellow-200 bg-yellow-50 p-4">
-          <p className="text-sm font-semibold text-yellow-800 mb-2 flex items-center gap-1.5"><Icon name="warning" size={14} className="text-yellow-700" />Expiring Soon</p>
+        <div className="mb-6 rounded-card border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-1.5"><Icon name="warning" size={14} className="text-amber-700" />Expiring Soon</p>
           <div className="flex flex-col gap-1">
             {expiringSoon.map(item => (
               <div key={item.id} className="flex items-center justify-between text-xs">
-                <span className="text-yellow-900">{item.icon} {item.name}</span>
-                <span className={`font-semibold px-2 py-0.5 rounded-pill ${item.urgency === 'expired' ? 'bg-red-100 text-red-700' :
-                    item.urgency === 'critical' ? 'bg-orange-100 text-orange-700' :
-                      item.urgency === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-blue-100 text-blue-700'
+                <span className="text-amber-900">{item.icon} {item.name}</span>
+                <span className={`font-semibold px-2 py-0.5 rounded-pill ${item.urgency === 'expired' ? 'bg-amber-200 text-amber-800' :
+                    item.urgency === 'critical' ? 'bg-amber-100 text-amber-700' :
+                      item.urgency === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                        'bg-stone-100 text-stone-600'
                   }`}>
                   {item.isExpired ? 'Expired' : item.daysLeft === 0 ? 'Today' : `${item.daysLeft}d left`}
                 </span>
@@ -799,10 +799,10 @@ export default function Pantry() {
 
       {/* Add item form */}
       {showForm && (
-        <div className="card mb-6 border-primary border-2">
+        <div className="card mb-6 border-food-600 border-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">Add new item</h2>
-            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100"><Icon name="close" size={16} /></button>
+            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
           </div>
           {formError && (
             <div className="bg-red-50 border border-red-100 text-danger text-sm px-4 py-3 rounded-btn mb-4">{formError}</div>
@@ -813,7 +813,7 @@ export default function Pantry() {
               <div className="flex gap-2 flex-wrap">
                 {ICONS.map(ic => (
                   <button key={ic} type="button" onClick={() => update('icon', ic)}
-                    className={`w-9 h-9 rounded-btn text-xl flex items-center justify-center border transition-all ${form.icon === ic ? 'border-primary bg-blue-50' : 'border-border hover:bg-gray-50'}`}>
+                    className={`w-9 h-9 rounded-btn text-xl flex items-center justify-center border transition-all ${form.icon === ic ? 'border-food-600 bg-food-50' : 'border-border hover:bg-stone-50'}`}>
                     {ic}
                   </button>
                 ))}
@@ -871,7 +871,7 @@ export default function Pantry() {
             </div>
             <div className="flex gap-3 justify-end">
               <button type="button" onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="btn-secondary">Cancel</button>
-              <button type="submit" className="btn-primary">Add to pantry</button>
+              <button type="submit" className="bg-food-600 text-white px-5 py-2.5 rounded-btn font-medium text-sm hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer">Add to pantry</button>
             </div>
           </form>
         </div>
@@ -936,11 +936,11 @@ export default function Pantry() {
             return (
               <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
                 <button onClick={() => handleDelete(item.id)}
-                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gray-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center">
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-stone-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center">
                   <Icon name="close" size={14} />
                 </button>
                 <button onClick={() => { setRestockingId(item.id); setRestockQty('') }}
-                  className="absolute top-3 left-3 text-xs bg-green-50 text-success px-2 py-1 rounded-pill border border-green-100 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-all font-medium hover:bg-green-100">
+                  className="absolute top-3 left-3 text-xs bg-fresh-50 text-fresh-700 px-2 py-1 rounded-pill border border-fresh-100 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition-all font-medium hover:bg-fresh-100">
                   + Restock
                 </button>
                 {restockingId === item.id && (
@@ -948,7 +948,7 @@ export default function Pantry() {
                     <p className="text-xs text-textMuted mb-2">How much did you buy?</p>
                     <div className="flex gap-2">
                       <input type="number" className="input text-sm py-1.5" placeholder={`Add ${item.unit}`} value={restockQty} onChange={e => setRestockQty(e.target.value)} autoFocus />
-                      <button onClick={() => handleRestock(item.id)} className="btn-primary text-xs px-3 py-1.5 whitespace-nowrap">Add</button>
+                      <button onClick={() => handleRestock(item.id)} className="text-xs px-3 py-1.5 whitespace-nowrap bg-food-600 text-white rounded-btn font-medium hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer">Add</button>
                       <button onClick={() => setRestockingId(null)} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
                     </div>
                     <p className="text-xs text-textMuted mt-1">Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}</p>
@@ -959,21 +959,21 @@ export default function Pantry() {
                 <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
                 {item.maxQuantity > 0 && item.normalizedQty != null && (() => {
                   const pct = Math.min(100, Math.round((item.normalizedQty / item.maxQuantity) * 100))
-                  const color = pct <= 10 ? 'bg-red-500' : pct <= 25 ? 'bg-orange-400' : 'bg-green-400'
+                  const color = pct <= 10 ? 'bg-amber-500' : pct <= 25 ? 'bg-amber-300' : 'bg-fresh-600'
                   return (
-                    <div className="mt-1.5 w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="mt-1.5 w-full h-1 bg-stone-100 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
                     </div>
                   )
                 })()}
-                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-blue-400 mt-1 flex items-center gap-1"><Icon name="bubble" size={10} />AI predicted expiry</p>}
-                {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-purple-400 mt-1 flex items-center gap-1"><Icon name="chart" size={10} />Learned from your history</p>}
+                {item.expirySource === 'ai_predicted' && item.predictedExpiry && <p className="text-xs text-indigo-400 mt-1 flex items-center gap-1"><Icon name="bubble" size={10} />AI predicted expiry</p>}
+                {item.expirySource === 'pattern_learned' && item.predictedExpiry && <p className="text-xs text-indigo-400 mt-1 flex items-center gap-1"><Icon name="chart" size={10} />Learned from your history</p>}
                 {itemCO2?.co2Label && <p className="text-xs text-green-600 mt-1">{itemCO2.co2Label.icon} {itemCO2.co2Label.label} CO2</p>}
                 <div className="flex items-center justify-between mt-4">
-                  <span className="text-xs bg-gray-100 text-textMuted px-2.5 py-1 rounded-pill">{item.category}</span>
-                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${isExpired(item.expiry || item.predictedExpiry) ? 'bg-red-50 text-danger' :
-                      isExpiringSoon(item.expiry || item.predictedExpiry) ? 'bg-orange-50 text-orange-500' :
-                        'bg-green-50 text-success'
+                  <span className="text-xs bg-stone-100 text-stone-500 px-2.5 py-1 rounded-pill">{item.category}</span>
+                  <span className={`text-xs px-2.5 py-1 rounded-pill font-medium ${isExpired(item.expiry || item.predictedExpiry) ? 'bg-amber-100 text-amber-700' :
+                      isExpiringSoon(item.expiry || item.predictedExpiry) ? 'bg-amber-50 text-amber-600' :
+                        'bg-fresh-50 text-fresh-700'
                     }`}>
                     {isExpired(item.expiry || item.predictedExpiry) ? 'Expired' :
                       isExpiringSoon(item.expiry || item.predictedExpiry) ? 'Expiring soon' :
