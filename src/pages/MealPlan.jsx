@@ -631,8 +631,8 @@ export default function MealPlan() {
                     <div
                       key={day}
                       className={`rounded-btn border min-h-[70px] p-2 cursor-pointer transition-all group relative ${meal
-                          ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                          : 'bg-surface border-border border-dashed hover:border-primary hover:bg-gray-50'
+                          ? 'bg-white border-stone-200 hover:bg-food-50 hover:border-food-200'
+                          : 'bg-surface border-border border-dashed hover:border-primary hover:bg-stone-50'
                         }`}
                       onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => { } }) : handleSlotClick(day, mealType)}
                     >
@@ -640,7 +640,6 @@ export default function MealPlan() {
                         <div className="h-full flex flex-col gap-1">
                           <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" />
                           <p className="text-xs font-medium text-stone-900 hover:text-food-700 leading-tight line-clamp-2">
-                            {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
                             {meal.recipeName}
                           </p>
                           {meal.cooked && (
@@ -710,13 +709,12 @@ export default function MealPlan() {
                           </div>
                           {meal ? (
                             <div
-                              className="flex-1 flex items-center justify-between bg-blue-50 rounded-btn px-3 py-2 border border-blue-100 cursor-pointer hover:bg-blue-100 transition-all"
+                              className="flex-1 flex items-center justify-between bg-food-50 rounded-btn px-3 py-2 border border-food-200 cursor-pointer transition-all"
                               onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
                             >
                               <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0 mr-2" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium text-stone-900 hover:text-food-700 truncate">
-                                  {meal.recipeData?.icon && <span className="mr-1">{meal.recipeData.icon}</span>}
                                   {meal.recipeName}
                                 </p>
                                 {meal.cooked && (
