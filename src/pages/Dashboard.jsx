@@ -300,12 +300,11 @@ export default function Dashboard() {
           </div>
         ) : (
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Icon name="sparkle" size={15} className="text-primary" />
-              <p className="text-xs font-semibold text-primary uppercase tracking-wide">Tonight's suggestion</p>
-            </div>
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-2xl leading-none flex-shrink-0">{aiSuggestion.recipe.icon}</span>
+            <p className="text-xs text-food-700 font-medium mb-2">Tonight's suggestion</p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="hidden sm:block flex-shrink-0">
+                <DishArt category={getRecipeCategory(aiSuggestion.recipe.name)} size="sm" />
+              </div>
               <p className="text-base font-bold text-textPrimary line-clamp-2 leading-snug">
                 {aiSuggestion.recipe.name}
               </p>
@@ -323,7 +322,7 @@ export default function Dashboard() {
             {!aiExpanded && aiSuggestion.recipe.ingredients?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {aiSuggestion.recipe.ingredients.slice(0, 4).map((ing, i) => (
-                  <span key={i} className="text-xs bg-white border border-indigo-100 text-textPrimary px-2.5 py-1 rounded-pill">
+                  <span key={i} className="text-xs bg-white border border-stone-200 text-stone-600 px-2.5 py-1 rounded-pill">
                     {ing.name}
                   </span>
                 ))}
@@ -380,7 +379,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
               <button
                 onClick={() => setAiExpanded(prev => !prev)}
-                className="btn-primary text-sm w-full sm:w-auto"
+                className="bg-food-600 hover:bg-food-700 text-white px-5 py-2.5 rounded-btn font-medium text-sm active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 {aiExpanded ? 'Hide recipe ↑' : 'See recipe →'}
               </button>
@@ -401,7 +400,7 @@ export default function Dashboard() {
           { label: 'Pantry items', value: stats?.pantryCount || 0, icon: 'pantry', color: 'bg-blue-50 text-primary' },
           { label: 'Family members', value: stats?.memberCount || 0, icon: 'health', color: 'bg-green-50 text-success' },
           { label: 'Grocery items', value: stats?.groceryCount || 0, icon: 'grocery', color: 'bg-orange-50 text-orange-500' },
-          { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: 'reports', color: 'bg-purple-50 text-purple-500' },
+          { label: 'Total spend', value: `$${stats?.totalSpend || '0.00'}`, icon: 'reports', color: 'bg-stone-100 text-stone-600' },
         ].map((s, i) => (
           <div key={i} className="card flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color}`}>
@@ -484,7 +483,7 @@ export default function Dashboard() {
 
       {/* Expiring soon widget */}
       {isFeatureEnabled('smart_expiry', plan) && expiringSoon.length > 0 && (
-        <div className="card mb-6 border border-yellow-200 bg-yellow-50/30">
+        <div className="card mb-6 border border-amber-200 bg-yellow-50/30">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-textPrimary">⏰ Expiring Soon <span className="text-sm font-normal text-textMuted">({expiringSoon.length} item{expiringSoon.length > 1 ? 's' : ''})</span></h2>
             <button onClick={() => navigate('/app/pantry')} className="text-xs text-primary hover:underline font-medium">
