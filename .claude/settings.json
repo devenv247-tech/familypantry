@@ -28,7 +28,19 @@
       "Bash(npm run *)",
       "Bash(npx tsc *)",
       "Bash(node --input-type=module)",
-      "Bash(node --input-type=module --eval ' *)"
+      "Bash(node --input-type=module --eval ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/)",
+      "Bash(curl -s http://localhost:5174/)",
+      "Bash(chromium-cli --session landing-desktop)",
+      "Bash(npx playwright *)",
+      "Bash(ls ~/.npm/_npx/ 2>/dev/null | head -5; which node; node --version)",
+      "Read(//Users/jasssangha/.npm/_npx/**)",
+      "Bash(ls ~/Library/Caches/ms-playwright/ 2>/dev/null || echo \"empty\")",
+      "Read(//Users/jasssangha/Library/Caches/**)",
+      "Bash(open -a \"Google Chrome\" \"http://localhost:5174/\")",
+      "Bash(screencapture -x /private/tmp/claude-501/-Users-jasssangha-Desktop-familypantry/26fd924e-c4eb-4fd3-8cd4-3f0d52bb3c78/scratchpad/landing-desktop.png)",
+      "Bash(open \"http://localhost:5174/\")",
+      "Bash(pkill -f \"vite --port 5174\")"
     ]
   }
 }
