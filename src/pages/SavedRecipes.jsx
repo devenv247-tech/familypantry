@@ -5,6 +5,7 @@ import { LoadingSpinner, ErrorState, EmptyState, Toast } from '../components/ui/
 import { useToast } from '../hooks/useToast'
 import Icon from '../components/ui/Icon'
 import RecipeCardHeader from '../components/ui/RecipeCardHeader'
+import { groupAllergenWarnings } from '../utils/recipeImagery'
 
 export default function SavedRecipes() {
   const { toast, showToast, hideToast } = useToast()
@@ -170,9 +171,9 @@ export default function SavedRecipes() {
               {recipe.allergenWarnings?.length > 0 && (
                 <div className="bg-amber-100 border border-amber-200 rounded-btn px-3 py-2 mb-3">
                   <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1"><Icon name="warning" size={12} className="text-amber-600" />Allergen warnings</p>
-                  {recipe.allergenWarnings.map((w, i) => (
+                  {groupAllergenWarnings(recipe.allergenWarnings).map((g, i) => (
                     <p key={i} className="text-xs text-amber-700">
-                      contains {w.allergen} ({w.ingredient})
+                      contains {g.allergen} ({g.ingredients.join(', ')})
                     </p>
                   ))}
                 </div>

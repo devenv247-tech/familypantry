@@ -165,6 +165,23 @@ function findEarliest(keywords, lower) {
   return best
 }
 
+// Deduplicates allergenWarnings from the LLM (which often emits the same
+// {allergen, ingredient} pair multiple times) and groups by allergen so the
+// UI shows "contains Milk (Feta, Butter)" instead of four identical lines.
+export function groupAllergenWarnings(warnings) {
+  if (!warnings?.length) return []
+  const seen = new Set()
+  const groups = new Map()
+  for (const w of warnings) {
+    const key = `${w.allergen}||${w.ingredient}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    if (!groups.has(w.allergen)) groups.set(w.allergen, [])
+    groups.get(w.allergen).push(w.ingredient)
+  }
+  return Array.from(groups.entries()).map(([allergen, ingredients]) => ({ allergen, ingredients }))
+}
+
 export function getRecipeCategory(title) {
   if (!title) return DEFAULT_CATEGORY
   // Normalize whitespace (handles double-spaces and non-breaking spaces from API)
