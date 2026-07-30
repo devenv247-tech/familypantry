@@ -709,7 +709,7 @@ export default function MealPlan() {
                           </div>
                           {meal ? (
                             <div
-                              className="flex-1 flex items-center justify-between bg-food-50 rounded-btn px-3 py-2 border border-food-200 cursor-pointer transition-all"
+                              className="flex-1 min-w-0 flex items-center justify-between bg-food-50 rounded-btn px-3 py-2 border border-food-200 cursor-pointer transition-all"
                               onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
                             >
                               <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0 mr-2" />
