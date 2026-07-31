@@ -65,6 +65,8 @@ const icons = {
   utensils:     <><line x1="8" y1="2" x2="8" y2="22"/><path d="M6 12H10"/><path d="M6 2H10"/><path d="M16 2v6a3 3 0 0 0 6 0V2"/><line x1="19" y1="12" x2="19" y2="22"/></>,
   bottle:       <><path d="M10 2h4"/><path d="M9 7h6"/><path d="M7 7a5 5 0 0 0-1 3v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9a5 5 0 0 0-1-3"/><line x1="9" y1="14" x2="15" y2="14"/></>,
   clock:        <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+  scale:        <><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></>,
+  layers:       <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
 }
 
 export default function Icon({ name, size = 18, className = '', strokeWidth = 1.75, color }) {

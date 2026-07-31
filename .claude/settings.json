@@ -40,7 +40,9 @@
       "Bash(open -a \"Google Chrome\" \"http://localhost:5174/\")",
       "Bash(screencapture -x /private/tmp/claude-501/-Users-jasssangha-Desktop-familypantry/26fd924e-c4eb-4fd3-8cd4-3f0d52bb3c78/scratchpad/landing-desktop.png)",
       "Bash(open \"http://localhost:5174/\")",
-      "Bash(pkill -f \"vite --port 5174\")"
+      "Bash(pkill -f \"vite --port 5174\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('zustand'\\); console.log\\('zustand ok:', require\\('./node_modules/zustand/package.json'\\).version\\)\")"
     ]
   }
 }
