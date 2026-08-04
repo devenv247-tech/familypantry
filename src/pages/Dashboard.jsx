@@ -211,7 +211,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-bold text-textPrimary">
-          {greeting}, {user?.name || 'there'} <Icon name="canada" size={16} className="align-middle ml-0.5 text-primary" />
+          {greeting}, {user?.name || 'there'} <Icon name="leaf" size={16} className="inline align-middle ml-0.5 text-fresh-600" />
         </h1>
         <p className="text-textMuted mt-1">
           Here's what's happening with <span className="font-medium text-textPrimary">{family?.name || 'your family'}</span> today.

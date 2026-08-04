@@ -69,6 +69,7 @@ Named palettes available in `tailwind.config.js` (all under `theme.extend.colors
 
 ## Tailwind gotchas (learned the hard way)
 - **JIT dynamic classes are unreliable.** Never build class names from template literals (e.g. `translate-x-[${x}px]`). Use static class pairs (`left-0.5` ↔ `left-5`) or inline styles. Toggle switches in this codebase use inline styles for knob position — keep that pattern.
+- **Inline SVG icons next to text need `className="inline"`.**  Tailwind preflight sets `svg { display: block }` globally; without `inline`, any `<Icon>` placed inline in a heading or paragraph will break to its own line.
 - Test at 320px and at `sm:` (640px) breakpoints when touching layout.
 
 ## Testing a change
