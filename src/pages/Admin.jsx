@@ -7,6 +7,14 @@ import { getAdminStats, getAdminFamilies, updateFamilyPlan, deleteFamily, getFea
 import { Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
 
+function relativeTime(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
 const TABS = [
   { id: 'overview', label: 'Overview', icon: 'chart' },
   { id: 'families', label: 'Families', icon: 'family' },
@@ -844,6 +852,115 @@ export default function Admin() {
                 <p className="text-lg font-bold text-green-600">${(parseFloat(stats.revenue.mrr) - 12).toFixed(2)}/month</p>
               </div>
             </div>
+
+            {/* Anthropic API health + usage */}
+            {apiStatus && (
+              <>
+                {/* 1. Health strip */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Icon name="bubble" size={16} className="text-gray-500" />
+                    Anthropic API
+                  </h3>
+                  {apiStatus.anthropic.creditError ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 mb-3">
+                      <Icon name="info" size={15} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-amber-800">Credit issue detected</p>
+                        <p className="text-xs text-amber-700 mt-0.5">{apiStatus.anthropic.creditErrorMsg}</p>
+                      </div>
+                    </div>
+                  ) : apiStatus.anthropic.alive ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                      <p className="text-sm font-medium text-green-700">Anthropic API operational</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                      <p className="text-sm font-medium text-red-700">{apiStatus.anthropic.error}</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-400">Last checked: {relativeTime(apiStatus.anthropic.lastChecked)}</p>
+                </div>
+
+                {apiStatus.usage && (
+                  <>
+                    {/* 2. This month */}
+                    <div className="bg-white rounded-xl border border-gray-200 p-5">
+                      <h3 className="font-semibold text-gray-900 mb-4">This month</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                        {[
+                          { label: 'API calls', value: apiStatus.usage.thisMonth.calls.toLocaleString(), icon: 'reports' },
+                          { label: 'Cost (USD)', value: `$${apiStatus.usage.thisMonth.costUSD.toFixed(4)}`, icon: 'dollar' },
+                          {
+                            label: 'Total tokens',
+                            value: (apiStatus.usage.thisMonth.inputTokens + apiStatus.usage.thisMonth.outputTokens).toLocaleString(),
+                            icon: 'sparkle',
+                          },
+                        ].map((s, i) => (
+                          <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div className="mb-2 text-gray-500"><Icon name={s.icon} size={18} /></div>
+                            <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                            <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {Object.keys(apiStatus.usage.thisMonth.byEndpoint).length > 0 && (
+                        <div className="mb-5">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">By endpoint</p>
+                          <div className="space-y-1">
+                            {Object.entries(apiStatus.usage.thisMonth.byEndpoint)
+                              .sort(([, a], [, b]) => b - a)
+                              .map(([endpoint, count]) => (
+                                <div key={endpoint} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                  <span className="font-mono text-xs text-gray-700">{endpoint}</span>
+                                  <span className="text-sm font-semibold text-gray-900 bg-gray-100 px-2.5 py-0.5 rounded-full">{count.toLocaleString()}</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="pt-3 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+                        <span>All time: <span className="font-semibold text-gray-700">{apiStatus.usage.allTime.calls.toLocaleString()} calls</span></span>
+                        <span><span className="font-semibold text-gray-700">${apiStatus.usage.allTime.costUSD.toFixed(4)}</span> total cost</span>
+                      </div>
+                    </div>
+
+                    {/* 3. Monthly history */}
+                    {apiStatus.usage.history.length > 0 && (
+                      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <div className="px-5 py-4 border-b border-gray-100">
+                          <h3 className="font-semibold text-gray-900">Monthly history</h3>
+                        </div>
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Month</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Calls</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Cost</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Input tokens</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Output tokens</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {apiStatus.usage.history.map((row, i) => (
+                              <tr key={i} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 font-medium text-gray-900">{row.month}</td>
+                                <td className="px-4 py-3 text-gray-700">{row.calls.toLocaleString()}</td>
+                                <td className="px-4 py-3 text-gray-700">${row.costUSD.toFixed(4)}</td>
+                                <td className="px-4 py-3 text-gray-500 text-xs">{row.inputTokens.toLocaleString()}</td>
+                                <td className="px-4 py-3 text-gray-500 text-xs">{row.outputTokens.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
