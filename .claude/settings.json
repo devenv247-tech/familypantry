@@ -42,7 +42,17 @@
       "Bash(open \"http://localhost:5174/\")",
       "Bash(pkill -f \"vite --port 5174\")",
       "Bash(npm install *)",
-      "Bash(node -e \"require\\('zustand'\\); console.log\\('zustand ok:', require\\('./node_modules/zustand/package.json'\\).version\\)\")"
+      "Bash(node -e \"require\\('zustand'\\); console.log\\('zustand ok:', require\\('./node_modules/zustand/package.json'\\).version\\)\")",
+      "Bash(xxd)",
+      "Bash(grep -rn \"Member \\\\${\" /Users/jasssangha/Desktop/familypantry-backend/src --include=\"*.ts\" -l)",
+      "Bash(grep -rn \"Member \\\\${i\\\\|Member \\\\${idx\\\\|Member \\\\${n\\\\|Member \\\\${index\\\\|Member \\\\`\" /Users/jasssangha/Desktop/familypantry-backend/src/)",
+      "Bash(grep -rn \"Member \\\\${\" /Users/jasssangha/Desktop/familypantry-backend/src/)",
+      "Bash(grep -rn \"Member [0-9]\\\\|Member\\\\`\" /Users/jasssangha/Desktop/familypantry-backend/src/)",
+      "Bash(grep -nE \"m\\\\.name|member\\\\.name|\\\\$\\\\{.*\\\\.name\\\\}\" src/controllers/recipeController.js)",
+      "Bash(git -C /Users/jasssangha/Desktop/familypantry-backend status --short)",
+      "Bash(git -C /Users/jasssangha/Desktop/familypantry-backend status)",
+      "Bash(git -C /Users/jasssangha/Desktop/familypantry-backend log --oneline -5)",
+      "Bash(git -C /Users/jasssangha/Desktop/familypantry-backend show --stat HEAD)"
     ]
   }
 }

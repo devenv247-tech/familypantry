@@ -6,7 +6,7 @@ import { getRecipeCategory, groupAllergenWarnings } from '../utils/recipeImagery
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
-import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions, estimateRecipeCosts, suggestDrinks } from '../api/recipes'
+import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions, estimateRecipeCosts, suggestDrinks, describeRequest } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
@@ -71,6 +71,15 @@ const CUISINE_CATEGORIES = [
 
 const STAR_RATINGS = [1, 2, 3, 4, 5]
 
+const ASK_PLACEHOLDERS = [
+  "smash burgers on a griddle — what do I buy?",
+  "chipotle sauce at home",
+  "how do I season a cast iron griddle?",
+  "blackened creole chicken, high protein",
+  "how do I fix soup that's too salty?",
+  "taco seasoning from scratch",
+]
+
 export default function Recipes() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -119,6 +128,13 @@ export default function Recipes() {
   const [drinkUsage, setDrinkUsage] = useState(null)
   const [expandedDrinkId, setExpandedDrinkId] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all')
+  const [askQuery, setAskQuery] = useState('')
+  const [askResult, setAskResult] = useState(null)
+  const [askLoading, setAskLoading] = useState(false)
+  const [askError, setAskError] = useState('')
+  const [askUsage, setAskUsage] = useState(null)
+  const [askPlaceholderIdx, setAskPlaceholderIdx] = useState(0)
+  const [askPlaceholderFade, setAskPlaceholderFade] = useState(true)
   const [budgetMode, setBudgetMode] = useState(false)
   const [recipeCosts, setRecipeCosts] = useState({})
   const [cookedModal, setCookedModal] = useState(null)
@@ -150,6 +166,18 @@ export default function Recipes() {
       window.history.replaceState({}, document.title)
     }
   }, [])
+
+  useEffect(() => {
+    if (askQuery.length > 0) return
+    const timer = setInterval(() => {
+      setAskPlaceholderFade(false)
+      setTimeout(() => {
+        setAskPlaceholderIdx(prev => (prev + 1) % ASK_PLACEHOLDERS.length)
+        setAskPlaceholderFade(true)
+      }, 300)
+    }, 3500)
+    return () => clearInterval(timer)
+  }, [askQuery])
 
   const fetchExpiringItems = async () => {
     try {
@@ -246,6 +274,35 @@ export default function Recipes() {
       }
     } finally {
       setFamilyLoading(false)
+    }
+  }
+
+  const handleAskNooka = async () => {
+    if (!askQuery.trim()) return
+    if (!hasAcknowledgedAI()) {
+      setPendingAIAction('ask')
+      setShowAIDisclosure(true)
+      return
+    }
+    setAskLoading(true)
+    setAskResult(null)
+    setAskError('')
+    setLimitError('')
+    try {
+      const data = await describeRequest(askQuery.trim())
+      setAskResult(data)
+      if (data.usage) setAskUsage(data.usage)
+    } catch (err) {
+      const errData = err.response?.data
+      if (errData?.limitReached) {
+        setLimitError(errData.message)
+      } else if (errData?.error) {
+        setAskError(errData.message)
+      } else {
+        showToast('Something went wrong. Please try again.', 'error')
+      }
+    } finally {
+      setAskLoading(false)
     }
   }
 
@@ -449,6 +506,7 @@ export default function Recipes() {
       {/* Full screen loading overlays */}
       <CookingLoader mode="recipes" visible={loading} />
       <CookingLoader mode="family" visible={familyLoading} />
+      <CookingLoader mode="recipes" visible={askLoading} />
 
       {/* AI data disclosure modal — shown once per user before first recipe generation */}
       {showAIDisclosure && (
@@ -502,6 +560,7 @@ export default function Recipes() {
                   setShowAIDisclosure(false)
                   if (pendingAIAction === 'generate') handleGenerate()
                   if (pendingAIAction === 'family') handleFamilyRecipe()
+                  if (pendingAIAction === 'ask') handleAskNooka()
                   setPendingAIAction(null)
                 }}
                 className="btn-primary flex-1 text-sm">
@@ -569,18 +628,25 @@ export default function Recipes() {
       {/* Mode toggle */}
       <div className="flex gap-2 mb-6 bg-surface border border-border rounded-card p-1">
         <button
-          onClick={() => setMode('food')}
+          onClick={() => { setMode('food'); setLimitError('') }}
           className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
           <Icon name="utensils" size={14} className="inline-block mr-1" />Food
         </button>
         <button
-          onClick={() => setMode('drinks')}
+          onClick={() => { setMode('drinks'); setLimitError('') }}
           className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
             }`}
         >
-          <Icon name="drinks" size={14} className="inline-block mr-1" />Drinks & Remedies
+          <Icon name="drinks" size={14} className="inline-block mr-1" />Drinks
+        </button>
+        <button
+          onClick={() => { setMode('ask'); setLimitError('') }}
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'ask' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+            }`}
+        >
+          <Icon name="ai" size={14} className="inline-block mr-1" />Ask Nooka
         </button>
       </div>
 
@@ -750,6 +816,357 @@ export default function Recipes() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── ASK NOOKA MODE ────────────────────────────────────────────── */}
+      {mode === 'ask' && (
+        <div>
+
+          {/* Input card */}
+          <div className="card mb-6 border-2 border-blue-100 bg-blue-50/30">
+            <p className="text-xs text-textMuted mb-4">
+              Ask for any recipe, technique or shopping list — Nooka knows what's in your pantry.
+            </p>
+
+            <div className="relative flex items-start gap-3 bg-white rounded-xl border-2 border-border focus-within:border-primary p-4 transition-colors">
+              <Icon name="ai" size={18} className="text-primary flex-shrink-0 mt-1" />
+              <div className="flex-1 relative min-w-0">
+                <textarea
+                  value={askQuery}
+                  onChange={e => {
+                    if (e.target.value.length <= 300) setAskQuery(e.target.value)
+                    setAskError('')
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAskNooka() }
+                  }}
+                  rows={2}
+                  className="w-full resize-none text-base text-textPrimary bg-transparent outline-none leading-relaxed"
+                />
+                {!askQuery && (
+                  <span
+                    className="absolute top-0 left-0 text-base text-stone-400 pointer-events-none leading-relaxed transition-opacity duration-300"
+                    style={{ opacity: askPlaceholderFade ? 1 : 0 }}
+                  >
+                    {ASK_PLACEHOLDERS[askPlaceholderIdx]}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleAskNooka}
+                disabled={!askQuery.trim() || askLoading}
+                className="w-9 h-9 flex-shrink-0 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-40 hover:opacity-90 transition-all self-end"
+              >
+                <Icon name="refresh" size={16} />
+              </button>
+            </div>
+
+            {askQuery.length > 250 && (
+              <p className={`text-xs mt-2 text-right ${askQuery.length >= 300 ? 'text-danger' : 'text-textMuted'}`}>
+                {askQuery.length}/300
+              </p>
+            )}
+
+            {/* Inline error (off_topic, Request too long, unavailable) */}
+            {askError && (
+              <div className="mt-4 bg-stone-50 border border-stone-200 rounded-btn px-4 py-3">
+                <p className="text-sm text-textMuted">{askError}</p>
+              </div>
+            )}
+
+            {/* Limit error */}
+            {limitError && (
+              <div className="mt-4 bg-orange-50 border border-orange-100 rounded-card p-4">
+                <p className="text-sm font-semibold text-orange-600 mb-1">Weekly limit reached</p>
+                <p className="text-sm text-orange-500">{limitError}</p>
+                <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary mt-3 text-sm">Upgrade to Family plan</button>
+              </div>
+            )}
+
+            {/* Usage counter */}
+            {askUsage?.plan === 'free' && !limitError && (
+              <div className="mt-4 flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-stone-100 rounded-pill overflow-hidden">
+                  <div className="h-full bg-primary rounded-pill transition-all" style={{ width: `${(askUsage.used / askUsage.limit) * 100}%` }} />
+                </div>
+                <span className="text-xs text-textMuted">{askUsage.used}/{askUsage.limit} this week</span>
+              </div>
+            )}
+          </div>
+
+          {/* Safety response — calm info card */}
+          {askResult?.type === 'safety' && (
+            <div className="card border border-blue-100 bg-blue-50/30 mb-6">
+              <div className="flex items-start gap-3">
+                <Icon name="info" size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-textPrimary mb-1">{askResult.title}</h3>
+                  <p className="text-sm text-textMuted leading-relaxed">{askResult.message}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recipe result */}
+          {askResult?.type === 'recipe' && (
+            <div className="card border-2 border-blue-100 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs bg-blue-50 text-primary px-3 py-1 rounded-pill font-medium border border-blue-100 flex items-center gap-1">
+                  <Icon name="ai" size={12} className="inline" />Ask Nooka
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0 pr-3">
+                  <h2 className="text-xl font-bold text-textPrimary">{askResult.name}</h2>
+                  <p className="text-sm text-textMuted mt-1 leading-relaxed">{askResult.description}</p>
+                </div>
+                <div className="text-4xl flex-shrink-0">{askResult.icon}</div>
+              </div>
+
+              {askResult.tags?.length > 0 && (
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {askResult.tags.map(tag => (
+                    <span key={tag} className="text-xs bg-fresh-50 text-fresh-700 px-2.5 py-1 rounded-pill border border-fresh-100">{tag}</span>
+                  ))}
+                </div>
+              )}
+
+              {/* Time / yield / nutritionBasis / difficulty */}
+              <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3 flex-wrap">
+                {askResult.time && <span className="flex items-center gap-1"><Icon name="clock" size={11} />{askResult.time}</span>}
+                {askResult.yield && <span>Yields {askResult.yield}</span>}
+                {askResult.nutritionBasis && <span className="text-stone-400">({askResult.nutritionBasis})</span>}
+                {askResult.difficulty && (
+                  <span className={`px-2 py-0.5 rounded-pill font-medium ${askResult.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : askResult.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {askResult.difficulty}
+                  </span>
+                )}
+              </div>
+
+              {askResult.allergenWarnings?.length > 0 && (
+                <div className="bg-amber-100 border border-amber-200 rounded-btn px-3 py-2 mb-4">
+                  <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
+                    <Icon name="warning" size={12} className="text-amber-600" />Allergen warnings
+                  </p>
+                  {groupAllergenWarnings(askResult.allergenWarnings).map((g, i) => (
+                    <p key={i} className="text-xs text-amber-700">contains {g.allergen} ({g.ingredients.join(', ')})</p>
+                  ))}
+                </div>
+              )}
+
+              {/* Equipment */}
+              {askResult.equipment?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">Equipment</p>
+                  <ul className="space-y-1.5">
+                    {askResult.equipment.map((eq, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold ${eq.required ? 'bg-food-100 text-food-700' : 'bg-stone-100 text-stone-500'}`}>
+                          {eq.required ? '!' : '·'}
+                        </span>
+                        <span>
+                          <span className="font-medium text-textPrimary">{eq.item}</span>
+                          {eq.purpose && <span className="text-textMuted"> — {eq.purpose}</span>}
+                          {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Ingredients */}
+              {askResult.ingredients?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
+                  <ul className="space-y-1.5">
+                    {askResult.ingredients.map((ing, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                        <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0">
+                          <Icon name="check" size={10} />
+                        </span>
+                        {ing.name} — {ing.quantity} {ing.unit}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Steps */}
+              {askResult.steps?.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-3">How to make it</p>
+                  <ol className="space-y-3">
+                    {askResult.steps.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                        <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Nutrition */}
+              {askResult.nutrition && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">
+                    Nutrition{askResult.nutritionBasis ? ` (${askResult.nutritionBasis})` : ''}
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { label: 'Calories', value: askResult.nutrition.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
+                      { label: 'Protein',  value: askResult.nutrition.protein,  unit: 'g',    color: 'bg-blue-50 text-primary' },
+                      { label: 'Carbs',    value: askResult.nutrition.carbs,    unit: 'g',    color: 'bg-yellow-50 text-yellow-600' },
+                      { label: 'Fat',      value: askResult.nutrition.fat,      unit: 'g',    color: 'bg-red-50 text-danger' },
+                      { label: 'Fiber',    value: askResult.nutrition.fiber,    unit: 'g',    color: 'bg-green-50 text-success' },
+                    ].map((item, i) => (
+                      <div key={i} className={`rounded-btn p-2 text-center ${item.color}`}>
+                        <p className="text-sm font-bold">{item.value}</p>
+                        <p className="text-xs opacity-75">{item.unit}</p>
+                        <p className="text-xs font-medium mt-0.5">{item.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Shopping list — plain strings */}
+              {askResult.shoppingList?.length > 0 && (
+                <div className="mb-4 bg-food-50 border border-food-100 rounded-btn px-3 py-3">
+                  <p className="text-xs font-semibold text-food-700 mb-2">Shopping list</p>
+                  <ul className="space-y-1.5">
+                    {askResult.shoppingList.map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                        <span className="w-4 h-4 rounded-full bg-food-100 flex items-center justify-center flex-shrink-0">
+                          <Icon name="add" size={10} className="text-food-700" />
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Cook + Save */}
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={() => handleCook(askResult, 'ask')}
+                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'ask' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'}`}
+                >
+                  {cookedId === 'ask'
+                    ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</>
+                    : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
+                </button>
+                {canSaveRecipes && (
+                  <button
+                    onClick={() => handleSaveRecipe(askResult, 'ask')}
+                    disabled={savingRecipe['ask'] || savedRecipes['ask']}
+                    className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${
+                      savedRecipes['ask']
+                        ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
+                        : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
+                    } disabled:opacity-50`}
+                  >
+                    {savingRecipe['ask'] ? '...' : savedRecipes['ask']
+                      ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</>
+                      : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Guide result */}
+          {askResult?.type === 'guide' && (
+            <div className="card border-2 border-blue-100 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs bg-blue-50 text-primary px-3 py-1 rounded-pill font-medium border border-blue-100 flex items-center gap-1">
+                  <Icon name="ai" size={12} className="inline" />Guide
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 min-w-0 pr-3">
+                  <h2 className="text-xl font-bold text-textPrimary">{askResult.title}</h2>
+                  <p className="text-sm text-textMuted mt-1 leading-relaxed">{askResult.description}</p>
+                </div>
+                <div className="text-4xl flex-shrink-0">{askResult.icon}</div>
+              </div>
+
+              {askResult.tags?.length > 0 && (
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {askResult.tags.map(tag => (
+                    <span key={tag} className="text-xs bg-fresh-50 text-fresh-700 px-2.5 py-1 rounded-pill border border-fresh-100">{tag}</span>
+                  ))}
+                </div>
+              )}
+
+              {(askResult.time || askResult.difficulty) && (
+                <div className="flex items-center gap-4 text-xs text-textMuted mb-5 border-t border-border pt-3 flex-wrap">
+                  {askResult.time && <span className="flex items-center gap-1"><Icon name="clock" size={11} />{askResult.time}</span>}
+                  {askResult.difficulty && (
+                    <span className={`px-2 py-0.5 rounded-pill font-medium ${askResult.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : askResult.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {askResult.difficulty}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Equipment */}
+              {askResult.equipment?.length > 0 && (
+                <div className="mb-5">
+                  <p className="text-xs font-semibold text-textPrimary mb-2">Equipment</p>
+                  <ul className="space-y-1.5">
+                    {askResult.equipment.map((eq, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold ${eq.required ? 'bg-food-100 text-food-700' : 'bg-stone-100 text-stone-500'}`}>
+                          {eq.required ? '!' : '·'}
+                        </span>
+                        <span>
+                          <span className="font-medium text-textPrimary">{eq.item}</span>
+                          {eq.purpose && <span className="text-textMuted"> — {eq.purpose}</span>}
+                          {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Steps */}
+              {askResult.steps?.length > 0 && (
+                <div className="mb-5">
+                  <p className="text-xs font-semibold text-textPrimary mb-3">Steps</p>
+                  <ol className="space-y-3">
+                    {askResult.steps.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                        <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Tips — visually distinct from steps */}
+              {askResult.tips?.length > 0 && (
+                <div className="bg-amber-50 border border-amber-100 rounded-btn px-4 py-3">
+                  <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1.5">
+                    <Icon name="info" size={13} className="text-amber-600" />Tips
+                  </p>
+                  <ul className="space-y-1.5">
+                    {askResult.tips.map((tip, i) => (
+                      <li key={i} className="text-xs text-amber-700 leading-relaxed">· {tip}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       )}
 

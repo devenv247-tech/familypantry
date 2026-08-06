@@ -30,3 +30,8 @@ export const estimateRecipeCosts = async (recipes) => {
 export const suggestDrinks = (condition) =>
   client.post('/recipes/drinks', { condition })
     .then(r => r.data)
+
+export const describeRequest = async (query) => {
+  const res = await client.post('/recipes/describe', { query })
+  return res.data
+}
