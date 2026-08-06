@@ -32,6 +32,6 @@ export const suggestDrinks = (condition) =>
     .then(r => r.data)
 
 export const describeRequest = async (query) => {
-  const res = await client.post('/recipes/describe', { query })
+  const res = await client.post('/recipes/describe', { prompt: query })
   return res.data
 }
