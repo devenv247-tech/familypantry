@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import NookaIcon from '../components/ui/NookaIcon'
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
          {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">

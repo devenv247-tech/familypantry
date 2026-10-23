@@ -534,7 +534,7 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border px-6 py-8 text-center text-sm text-gray-500">
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-stone-500">
         <div className="flex items-center justify-center gap-2 mb-3">
           <NookaIcon size={24} />
           <span className="font-semibold text-textPrimary">Nooka</span>

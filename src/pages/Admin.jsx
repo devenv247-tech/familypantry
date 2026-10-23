@@ -215,7 +215,7 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-dvh bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="mb-4 flex justify-center text-primary animate-pulse"><Icon name="lock" size={40} /></div>
           <p className="text-stone-500">Loading admin panel...</p>

@@ -21,7 +21,7 @@ export default function BlogPost() {
 
   if (!post) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="text-center">
           <p className="text-2xl font-bold text-stone-900 mb-4">Post not found</p>
           <button onClick={() => navigate('/blog')} className="btn-primary">Back to blog</button>
@@ -31,7 +31,7 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">

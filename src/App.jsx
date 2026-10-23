@@ -36,7 +36,7 @@ const Health = lazy(() => import('./pages/Health'))
 const Admin = lazy(() => import('./pages/Admin'))
 
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-dvh flex items-center justify-center bg-background">
     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
   </div>
 )
@@ -45,7 +45,7 @@ function SplashScreen({ fadeOut }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'linear-gradient(160deg, #f0f7ff 0%, #ffffff 45%, #f5f0ff 100%)',
+      background: 'linear-gradient(160deg, #FFF8F1 0%, #ffffff 45%, #FFF4E6 100%)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
@@ -74,17 +74,17 @@ function SplashScreen({ fadeOut }) {
       `}</style>
 
       {/* Soft background blobs */}
-      <div style={{ position:'absolute', width:360, height:360, borderRadius:'50%', background:'radial-gradient(circle, #bfdbfe, transparent)', top:-100, left:-100, filter:'blur(70px)', opacity:0, animation:'blobIn 1s ease 0.1s forwards' }} />
-      <div style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, #ddd6fe, transparent)', bottom:-60, right:-80, filter:'blur(70px)', opacity:0, animation:'blobIn 1s ease 0.2s forwards' }} />
-      <div style={{ position:'absolute', width:220, height:220, borderRadius:'50%', background:'radial-gradient(circle, #bbf7d0, transparent)', bottom:180, left:-60, filter:'blur(60px)', opacity:0, animation:'blobIn 1s ease 0.3s forwards' }} />
+      <div style={{ position:'absolute', width:360, height:360, borderRadius:'50%', background:'radial-gradient(circle, #FFD8A8, transparent)', top:-100, left:-100, filter:'blur(70px)', opacity:0, animation:'blobIn 1s ease 0.1s forwards' }} />
+      <div style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, #FED7AA, transparent)', bottom:-60, right:-80, filter:'blur(70px)', opacity:0, animation:'blobIn 1s ease 0.2s forwards' }} />
+      <div style={{ position:'absolute', width:220, height:220, borderRadius:'50%', background:'radial-gradient(circle, #D3F9D8, transparent)', bottom:180, left:-60, filter:'blur(60px)', opacity:0, animation:'blobIn 1s ease 0.3s forwards' }} />
 
       {/* Logo */}
       <div style={{ position:'relative', marginBottom:40, opacity:0, animation:'logoIn 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.2s forwards' }}>
         {/* Expanding rings */}
-        <div style={{ position:'absolute', width:100, height:100, borderRadius:26, top:'50%', left:'50%', border:'2px solid rgba(37,99,235,0.3)', animation:'ringPulse 2s ease-out 1s infinite' }} />
-        <div style={{ position:'absolute', width:100, height:100, borderRadius:26, top:'50%', left:'50%', border:'2px solid rgba(37,99,235,0.15)', animation:'ringPulse 2s ease-out 1.4s infinite' }} />
+        <div style={{ position:'absolute', width:100, height:100, borderRadius:26, top:'50%', left:'50%', border:'2px solid rgba(67,56,202,0.3)', animation:'ringPulse 2s ease-out 1s infinite' }} />
+        <div style={{ position:'absolute', width:100, height:100, borderRadius:26, top:'50%', left:'50%', border:'2px solid rgba(67,56,202,0.15)', animation:'ringPulse 2s ease-out 1.4s infinite' }} />
         {/* Icon */}
-        <div style={{ width:100, height:100, borderRadius:26, background:'linear-gradient(145deg, #2563eb, #1d4ed8)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 24px 64px rgba(37,99,235,0.4), 0 4px 16px rgba(0,0,0,0.08)', position:'relative' }}>
+        <div style={{ width:100, height:100, borderRadius:26, background:'linear-gradient(145deg, #4338CA, #3730a3)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 24px 64px rgba(67,56,202,0.4), 0 4px 16px rgba(0,0,0,0.08)', position:'relative' }}>
           <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
             <rect x="12" y="13" width="7" height="28" rx="3.5" fill="white"/>
             <rect x="41" y="13" width="7" height="28" rx="3.5" fill="white"/>
@@ -96,13 +96,13 @@ function SplashScreen({ fadeOut }) {
       </div>
 
       {/* App name */}
-      <div style={{ fontSize:52, fontWeight:800, color:'#0f172a', letterSpacing:-2, opacity:0, animation:'textIn 0.6s ease 0.7s forwards', lineHeight:1 }}>Nooka</div>
+      <div style={{ fontSize:52, fontWeight:800, color:'#1c1917', letterSpacing:-2, opacity:0, animation:'textIn 0.6s ease 0.7s forwards', lineHeight:1 }}>Nooka</div>
 
       {/* Tagline */}
-      <div style={{ fontSize:16, color:'#64748b', marginTop:12, fontWeight:400, letterSpacing:0.2, opacity:0, animation:'textIn 0.6s ease 0.95s forwards' }}>Meal planning for Canadian families</div>
+      <div style={{ fontSize:16, color:'#78716c', marginTop:12, fontWeight:400, letterSpacing:0.2, opacity:0, animation:'textIn 0.6s ease 0.95s forwards' }}>Meal planning for Canadian families</div>
 
       {/* Bottom tag */}
-      <div style={{ position:'absolute', bottom:52, fontSize:13, color:'#94a3b8', letterSpacing:1.5, opacity:0, animation:'tagIn 0.6s ease 1.3s forwards', textTransform:'uppercase', fontWeight:500 }} className="flex items-center gap-1.5 justify-center"><Icon name="canada" size={13} /> Made for Canada</div>
+      <div style={{ position:'absolute', bottom:52, fontSize:13, color:'#a8a29e', letterSpacing:1.5, opacity:0, animation:'tagIn 0.6s ease 1.3s forwards', textTransform:'uppercase', fontWeight:500 }} className="flex items-center gap-1.5 justify-center"><Icon name="canada" size={13} /> Made for Canada</div>
     </div>
   )
 }

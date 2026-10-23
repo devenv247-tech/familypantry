@@ -3,7 +3,7 @@ import Icon from '../components/ui/Icon'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="mb-6 flex justify-center text-stone-300"><Icon name="pantry" size={80} /></div>
         <h1 className="text-6xl font-bold text-primary mb-4">404</h1>

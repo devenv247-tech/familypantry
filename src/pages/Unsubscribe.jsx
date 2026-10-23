@@ -18,7 +18,7 @@ export default function Unsubscribe() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-4">
       <div className="card max-w-sm w-full text-center py-10">
         <div className="flex justify-center mb-4">
           <NookaIcon size={40} />
