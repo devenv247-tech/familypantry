@@ -25,12 +25,7 @@ const CUISINES = [
   { label: 'Japanese', icon: '🍱' },
   { label: 'Canadian / Western', icon: '🍁' },
 ]
-const MEAL_ICONS = {
-  Breakfast: 'sunrise',
-  Lunch: 'sun',
-  Dinner: 'moon',
-  Snack: 'leaf',
-}
+const MEAL_ICONS = { Breakfast: 'sunrise', Lunch: 'sun', Dinner: 'moon', Snack: 'leaf' }
 
 const getWeekStart = (offset = 0) => {
   const d = new Date()
@@ -48,6 +43,11 @@ const formatWeekLabel = (weekStart) => {
   return `${start.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })} — ${end.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}`
 }
 
+const getTodayName = () => {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  return days[new Date().getDay()]
+}
+
 export default function MealPlan() {
   const navigate = useNavigate()
   const { toast, showToast, hideToast } = useToast()
@@ -56,6 +56,8 @@ export default function MealPlan() {
   const plan = family?.plan?.toLowerCase() || 'free'
   const canAutoplan = isFeatureEnabled('ai_meal_planner', plan) && plan === 'premium'
   const canGroceryFromPlan = isFeatureEnabled('grocery_from_plan', plan) && plan === 'premium'
+  const todayName = getTodayName()
+
   const [weekOffset, setWeekOffset] = useState(0)
   const [activeMobileDay, setActiveMobileDay] = useState(DAYS[0])
   const [weekStart, setWeekStart] = useState(getWeekStart(0))
@@ -86,9 +88,7 @@ export default function MealPlan() {
   }, [weekOffset])
 
   useEffect(() => {
-    import('../api/family').then(m => m.getMembers()).then(data => {
-      setMembers(data)
-    }).catch(console.error)
+    import('../api/family').then(m => m.getMembers()).then(data => setMembers(data)).catch(console.error)
   }, [])
 
   const fetchMealPlan = async (week) => {
@@ -97,16 +97,14 @@ export default function MealPlan() {
       setLoading(true)
       const data = await getMealPlan(week)
       setMeals(data.meals || [])
-    } catch (err) {
+    } catch {
       setError('Failed to load meal plan')
     } finally {
       setLoading(false)
     }
   }
 
-  const getMealForSlot = (day, mealType) => {
-    return meals.find(m => m.day === day && m.mealType === mealType)
-  }
+  const getMealForSlot = (day, mealType) => meals.find(m => m.day === day && m.mealType === mealType)
 
   const handleSlotClick = (day, mealType) => {
     setSelectedSlot({ day, mealType })
@@ -124,13 +122,7 @@ export default function MealPlan() {
     if (!recipeName.trim()) return
     setSaving(true)
     try {
-      const meal = await saveMeal({
-        weekStart,
-        day: selectedSlot.day,
-        mealType: selectedSlot.mealType,
-        recipeName: recipeName.trim(),
-        recipeData: {},
-      })
+      const meal = await saveMeal({ weekStart, day: selectedSlot.day, mealType: selectedSlot.mealType, recipeName: recipeName.trim(), recipeData: {} })
       setMeals(prev => {
         const filtered = prev.filter(m => !(m.day === selectedSlot.day && m.mealType === selectedSlot.mealType))
         return [...filtered, meal]
@@ -138,7 +130,7 @@ export default function MealPlan() {
       setShowAddModal(false)
       setRecipeName('')
       showToast('Meal added to plan!')
-    } catch (err) {
+    } catch {
       showToast('Failed to save meal', 'error')
     } finally {
       setSaving(false)
@@ -152,7 +144,7 @@ export default function MealPlan() {
       setMeals(prev => prev.filter(m => m.id !== id))
       setShowDetailModal(false)
       showToast('Meal removed')
-    } catch (err) {
+    } catch {
       showToast('Failed to remove meal', 'error')
     }
   }
@@ -169,9 +161,7 @@ export default function MealPlan() {
     }
   }
 
-  const handleGenerateWeek = async () => {
-    setShowMemberModal(true)
-  }
+  const handleGenerateWeek = () => setShowMemberModal(true)
 
   const handleConfirmGenerate = async () => {
     setShowMemberModal(false)
@@ -186,10 +176,9 @@ export default function MealPlan() {
       await new Promise(r => setTimeout(r, 800))
     } catch (err) {
       console.error('Week plan error:', err)
-      const msg = err.response?.data?.error || 'Failed to generate week plan. Please try again.'
       setWeekGenError(true)
       await new Promise(r => setTimeout(r, 400))
-      showToast(msg, 'error')
+      showToast(err.response?.data?.error || 'Failed to generate week plan. Please try again.', 'error')
     } finally {
       setGeneratingWeek(false)
       setWeekGenDone(false)
@@ -198,22 +187,14 @@ export default function MealPlan() {
   }
 
   const handleCookFromPlan = async (meal) => {
-    if (!meal.recipeData?.ingredients) {
-      showToast('No recipe data available for this meal', 'error')
-      return
-    }
+    if (!meal.recipeData?.ingredients) { showToast('No recipe data available for this meal', 'error'); return }
     setCooking(true)
     try {
-      // 1. Decrement pantry
       const cookResult = await cookRecipe({ ingredients: meal.recipeData.ingredients })
       const _r = cookResult?.results || []
       const _ok = _r.filter(r => !r.reason).length
       const _skip = _r.filter(r => r.reason).length
-      const pantryLabel = _ok > 0
-        ? _skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`
-        : null
-
-      // 2. Log nutrition — use plannedFor when set, otherwise all non-baby members
+      const pantryLabel = _ok > 0 ? (_skip > 0 ? `${_ok} items (${_skip} skipped)` : `${_ok} items`) : null
       const _plannedFor = meal.recipeData?.plannedFor
       const membersToLog = (Array.isArray(_plannedFor) && _plannedFor.length > 0)
         ? members.filter(m => _plannedFor.includes(m.name) && !m.isBaby).map(m => m.name)
@@ -221,98 +202,77 @@ export default function MealPlan() {
       let nutritionLogged = false
       const nutritionData = meal.recipeData.nutritionPerServing || meal.recipeData.nutrition
       if (nutritionData && membersToLog.length > 0) {
-        try {
-          await logNutrition(membersToLog, meal.recipeName, meal.mealType, nutritionData)
-          nutritionLogged = true
-        } catch (e) {
-          console.log('Nutrition log skipped:', e.message)
-        }
+        try { await logNutrition(membersToLog, meal.recipeName, meal.mealType, nutritionData); nutritionLogged = true }
+        catch (e) { console.log('Nutrition log skipped:', e.message) }
       }
-
-      // 3. Mark slot as cooked
       await markMealCooked(meal.id)
       setMeals(prev => prev.map(m => m.id === meal.id ? { ...m, cooked: true, cookedAt: new Date() } : m))
       setShowDetailModal(false)
-
-      // 4. Show confirmation
-      setCookedModal({
-        recipe: meal,
-        membersLogged: nutritionLogged ? membersToLog : [],
-        mealPlanMarked: true,
-        pantryLabel,
-      })
-    } catch (err) {
+      setCookedModal({ recipe: meal, membersLogged: nutritionLogged ? membersToLog : [], mealPlanMarked: true, pantryLabel })
+    } catch {
       showToast('Failed to cook meal', 'error')
     } finally {
       setCooking(false)
     }
   }
 
-  const toggleMember = (name) => {
-    setSelectedMembers(prev =>
-      prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name]
-    )
-  }
-  const toggleCuisine = (label) => {
-    setSelectedCuisines(prev =>
-      prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]
-    )
-  }
+  const toggleMember = (name) => setSelectedMembers(prev => prev.includes(name) ? prev.filter(x => x !== name) : [...prev, name])
+  const toggleCuisine = (label) => setSelectedCuisines(prev => prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label])
+
   const plannedCount = meals.length
   const totalSlots = DAYS.length * MEAL_TYPES.length
+
+  const modalBase = 'fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm'
+  const modalBox = 'bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md shadow-lift max-h-[90dvh] overflow-y-auto modal-sheet'
+  const modalHeader = 'flex items-center justify-between px-6 py-4 border-b border-[#F1E4D6] sticky top-0 bg-white rounded-t-3xl modal-header'
+  const closeBtn = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-500 transition-colors'
 
   return (
     <div className="page-container">
 
       {/* Meal detail modal */}
       {showDetailModal && selectedMeal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
-          <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-dropdown max-h-[90vh] overflow-y-auto modal-sheet">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-surface">
-              <h3 className="font-semibold text-textPrimary flex items-center gap-2">
+        <div className={modalBase}>
+          <div className={modalBox}>
+            <div className={modalHeader}>
+              <h3 className="font-semibold text-stone-900 flex items-center gap-2">
                 {selectedMeal.recipeData?.icon ? <span>{selectedMeal.recipeData.icon}</span> : <Icon name={MEAL_ICONS[selectedMeal.mealType]} size={16} />}
                 <span>{selectedMeal.mealType} — {selectedMeal.day}</span>
               </h3>
-              <button onClick={() => setShowDetailModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
+              <button onClick={() => setShowDetailModal(false)} className={closeBtn} aria-label="Close"><Icon name="close" size={16} /></button>
             </div>
-            <div className="p-6">
-              <h2 className="text-lg font-bold text-textPrimary mb-1">{selectedMeal.recipeName}</h2>
-
-              {selectedMeal.recipeData?.description && (
-                <p className="text-sm text-textMuted mb-4">{selectedMeal.recipeData.description}</p>
-              )}
-
-              <div className="flex items-center gap-4 text-xs text-textMuted mb-4 flex-wrap">
-                {selectedMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} className="text-stone-500" />{selectedMeal.recipeData.time}</span>}
+            <div className="p-6 modal-body">
+              <h2 className="font-display text-xl font-semibold text-stone-900 mb-1">{selectedMeal.recipeName}</h2>
+              {selectedMeal.recipeData?.description && <p className="text-sm text-stone-500 mb-4">{selectedMeal.recipeData.description}</p>}
+              <div className="flex items-center gap-4 text-xs text-stone-500 mb-4 flex-wrap">
+                {selectedMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} />{selectedMeal.recipeData.time}</span>}
                 {selectedMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="flame" size={12} className="text-food-600" />{selectedMeal.recipeData.calories} kcal</span>}
               </div>
 
-              {/* Nutrition macros */}
               {selectedMeal.recipeData?.nutrition && (
                 <div className="grid grid-cols-4 gap-2 mb-4">
                   {[
-                    { label: 'Calories', value: selectedMeal.recipeData.nutrition.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
-                    { label: 'Protein', value: selectedMeal.recipeData.nutrition.protein, unit: 'g', color: 'bg-blue-50 text-primary' },
-                    { label: 'Carbs', value: selectedMeal.recipeData.nutrition.carbs, unit: 'g', color: 'bg-yellow-50 text-yellow-600' },
-                    { label: 'Fat', value: selectedMeal.recipeData.nutrition.fat, unit: 'g', color: 'bg-red-50 text-danger' },
+                    { label: 'Calories', value: selectedMeal.recipeData.nutrition.calories, unit: 'kcal', bg: 'bg-orange-50', color: 'text-food-600' },
+                    { label: 'Protein', value: selectedMeal.recipeData.nutrition.protein, unit: 'g', bg: 'bg-indigo-50', color: 'text-indigo-700' },
+                    { label: 'Carbs', value: selectedMeal.recipeData.nutrition.carbs, unit: 'g', bg: 'bg-yellow-50', color: 'text-yellow-700' },
+                    { label: 'Fat', value: selectedMeal.recipeData.nutrition.fat, unit: 'g', bg: 'bg-red-50', color: 'text-red-600' },
                   ].map((item, i) => (
-                    <div key={i} className={`rounded-btn p-2 text-center ${item.color}`}>
-                      <p className="text-sm font-bold">{item.value}</p>
-                      <p className="text-xs opacity-75">{item.unit}</p>
-                      <p className="text-xs font-medium mt-0.5">{item.label}</p>
+                    <div key={i} className={`rounded-2xl p-2 text-center ${item.bg}`}>
+                      <p className={`text-sm font-bold ${item.color}`}>{item.value}</p>
+                      <p className="text-xs text-stone-400">{item.unit}</p>
+                      <p className={`text-xs font-semibold mt-0.5 ${item.color}`}>{item.label}</p>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Ingredients */}
               {selectedMeal.recipeData?.ingredients?.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients in pantry</p>
+                  <p className="text-xs font-semibold text-stone-700 mb-2">Ingredients in pantry</p>
                   <div className="space-y-1">
                     {selectedMeal.recipeData.ingredients.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-textMuted">
-                        <span className="w-4 h-4 rounded-full bg-green-100 text-success flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
+                      <div key={i} className="flex items-center gap-2 text-xs text-stone-500">
+                        <span className="w-4 h-4 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                       </div>
                     ))}
@@ -320,192 +280,135 @@ export default function MealPlan() {
                 </div>
               )}
 
-              {/* Missing ingredients */}
               {selectedMeal.recipeData?.missing?.length > 0 && (
-                <div className="mb-4 bg-orange-50 border border-orange-100 rounded-btn px-3 py-3">
-                  <p className="text-xs font-semibold text-orange-600 mb-2">Need to buy</p>
+                <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-3 py-3">
+                  <p className="text-xs font-semibold text-amber-800 mb-2">Need to buy</p>
                   <div className="space-y-1">
                     {selectedMeal.recipeData.missing.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-textMuted">
-                        <span className="w-4 h-4 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0">+</span>
+                      <div key={i} className="flex items-center gap-2 text-xs text-stone-500">
+                        <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">+</span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              {/* Recipe steps */}
+
               {selectedMeal.recipeData?.steps?.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs font-semibold text-textPrimary mb-2">How to make it</p>
+                  <p className="text-xs font-semibold text-stone-700 mb-2">How to make it</p>
                   <ol className="space-y-2">
                     {selectedMeal.recipeData.steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                          {i + 1}
-                        </span>
-                        <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                        <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i+1}</span>
+                        <p className="text-sm text-stone-600 leading-relaxed">{step}</p>
                       </li>
                     ))}
                   </ol>
                 </div>
               )}
-              {/* Already cooked badge */}
+
               {selectedMeal.cooked && (
-                <div className="mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-3 flex items-center gap-2">
-                  <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                  <p className="text-sm font-medium text-success">
-                    Cooked {selectedMeal.cookedAt
-                      ? new Date(selectedMeal.cookedAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })
-                      : 'already'}
+                <div className="mb-4 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-2">
+                  <Icon name="check" size={18} className="text-green-600 flex-shrink-0" />
+                  <p className="text-sm font-semibold text-green-800">
+                    Cooked {selectedMeal.cookedAt ? new Date(selectedMeal.cookedAt).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' }) : 'already'}
                   </p>
                 </div>
               )}
 
               <div className="flex gap-3 mt-4">
-                <button
-                  onClick={(e) => handleDeleteMeal(selectedMeal.id, e)}
-                  className="py-2 px-4 rounded-btn text-sm font-medium border border-red-100 text-danger hover:bg-red-50 transition-all"
-                >
-                  Remove
-                </button>
+                <button onClick={(e) => handleDeleteMeal(selectedMeal.id, e)} className="py-2.5 px-4 rounded-full text-sm font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-all">Remove</button>
                 {!selectedMeal.cooked && (
-                  <button
-                    onClick={() => handleCookFromPlan(selectedMeal)}
-                    disabled={cooking}
-                    className="flex-1 btn-primary text-sm flex items-center justify-center gap-2"
-                  >
+                  <button onClick={() => handleCookFromPlan(selectedMeal)} disabled={cooking} className="flex-1 btn-primary text-sm flex items-center justify-center gap-2">
                     {cooking ? (
-                      <>
-                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                        </svg>
-                        Cooking...
-                      </>
+                      <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Cooking…</>
                     ) : <><Icon name="utensils" size={15} className="inline-block mr-1" />I cooked this</>}
                   </button>
                 )}
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className={`${selectedMeal.cooked ? 'flex-1' : ''} btn-secondary text-sm`}
-                >
-                  Close
-                </button>
+                <button onClick={() => setShowDetailModal(false)} className={`${selectedMeal.cooked ? 'flex-1' : ''} btn-secondary text-sm`}>Close</button>
               </div>
             </div>
           </div>
         </div>
       )}
-      {/* Full screen generation overlay — prevents navigation */}
+
       <CookingLoader mode="weekplan" visible={generatingWeek} done={weekGenDone} error={weekGenError} />
-      {/* Member selector modal for week generation */}
+
+      {/* Member selector modal */}
       {showMemberModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
-          <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h3 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="sparkle" size={15} /> Auto-plan this week</h3>
-              <button onClick={() => setShowMemberModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
+        <div className={modalBase}>
+          <div className={modalBox}>
+            <div className={modalHeader}>
+              <h3 className="font-semibold text-stone-900 flex items-center gap-2"><span>🫧</span> Auto-plan this week</h3>
+              <button onClick={() => setShowMemberModal(false)} className={closeBtn} aria-label="Close"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
-              <p className="text-sm text-textMuted mb-4">
-                Who should this meal plan be for? Leave all unselected to plan for the whole family.
-              </p>
-
+              <p className="text-sm text-stone-500 mb-4">Who should this meal plan be for? Leave all unselected to plan for the whole family.</p>
               {members.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6">
                   {members.map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => toggleMember(m.name)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${selectedMembers.includes(m.name)
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                        }`}
-                    >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
-                        }`}>
-                        {m.name[0]}
-                      </div>
+                    <button key={m.id} onClick={() => toggleMember(m.name)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all ${selectedMembers.includes(m.name) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-stone-600 border-[#E7D5C3] hover:border-indigo-300 hover:text-indigo-700'}`}>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-indigo-600' : 'bg-stone-100 text-stone-500'}`}>{m.name[0]}</div>
                       {m.name}
                     </button>
                   ))}
                 </div>
               )}
               <div className="mb-6">
-                <p className="text-sm font-medium text-textPrimary mb-1">Cuisine preferences</p>
-                <p className="text-xs text-textMuted mb-3">Leave unselected to mix all cuisines</p>
+                <p className="text-sm font-semibold text-stone-800 mb-1">Cuisine preferences</p>
+                <p className="text-xs text-stone-500 mb-3">Leave unselected to mix all cuisines</p>
                 <div className="flex flex-wrap gap-2">
                   {CUISINES.map(c => (
-                    <button
-                      key={c.label}
-                      onClick={() => toggleCuisine(c.label)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill border text-xs font-medium transition-all ${selectedCuisines.includes(c.label)
-                          ? 'bg-primary text-white border-primary'
-                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
-                        }`}
-                    >
+                    <button key={c.label} onClick={() => toggleCuisine(c.label)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${selectedCuisines.includes(c.label) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-stone-600 border-[#E7D5C3] hover:border-indigo-300 hover:text-indigo-700'}`}>
                       {c.icon} {c.label}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="bg-yellow-50 border border-yellow-100 rounded-btn px-4 py-3 mb-6">
-                <p className="text-xs text-yellow-700">
-                  <span className="flex items-center gap-1.5"><Icon name="warning" size={14} className="text-yellow-600 flex-shrink-0" />This will replace all existing meals for this week with AI suggestions.</span>
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-6">
+                <p className="text-xs text-amber-800 flex items-center gap-1.5">
+                  <Icon name="warning" size={14} className="text-amber-600 flex-shrink-0" />
+                  This will replace all existing meals for this week with AI suggestions.
                 </p>
               </div>
-
               <div className="flex gap-3">
                 <button onClick={() => setShowMemberModal(false)} className="btn-secondary flex-1">Cancel</button>
-                <button
-                  onClick={handleConfirmGenerate}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2"
-                >
-                  <Icon name="sparkle" size={15} /> Generate {selectedMembers.length > 0 ? `for ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : 'for whole family'}
+                <button onClick={handleConfirmGenerate} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  <span>🫧</span> Generate {selectedMembers.length > 0 ? `for ${selectedMembers.length} member${selectedMembers.length > 1 ? 's' : ''}` : 'for whole family'}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
       {/* Add meal modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
-          <div className="bg-surface w-full max-w-md shadow-dropdown rounded-t-2xl sm:rounded-card modal-sheet">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <h3 className="font-semibold text-textPrimary flex items-center gap-2">
-                <Icon name={MEAL_ICONS[selectedSlot?.mealType] || 'utensils'} size={15} />{selectedSlot?.mealType} — {selectedSlot?.day}
+        <div className={modalBase}>
+          <div className={modalBox}>
+            <div className={modalHeader}>
+              <h3 className="font-semibold text-stone-900 flex items-center gap-2">
+                <Icon name={MEAL_ICONS[selectedSlot?.mealType] || 'utensils'} size={15} />
+                {selectedSlot?.mealType} — {selectedSlot?.day}
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-gray-100 text-textMuted"><Icon name="close" size={16} /></button>
+              <button onClick={() => setShowAddModal(false)} className={closeBtn} aria-label="Close"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
               <label className="label">Recipe name</label>
-              <input
-                className="input mb-4"
-                placeholder="e.g. Butter Chicken, Oatmeal, Salad..."
-                value={recipeName}
-                onChange={e => setRecipeName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSaveMeal()}
-                autoFocus
-              />
+              <input className="input mb-4" placeholder="e.g. Butter Chicken, Oatmeal, Salad…" value={recipeName} onChange={e => setRecipeName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSaveMeal()} autoFocus />
               <div className="flex gap-3">
                 <button onClick={() => setShowAddModal(false)} className="btn-secondary flex-1">Cancel</button>
-                <button
-                  onClick={handleSaveMeal}
-                  disabled={!recipeName.trim() || saving}
-                  className="btn-primary flex-1 disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Add to plan'}
+                <button onClick={handleSaveMeal} disabled={!recipeName.trim() || saving} className="btn-primary flex-1 disabled:opacity-50">
+                  {saving ? 'Saving…' : 'Add to plan'}
                 </button>
               </div>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs text-textMuted mb-2">Or generate a recipe with AI</p>
-                <button
-                  onClick={() => { setShowAddModal(false); navigate('/app/recipes') }}
-                  className="w-full text-sm text-primary border border-blue-100 bg-blue-50 rounded-btn py-2 hover:bg-blue-100 transition-all"
-                >
-                  <Icon name="ai" size={15} /> Go to recipe suggestions
+              <div className="mt-4 pt-4 border-t border-[#F1E4D6]">
+                <p className="text-xs text-stone-500 mb-2">Or generate a recipe with AI</p>
+                <button onClick={() => { setShowAddModal(false); navigate('/app/recipes') }} className="w-full text-sm text-indigo-700 border border-indigo-200 bg-indigo-50 rounded-2xl py-2.5 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2">
+                  <span>🫧</span> Go to recipe suggestions
                 </button>
               </div>
             </div>
@@ -513,11 +416,11 @@ export default function MealPlan() {
         </div>
       )}
 
-      {/* Header */}
-     <div className="flex flex-col justify-between gap-3 mb-6">
+      {/* Page header */}
+      <div className="flex flex-col justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-textPrimary">Meal planner</h1>
-          <p className="text-textMuted mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
+          <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Meal planner</h1>
+          <p className="text-stone-500 mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {isFeatureEnabled('grocery_from_plan', plan) && (
@@ -526,78 +429,50 @@ export default function MealPlan() {
               disabled={generating || plannedCount === 0}
               className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50"
             >
-              {generating ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                  Adding...
-                </>
-              ) : canGroceryFromPlan ? <><Icon name="grocery" size={15} /> Add to grocery</> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
+              {generating
+                ? <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Adding…</>
+                : canGroceryFromPlan ? <><Icon name="grocery" size={15} /> Add to grocery</> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
             </button>
           )}
           {isFeatureEnabled('ai_meal_planner', plan) && (
             <button
               onClick={canAutoplan ? handleGenerateWeek : () => navigate('/app/settings?tab=plan')}
               disabled={generatingWeek}
-              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+              className="btn-secondary text-sm flex items-center gap-2 disabled:opacity-50 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
             >
-              {generatingWeek ? (
-                <>
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                  Generating week...
-                </>
-              ) : canAutoplan ? <><Icon name="sparkle" size={15} /> Auto-plan week <Icon name="crown" size={15} /></> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
+              {generatingWeek
+                ? <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Generating…</>
+                : canAutoplan ? <><span>🫧</span> Auto-plan week <Icon name="crown" size={15} /></> : <><Icon name="star" size={15} /> Upgrade to Premium</>}
             </button>
           )}
-          <button
-            onClick={() => navigate('/app/recipes')}
-            className="btn-primary text-sm flex items-center gap-2"
-          >
-            <Icon name="ai" size={16} /> Get recipes
+          <button onClick={() => navigate('/app/recipes')} className="btn-primary text-sm flex items-center gap-2">
+            <Icon name="recipes" size={16} /> Get recipes
           </button>
         </div>
       </div>
 
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-6 bg-surface rounded-card border border-border px-4 py-3">
-        <button
-          onClick={() => setWeekOffset(prev => prev - 1)}
-          className="flex items-center gap-1 text-sm text-textMuted hover:text-textPrimary transition-colors px-2 py-1 rounded-btn hover:bg-gray-50"
-        >
-          ← Prev week
+      <div className="flex items-center justify-between mb-5 bg-white rounded-3xl border border-[#F1E4D6] px-5 py-3.5">
+        <button onClick={() => setWeekOffset(prev => prev - 1)} className="flex items-center gap-1 text-sm text-stone-500 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
+          ← Prev
         </button>
         <div className="text-center">
-          <p className="text-sm font-semibold text-textPrimary">{formatWeekLabel(weekStart)}</p>
-          {weekOffset === 0 && (
-            <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-pill mt-1 inline-block">
-              This week
-            </span>
-          )}
+          <p className="text-sm font-semibold text-stone-900">{formatWeekLabel(weekStart)}</p>
+          {weekOffset === 0 && <span className="text-xs bg-indigo-600 text-white px-2.5 py-0.5 rounded-full mt-1 inline-block">This week</span>}
         </div>
-        <button
-          onClick={() => setWeekOffset(prev => prev + 1)}
-          className="flex items-center gap-1 text-sm text-textMuted hover:text-textPrimary transition-colors px-2 py-1 rounded-btn hover:bg-gray-50"
-        >
-          Next week →
+        <button onClick={() => setWeekOffset(prev => prev + 1)} className="flex items-center gap-1 text-sm text-stone-500 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
+          Next →
         </button>
       </div>
 
       {/* Progress */}
-      <div className="card mb-6 py-4">
+      <div className="card mb-5 py-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-textPrimary">Week planning progress</p>
-          <p className="text-sm text-textMuted">{plannedCount}/{totalSlots} meals planned</p>
+          <p className="text-sm font-semibold text-stone-800">Week planning progress</p>
+          <p className="text-sm text-stone-500">{plannedCount}/{totalSlots} meals planned</p>
         </div>
-        <div className="h-2 bg-gray-100 rounded-pill overflow-hidden">
-          <div
-            className="h-full bg-food-600 rounded-pill transition-all duration-500"
-            style={{ width: `${(plannedCount / totalSlots) * 100}%` }}
-          />
+        <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+          <div className="h-full bg-food-600 rounded-full transition-all duration-500" style={{ width: `${(plannedCount / totalSlots) * 100}%` }} />
         </div>
       </div>
 
@@ -609,61 +484,61 @@ export default function MealPlan() {
       ) : (
         <>
           {/* Desktop calendar */}
-          <div className="hidden md:block">
-            <div className="grid grid-cols-8 gap-2 mb-2">
-              <div className="text-xs font-semibold text-textMuted uppercase tracking-wide py-2" />
-              {DAYS.map(day => (
-                <div key={day} className="text-xs font-semibold text-textMuted uppercase tracking-wide py-2 text-center">
-                  {day.slice(0, 3)}
-                </div>
-              ))}
+          <div className="hidden md:block overflow-x-auto">
+            <div className="grid grid-cols-8 gap-1.5 mb-1.5 min-w-[700px]">
+              <div />
+              {DAYS.map(day => {
+                const isToday = weekOffset === 0 && day === todayName
+                return (
+                  <div key={day} className={`text-xs font-semibold uppercase tracking-wide py-2 text-center rounded-xl ${isToday ? 'bg-indigo-600 text-white' : 'text-stone-400'}`}>
+                    {day.slice(0, 3)}
+                  </div>
+                )
+              })}
             </div>
 
             {MEAL_TYPES.map(mealType => (
-              <div key={mealType} className="grid grid-cols-8 gap-2 mb-2">
+              <div key={mealType} className="grid grid-cols-8 gap-1.5 mb-1.5 min-w-[700px]">
                 <div className="flex items-center gap-1.5 py-2">
-                  <span className="flex items-center text-food-600"><Icon name={MEAL_ICONS[mealType]} size={16} /></span>
-                  <span className="text-xs font-medium text-stone-700">{mealType}</span>
+                  <Icon name={MEAL_ICONS[mealType]} size={14} className="text-food-600 flex-shrink-0" />
+                  <span className="text-xs font-semibold text-stone-600">{mealType}</span>
                 </div>
                 {DAYS.map(day => {
                   const meal = getMealForSlot(day, mealType)
+                  const isToday = weekOffset === 0 && day === todayName
                   return (
                     <div
                       key={day}
-                      className={`rounded-btn border min-h-[70px] p-2 cursor-pointer transition-all group relative ${meal
-                          ? 'bg-white border-stone-200 hover:bg-food-50 hover:border-food-200'
-                          : 'bg-surface border-border border-dashed hover:border-primary hover:bg-stone-50'
-                        }`}
-                      onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => { } }) : handleSlotClick(day, mealType)}
+                      className={`rounded-2xl border min-h-[72px] p-2 cursor-pointer transition-all group relative ${
+                        meal
+                          ? isToday
+                            ? 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
+                            : 'bg-white border-[#F1E4D6] hover:bg-orange-50 hover:border-orange-200'
+                          : 'bg-white border-dashed border-[#E7D5C3] hover:border-indigo-300 hover:bg-indigo-50'
+                      }`}
+                      onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => {} }) : handleSlotClick(day, mealType)}
                     >
                       {meal ? (
-                        <div className="h-full flex flex-col gap-1">
+                        <div className="h-full flex flex-col gap-0.5">
                           <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" />
-                          <p className="text-xs font-medium text-stone-900 hover:text-food-700 leading-tight line-clamp-2">
-                            {meal.recipeName}
-                          </p>
-                          {meal.cooked && (
-                            <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
-                          )}
-                          {meal.recipeData?.calories && (
-                            <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
-                          )}
-                          {meal.recipeData?.time && (
-                            <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="clock" size={11} className="text-stone-500" />{meal.recipeData.time}</p>
-                          )}
+                          <p className="text-xs font-semibold text-stone-900 leading-tight line-clamp-2">{meal.recipeName}</p>
+                          {meal.cooked && <span className="text-xs text-green-700 font-semibold flex items-center gap-0.5"><Icon name="check" size={9} />Done</span>}
+                          {meal.recipeData?.calories && <p className="text-xs text-stone-500 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories}</p>}
                           {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                            <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                            <p className="text-xs text-stone-400 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
-                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white text-danger opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-xs border border-red-100"
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white text-red-500 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center border border-red-100"
+                            aria-label="Remove meal"
                           >
-                            <Icon name="close" size={10} />
+                            <Icon name="close" size={9} />
                           </button>
                         </div>
                       ) : (
-                        <div className="h-full flex items-center justify-center">
-                          <span className="text-xs text-textMuted opacity-0 group-hover:opacity-100 transition-all">+ Add</span>
+                        <div className="h-full flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <span className="text-xs">🫧</span>
+                          <span className="text-xs text-indigo-600 font-medium">Suggest</span>
                         </div>
                       )}
                     </div>
@@ -675,61 +550,59 @@ export default function MealPlan() {
 
           {/* Mobile calendar */}
           <div className="md:hidden">
-            {/* Day selector tabs */}
             <div className="relative mb-4">
               <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
-                {DAYS.map(day => (
-                  <button
-                    key={day}
-                    onClick={() => setActiveMobileDay(day)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-btn text-xs font-medium transition-all ${activeMobileDay === day
-                        ? 'bg-primary text-white'
-                        : 'bg-surface border border-border text-textMuted'
+                {DAYS.map(day => {
+                  const isToday = weekOffset === 0 && day === todayName
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => setActiveMobileDay(day)}
+                      className={`flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
+                        activeMobileDay === day
+                          ? isToday ? 'bg-indigo-600 text-white' : 'bg-stone-900 text-white'
+                          : isToday ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-white border border-[#E7D5C3] text-stone-600'
                       }`}
-                  >
-                    {day.slice(0, 3)}
-                  </button>
-                ))}
+                    >
+                      {day.slice(0, 3)}
+                    </button>
+                  )
+                })}
               </div>
-              <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-background to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-[#FFF8F1] to-transparent" />
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {DAYS.filter(day => day === activeMobileDay).map(day => (
                 <div key={day} className="card p-4">
-                  <h3 className="font-semibold text-textPrimary mb-3">{day}</h3>
+                  <h3 className="font-display font-semibold text-stone-900 mb-3">{day}</h3>
                   <div className="space-y-2">
                     {MEAL_TYPES.map(mealType => {
                       const meal = getMealForSlot(day, mealType)
                       return (
                         <div key={mealType} className="flex items-center gap-3">
                           <div className="flex items-center gap-1.5 w-24 flex-shrink-0">
-                            <span className="flex items-center text-food-600"><Icon name={MEAL_ICONS[mealType]} size={14} /></span>
-                            <span className="text-xs text-stone-700">{mealType}</span>
+                            <Icon name={MEAL_ICONS[mealType]} size={14} className="text-food-600" />
+                            <span className="text-xs text-stone-600 font-medium">{mealType}</span>
                           </div>
                           {meal ? (
                             <div
-                              className="flex-1 min-w-0 flex items-center justify-between bg-food-50 rounded-btn px-3 py-2 border border-food-200 cursor-pointer transition-all"
-                              onClick={() => handleMealClick(meal, { stopPropagation: () => { } })}
+                              className="flex-1 min-w-0 flex items-center justify-between bg-orange-50 rounded-2xl px-3 py-2 border border-orange-100 cursor-pointer transition-all hover:bg-orange-100"
+                              onClick={() => handleMealClick(meal, { stopPropagation: () => {} })}
                             >
                               <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0 mr-2" />
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-stone-900 hover:text-food-700 truncate">
-                                  {meal.recipeName}
-                                </p>
-                                {meal.cooked && (
-                                  <span className="text-xs text-success font-medium flex items-center gap-1"><Icon name="check" size={10} />Cooked</span>
-                                )}
-                                {meal.recipeData?.calories && (
-                                  <p className="text-xs text-stone-600 flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" />{meal.recipeData.calories} kcal</p>
-                                )}
+                                <p className="text-xs font-semibold text-stone-900 truncate">{meal.recipeName}</p>
+                                {meal.cooked && <span className="text-xs text-green-700 font-semibold flex items-center gap-0.5"><Icon name="check" size={9} />Done</span>}
+                                {meal.recipeData?.calories && <p className="text-xs text-stone-500 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories} kcal</p>}
                                 {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                                  <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                                  <p className="text-xs text-stone-400 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                                 )}
                               </div>
                               <button
                                 onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
-                                className="text-danger text-xs ml-2 hover:bg-red-50 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                                className="text-red-400 ml-2 hover:bg-red-50 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                                aria-label="Remove meal"
                               >
                                 <Icon name="close" size={12} />
                               </button>
@@ -737,9 +610,9 @@ export default function MealPlan() {
                           ) : (
                             <button
                               onClick={() => handleSlotClick(day, mealType)}
-                              className="flex-1 text-xs text-textMuted border border-dashed border-border rounded-btn px-3 py-2 hover:border-primary hover:text-primary transition-all text-left"
+                              className="flex-1 flex items-center justify-center gap-1.5 text-xs text-indigo-600 border border-dashed border-indigo-200 rounded-2xl px-3 py-2 hover:bg-indigo-50 transition-all min-h-[36px]"
                             >
-                              + Add meal
+                              <span className="text-sm">🫧</span> Suggest
                             </button>
                           )}
                         </div>
@@ -753,58 +626,35 @@ export default function MealPlan() {
         </>
       )}
 
-      {/* I cooked this — confirmation modal */}
+      {/* "I cooked this" confirmation */}
       {cookedModal && (
-        <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
-            <div className="flex justify-center mb-3"><Icon name="check" size={48} className="text-success" /></div>
-            <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
-            <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
+        <div className={`${modalBase} backdrop-blur-sm`}>
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-lift w-full sm:max-w-sm p-6 modal-sheet">
+            <div className="flex justify-center mb-3"><Icon name="check" size={48} className="text-green-600" /></div>
+            <h3 className="font-display text-xl font-semibold text-stone-900 text-center mb-1">Nice cook!</h3>
+            <p className="text-sm text-stone-500 text-center mb-5">Here's what Nooka updated for you</p>
             <div className="space-y-2.5 mb-6">
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryLabel ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'}`}>
-                <Icon name="pantry" size={20} className={`${cookedModal.pantryLabel ? 'text-success' : 'text-textMuted'} flex-shrink-0`} />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-textPrimary">{cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged'}</p>
-                  <p className="text-xs text-textMuted">{cookedModal.pantryLabel ?? 'No items matched'}</p>
+              {[
+                { icon: 'pantry', ok: !!cookedModal.pantryLabel, label: cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged', sub: cookedModal.pantryLabel ?? 'No items matched' },
+                { icon: 'health', ok: cookedModal.membersLogged.length > 0, label: 'Nutrition logged', sub: cookedModal.membersLogged.length > 0 ? `For ${cookedModal.membersLogged.join(', ')}` : 'No nutrition data available' },
+                { icon: 'mealplan', ok: true, label: 'Meal plan', sub: 'Slot marked as done' },
+              ].map((row, i) => (
+                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${row.ok ? 'bg-green-50 border-green-200' : 'bg-stone-50 border-[#F1E4D6]'}`}>
+                  <Icon name={row.icon} size={20} className={`${row.ok ? 'text-green-600' : 'text-stone-400'} flex-shrink-0`} />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-stone-900">{row.label}</p>
+                    <p className="text-xs text-stone-500">{row.sub}</p>
+                  </div>
+                  {row.ok ? <Icon name="check" size={18} className="text-green-600 flex-shrink-0" /> : <span className="text-stone-300 text-lg">—</span>}
                 </div>
-                {cookedModal.pantryLabel
-                  ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                  : <span className="text-textMuted text-lg flex-shrink-0">—</span>}
-              </div>
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
-                }`}>
-                <Icon name="health" size={20} className="text-success flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
-                  <p className="text-xs text-textMuted">
-                    {cookedModal.membersLogged.length > 0
-                      ? `For ${cookedModal.membersLogged.join(', ')}`
-                      : 'No nutrition data available'}
-                  </p>
-                </div>
-                {cookedModal.membersLogged.length > 0
-                  ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                  : <span className="text-textMuted text-lg">—</span>}
-              </div>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-btn border bg-green-50 border-green-100">
-                <Icon name="mealplan" size={20} className="text-primary flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-textPrimary">Meal plan</p>
-                  <p className="text-xs text-textMuted">Slot marked as done</p>
-                </div>
-                <Icon name="check" size={18} className="text-success flex-shrink-0" />
-              </div>
+              ))}
             </div>
-            <button onClick={() => setCookedModal(null)} className="btn-primary w-full">
-              Done
-            </button>
+            <button onClick={() => setCookedModal(null)} className="btn-primary w-full">Done</button>
           </div>
         </div>
       )}
 
-      {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
-
     </div>
   )
 }
