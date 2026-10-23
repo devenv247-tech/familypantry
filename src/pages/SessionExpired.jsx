@@ -12,7 +12,7 @@ export default function SessionExpired() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6"><Icon name="clock" size={40} className="text-amber-500" /></div>
         <h1 className="text-2xl font-bold text-stone-900 mb-3">Session expired</h1>

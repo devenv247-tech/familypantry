@@ -51,7 +51,7 @@ const handleStep2 = async (e) => {
 }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
