@@ -86,15 +86,15 @@ export default function ItemAutocomplete({ value, onChange, onSelect, placeholde
         autoComplete="off"
       />
       {open && (
-        <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
+        <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-[#F1E4D6] rounded-xl shadow-lg max-h-64 overflow-y-auto">
           {suggestions.map((item, i) => (
             <li
               key={i}
               onMouseDown={() => handlePick(item)}
               onMouseEnter={() => setHighlighted(i)}
               className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${
-                i === highlighted ? 'bg-blue-50' : 'hover:bg-gray-50'
-              } ${i !== 0 ? 'border-t border-gray-100' : ''}`}
+                i === highlighted ? 'bg-indigo-50' : 'hover:bg-stone-50'
+              } ${i !== 0 ? 'border-t border-stone-100' : ''}`}
             >
               <span className="text-lg leading-none flex-shrink-0 w-7 text-center">{item.icon}</span>
               <div className="flex-1 min-w-0">
@@ -109,7 +109,7 @@ export default function ItemAutocomplete({ value, onChange, onSelect, placeholde
               </div>
             </li>
           ))}
-          <li className="px-3 py-2 text-xs text-stone-500 text-center border-t border-gray-100 bg-gray-50 rounded-b-xl">
+          <li className="px-3 py-2 text-xs text-stone-500 text-center border-t border-stone-100 bg-stone-50 rounded-b-xl">
             Type anything — you can always add custom items
           </li>
         </ul>

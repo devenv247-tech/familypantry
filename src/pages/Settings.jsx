@@ -68,10 +68,10 @@ const getBabyStageLabel = (months) => {
 // ─── Pill toggle button ───────────────────────────────────────────────────────
 function PillButton({ selected, onClick, children, variant = 'primary' }) {
   const colors = {
-    primary: selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary',
-    fresh:   selected ? 'bg-fresh-600 text-white border-fresh-600' : 'bg-surface text-textMuted border-border hover:border-fresh-600 hover:text-fresh-700',
-    green:   selected ? 'bg-food-600 text-white border-food-600' : 'bg-surface text-textMuted border-border hover:border-food-500 hover:text-food-600',
-    red:     selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger',
+    primary: selected ? 'bg-primary text-white border-primary' : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary',
+    fresh:   selected ? 'bg-fresh-600 text-white border-fresh-600' : 'bg-surface text-stone-500 border-border hover:border-fresh-600 hover:text-fresh-700',
+    green:   selected ? 'bg-food-600 text-white border-food-600' : 'bg-surface text-stone-500 border-border hover:border-food-500 hover:text-food-600',
+    red:     selected ? 'bg-danger text-white border-danger' : 'bg-surface text-stone-500 border-border hover:border-danger hover:text-danger',
   }
   return (
     <button type="button" onClick={onClick}
@@ -114,7 +114,7 @@ function ToggleSwitch({ on, onChange }) {
 }
 // ─── Section header ───────────────────────────────────────────────────────────
 function SectionLabel({ children }) {
-  return <p className="text-xs font-semibold text-textMuted uppercase tracking-wide mb-2">{children}</p>
+  return <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">{children}</p>
 }
 
 const multiSummary = (items) => {
@@ -135,15 +135,15 @@ function CollapsibleSection({ label, summary, defaultOpen = false, children }) {
         style={{ minHeight: '44px' }}
       >
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-textMuted uppercase tracking-wide leading-none">{label}</p>
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide leading-none">{label}</p>
           {!isOpen && (
-            <p className="text-xs text-textMuted truncate mt-1 leading-none">{summary}</p>
+            <p className="text-xs text-stone-500 truncate mt-1 leading-none">{summary}</p>
           )}
         </div>
         <Icon
           name="chevronDown"
           size={16}
-          className={`flex-shrink-0 text-textMuted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`flex-shrink-0 text-stone-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       {isOpen && (
@@ -476,7 +476,7 @@ export default function Settings() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="page-heading">Settings</h1>
-        <p className="text-textMuted mt-1 text-sm">Manage your family account and preferences</p>
+        <p className="text-stone-500 mt-1 text-sm">Manage your family account and preferences</p>
       </div>
 
       {/* Tabs */}
@@ -484,7 +484,7 @@ export default function Settings() {
         {TABS.map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
-              activeTab === tab.id ? 'bg-surface text-textPrimary shadow-card' : 'text-textMuted hover:text-textPrimary'
+              activeTab === tab.id ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-500 hover:text-stone-900'
             }`}>
             <Icon name={tab.icon} size={15} />
             {tab.label}
@@ -497,8 +497,8 @@ export default function Settings() {
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-semibold text-textPrimary">Family members</h2>
-              <p className="text-xs text-textMuted mt-0.5">{members.length} member{members.length !== 1 ? 's' : ''} in your family</p>
+              <h2 className="font-semibold text-stone-900">Family members</h2>
+              <p className="text-xs text-stone-500 mt-0.5">{members.length} member{members.length !== 1 ? 's' : ''} in your family</p>
             </div>
             <button onClick={() => setShowAddMember(true)} className="btn-primary flex items-center gap-2 text-sm">
               <Icon name="add" size={15} />
@@ -511,11 +511,11 @@ export default function Settings() {
             <div className="card mb-6 border-2 border-primary">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="font-semibold text-textPrimary">New family member</h3>
-                  <p className="text-xs text-textMuted mt-0.5">Fill in the details below</p>
+                  <h3 className="font-semibold text-stone-900">New family member</h3>
+                  <p className="text-xs text-stone-500 mt-0.5">Fill in the details below</p>
                 </div>
                 <button onClick={() => { setShowAddMember(false); setNewMember(EMPTY_MEMBER) }}
-                  className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
+                  className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-stone-500">
                   <Icon name="close" size={16} />
                 </button>
               </div>
@@ -531,8 +531,8 @@ export default function Settings() {
                     <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${newMember.isBaby ? 'translate-x-5' : 'translate-x-0'}`} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-textPrimary flex items-center gap-1.5">This is a baby or toddler <Icon name="bottle" size={14} className="text-pink-500" /></p>
-                    <p className="text-xs text-textMuted">Enables stage tracking, allergen scheduler, and growth monitoring</p>
+                    <p className="text-sm font-medium text-stone-900 flex items-center gap-1.5">This is a baby or toddler <Icon name="bottle" size={14} className="text-pink-500" /></p>
+                    <p className="text-xs text-stone-500">Enables stage tracking, allergen scheduler, and growth monitoring</p>
                   </div>
                 </button>
 
@@ -580,7 +580,7 @@ export default function Settings() {
                             <option value="in">in</option>
                           </select>
                         </div>
-                        <p className="text-xs text-textMuted mt-1">Tracked against WHO standards</p>
+                        <p className="text-xs text-stone-500 mt-1">Tracked against WHO standards</p>
                       </div>
                     </>
                   ) : (
@@ -612,7 +612,7 @@ export default function Settings() {
                             if (raw && !e.target.value.includes("'"))
                               setNewMember(p => ({ ...p, height: formatHeight(raw) }))
                           }} />
-                        <p className="text-xs text-textMuted mt-1">54 → auto formats to 5'4"</p>
+                        <p className="text-xs text-stone-500 mt-1">54 → auto formats to 5'4"</p>
                       </div>
                     </>
                   )}
@@ -664,7 +664,7 @@ export default function Settings() {
                           </PillButton>
                         ))}
                       </div>
-                      <p className="text-xs text-textMuted mt-2">
+                      <p className="text-xs text-stone-500 mt-2">
                         {!newMember.activityLevel
                           ? 'Set your activity level for a more accurate calorie target.'
                           : 'Used to calculate daily calorie targets.'}
@@ -691,7 +691,7 @@ export default function Settings() {
                           </PillButton>
                         ))}
                       </div>
-                      <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
+                      <p className="text-xs text-stone-500 mt-2">Used for a more accurate calorie calculation.</p>
                     </CollapsibleSection>
                   </div>
                 )}
@@ -742,7 +742,7 @@ export default function Settings() {
                           </PillButton>
                         ))}
                       </div>
-                      <p className="text-xs text-textMuted mt-2">Used for more accurate growth percentiles.</p>
+                      <p className="text-xs text-stone-500 mt-2">Used for more accurate growth percentiles.</p>
                     </CollapsibleSection>
                   </div>
                 )}
@@ -788,7 +788,7 @@ export default function Settings() {
 
           {/* Member list */}
           {members.length === 0 ? (
-            <div className="card text-center py-16 text-textMuted">
+            <div className="card text-center py-16 text-stone-500">
               <Icon name="family" size={36} className="mx-auto mb-3 opacity-30" />
               <p className="font-medium">No members yet</p>
               <p className="text-sm mt-1">Add your first family member above</p>
@@ -804,8 +804,8 @@ export default function Settings() {
                       /* ── Edit form ─────────────────────────────────────── */
                       <div>
                         <div className="flex items-center justify-between mb-4">
-                          <p className="font-semibold text-textPrimary">Edit {member.name}</p>
-                          <button onClick={() => setEditingId(null)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
+                          <p className="font-semibold text-stone-900">Edit {member.name}</p>
+                          <button onClick={() => setEditingId(null)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-stone-500">
                             <Icon name="close" size={16} />
                           </button>
                         </div>
@@ -852,7 +852,7 @@ export default function Settings() {
                                     if (raw && !e.target.value.includes("'"))
                                       setEditForm(p => ({ ...p, height: formatHeight(raw) }))
                                   }} />
-                                <p className="text-xs text-textMuted mt-1">Type 54 for 5'4"</p>
+                                <p className="text-xs text-stone-500 mt-1">Type 54 for 5'4"</p>
                               </div>
                             </>
                           )}
@@ -896,7 +896,7 @@ export default function Settings() {
                                     </PillButton>
                                   ))}
                                 </div>
-                                <p className="text-xs text-textMuted mt-2">
+                                <p className="text-xs text-stone-500 mt-2">
                                   {!editForm.activityLevel
                                     ? 'Set your activity level for a more accurate calorie target.'
                                     : 'Used to calculate daily calorie targets.'}
@@ -920,7 +920,7 @@ export default function Settings() {
                                       </PillButton>
                                     ))}
                                   </div>
-                                  <p className="text-xs text-textMuted mt-2">Used for a more accurate calorie calculation.</p>
+                                  <p className="text-xs text-stone-500 mt-2">Used for a more accurate calorie calculation.</p>
                                 </CollapsibleSection>
                               </div>
                             )}
@@ -965,7 +965,7 @@ export default function Settings() {
                                   </PillButton>
                                 ))}
                               </div>
-                              <p className="text-xs text-textMuted mt-2">Used for more accurate growth percentiles.</p>
+                              <p className="text-xs text-stone-500 mt-2">Used for more accurate growth percentiles.</p>
                             </CollapsibleSection>
                           </div>
                         )}
@@ -1011,9 +1011,9 @@ export default function Settings() {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                            <p className="font-semibold text-textPrimary">{member.name}</p>
+                            <p className="font-semibold text-stone-900">{member.name}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-pill font-medium border ${
-                              member.role === 'Admin' ? 'bg-indigo-50 text-primary border-indigo-100' : 'bg-stone-100 text-textMuted border-stone-200'
+                              member.role === 'Admin' ? 'bg-indigo-50 text-primary border-indigo-100' : 'bg-stone-100 text-stone-500 border-stone-200'
                             }`}>{member.role}</span>
                             {member.isBaby && (
                               <span className="text-xs px-2 py-0.5 rounded-pill font-medium bg-pink-50 text-pink-600 border border-pink-100">
@@ -1043,8 +1043,8 @@ export default function Settings() {
                                 { label: 'Allergens', value: member.allergens ? member.allergens.split(',').filter(Boolean).length + ' flagged' : 'None' },
                               ].map((item, i) => (
                                 <div key={i} className="bg-stone-50 rounded-btn px-3 py-2">
-                                  <p className="text-xs text-textMuted">{item.label}</p>
-                                  <p className="text-sm font-medium text-textPrimary">{item.value}</p>
+                                  <p className="text-xs text-stone-500">{item.label}</p>
+                                  <p className="text-sm font-medium text-stone-900">{item.value}</p>
                                 </div>
                               ))}
                             </div>
@@ -1057,8 +1057,8 @@ export default function Settings() {
                                 { label: 'Dietary', value: member.dietary || '—' },
                               ].map((item, i) => (
                                 <div key={i} className="bg-stone-50 rounded-btn px-3 py-2">
-                                  <p className="text-xs text-textMuted">{item.label}</p>
-                                  <p className="text-sm font-medium text-textPrimary truncate">{item.value}</p>
+                                  <p className="text-xs text-stone-500">{item.label}</p>
+                                  <p className="text-sm font-medium text-stone-900 truncate">{item.value}</p>
                                 </div>
                               ))}
                             </div>
@@ -1102,7 +1102,7 @@ export default function Settings() {
                           )}
                           {member.role !== 'Admin' && !member.inviteAccepted && (
                             <button onClick={() => { setInviteModal(member); setInviteEmail(member.email || '') }}
-                              className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-blue-50 transition-all">
+                              className="text-xs px-3 py-1.5 rounded-btn border border-border text-primary hover:bg-indigo-50 transition-all">
                               {member.email ? 'Resend invite' : 'Invite to login'}
                             </button>
                           )}
@@ -1126,15 +1126,15 @@ export default function Settings() {
       {/* ── INVITE MODAL ──────────────────────────────────────────────────── */}
       {inviteModal && (
         <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
+          <div className="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-xl p-6 modal-sheet">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-textPrimary">Invite {inviteModal.name}</h3>
+              <h3 className="font-semibold text-stone-900">Invite {inviteModal.name}</h3>
               <button onClick={() => { setInviteModal(null); setInviteEmail('') }}
-                className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted">
+                className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-stone-500">
                 <Icon name="close" size={16} />
               </button>
             </div>
-            <p className="text-sm text-textMuted mb-4">
+            <p className="text-sm text-stone-500 mb-4">
               They'll receive an email to set their password and join your family account.
             </p>
             <div className="mb-4">
@@ -1159,7 +1159,7 @@ export default function Settings() {
 
           {/* Profile */}
           <div className="card">
-            <h2 className="font-semibold text-textPrimary mb-5">Account details</h2>
+            <h2 className="font-semibold text-stone-900 mb-5">Account details</h2>
             <div className="space-y-4">
               <div>
                 <label className="label">Family name</label>
@@ -1194,18 +1194,18 @@ export default function Settings() {
 
           {/* Restock threshold */}
           <div className="card">
-            <h3 className="font-semibold text-textPrimary mb-1">Grocery restock threshold</h3>
-            <p className="text-sm text-textMuted mb-4">
+            <h3 className="font-semibold text-stone-900 mb-1">Grocery restock threshold</h3>
+            <p className="text-sm text-stone-500 mb-4">
               Nooka suggests restocking when stock drops below this percentage of the usual amount.
             </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-textMuted">Alert me at</span>
+                <span className="text-sm text-stone-500">Alert me at</span>
                 <span className="text-sm font-bold text-primary">{restockThreshold}% remaining</span>
               </div>
               <input type="range" min={5} max={50} step={5} value={restockThreshold}
                 onChange={e => setRestockThreshold(parseInt(e.target.value))} className="w-full accent-primary" />
-              <div className="flex justify-between text-xs text-textMuted">
+              <div className="flex justify-between text-xs text-stone-500">
                 <span>5% — run lean</span>
                 <span>50% — early warning</span>
               </div>
@@ -1217,8 +1217,8 @@ export default function Settings() {
 
           {/* Data export */}
           <div className="card">
-            <h3 className="font-semibold text-textPrimary mb-1">Export your data</h3>
-            <p className="text-sm text-textMuted mb-4">
+            <h3 className="font-semibold text-stone-900 mb-1">Export your data</h3>
+            <p className="text-sm text-stone-500 mb-4">
               Download a copy of all personal data Nooka holds for your account — your right under PIPEDA.
             </p>
             <button
@@ -1233,7 +1233,7 @@ export default function Settings() {
           {/* Danger zone */}
           <div className="card border border-red-200 bg-red-50/20">
             <h3 className="font-semibold text-danger mb-1">Danger zone</h3>
-            <p className="text-sm text-textMuted mb-4">
+            <p className="text-sm text-stone-500 mb-4">
               Permanently deletes your account, all members, pantry items, and history. Cannot be undone.
             </p>
             {!showDeleteConfirm ? (
@@ -1265,9 +1265,9 @@ export default function Settings() {
       {activeTab === 'plan' && (
         <div>
           <div className="mb-6">
-            <h2 className="font-semibold text-textPrimary mb-1">Plan & billing</h2>
-            <p className="text-sm text-textMuted">
-              You're on the <span className="font-semibold text-textPrimary">{currentPlanName}</span> plan.
+            <h2 className="font-semibold text-stone-900 mb-1">Plan & billing</h2>
+            <p className="text-sm text-stone-500">
+              You're on the <span className="font-semibold text-stone-900">{currentPlanName}</span> plan.
               {subscription?.subscription?.currentPeriodEnd && (
                 <span> · Renews {subscription.subscription.currentPeriodEnd}</span>
               )}
@@ -1288,7 +1288,7 @@ export default function Settings() {
                 }`}>
                   <div className="mb-3">
                     {isCurrent && (
-                      <span className="inline-block bg-blue-50 text-primary text-xs font-semibold px-3 py-1 rounded-pill border border-blue-100">
+                      <span className="inline-block bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1 rounded-pill border border-indigo-200">
                         ✓ Current plan
                       </span>
                     )}
@@ -1303,14 +1303,14 @@ export default function Settings() {
                       </span>
                     )}
                   </div>
-                  <p className="font-bold text-textPrimary text-lg">{plan.name}</p>
+                  <p className="font-bold text-stone-900 text-lg">{plan.name}</p>
                   <div className="flex items-baseline gap-1 my-2">
-                    <span className="text-2xl font-bold text-textPrimary">{plan.price}</span>
-                    <span className="text-xs text-textMuted">{plan.period}</span>
+                    <span className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">{plan.price}</span>
+                    <span className="text-xs text-stone-500">{plan.period}</span>
                   </div>
                   <ul className="space-y-1.5 mb-5 flex-1">
                     {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-start gap-2 text-xs text-textMuted">
+                      <li key={j} className="flex items-start gap-2 text-xs text-stone-500">
                         <Icon name="check" size={13} className="text-success mt-0.5 flex-shrink-0" />
                         {f}
                       </li>
@@ -1320,8 +1320,8 @@ export default function Settings() {
                     onClick={() => !isCurrent && plan.name !== 'Free' && handleUpgrade(plan.name)}
                     disabled={isCurrent || plan.name === 'Free' || !!upgradingPlan}
                     className={`w-full text-sm py-2.5 rounded-btn font-medium transition-all disabled:opacity-50 ${
-                      isCurrent        ? 'bg-stone-100 text-textMuted cursor-default' :
-                      plan.name === 'Free'    ? 'bg-stone-100 text-textMuted cursor-default' :
+                      isCurrent        ? 'bg-stone-100 text-stone-500 cursor-default' :
+                      plan.name === 'Free'    ? 'bg-stone-100 text-stone-500 cursor-default' :
                       plan.name === 'Premium' ? 'bg-purple-600 text-white hover:bg-purple-700' :
                       'btn-primary'
                     }`}>
@@ -1341,8 +1341,8 @@ export default function Settings() {
 
           {subscription?.subscription && (
             <div className="card max-w-lg mb-4">
-              <h3 className="font-semibold text-textPrimary mb-2">Manage subscription</h3>
-              <p className="text-sm text-textMuted mb-4">
+              <h3 className="font-semibold text-stone-900 mb-2">Manage subscription</h3>
+              <p className="text-sm text-stone-500 mb-4">
                 Change payment method, download invoices, or cancel through the Stripe billing portal.
               </p>
               <button onClick={handleManageBilling} className="btn-secondary text-sm">
@@ -1352,28 +1352,28 @@ export default function Settings() {
           )}
 
           <div className="card max-w-lg">
-            <h3 className="font-semibold text-textPrimary mb-1">Billing history</h3>
-            <p className="text-xs text-textMuted mb-4">Full history available in the billing portal above.</p>
+            <h3 className="font-semibold text-stone-900 mb-1">Billing history</h3>
+            <p className="text-xs text-stone-500 mb-4">Full history available in the billing portal above.</p>
             {subscriptionLoading ? (
               <div className="flex items-center justify-center py-6">
                 <Icon name="refresh" size={20} className="animate-spin text-primary" />
               </div>
             ) : subscription?.subscription ? (
               <div className="flex items-center justify-between py-3 border-b border-border">
-                <p className="text-sm text-textPrimary">{currentPlanName} plan — active</p>
+                <p className="text-sm text-stone-900">{currentPlanName} plan — active</p>
                 <span className="text-xs bg-indigo-50 text-primary px-2.5 py-1 rounded-pill font-medium border border-indigo-100">
                   {subscription.subscription.status}
                 </span>
               </div>
             ) : (
-              <div className="text-center py-6 text-textMuted">
+              <div className="text-center py-6 text-stone-500">
                 <Icon name="dollar" size={28} className="mx-auto mb-2 opacity-30" />
                 <p className="text-sm">No billing history yet</p>
               </div>
             )}
           </div>
 
-          <p className="text-xs text-textMuted mt-4 text-center">
+          <p className="text-xs text-stone-500 mt-4 text-center">
             All prices in CAD · No hidden fees · Cancel anytime · Powered by Stripe
           </p>
         </div>
@@ -1382,7 +1382,7 @@ export default function Settings() {
       {/* ── NOTIFICATIONS TAB ─────────────────────────────────────────────── */}
       {activeTab === 'notifications' && (
         <div className="card max-w-lg">
-          <h2 className="font-semibold text-textPrimary mb-5">Notification preferences</h2>
+          <h2 className="font-semibold text-stone-900 mb-5">Notification preferences</h2>
           <div className="space-y-1">
             {[
               { key: 'recalls', label: 'Food recall alerts',   sub: 'Instant alert when a recalled item matches your pantry', coming: true },
@@ -1394,12 +1394,12 @@ export default function Settings() {
               <div key={n.key} className="flex items-start justify-between gap-4 py-3 border-b border-border last:border-0">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium text-textPrimary">{n.label}</p>
+                    <p className="text-sm font-medium text-stone-900">{n.label}</p>
                     {n.coming && (
-                      <span className="text-xs px-2 py-0.5 rounded-pill bg-stone-100 text-textMuted border border-border font-medium leading-none flex-shrink-0">Coming soon</span>
+                      <span className="text-xs px-2 py-0.5 rounded-pill bg-stone-100 text-stone-500 border border-border font-medium leading-none flex-shrink-0">Coming soon</span>
                     )}
                   </div>
-                  <p className="text-xs text-textMuted mt-0.5">{n.sub}</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{n.sub}</p>
                 </div>
                 {n.coming ? (
                   <div style={{ opacity: 0.35, pointerEvents: 'none', flexShrink: 0 }}>
@@ -1415,8 +1415,8 @@ export default function Settings() {
             {/* Weekly digest */}
             <div className="flex items-start justify-between gap-4 py-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-textPrimary">Weekly pantry digest</p>
-                <p className="text-xs text-textMuted mt-0.5">
+                <p className="text-sm font-medium text-stone-900">Weekly pantry digest</p>
+                <p className="text-xs text-stone-500 mt-0.5">
                   Sunday email with expiring items
                   {family?.plan === 'free' ? '' : ' and recipe suggestions'}
                 </p>
@@ -1431,7 +1431,7 @@ export default function Settings() {
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
       <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
-        <p className="text-xs text-textMuted">
+        <p className="text-xs text-stone-500">
           Need help?{' '}
           <a href="mailto:support@nooka.ca" className="text-primary hover:underline font-medium">support@nooka.ca</a>
         </p>

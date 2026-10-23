@@ -212,7 +212,7 @@ export default function Onboarding({ onComplete }) {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
       <div className="bg-white w-full sm:w-auto sm:min-w-[520px] max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-xl modal-sheet">
 
-        <div className="h-1.5 bg-gray-100 rounded-t-card overflow-hidden">
+        <div className="h-1.5 bg-stone-100 rounded-t-card overflow-hidden">
           <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / 4) * 100}%` }} />
         </div>
 
@@ -236,7 +236,7 @@ export default function Onboarding({ onComplete }) {
                   { svgIcon: 'pantry', title: 'Add a pantry item', desc: 'Start tracking what you have at home' },
                   { svgIcon: 'bubble', title: 'Get AI recipes', desc: 'Personalized meals based on your pantry and health goals' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3">
+                  <div key={i} className="flex items-start gap-3 bg-stone-50 rounded-btn px-4 py-3">
                     <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                     <div>
                       <p className="text-sm font-semibold text-stone-900">{item.title}</p>
@@ -452,8 +452,8 @@ export default function Onboarding({ onComplete }) {
                             onClick={() => handleApplyTemplate(template.id)}
                             className={`text-left p-4 rounded-btn border transition-all w-full ${
                               isApplying
-                                ? 'border-primary bg-blue-50 opacity-60'
-                                : 'border-border hover:border-primary hover:bg-blue-50 active:scale-[0.99]'
+                                ? 'border-primary bg-indigo-50 opacity-60'
+                                : 'border-border hover:border-primary hover:bg-indigo-50 active:scale-[0.99]'
                             }`}
                           >
                             <div className="flex items-start gap-3">
@@ -542,7 +542,7 @@ export default function Onboarding({ onComplete }) {
                       { svgIcon: 'grocery', title: 'Start your grocery list', desc: 'Track what you need to buy this week', link: '/app/grocery' },
                       { svgIcon: 'chart', title: 'View reports', desc: 'Track your grocery spending over time', link: '/app/reports' },
                     ].map((item, i) => (
-                      <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
+                      <a key={i} href={item.link} className="flex items-start gap-3 bg-stone-50 rounded-btn px-4 py-3 hover:bg-indigo-50 hover:border-primary border border-transparent transition-all">
                         <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                         <div>
                           <p className="text-sm font-semibold text-stone-900">{item.title}</p>
@@ -560,7 +560,7 @@ export default function Onboarding({ onComplete }) {
               {/* ── Loading: inline spinner (no CookingLoader — z-index conflict) ── */}
               {!skippedPantry && !firstRecipeError && firstRecipeLoading && (
                 <div className="text-center py-8">
-                  <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-14 h-14 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg className="animate-spin w-7 h-7 text-primary" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -636,7 +636,7 @@ export default function Onboarding({ onComplete }) {
                         <h2 className="text-xl font-bold text-stone-900">See AI in action</h2>
                         <p className="text-sm text-stone-500 mt-1">Generate your first recipe from your new pantry</p>
                       </div>
-                      <div className="bg-gray-50 rounded-card px-4 py-3 mb-4">
+                      <div className="bg-stone-50 rounded-card px-4 py-3 mb-4">
                         <p className="text-xs font-semibold text-stone-900 mb-2">Before we generate — a quick note:</p>
                         <p className="text-xs text-stone-500 mb-2 leading-relaxed">
                           To generate recipes, Nooka sends anonymous health and pantry data to Anthropic's AI (US servers). Your name, email, and account details are never shared.

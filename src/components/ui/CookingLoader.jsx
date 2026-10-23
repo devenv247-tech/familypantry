@@ -174,7 +174,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
             {[0, 1, 2].map(i => (
               <div
                 key={i}
-                className="w-0.5 rounded-full bg-gray-300"
+                className="w-0.5 rounded-full bg-stone-300"
                 style={{
                   height: '20px',
                   animation: `steam 1.5s ease-in-out infinite`,
@@ -205,10 +205,10 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
                 key={i}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-500 ${
                   isActive
-                    ? error ? 'bg-red-50 border border-red-100' : 'bg-blue-50 border border-blue-100'
+                    ? error ? 'bg-red-50 border border-red-100' : 'bg-indigo-50 border border-indigo-200'
                     : isDone
                     ? 'bg-green-50 border border-green-100'
-                    : 'bg-gray-50 border border-transparent'
+                    : 'bg-stone-50 border border-transparent'
                 }`}
               >
                 {/* Status icon */}
@@ -225,7 +225,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
                       </svg>
                     )
                   ) : (
-                    <span className="w-2 h-2 rounded-full bg-gray-300 inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-stone-300 inline-block" />
                   )}
                 </div>
 
@@ -239,7 +239,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
 
                 {/* Per-step mini bar — only for non-gated active steps */}
                 {isActive && !isGatedActiveStep && !error && (
-                  <div className="w-12 h-1 bg-blue-100 rounded-pill overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-1 bg-indigo-100 rounded-pill overflow-hidden flex-shrink-0">
                     <div
                       className="h-full bg-primary rounded-pill transition-all"
                       style={{ width: `${stepProgress * 100}%` }}
@@ -259,7 +259,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
               {error ? 'Failed' : `${Math.round(progress)}%`}
             </span>
           </div>
-          <div className="w-full h-2 bg-gray-100 rounded-pill overflow-hidden">
+          <div className="w-full h-2 bg-stone-100 rounded-pill overflow-hidden">
             <div
               className={`h-full rounded-pill transition-all duration-300 ${error ? 'bg-red-400' : 'bg-primary'}`}
               style={{ width: `${progress}%` }}

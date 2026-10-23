@@ -25,12 +25,12 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-dvh bg-[#FFF8F1] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-3"><Icon name="key" size={24} className="text-stone-500" /></div>
-          <h1 className="text-2xl font-bold text-textPrimary">Reset your password</h1>
-          <p className="text-textMuted mt-2 text-sm">
+          <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Reset your password</h1>
+          <p className="text-stone-500 mt-2 text-sm">
             Enter your email and we'll send you a reset link
           </p>
         </div>
@@ -39,8 +39,8 @@ export default function ForgotPassword() {
           {sent ? (
             <div className="text-center py-4">
               <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4"><Icon name="mail" size={28} className="text-primary" /></div>
-              <h2 className="font-semibold text-textPrimary mb-2">Check your email</h2>
-              <p className="text-sm text-textMuted mb-6">
+              <h2 className="font-semibold text-stone-900 mb-2">Check your email</h2>
+              <p className="text-sm text-stone-500 mb-6">
                 If <strong>{email}</strong> is registered, you'll receive a password reset link shortly.
               </p>
               <Link to="/login" className="btn-primary inline-block">
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
               >
                 {loading ? 'Sending...' : 'Send reset link'}
               </button>
-              <p className="text-center text-sm text-textMuted mt-4">
+              <p className="text-center text-sm text-stone-500 mt-4">
                 Remember your password?{' '}
                 <Link to="/login" className="text-primary hover:underline font-medium">
                   Sign in

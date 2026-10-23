@@ -41,7 +41,7 @@ export default function AcceptInvite() {
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center">
         <Link to="/" className="flex items-center gap-2">
           <NookaIcon size={32} />
-          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
+          <span className="font-semibold text-stone-900 text-lg">Nooka</span>
         </Link>
       </nav>
 
@@ -51,8 +51,8 @@ export default function AcceptInvite() {
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
               <NookaIcon size={32} />
             </div>
-            <h1 className="text-2xl font-bold text-textPrimary">You're invited to Nooka</h1>
-            <p className="text-textMuted text-sm mt-1">Set a password to create your login</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">You're invited to Nooka</h1>
+            <p className="text-stone-500 text-sm mt-1">Set a password to create your login</p>
           </div>
 
           {error && (
@@ -63,7 +63,7 @@ export default function AcceptInvite() {
 
           {!token ? (
             <div className="text-center py-4">
-              <p className="text-sm text-textMuted mb-4">This invite link is invalid or has expired.</p>
+              <p className="text-sm text-stone-500 mb-4">This invite link is invalid or has expired.</p>
               <Link to="/login" className="btn-primary inline-block">Back to login</Link>
             </div>
           ) : (
@@ -96,7 +96,7 @@ export default function AcceptInvite() {
               >
                 {loading ? 'Setting up your account...' : 'Create my account'}
               </button>
-              <p className="text-center text-xs text-textMuted">
+              <p className="text-center text-xs text-stone-500">
                 Already have an account?{' '}
                 <Link to="/login" className="text-primary hover:underline">Sign in</Link>
               </p>
