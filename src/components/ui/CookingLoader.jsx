@@ -187,10 +187,10 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-bold text-textPrimary mb-1">
+        <h2 className="text-xl font-bold text-stone-900 mb-1">
           {TITLES[mode]}
         </h2>
-        <p className="text-sm text-textMuted mb-8 leading-relaxed">
+        <p className="text-sm text-stone-500 mb-8 leading-relaxed">
           {SUBTITLES[mode]}
         </p>
 
@@ -232,7 +232,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
                 {/* Step icon + label */}
                 <span className="flex-shrink-0 text-stone-400"><Icon name={step.icon} size={16} /></span>
                 <span className={`text-sm font-medium flex-1 text-left ${
-                  isDone ? 'text-success' : isActive ? (error ? 'text-red-500' : 'text-primary') : 'text-textMuted'
+                  isDone ? 'text-success' : isActive ? (error ? 'text-red-500' : 'text-primary') : 'text-stone-500'
                 }`}>
                   {step.label}
                 </span>
@@ -254,7 +254,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
         {/* Overall progress bar */}
         <div className="w-full mb-6">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-textMuted">Overall progress</span>
+            <span className="text-xs text-stone-500">Overall progress</span>
             <span className={`text-xs font-semibold ${error ? 'text-red-500' : 'text-primary'}`}>
               {error ? 'Failed' : `${Math.round(progress)}%`}
             </span>
@@ -276,7 +276,7 @@ export default function CookingLoader({ mode = 'recipes', visible, done = false,
           <p className="text-xs text-amber-700 leading-relaxed">{TIPS[tipIndex]}</p>
         </div>
 
-        <p className="text-xs text-textMuted mt-4">Please stay on this page</p>
+        <p className="text-xs text-stone-500 mt-4">Please stay on this page</p>
       </div>
 
       {/* CSS animations injected inline */}

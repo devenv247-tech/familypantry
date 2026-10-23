@@ -210,7 +210,7 @@ export default function Onboarding({ onComplete }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-      <div className="bg-white w-full sm:w-auto sm:min-w-[520px] max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl modal-sheet">
+      <div className="bg-white w-full sm:w-auto sm:min-w-[520px] max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-xl modal-sheet">
 
         <div className="h-1.5 bg-gray-100 rounded-t-card overflow-hidden">
           <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / 4) * 100}%` }} />
@@ -221,13 +221,13 @@ export default function Onboarding({ onComplete }) {
           {step === 1 && (
             <div className="text-center py-4">
               <div className="mb-4 flex justify-center text-primary"><Icon name="family" size={56} /></div>
-              <h2 className="text-2xl font-bold text-textPrimary mb-2">
+              <h2 className="text-2xl font-bold text-stone-900 mb-2">
                 Welcome to Nooka, {user?.name?.split(' ')[0]}!
               </h2>
-              <p className="text-textMuted mb-2">
-                You're setting up <span className="font-semibold text-textPrimary">{family?.name}</span>
+              <p className="text-stone-500 mb-2">
+                You're setting up <span className="font-semibold text-stone-900">{family?.name}</span>
               </p>
-              <p className="text-sm text-textMuted mb-8 max-w-sm mx-auto">
+              <p className="text-sm text-stone-500 mb-8 max-w-sm mx-auto">
                 Let's get you set up in 2 quick steps. It takes less than 2 minutes and makes the app much smarter for your family.
               </p>
               <div className="grid grid-cols-1 gap-3 mb-8 text-left">
@@ -239,8 +239,8 @@ export default function Onboarding({ onComplete }) {
                   <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3">
                     <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                     <div>
-                      <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
-                      <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
+                      <p className="text-sm font-semibold text-stone-900">{item.title}</p>
+                      <p className="text-xs text-stone-500 mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -254,9 +254,9 @@ export default function Onboarding({ onComplete }) {
           {step === 2 && (
             <div>
               <div className="mb-6">
-                <p className="text-xs text-textMuted mb-1">Step 1 of 2</p>
-                <h2 className="text-xl font-bold text-textPrimary">Add a family member</h2>
-                <p className="text-sm text-textMuted mt-1">This helps us generate personalized recipes and track health goals</p>
+                <p className="text-xs text-stone-500 mb-1">Step 1 of 2</p>
+                <h2 className="text-xl font-bold text-stone-900">Add a family member</h2>
+                <p className="text-sm text-stone-500 mt-1">This helps us generate personalized recipes and track health goals</p>
               </div>
 
               <div className="space-y-4 mb-6">
@@ -299,19 +299,19 @@ export default function Onboarding({ onComplete }) {
                         }
                       }}
                     />
-                    <p className="text-xs text-textMuted mt-0.5">54 → 5'4"</p>
+                    <p className="text-xs text-stone-500 mt-0.5">54 → 5'4"</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="label">Health goals <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <label className="label">Health goals <span className="text-stone-500 font-normal">(select all that apply)</span></label>
                   <div className="flex flex-wrap gap-2">
                     {GOALS.map(goal => {
                       const selected = member.goals.includes(goal)
                       return (
                         <button key={goal} type="button"
                           onClick={() => setMember(p => ({ ...p, goals: selected ? p.goals.filter(g => g !== goal) : [...p.goals, goal] }))}
-                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'}`}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-primary text-white border-primary' : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'}`}
                         >
                           {selected ? '✓ ' : '+ '}{goal}
                         </button>
@@ -330,18 +330,18 @@ export default function Onboarding({ onComplete }) {
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                           effectiveActivityLevel === value
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                            : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                         }`}
                       >
                         {effectiveActivityLevel === value ? '✓ ' : '+ '}{label}
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-textMuted mt-1">Used to calculate daily calorie targets.</p>
+                  <p className="text-xs text-stone-500 mt-1">Used to calculate daily calorie targets.</p>
                 </div>
 
                 <div>
-                  <label className="label">Gender <span className="text-textMuted font-normal">(optional)</span></label>
+                  <label className="label">Gender <span className="text-stone-500 font-normal">(optional)</span></label>
                   <div className="flex flex-wrap gap-2">
                     {GENDER_OPTIONS.map(({ value, label }) => (
                       <button key={label} type="button"
@@ -349,25 +349,25 @@ export default function Onboarding({ onComplete }) {
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                           member.gender === value && member.gender !== undefined
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                            : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                         }`}
                       >
                         {member.gender === value && member.gender !== undefined ? '✓ ' : '+ '}{label}
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-textMuted mt-1">Used for accurate calorie math.</p>
+                  <p className="text-xs text-stone-500 mt-1">Used for accurate calorie math.</p>
                 </div>
 
                 <div>
-                  <label className="label">Dietary preferences <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <label className="label">Dietary preferences <span className="text-stone-500 font-normal">(select all that apply)</span></label>
                   <div className="flex flex-wrap gap-2">
                     {DIETARY.map(diet => {
                       const selected = member.dietary.includes(diet)
                       return (
                         <button key={diet} type="button"
                           onClick={() => setMember(p => ({ ...p, dietary: selected ? p.dietary.filter(d => d !== diet) : [...p.dietary, diet] }))}
-                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-textMuted border-border hover:border-green-400 hover:text-green-600'}`}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-green-500 text-white border-green-500' : 'bg-surface text-stone-500 border-border hover:border-green-400 hover:text-green-600'}`}
                         >
                           {selected ? '✓ ' : '+ '}{diet}
                         </button>
@@ -378,13 +378,13 @@ export default function Onboarding({ onComplete }) {
                 </div>
 
                 <div>
-                  <label className="label">Allergens <span className="text-textMuted font-normal">(select all that apply)</span></label>
+                  <label className="label">Allergens <span className="text-stone-500 font-normal">(select all that apply)</span></label>
                   <div className="flex flex-wrap gap-2">
                     {ALLERGENS.map(allergen => {
                       const selected = (member.allergens || '').split(',').map(a => a.trim()).filter(Boolean).includes(allergen)
                       return (
                         <button key={allergen} type="button" onClick={() => toggleAllergen(allergen)}
-                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-danger text-white border-danger' : 'bg-surface text-textMuted border-border hover:border-danger hover:text-danger'}`}
+                          className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${selected ? 'bg-danger text-white border-danger' : 'bg-surface text-stone-500 border-border hover:border-danger hover:text-danger'}`}
                         >
                           {selected ? '✕ ' : '+ '}{allergen}
                         </button>
@@ -408,9 +408,9 @@ export default function Onboarding({ onComplete }) {
           {step === 3 && (
             <div>
               <div className="mb-5">
-                <p className="text-xs text-textMuted mb-1">Step 2 of 2</p>
-                <h2 className="text-xl font-bold text-textPrimary">Stock your pantry</h2>
-                <p className="text-sm text-textMuted mt-1">Pick a starter kit to add 15–20 items in one tap</p>
+                <p className="text-xs text-stone-500 mb-1">Step 2 of 2</p>
+                <h2 className="text-xl font-bold text-stone-900">Stock your pantry</h2>
+                <p className="text-sm text-stone-500 mt-1">Pick a starter kit to add 15–20 items in one tap</p>
               </div>
 
               {templateSuccess ? (
@@ -418,8 +418,8 @@ export default function Onboarding({ onComplete }) {
                   <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Icon name="check" size={22} className="text-green-600" />
                   </div>
-                  <p className="font-semibold text-textPrimary text-lg">{templateSuccess.message}</p>
-                  <p className="text-sm text-textMuted mt-1 mb-6">Taking you to the next step...</p>
+                  <p className="font-semibold text-stone-900 text-lg">{templateSuccess.message}</p>
+                  <p className="text-sm text-stone-500 mt-1 mb-6">Taking you to the next step...</p>
                   <button onClick={() => setStep(4)} className="btn-primary w-full py-3">
                     Continue →
                   </button>
@@ -433,7 +433,7 @@ export default function Onboarding({ onComplete }) {
                   )}
 
                   {templatesLoading ? (
-                    <div className="flex items-center justify-center gap-2 py-10 text-textMuted text-sm">
+                    <div className="flex items-center justify-center gap-2 py-10 text-stone-500 text-sm">
                       <svg className="animate-spin w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -459,8 +459,8 @@ export default function Onboarding({ onComplete }) {
                             <div className="flex items-start gap-3">
                               <span className="text-2xl leading-none flex-shrink-0 mt-0.5">{template.icon}</span>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-textPrimary leading-snug">{template.name}</p>
-                                <p className="text-xs text-textMuted mt-0.5 line-clamp-2">{template.description}</p>
+                                <p className="text-sm font-semibold text-stone-900 leading-snug">{template.name}</p>
+                                <p className="text-xs text-stone-500 mt-0.5 line-clamp-2">{template.description}</p>
                                 <p className="text-xs text-primary font-medium mt-1.5">
                                   {isApplying ? 'Adding items...' : `${template.itemCount} items`}
                                 </p>
@@ -476,7 +476,7 @@ export default function Onboarding({ onComplete }) {
                     <button
                       type="button"
                       onClick={() => setShowManualForm(p => !p)}
-                      className="flex items-center gap-2 text-sm text-textMuted hover:text-textPrimary transition-colors font-medium"
+                      className="flex items-center gap-2 text-sm text-stone-500 hover:text-stone-900 transition-colors font-medium"
                     >
                       <span className={`text-base inline-block transition-transform duration-200 ${showManualForm ? 'rotate-90' : ''}`}>›</span>
                       Or add items manually
@@ -531,8 +531,8 @@ export default function Onboarding({ onComplete }) {
               {(skippedPantry || firstRecipeError) && (
                 <div className="text-center">
                   <div className="mb-4 flex justify-center text-primary"><Icon name="sparkle" size={56} /></div>
-                  <h2 className="text-2xl font-bold text-textPrimary mb-2">You're all set!</h2>
-                  <p className="text-textMuted mb-8 max-w-sm mx-auto">
+                  <h2 className="text-2xl font-bold text-stone-900 mb-2">You're all set!</h2>
+                  <p className="text-stone-500 mb-8 max-w-sm mx-auto">
                     Nooka is ready to use. Here's what you can do next:
                   </p>
                   <div className="grid grid-cols-1 gap-3 mb-8 text-left">
@@ -545,8 +545,8 @@ export default function Onboarding({ onComplete }) {
                       <a key={i} href={item.link} className="flex items-start gap-3 bg-gray-50 rounded-btn px-4 py-3 hover:bg-blue-50 hover:border-primary border border-transparent transition-all">
                         <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary"><Icon name={item.svgIcon} size={22} /></span>
                         <div>
-                          <p className="text-sm font-semibold text-textPrimary">{item.title}</p>
-                          <p className="text-xs text-textMuted mt-0.5">{item.desc}</p>
+                          <p className="text-sm font-semibold text-stone-900">{item.title}</p>
+                          <p className="text-xs text-stone-500 mt-0.5">{item.desc}</p>
                         </div>
                       </a>
                     ))}
@@ -566,9 +566,9 @@ export default function Onboarding({ onComplete }) {
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
                   </div>
-                  <p className="font-semibold text-textPrimary mb-1">Finding your first recipe...</p>
-                  <p className="text-sm text-textMuted">Checking your pantry and health goals</p>
-                  <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary underline mt-6 py-2">
+                  <p className="font-semibold text-stone-900 mb-1">Finding your first recipe...</p>
+                  <p className="text-sm text-stone-500">Checking your pantry and health goals</p>
+                  <button onClick={handleComplete} className="text-sm text-stone-500 hover:text-stone-900 underline mt-6 py-2">
                     Skip — finish setup
                   </button>
                 </div>
@@ -581,16 +581,16 @@ export default function Onboarding({ onComplete }) {
                 return (
                   <div>
                     <div className="text-center mb-4">
-                      <h2 className="text-xl font-bold text-textPrimary">Your first recipe is ready!</h2>
-                      <p className="text-sm text-textMuted mt-1">Based on your pantry — just a taste of what's possible</p>
+                      <h2 className="text-xl font-bold text-stone-900">Your first recipe is ready!</h2>
+                      <p className="text-sm text-stone-500 mt-1">Based on your pantry — just a taste of what's possible</p>
                     </div>
                     <div className="border border-border rounded-card p-4 mb-3">
                       <div className="flex items-start gap-3 mb-3">
                         <span className="text-3xl flex-shrink-0 leading-none mt-0.5">{recipe.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-textPrimary line-clamp-2 leading-snug">{recipe.name}</h3>
+                          <h3 className="font-bold text-stone-900 line-clamp-2 leading-snug">{recipe.name}</h3>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <span className="flex items-center gap-1 text-xs text-textMuted"><Icon name="clock" size={12} />{recipe.time}</span>
+                            <span className="flex items-center gap-1 text-xs text-stone-500"><Icon name="clock" size={12} />{recipe.time}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${recipe.difficulty === 'Easy' ? 'bg-green-50 text-success' : 'bg-orange-50 text-orange-500'}`}>
                               {recipe.difficulty}
                             </span>
@@ -607,7 +607,7 @@ export default function Onboarding({ onComplete }) {
                           {recipe.steps.slice(0, 3).map((stepText, i) => (
                             <li key={i} className="flex items-start gap-2">
                               <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                              <p className="text-xs text-textMuted leading-relaxed line-clamp-2">{stepText}</p>
+                              <p className="text-xs text-stone-500 leading-relaxed line-clamp-2">{stepText}</p>
                             </li>
                           ))}
                         </ol>
@@ -616,7 +616,7 @@ export default function Onboarding({ onComplete }) {
                         See full recipe →
                       </button>
                     </div>
-                    <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                    <button onClick={handleComplete} className="text-sm text-stone-500 hover:text-stone-900 w-full text-center py-2">
                       Skip — go to dashboard
                     </button>
                   </div>
@@ -633,17 +633,17 @@ export default function Onboarding({ onComplete }) {
                         <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                           <Icon name="ai" size={24} className="text-primary" />
                         </div>
-                        <h2 className="text-xl font-bold text-textPrimary">See AI in action</h2>
-                        <p className="text-sm text-textMuted mt-1">Generate your first recipe from your new pantry</p>
+                        <h2 className="text-xl font-bold text-stone-900">See AI in action</h2>
+                        <p className="text-sm text-stone-500 mt-1">Generate your first recipe from your new pantry</p>
                       </div>
                       <div className="bg-gray-50 rounded-card px-4 py-3 mb-4">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">Before we generate — a quick note:</p>
-                        <p className="text-xs text-textMuted mb-2 leading-relaxed">
+                        <p className="text-xs font-semibold text-stone-900 mb-2">Before we generate — a quick note:</p>
+                        <p className="text-xs text-stone-500 mb-2 leading-relaxed">
                           To generate recipes, Nooka sends anonymous health and pantry data to Anthropic's AI (US servers). Your name, email, and account details are never shared.
                         </p>
                         <ul className="space-y-1 mb-3">
                           {['Dietary preferences & health goals', 'Age ranges of family members', 'Items currently in your pantry'].map((item, i) => (
-                            <li key={i} className="flex items-center gap-2 text-xs text-textMuted">
+                            <li key={i} className="flex items-center gap-2 text-xs text-stone-500">
                               <svg className="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
@@ -651,7 +651,7 @@ export default function Onboarding({ onComplete }) {
                             </li>
                           ))}
                         </ul>
-                        <p className="text-xs text-textMuted">
+                        <p className="text-xs text-stone-500">
                           By continuing you consent per our{' '}
                           <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
                         </p>
@@ -663,7 +663,7 @@ export default function Onboarding({ onComplete }) {
                         <Icon name="ai" size={16} />
                         Generate my first recipe <Icon name="sparkle" size={14} className="inline-block ml-0.5" />
                       </button>
-                      <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                      <button onClick={handleComplete} className="text-sm text-stone-500 hover:text-stone-900 w-full text-center py-2">
                         Skip — finish setup
                       </button>
                     </div>
@@ -676,8 +676,8 @@ export default function Onboarding({ onComplete }) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
-                        <h2 className="text-xl font-bold text-textPrimary">Your pantry is stocked!</h2>
-                        <p className="text-sm text-textMuted mt-1">Want to see a recipe made from your new pantry?</p>
+                        <h2 className="text-xl font-bold text-stone-900">Your pantry is stocked!</h2>
+                        <p className="text-sm text-stone-500 mt-1">Want to see a recipe made from your new pantry?</p>
                       </div>
                       <button
                         onClick={handleGenerateFirstRecipe}
@@ -686,7 +686,7 @@ export default function Onboarding({ onComplete }) {
                         <Icon name="ai" size={16} />
                         Generate my first recipe <Icon name="sparkle" size={14} className="inline-block ml-0.5" />
                       </button>
-                      <button onClick={handleComplete} className="text-sm text-textMuted hover:text-textPrimary w-full text-center py-2">
+                      <button onClick={handleComplete} className="text-sm text-stone-500 hover:text-stone-900 w-full text-center py-2">
                         Skip — finish setup
                       </button>
                     </div>

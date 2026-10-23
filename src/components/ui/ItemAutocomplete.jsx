@@ -98,18 +98,18 @@ export default function ItemAutocomplete({ value, onChange, onSelect, placeholde
             >
               <span className="text-lg leading-none flex-shrink-0 w-7 text-center">{item.icon}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+                <p className="text-sm font-medium text-stone-500 truncate">{item.name}</p>
                 {item.brand && (
-                  <p className="text-xs text-gray-400 truncate">{item.brand}</p>
+                  <p className="text-xs text-stone-500 truncate">{item.brand}</p>
                 )}
               </div>
               <div className="flex-shrink-0 text-right">
-                <span className="text-xs text-gray-400">{item.defaultQty} {item.unit}</span>
-                <p className="text-xs text-gray-300">{item.category}</p>
+                <span className="text-xs text-stone-500">{item.defaultQty} {item.unit}</span>
+                <p className="text-xs text-stone-500">{item.category}</p>
               </div>
             </li>
           ))}
-          <li className="px-3 py-2 text-xs text-gray-400 text-center border-t border-gray-100 bg-gray-50 rounded-b-xl">
+          <li className="px-3 py-2 text-xs text-stone-500 text-center border-t border-gray-100 bg-gray-50 rounded-b-xl">
             Type anything — you can always add custom items
           </li>
         </ul>
