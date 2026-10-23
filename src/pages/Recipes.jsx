@@ -490,8 +490,8 @@ export default function Recipes() {
 
   const qualityColor = (quality) => {
     if (quality === 'perfect') return 'bg-green-50 text-success border-green-100'
-    if (quality === 'good') return 'bg-blue-50 text-primary border-blue-100'
-    return 'bg-gray-50 text-textMuted border-border'
+    if (quality === 'good') return 'bg-indigo-50 text-primary border-indigo-200'
+    return 'bg-stone-50 text-stone-500 border-border'
   }
 
   const qualityLabel = (quality) => {
@@ -511,17 +511,17 @@ export default function Recipes() {
       {/* AI data disclosure modal — shown once per user before first recipe generation */}
       {showAIDisclosure && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-card shadow-xl p-6 overflow-y-auto modal-sheet" style={{ maxHeight: '90vh' }}>
+          <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-xl p-6 overflow-y-auto modal-sheet" style={{ maxHeight: '90vh' }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Icon name="ai" size={20} className="text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-textPrimary">Before we generate your recipes</h3>
-                <p className="text-xs text-textMuted mt-0.5">One-time notice — we won't ask again</p>
+                <h3 className="font-semibold text-stone-900">Before we generate your recipes</h3>
+                <p className="text-xs text-stone-500 mt-0.5">One-time notice — we won't ask again</p>
               </div>
             </div>
-            <p className="text-sm text-textMuted mb-3 leading-relaxed">
+            <p className="text-sm text-stone-500 mb-3 leading-relaxed">
               To generate personalized recipes, Nooka sends the following to Anthropic's AI (servers located in the US):
             </p>
             <ul className="space-y-1.5 mb-4">
@@ -531,7 +531,7 @@ export default function Recipes() {
                 'Age ranges of family members',
                 'Items currently in your pantry',
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                <li key={i} className="flex items-center gap-2 text-sm text-stone-500">
                   <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
@@ -539,12 +539,12 @@ export default function Recipes() {
                 </li>
               ))}
             </ul>
-            <div className="bg-gray-50 rounded-btn px-3 py-2.5 mb-4">
-              <p className="text-xs text-textMuted leading-relaxed">
-                Your <span className="font-semibold text-textPrimary">name, email, and account details are never shared</span> with any AI service. Only anonymous health and pantry data is used.
+            <div className="bg-stone-50 rounded-btn px-3 py-2.5 mb-4">
+              <p className="text-xs text-stone-500 leading-relaxed">
+                Your <span className="font-semibold text-stone-900">name, email, and account details are never shared</span> with any AI service. Only anonymous health and pantry data is used.
               </p>
             </div>
-            <p className="text-xs text-textMuted mb-5">
+            <p className="text-xs text-stone-500 mb-5">
               By continuing you consent to this data being processed by Anthropic in accordance with their privacy policy and our{' '}
               <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy Policy</a>.
             </p>
@@ -574,9 +574,9 @@ export default function Recipes() {
       {/* Rating modal */}
       {ratingModal && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
-            <h3 className="font-semibold text-textPrimary text-lg mb-1">How was it?</h3>
-            <p className="text-sm text-textMuted mb-5">Rate <span className="font-medium text-textPrimary">{ratingModal.recipe.name}</span> so we can learn your family's preferences</p>
+          <div className="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-xl p-6 modal-sheet">
+            <h3 className="font-semibold text-stone-900 text-lg mb-1">How was it?</h3>
+            <p className="text-sm text-stone-500 mb-5">Rate <span className="font-medium text-stone-900">{ratingModal.recipe.name}</span> so we can learn your family's preferences</p>
             <div className="flex justify-center gap-3 mb-6">
               {STAR_RATINGS.map(star => (
                 <button
@@ -584,7 +584,7 @@ export default function Recipes() {
                   onClick={() => setPendingRating(star)}
                   className={`transition-all ${pendingRating >= star ? 'opacity-100 scale-110' : 'opacity-30'}`}
                 >
-                  <Icon name="star" size={32} className={pendingRating >= star ? 'text-yellow-400' : 'text-gray-300'} strokeWidth={1.5} />
+                  <Icon name="star" size={32} className={pendingRating >= star ? 'text-yellow-400' : 'text-stone-500'} strokeWidth={1.5} />
                 </button>
               ))}
             </div>
@@ -621,29 +621,29 @@ export default function Recipes() {
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-textPrimary">Recipes & Drinks</h1>
-        <p className="text-textMuted mt-1">AI-powered suggestions based on your pantry and health goals</p>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Recipes & Drinks</h1>
+        <p className="text-stone-500 mt-1">AI-powered suggestions based on your pantry and health goals</p>
       </div>
 
       {/* Mode toggle */}
-      <div className="flex gap-2 mb-6 bg-surface border border-border rounded-card p-1">
+      <div className="flex gap-2 mb-6 bg-white border border-border rounded-card p-1">
         <button
           onClick={() => { setMode('food'); setLimitError('') }}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'food' ? 'bg-food-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-900'
             }`}
         >
           <Icon name="utensils" size={14} className="inline-block mr-1" />Food
         </button>
         <button
           onClick={() => { setMode('drinks'); setLimitError('') }}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-food-600 text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'drinks' ? 'bg-food-600 text-white shadow-sm' : 'text-stone-500 hover:text-stone-900'
             }`}
         >
           <Icon name="drinks" size={14} className="inline-block mr-1" />Drinks
         </button>
         <button
           onClick={() => { setMode('ask'); setLimitError('') }}
-          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'ask' ? 'bg-primary text-white shadow-sm' : 'text-textMuted hover:text-textPrimary'
+          className={`flex-1 py-2 rounded-btn text-sm font-medium transition-all ${mode === 'ask' ? 'bg-primary text-white shadow-sm' : 'text-stone-500 hover:text-stone-900'
             }`}
         >
           <Icon name="ai" size={14} className="inline-block mr-1" />Ask Nooka
@@ -654,7 +654,7 @@ export default function Recipes() {
       {mode === 'drinks' && (
         <div>
           {/* Disclaimer */}
-          <div className="bg-blue-50 border border-blue-100 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
             <Icon name="info" size={18} className="flex-shrink-0 text-primary" />
             <p className="text-xs text-primary leading-relaxed">
               Drink suggestions are home wellness ideas inspired by traditional remedies from around the world. They are not medical advice. Consult a healthcare professional for serious symptoms.
@@ -662,9 +662,9 @@ export default function Recipes() {
           </div>
 
           {/* Condition selector */}
-          <div className="card mb-6 border-2 border-blue-100 bg-blue-50/30">
-            <h2 className="font-semibold text-textPrimary mb-1">How are you feeling?</h2>
-            <p className="text-xs text-textMuted mb-4">Pick a condition and we'll suggest drinks from different cultural traditions based on what's in your pantry</p>
+          <div className="card mb-6 border-2 border-indigo-200 bg-indigo-50/30">
+            <h2 className="font-semibold text-stone-900 mb-1">How are you feeling?</h2>
+            <p className="text-xs text-stone-500 mb-4">Pick a condition and we'll suggest drinks from different cultural traditions based on what's in your pantry</p>
             <div className="grid grid-cols-2 gap-2 mb-6">
               {DRINK_CONDITIONS.map(c => (
                 <button
@@ -672,7 +672,7 @@ export default function Recipes() {
                   onClick={() => setDrinkCondition(c.label)}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-btn border text-sm font-medium transition-all text-left ${drinkCondition === c.label
                     ? 'bg-primary text-white border-primary'
-                    : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                    : 'bg-white text-stone-500 border-border hover:border-primary hover:text-primary'
                     }`}
                 >
                   <span className="text-base">{c.icon}</span>
@@ -690,7 +690,7 @@ export default function Recipes() {
             )}
 
             {drinkUsage && drinkUsage.plan === 'family' && (
-              <p className="text-xs text-textMuted mb-3 text-center">
+              <p className="text-xs text-stone-500 mb-3 text-center">
                 {drinkUsage.used} of {drinkUsage.limit} drinks used this week
               </p>
             )}
@@ -734,7 +734,7 @@ export default function Recipes() {
           {/* Drink results */}
           {drinksGenerated && drinks.length > 0 && (
             <div className="space-y-4 mb-8">
-              <h2 className="font-semibold text-textPrimary">
+              <h2 className="font-semibold text-stone-900">
                 Drinks for "{drinkCondition}"
               </h2>
               {drinks.map((drink, idx) => (
@@ -743,18 +743,18 @@ export default function Recipes() {
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <span className="text-2xl flex-shrink-0">{drink.icon}</span>
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-textPrimary text-sm leading-tight">{drink.name}</h3>
-                        <p className="text-xs text-textMuted mt-0.5">{drink.culture}</p>
+                        <h3 className="font-semibold text-stone-900 text-sm leading-tight">{drink.name}</h3>
+                        <p className="text-xs text-stone-500 mt-0.5">{drink.culture}</p>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       <span className={`text-xs px-2 py-0.5 rounded-pill font-medium ${drink.temp === 'hot' ? 'bg-orange-50 text-orange-600' :
-                        drink.temp === 'cold' ? 'bg-blue-50 text-primary' :
-                          'bg-gray-50 text-textMuted'
+                        drink.temp === 'cold' ? 'bg-indigo-50 text-primary' :
+                          'bg-stone-50 text-stone-500'
                         }`}>
                         {drink.temp === 'hot' ? 'Hot' : drink.temp === 'cold' ? 'Cold' : 'Either'}
                       </span>
-                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="clock" size={11} />{drink.prepTime}</span>
+                      <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="clock" size={11} />{drink.prepTime}</span>
                     </div>
                   </div>
 
@@ -781,10 +781,10 @@ export default function Recipes() {
 
                   {expandedDrinkId === idx && (
                     <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
+                      <p className="text-xs font-semibold text-stone-900 mb-2">Ingredients</p>
                       <ul className="space-y-1.5 mb-4">
                         {drink.ingredients?.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                          <li key={i} className="flex items-center gap-2 text-sm text-stone-500">
                             <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${ing.inPantry ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600'
                               }`}>
                               {ing.inPantry ? '✓' : '+'}
@@ -795,12 +795,12 @@ export default function Recipes() {
                         ))}
                       </ul>
 
-                      <p className="text-xs font-semibold text-textPrimary mb-2">Steps</p>
+                      <p className="text-xs font-semibold text-stone-900 mb-2">Steps</p>
                       <ol className="space-y-2 mb-4">
                         {drink.steps?.map((step, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                            <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                            <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                           </li>
                         ))}
                       </ol>
@@ -824,8 +824,8 @@ export default function Recipes() {
         <div>
 
           {/* Input card */}
-          <div className="card mb-6 border-2 border-blue-100 bg-blue-50/30">
-            <p className="text-xs text-textMuted mb-4">
+          <div className="card mb-6 border-2 border-indigo-200 bg-indigo-50/30">
+            <p className="text-xs text-stone-500 mb-4">
               Ask for any recipe, technique or shopping list — Nooka knows what's in your pantry.
             </p>
 
@@ -842,7 +842,7 @@ export default function Recipes() {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAskNooka() }
                   }}
                   rows={2}
-                  className="w-full resize-none text-base text-textPrimary bg-transparent outline-none leading-relaxed"
+                  className="w-full resize-none text-base text-stone-900 bg-transparent outline-none leading-relaxed"
                 />
                 {!askQuery && (
                   <span
@@ -863,7 +863,7 @@ export default function Recipes() {
             </div>
 
             {askQuery.length > 250 && (
-              <p className={`text-xs mt-2 text-right ${askQuery.length >= 300 ? 'text-danger' : 'text-textMuted'}`}>
+              <p className={`text-xs mt-2 text-right ${askQuery.length >= 300 ? 'text-danger' : 'text-stone-500'}`}>
                 {askQuery.length}/300
               </p>
             )}
@@ -871,7 +871,7 @@ export default function Recipes() {
             {/* Inline error (off_topic, Request too long, unavailable) */}
             {askError && (
               <div className="mt-4 bg-stone-50 border border-stone-200 rounded-btn px-4 py-3">
-                <p className="text-sm text-textMuted">{askError}</p>
+                <p className="text-sm text-stone-500">{askError}</p>
               </div>
             )}
 
@@ -890,19 +890,19 @@ export default function Recipes() {
                 <div className="flex-1 h-1.5 bg-stone-100 rounded-pill overflow-hidden">
                   <div className="h-full bg-primary rounded-pill transition-all" style={{ width: `${(askUsage.used / askUsage.limit) * 100}%` }} />
                 </div>
-                <span className="text-xs text-textMuted">{askUsage.used}/{askUsage.limit} this week</span>
+                <span className="text-xs text-stone-500">{askUsage.used}/{askUsage.limit} this week</span>
               </div>
             )}
           </div>
 
           {/* Safety response — calm info card */}
           {askResult?.type === 'safety' && (
-            <div className="card border border-blue-100 bg-blue-50/30 mb-6">
+            <div className="card border border-indigo-200 bg-indigo-50/30 mb-6">
               <div className="flex items-start gap-3">
                 <Icon name="info" size={18} className="text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-textPrimary mb-1">{askResult.title}</h3>
-                  <p className="text-sm text-textMuted leading-relaxed">{askResult.message}</p>
+                  <h3 className="font-semibold text-stone-900 mb-1">{askResult.title}</h3>
+                  <p className="text-sm text-stone-500 leading-relaxed">{askResult.message}</p>
                 </div>
               </div>
             </div>
@@ -928,7 +928,7 @@ export default function Recipes() {
 
                 <h3 className="font-semibold text-stone-900 text-lg mb-1">{askResult.name}</h3>
                 {askResult.description && (
-                  <p className="text-sm text-textMuted mb-3 leading-relaxed">{askResult.description}</p>
+                  <p className="text-sm text-stone-500 mb-3 leading-relaxed">{askResult.description}</p>
                 )}
 
                 {askResult.tags?.length > 0 && (
@@ -985,10 +985,10 @@ export default function Recipes() {
 
                     {askResult.ingredients?.length > 0 && (
                       <div className="mb-4">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-2">Ingredients</p>
                         <ul className="space-y-1.5">
                           {askResult.ingredients.map((ing, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                            <li key={i} className="flex items-center gap-2 text-sm text-stone-500">
                               <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0">
                                 <Icon name="check" size={10} />
                               </span>
@@ -1001,7 +1001,7 @@ export default function Recipes() {
 
                     {askResult.equipment?.length > 0 && (
                       <div className="mb-4">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">Equipment</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-2">Equipment</p>
                         <ul className="space-y-1.5">
                           {askResult.equipment.map((eq, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm">
@@ -1009,8 +1009,8 @@ export default function Recipes() {
                                 {eq.required ? '!' : '·'}
                               </span>
                               <span className="min-w-0">
-                                <span className="font-medium text-textPrimary">{eq.item}</span>
-                                {eq.purpose && <span className="text-textMuted"> — {eq.purpose}</span>}
+                                <span className="font-medium text-stone-900">{eq.item}</span>
+                                {eq.purpose && <span className="text-stone-500"> — {eq.purpose}</span>}
                                 {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
                               </span>
                             </li>
@@ -1024,12 +1024,12 @@ export default function Recipes() {
                   <div>
                     {askResult.steps?.length > 0 && (
                       <div className="mb-4">
-                        <p className="text-xs font-semibold text-textPrimary mb-3">How to make it</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-3">How to make it</p>
                         <ol className="space-y-3">
                           {askResult.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-3">
                               <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                              <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                              <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                             </li>
                           ))}
                         </ol>
@@ -1038,13 +1038,13 @@ export default function Recipes() {
 
                     {askResult.nutrition && (
                       <div className="mb-4">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">
+                        <p className="text-xs font-semibold text-stone-900 mb-2">
                           Nutrition{askResult.nutritionBasis ? ` (${askResult.nutritionBasis})` : ''}
                         </p>
                         <div className="grid grid-cols-4 gap-2">
                           {[
                             { label: 'Calories', value: askResult.nutrition.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
-                            { label: 'Protein',  value: askResult.nutrition.protein,  unit: 'g',    color: 'bg-blue-50 text-primary' },
+                            { label: 'Protein',  value: askResult.nutrition.protein,  unit: 'g',    color: 'bg-indigo-50 text-primary' },
                             { label: 'Carbs',    value: askResult.nutrition.carbs,    unit: 'g',    color: 'bg-yellow-50 text-yellow-600' },
                             { label: 'Fat',      value: askResult.nutrition.fat,      unit: 'g',    color: 'bg-red-50 text-danger' },
                             { label: 'Fiber',    value: askResult.nutrition.fiber,    unit: 'g',    color: 'bg-green-50 text-success' },
@@ -1078,7 +1078,7 @@ export default function Recipes() {
                       className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${
                         savedRecipes['ask']
                           ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                          : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
+                          : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                       } disabled:opacity-50`}
                     >
                       {savingRecipe['ask'] ? '...' : savedRecipes['ask']
@@ -1097,7 +1097,7 @@ export default function Recipes() {
               <div className="card hover:shadow-md transition-all">
 
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-xs bg-blue-50 text-primary px-3 py-1 rounded-pill font-medium border border-blue-100 flex items-center gap-1">
+                  <span className="text-xs bg-indigo-50 text-primary px-3 py-1 rounded-pill font-medium border border-indigo-200 flex items-center gap-1">
                     <Icon name="ai" size={12} className="inline" />Guide
                   </span>
                   {askResult.difficulty && (
@@ -1111,7 +1111,7 @@ export default function Recipes() {
 
                 <h3 className="font-semibold text-stone-900 text-lg mb-1">{askResult.title}</h3>
                 {askResult.description && (
-                  <p className="text-sm text-textMuted mb-3 leading-relaxed">{askResult.description}</p>
+                  <p className="text-sm text-stone-500 mb-3 leading-relaxed">{askResult.description}</p>
                 )}
 
                 {askResult.tags?.length > 0 && (
@@ -1135,7 +1135,7 @@ export default function Recipes() {
                   <div>
                     {askResult.equipment?.length > 0 && (
                       <div className="mb-5">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">Equipment</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-2">Equipment</p>
                         <ul className="space-y-1.5">
                           {askResult.equipment.map((eq, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm">
@@ -1143,8 +1143,8 @@ export default function Recipes() {
                                 {eq.required ? '!' : '·'}
                               </span>
                               <span className="min-w-0">
-                                <span className="font-medium text-textPrimary">{eq.item}</span>
-                                {eq.purpose && <span className="text-textMuted"> — {eq.purpose}</span>}
+                                <span className="font-medium text-stone-900">{eq.item}</span>
+                                {eq.purpose && <span className="text-stone-500"> — {eq.purpose}</span>}
                                 {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
                               </span>
                             </li>
@@ -1158,12 +1158,12 @@ export default function Recipes() {
                   <div>
                     {askResult.steps?.length > 0 && (
                       <div className="mb-5">
-                        <p className="text-xs font-semibold text-textPrimary mb-3">Steps</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-3">Steps</p>
                         <ol className="space-y-3">
                           {askResult.steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-3">
                               <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                              <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                              <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                             </li>
                           ))}
                         </ol>
@@ -1196,7 +1196,7 @@ export default function Recipes() {
         <div>
 
           {/* Health disclaimer */}
-          <div className="bg-blue-50 border border-blue-100 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-card px-4 py-3 mb-6 flex items-start gap-3">
             <Icon name="info" size={18} className="flex-shrink-0 text-primary" />
             <p className="text-xs text-primary leading-relaxed">
               Recipe suggestions and nutritional information are generated by AI for general wellness purposes only and are not medical advice. Consult a healthcare professional for specific dietary needs.
@@ -1207,7 +1207,7 @@ export default function Recipes() {
           {canUseMealPatterns && cookingHistory.length > 0 && (
             <div className="card mb-6 border border-purple-100 bg-purple-50/20">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold text-textPrimary flex items-center gap-1.5"><Icon name="cookbook" size={16} />Recently cooked</h2>
+                <h2 className="font-semibold text-stone-900 flex items-center gap-1.5"><Icon name="cookbook" size={16} />Recently cooked</h2>
                 <button onClick={() => setShowHistory(!showHistory)} className="text-xs text-primary hover:underline font-medium">
                   {showHistory ? 'Hide' : `Show all ${cookingHistory.length}`}
                 </button>
@@ -1220,7 +1220,7 @@ export default function Recipes() {
                       <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" className="flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-stone-900 truncate">{meal.recipeName}</p>
-                        <p className="text-xs text-textMuted">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
+                        <p className="text-xs text-stone-500">{meal.mealType} · {daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo} days ago`}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {meal.rating && <span className="text-xs text-yellow-500 font-medium flex items-center gap-0.5"><Icon name="star" size={11} className="text-yellow-400" />{meal.rating}</span>}
@@ -1234,14 +1234,14 @@ export default function Recipes() {
           )}
 
           {/* Generator card */}
-          <div className="card mb-8 border-2 border-blue-100 bg-blue-50/30">
-            <h2 className="font-semibold text-textPrimary mb-5">Who are you cooking for?</h2>
+          <div className="card mb-8 border-2 border-indigo-200 bg-indigo-50/30">
+            <h2 className="font-semibold text-stone-900 mb-5">Who are you cooking for?</h2>
 
             {/* Member selector */}
             <div className="mb-5">
               <label className="label">Family members</label>
               {members.length === 0 ? (
-                <p className="text-sm text-textMuted">
+                <p className="text-sm text-stone-500">
                   No members yet —{' '}
                   <button onClick={() => navigate('/app/settings')} className="text-primary hover:underline">add members in Settings</button>
                 </p>
@@ -1253,10 +1253,10 @@ export default function Recipes() {
                       onClick={() => toggleMember(m.name)}
                       className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${selectedMembers.includes(m.name)
                         ? 'bg-primary text-white border-primary'
-                        : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        : 'bg-white text-stone-500 border-border hover:border-primary hover:text-primary'
                         }`}
                     >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-gray-100 text-textMuted'
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-primary' : 'bg-stone-100 text-stone-500'
                         }`}>
                         {m.name[0]}
                       </div>
@@ -1289,13 +1289,13 @@ export default function Recipes() {
               <label className="label">What are you in the mood for?</label>
               {CUISINE_CATEGORIES.map(cat => (
                 <div key={cat.label} className="mb-3">
-                  <p className="text-xs text-textMuted mb-2">{cat.label}</p>
+                  <p className="text-xs text-stone-500 mb-2">{cat.label}</p>
                   <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 sm:mx-0 sm:px-0">
                     {cat.options.map(c => (
                       <button
                         key={c.label}
                         onClick={() => setCuisine(c.label)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                        className={`flex-shrink-0 px-4 py-2 rounded-pill border text-sm font-medium transition-all ${cuisine === c.label ? 'bg-primary text-white border-primary' : 'bg-white text-stone-500 border-border hover:border-primary hover:text-primary'
                           }`}
                       >
                         {c.icon} {c.label}
@@ -1347,7 +1347,7 @@ export default function Recipes() {
                   </>
                 ) : <><Icon name="ai" size={16} /> Generate recipes</>}
               </button>
-              {selectedMembers.length === 0 && <p className="text-sm text-textMuted">Select at least one member</p>}
+              {selectedMembers.length === 0 && <p className="text-sm text-stone-500">Select at least one member</p>}
             </div>
 
             {/* Limit error */}
@@ -1362,10 +1362,10 @@ export default function Recipes() {
             {/* Usage indicator */}
             {usage?.plan === 'free' && !limitError && (
               <div className="mt-4 flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-gray-100 rounded-pill overflow-hidden">
+                <div className="flex-1 h-1.5 bg-stone-100 rounded-pill overflow-hidden">
                   <div className="h-full bg-primary rounded-pill transition-all" style={{ width: `${(usage.used / usage.limit) * 100}%` }} />
                 </div>
-                <span className="text-xs text-textMuted">{usage.used}/{usage.limit} recipes this week</span>
+                <span className="text-xs text-stone-500">{usage.used}/{usage.limit} recipes this week</span>
               </div>
             )}
           </div>
@@ -1376,8 +1376,8 @@ export default function Recipes() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1 min-w-0 pr-3">
                   <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-pill font-medium border border-purple-200">Whole family recipe</span>
-                  <h2 className="text-xl font-bold text-textPrimary mt-2">{familyRecipe.name}</h2>
-                  <p className="text-sm text-textMuted mt-1">{familyRecipe.description}</p>
+                  <h2 className="text-xl font-bold text-stone-900 mt-2">{familyRecipe.name}</h2>
+                  <p className="text-sm text-stone-500 mt-1">{familyRecipe.description}</p>
                 </div>
                 <div className="text-4xl flex-shrink-0">{familyRecipe.icon}</div>
               </div>
@@ -1391,19 +1391,19 @@ export default function Recipes() {
 
               {familyRecipe.memberTips?.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs font-semibold text-textPrimary mb-2">Tips per member</p>
+                  <p className="text-xs font-semibold text-stone-900 mb-2">Tips per member</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {familyRecipe.memberTips.map((t, i) => (
-                      <div key={i} className="flex items-start gap-2 bg-gray-50 rounded-btn px-3 py-2">
+                      <div key={i} className="flex items-start gap-2 bg-stone-50 rounded-btn px-3 py-2">
                         <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{t.member[0]}</div>
-                        <p className="text-xs text-textMuted">{t.member}: {t.tip}</p>
+                        <p className="text-xs text-stone-500">{t.member}: {t.tip}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="flex items-center gap-4 text-xs text-textMuted mb-4 border-t border-border pt-3 flex-wrap">
+              <div className="flex items-center gap-4 text-xs text-stone-500 mb-4 border-t border-border pt-3 flex-wrap">
                 <span className="flex items-center gap-1"><Icon name="clock" size={11} />{familyRecipe.time}</span>
                 <span>Serves {familyRecipe.serves}</span>
                 <span className={`px-2 py-0.5 rounded-pill font-medium ${familyRecipe.difficulty === 'Easy' ? 'bg-fresh-50 text-fresh-700' : familyRecipe.difficulty === 'Hard' ? 'bg-food-100 text-food-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -1449,13 +1449,13 @@ export default function Recipes() {
                             </button>
                           </div>
                           {activeSubstitution === key && (
-                            <div className="mt-2 bg-white rounded-btn border border-blue-100 p-3">
+                            <div className="mt-2 bg-white rounded-btn border border-indigo-200 p-3">
                               {substitutionLoading[key] ? (
-                                <p className="text-xs text-textMuted">Finding substitutes...</p>
+                                <p className="text-xs text-stone-500">Finding substitutes...</p>
                               ) : substitutions[key] ? (
                                 <>
                                   {substitutions[key].tip && (
-                                    <p className="text-xs text-textMuted mb-2 italic">{substitutions[key].tip}</p>
+                                    <p className="text-xs text-stone-500 mb-2 italic">{substitutions[key].tip}</p>
                                   )}
                                   <div className="space-y-2">
                                     {substitutions[key].substitutions?.map((sub, si) => (
@@ -1484,12 +1484,12 @@ export default function Recipes() {
 
               {familyRecipe.steps?.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs font-semibold text-textPrimary mb-3">How to make it</p>
+                  <p className="text-xs font-semibold text-stone-900 mb-3">How to make it</p>
                   <ol className="space-y-3">
                     {familyRecipe.steps.map((step, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                        <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                        <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                       </li>
                     ))}
                   </ol>
@@ -1498,11 +1498,11 @@ export default function Recipes() {
 
               {familyRecipe.nutrition && (
                 <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-xs font-semibold text-textPrimary mb-3">Nutrition per serving</p>
+                  <p className="text-xs font-semibold text-stone-900 mb-3">Nutrition per serving</p>
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       { label: 'Calories', value: familyRecipe.nutritionPerServing?.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
-                      { label: 'Protein', value: familyRecipe.nutritionPerServing?.protein, unit: 'g', color: 'bg-blue-50 text-primary' },
+                      { label: 'Protein', value: familyRecipe.nutritionPerServing?.protein, unit: 'g', color: 'bg-indigo-50 text-primary' },
                       { label: 'Carbs', value: familyRecipe.nutritionPerServing?.carbs, unit: 'g', color: 'bg-yellow-50 text-yellow-600' },
                       { label: 'Fat', value: familyRecipe.nutritionPerServing?.fat, unit: 'g', color: 'bg-red-50 text-danger' },
                       { label: 'Fiber', value: familyRecipe.nutritionPerServing?.fiber, unit: 'g', color: 'bg-green-50 text-success' },
@@ -1533,7 +1533,7 @@ export default function Recipes() {
                     disabled={savingRecipe['family'] || savedRecipes['family']}
                     className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${savedRecipes['family']
                       ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                      : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
+                      : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                       } disabled:opacity-50`}
                   >
                     {savingRecipe['family'] ? '...' : savedRecipes['family'] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
@@ -1547,7 +1547,7 @@ export default function Recipes() {
           {generated && recipes.length > 0 && (
             <>
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 className="font-semibold text-textPrimary">{recipes.length} recipes suggested for {mealType.toLowerCase()}</h2>
+                <h2 className="font-semibold text-stone-900">{recipes.length} recipes suggested for {mealType.toLowerCase()}</h2>
                 <span className="text-xs bg-green-50 text-success border border-green-100 px-3 py-1 rounded-pill font-medium">Based on your pantry</span>
               </div>
 
@@ -1556,13 +1556,13 @@ export default function Recipes() {
                 <div className="flex items-center justify-between mb-4 bg-green-50 border border-green-100 rounded-btn px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <Icon name="dollar" size={16} className="text-green-600" />
-                    <span className="text-sm font-medium text-textPrimary">Budget mode</span>
-                    <span className="text-xs text-textMuted">Sort by cheapest first</span>
+                    <span className="text-sm font-medium text-stone-900">Budget mode</span>
+                    <span className="text-xs text-stone-500">Sort by cheapest first</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setBudgetMode(prev => !prev)}
-                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 focus:outline-none ${budgetMode ? 'bg-green-500' : 'bg-gray-200'}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 focus:outline-none ${budgetMode ? 'bg-green-500' : 'bg-stone-200'}`}
                   >
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${budgetMode ? 'left-5' : 'left-0.5'}`} />
                   </button>
@@ -1579,7 +1579,7 @@ export default function Recipes() {
                     {[
                       { key: 'cookNow', label: 'Cook now', sublabel: '100% in pantry', dotClass: 'bg-green-500', count: cookNow.length, color: activeFilter === 'cookNow' ? 'border-green-400 bg-green-50' : 'border-green-100 bg-green-50/40 hover:border-green-300' },
                       { key: 'tonight', label: 'Tonight', sublabel: 'Need 1 item', dotClass: 'bg-yellow-400', count: tonight.length, color: activeFilter === 'tonight' ? 'border-yellow-400 bg-yellow-50' : 'border-yellow-100 bg-yellow-50/40 hover:border-yellow-300' },
-                      { key: 'planAhead', label: 'Plan ahead', sublabel: 'Need a shop', dotClass: 'bg-blue-400', count: planAhead.length, color: activeFilter === 'planAhead' ? 'border-blue-400 bg-blue-50' : 'border-blue-100 bg-blue-50/40 hover:border-blue-300' },
+                      { key: 'planAhead', label: 'Plan ahead', sublabel: 'Need a shop', dotClass: 'bg-indigo-400', count: planAhead.length, color: activeFilter === 'planAhead' ? 'border-indigo-400 bg-indigo-50' : 'border-indigo-200 bg-indigo-50/40 hover:border-indigo-300' },
                     ].map(tier => (
                       <button
                         key={tier.key}
@@ -1588,9 +1588,9 @@ export default function Recipes() {
                         disabled={tier.count === 0}
                       >
                         <div className="flex justify-center mb-1"><span className={`w-4 h-4 rounded-full inline-block ${tier.dotClass}`} /></div>
-                        <p className="text-sm font-semibold text-textPrimary">{tier.label}</p>
-                        <p className="text-xs text-textMuted">{tier.sublabel}</p>
-                        <p className="text-lg font-bold text-textPrimary mt-1">{tier.count}</p>
+                        <p className="text-sm font-semibold text-stone-900">{tier.label}</p>
+                        <p className="text-xs text-stone-500">{tier.sublabel}</p>
+                        <p className="text-lg font-bold text-stone-900 mt-1">{tier.count}</p>
                       </button>
                     ))}
                   </div>
@@ -1627,11 +1627,11 @@ export default function Recipes() {
                           <Icon name="dollar" size={11} />~${recipeCosts[recipe.name].costPerServing}/serving
                         </span>
                         {recipeCosts[recipe.name].isEstimate && (
-                          <span className="text-xs text-textMuted">estimated</span>
+                          <span className="text-xs text-stone-500">estimated</span>
                         )}
                       </div>
                     )}
-                    <p className="text-sm text-textMuted mb-3 leading-relaxed line-clamp-2">{recipe.description}</p>
+                    <p className="text-sm text-stone-500 mb-3 leading-relaxed line-clamp-2">{recipe.description}</p>
 
                     <div className="flex gap-2 flex-wrap mb-3">
                       {recipe.tags?.map(tag => (
@@ -1686,13 +1686,13 @@ export default function Recipes() {
                                   )}
                                 </div>
                                 {activeSubstitution === key && (
-                                  <div className="mt-2 bg-white rounded-btn border border-blue-100 p-3">
+                                  <div className="mt-2 bg-white rounded-btn border border-indigo-200 p-3">
                                     {substitutionLoading[key] ? (
-                                      <p className="text-xs text-textMuted">Finding substitutes...</p>
+                                      <p className="text-xs text-stone-500">Finding substitutes...</p>
                                     ) : substitutions[key] ? (
                                       <>
                                         {substitutions[key].tip && (
-                                          <p className="text-xs text-textMuted mb-2 italic">{substitutions[key].tip}</p>
+                                          <p className="text-xs text-stone-500 mb-2 italic">{substitutions[key].tip}</p>
                                         )}
                                         <div className="space-y-2">
                                           {substitutions[key].substitutions?.map((sub, si) => (
@@ -1745,7 +1745,7 @@ export default function Recipes() {
                           disabled={savingRecipe[idx] || savedRecipes[idx]}
                           className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${savedRecipes[idx]
                             ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
-                            : 'bg-surface text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
+                            : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                             } disabled:opacity-50`}
                         >
                           {savingRecipe[idx] ? '...' : savedRecipes[idx] ? <><Icon name="bookmark" size={13} className="inline-block mr-1" />Saved</> : <><Icon name="bookmark" size={13} className="inline-block mr-1" />Save</>}
@@ -1755,16 +1755,16 @@ export default function Recipes() {
 
                     {expandedId === idx && (
                       <div className="mt-4 pt-4 border-t border-border">
-                        <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
+                        <p className="text-xs font-semibold text-stone-900 mb-2">Ingredients</p>
                         <ul className="space-y-1.5 mb-5">
                           {recipe.ingredients?.map(ing => (
-                            <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-textMuted">
+                            <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-stone-500">
                               <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             </li>
                           ))}
                           {recipe.missing?.map(ing => (
-                            <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-textMuted">
+                            <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-stone-500">
                               <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                               <span className="text-xs text-orange-400">(need to buy)</span>
@@ -1774,12 +1774,12 @@ export default function Recipes() {
 
                         {recipe.steps?.length > 0 && (
                           <>
-                            <p className="text-xs font-semibold text-textPrimary mb-3">How to make it</p>
+                            <p className="text-xs font-semibold text-stone-900 mb-3">How to make it</p>
                             <ol className="space-y-3">
                               {recipe.steps.map((step, i) => (
                                 <li key={i} className="flex items-start gap-3">
                                   <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                                  <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                                  <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                                 </li>
                               ))}
                             </ol>
@@ -1788,18 +1788,18 @@ export default function Recipes() {
 
                         {recipe.nutrition && (
                           <div className="mt-4 pt-4 border-t border-border">
-                            <p className="text-xs font-semibold text-textPrimary mb-3">Nutrition info</p>
+                            <p className="text-xs font-semibold text-stone-900 mb-3">Nutrition info</p>
                             <div className="flex gap-2 mb-3">
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'serving' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${(nutritionView[idx] || 'serving') === 'serving' ? 'bg-food-600 text-white border-food-600' : 'text-textMuted border-border'
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${(nutritionView[idx] || 'serving') === 'serving' ? 'bg-food-600 text-white border-food-600' : 'text-stone-500 border-border'
                                   }`}
                               >
                                 Per serving
                               </button>
                               <button
                                 onClick={() => setNutritionView(prev => ({ ...prev, [idx]: 'total' }))}
-                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${nutritionView[idx] === 'total' ? 'bg-food-600 text-white border-food-600' : 'text-textMuted border-border'
+                                className={`text-xs px-3 py-1 rounded-pill border transition-all ${nutritionView[idx] === 'total' ? 'bg-food-600 text-white border-food-600' : 'text-stone-500 border-border'
                                   }`}
                               >
                                 Total recipe
@@ -1811,7 +1811,7 @@ export default function Recipes() {
                                 <div className="grid grid-cols-4 gap-2">
                                   {[
                                     { label: 'Calories', value: n?.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
-                                    { label: 'Protein', value: n?.protein, unit: 'g', color: 'bg-blue-50 text-primary' },
+                                    { label: 'Protein', value: n?.protein, unit: 'g', color: 'bg-indigo-50 text-primary' },
                                     { label: 'Carbs', value: n?.carbs, unit: 'g', color: 'bg-yellow-50 text-yellow-600' },
                                     { label: 'Fat', value: n?.fat, unit: 'g', color: 'bg-red-50 text-danger' },
                                     { label: 'Fiber', value: n?.fiber, unit: 'g', color: 'bg-green-50 text-success' },
@@ -1840,29 +1840,29 @@ export default function Recipes() {
           {/* I cooked this — confirmation modal */}
           {cookedModal && (
             <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-              <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
+              <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-xl w-full max-w-sm p-6 modal-sheet">
                 <div className="mb-3 flex justify-center text-food-600"><Icon name="utensils" size={48} /></div>
-                <h3 className="font-bold text-textPrimary text-center text-lg mb-1">Nice cook!</h3>
-                <p className="text-sm text-textMuted text-center mb-5">Here's what Nooka updated for you</p>
+                <h3 className="font-bold text-stone-900 text-center text-lg mb-1">Nice cook!</h3>
+                <p className="text-sm text-stone-500 text-center mb-5">Here's what Nooka updated for you</p>
                 <div className="space-y-2.5 mb-6">
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryLabel ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.pantryLabel ? 'bg-green-50 border-green-100' : 'bg-stone-50 border-[#F1E4D6]'
                     }`}>
                     <Icon name="pantry" size={18} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">{cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged'}</p>
-                      <p className="text-xs text-textMuted">{cookedModal.pantryLabel ?? 'No items matched'}</p>
+                      <p className="text-sm font-medium text-stone-900">{cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged'}</p>
+                      <p className="text-xs text-stone-500">{cookedModal.pantryLabel ?? 'No items matched'}</p>
                     </div>
                     {cookedModal.pantryLabel
                       ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                      : <span className="text-textMuted text-lg">—</span>}
+                      : <span className="text-stone-500 text-lg">—</span>}
                   </div>
 
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.membersLogged.length > 0 ? 'bg-green-50 border-green-100' : 'bg-stone-50 border-[#F1E4D6]'
                     }`}>
                     <Icon name="health" size={18} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">Nutrition logged</p>
-                      <p className="text-xs text-textMuted">
+                      <p className="text-sm font-medium text-stone-900">Nutrition logged</p>
+                      <p className="text-xs text-stone-500">
                         {cookedModal.membersLogged.length > 0
                           ? `For ${cookedModal.membersLogged.join(', ')}`
                           : 'No members selected'}
@@ -1870,16 +1870,16 @@ export default function Recipes() {
                     </div>
                     {cookedModal.membersLogged.length > 0
                       ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                      : <span className="text-textMuted text-lg">—</span>
+                      : <span className="text-stone-500 text-lg">—</span>
                     }
                   </div>
 
-                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100'
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-btn border ${cookedModal.mealPlanMarked ? 'bg-green-50 border-green-100' : 'bg-stone-50 border-[#F1E4D6]'
                     }`}>
                     <Icon name="mealplan" size={18} />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-textPrimary">Meal plan</p>
-                      <p className="text-xs text-textMuted">
+                      <p className="text-sm font-medium text-stone-900">Meal plan</p>
+                      <p className="text-xs text-stone-500">
                         {cookedModal.mealPlanMarked
                           ? "Today's slot marked as done"
                           : 'No matching slot found for today'}
@@ -1887,7 +1887,7 @@ export default function Recipes() {
                     </div>
                     {cookedModal.mealPlanMarked
                       ? <Icon name="check" size={18} className="text-success flex-shrink-0" />
-                      : <span className="text-textMuted text-lg">—</span>
+                      : <span className="text-stone-500 text-lg">—</span>
                     }
                   </div>
                 </div>

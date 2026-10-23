@@ -132,7 +132,7 @@ export default function Reports() {
       <div className="page-container">
         <div className="mb-8">
           <h1 className="page-heading">Expense reports</h1>
-          <p className="text-textMuted mt-1">Loading your spending data...</p>
+          <p className="text-stone-500 mt-1">Loading your spending data...</p>
         </div>
         <LoadingSpinner />
       </div>
@@ -161,15 +161,15 @@ export default function Reports() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="page-heading">Expense reports</h1>
-        <p className="text-textMuted mt-1">Track and reduce your family grocery spending</p>
+        <p className="text-stone-500 mt-1">Track and reduce your family grocery spending</p>
       </div>
 
       {/* No data state */}
       {!hasData && (
         <div className="card text-center py-12 mb-8 border border-stone-200 bg-stone-50">
           <div className="mb-4 flex justify-center text-stone-300"><Icon name="reports" size={56} /></div>
-          <p className="font-semibold text-textPrimary mb-2">No spending data yet</p>
-          <p className="text-sm text-textMuted max-w-sm mx-auto">
+          <p className="font-semibold text-stone-900 mb-2">No spending data yet</p>
+          <p className="text-sm text-stone-500 max-w-sm mx-auto">
             Start checking off items in your grocery list when you buy them. Your spending reports will appear here automatically.
           </p>
         </div>
@@ -178,15 +178,15 @@ export default function Reports() {
       {/* Top stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'This month', value: `$${data?.summary?.thisMonth || '0.00'}`, sub: 'Current month spend', color: 'text-textPrimary' },
-          { label: 'Last month', value: `$${data?.summary?.lastMonth || '0.00'}`, sub: 'Previous month', color: 'text-textMuted' },
-          { label: 'Monthly avg', value: `$${parseFloat(data?.summary?.avg || 0).toFixed(2)}`, sub: 'Last 6 months', color: 'text-textMuted' },
+          { label: 'This month', value: `$${data?.summary?.thisMonth || '0.00'}`, sub: 'Current month spend', color: 'text-stone-900' },
+          { label: 'Last month', value: `$${data?.summary?.lastMonth || '0.00'}`, sub: 'Previous month', color: 'text-stone-500' },
+          { label: 'Monthly avg', value: `$${parseFloat(data?.summary?.avg || 0).toFixed(2)}`, sub: 'Last 6 months', color: 'text-stone-500' },
           { label: 'Items purchased', value: data?.summary?.totalItems || 0, sub: 'Total tracked', color: 'text-success' },
         ].map((s, i) => (
           <div key={i} className="card">
-            <p className="text-xs text-textMuted mb-1">{s.label}</p>
+            <p className="text-xs text-stone-500 mb-1">{s.label}</p>
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-textMuted mt-1">{s.sub}</p>
+            <p className="text-xs text-stone-500 mt-1">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -195,15 +195,15 @@ export default function Reports() {
         {/* Bar chart */}
         <div className="card lg:col-span-2">
           <div className="page-header-row">
-            <h2 className="font-semibold text-textPrimary">Monthly spending</h2>
-            <span className="text-xs text-textMuted">Last 6 months</span>
+            <h2 className="font-semibold text-stone-900">Monthly spending</h2>
+            <span className="text-xs text-stone-500">Last 6 months</span>
           </div>
           {hasData ? (
             <div className="overflow-x-auto">
             <div className="flex items-end gap-3 h-40" style={{ minWidth: `${Math.max(data.monthlySpend.length * 56, 280)}px` }}>
               {data.monthlySpend.map((m, i) => (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs text-textMuted font-medium">
+                  <span className="text-xs text-stone-500 font-medium">
                     {m.amount > 0 ? `$${m.amount}` : ''}
                   </span>
                   <button
@@ -215,7 +215,7 @@ export default function Reports() {
                       minHeight: '4px',
                     }}
                   />
-                  <span className={`text-xs font-medium ${activeMonth === m.month ? 'text-primary' : 'text-textMuted'}`}>
+                  <span className={`text-xs font-medium ${activeMonth === m.month ? 'text-primary' : 'text-stone-500'}`}>
                     {m.month}
                   </span>
                 </div>
@@ -223,7 +223,7 @@ export default function Reports() {
             </div>
             </div>
           ) : (
-            <div className="h-40 flex items-center justify-center text-textMuted text-sm">
+            <div className="h-40 flex items-center justify-center text-stone-500 text-sm">
               No spending data yet
             </div>
           )}
@@ -231,14 +231,14 @@ export default function Reports() {
 
         {/* Category breakdown */}
         <div className="card">
-          <h2 className="font-semibold text-textPrimary mb-5">By category</h2>
+          <h2 className="font-semibold text-stone-900 mb-5">By category</h2>
           {data?.categories?.length > 0 ? (
             <div className="space-y-4">
               {data.categories.map((cat, i) => (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-textPrimary font-medium truncate max-w-[140px]">{cat.name}</span>
-                    <span className="text-xs font-semibold text-textPrimary">${cat.amount}</span>
+                    <span className="text-xs text-stone-900 font-medium truncate max-w-[140px]">{cat.name}</span>
+                    <span className="text-xs font-semibold text-stone-900">${cat.amount}</span>
                   </div>
                   <div className="h-1.5 bg-stone-100 rounded-pill overflow-hidden">
                     <div
@@ -246,12 +246,12 @@ export default function Reports() {
                       style={{ width: `${cat.percent}%` }}
                     />
                   </div>
-                  <p className="text-xs text-textMuted mt-0.5">{cat.percent}% of total</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{cat.percent}% of total</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-textMuted">No category data yet</p>
+            <p className="text-sm text-stone-500">No category data yet</p>
           )}
         </div>
       </div>
@@ -260,7 +260,7 @@ export default function Reports() {
       {isFeatureEnabled('co2_tracking', plan) && (
       <div className="card mb-6 border border-fresh-100 bg-fresh-50/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="globe" size={16} className="text-fresh-700" /> CO2 Food Footprint</h2>
+          <h2 className="font-semibold text-stone-900 flex items-center gap-2"><Icon name="globe" size={16} className="text-fresh-700" /> CO2 Food Footprint</h2>
           <button onClick={fetchCO2} disabled={co2Loading} className="btn-secondary text-xs px-3 py-1.5 disabled:opacity-50">
             {co2Loading ? 'Loading...' : 'Refresh'}
           </button>
@@ -277,7 +277,7 @@ export default function Reports() {
           <div className="flex items-center justify-between bg-indigo-50 rounded-btn px-4 py-3 border border-indigo-100">
             <div>
               <p className="text-sm font-medium text-primary">CO2 tracking available on Family plan</p>
-              <p className="text-xs text-textMuted mt-0.5">Upgrade to see your food carbon footprint</p>
+              <p className="text-xs text-stone-500 mt-0.5">Upgrade to see your food carbon footprint</p>
             </div>
             <a href="/app/settings?tab=plan" className="text-xs bg-primary text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
           </div>
@@ -285,17 +285,17 @@ export default function Reports() {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
               <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Pantry footprint</p>
+                <p className="text-xs text-stone-500 mb-1">Pantry footprint</p>
                 <p className="text-2xl font-bold text-fresh-600">{co2Data.totalCO2}kg</p>
-                <p className="text-xs text-textMuted mt-1">CO2 equivalent</p>
+                <p className="text-xs text-stone-500 mt-1">CO2 equivalent</p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Canadian avg</p>
-                <p className="text-2xl font-bold text-textPrimary">{co2Data.canadianAvgMonthly}kg</p>
-                <p className="text-xs text-textMuted mt-1">per month</p>
+                <p className="text-xs text-stone-500 mb-1">Canadian avg</p>
+                <p className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">{co2Data.canadianAvgMonthly}kg</p>
+                <p className="text-xs text-stone-500 mt-1">per month</p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-fresh-100 text-center col-span-2 sm:col-span-1">
-                <p className="text-xs text-textMuted mb-1">Your status</p>
+                <p className="text-xs text-stone-500 mb-1">Your status</p>
                 <p className={`text-xl font-bold ${co2Data.comparison <= 0 ? 'text-fresh-600' : 'text-orange-500'}`}>
                   {co2Data.comparison !== null
                     ? co2Data.comparison <= 0
@@ -303,12 +303,12 @@ export default function Reports() {
                       : `${co2Data.comparison}% above`
                     : 'N/A'}
                 </p>
-                <p className="text-xs text-textMuted mt-1">national average</p>
+                <p className="text-xs text-stone-500 mt-1">national average</p>
               </div>
             </div>
 
             {/* Top CO2 items */}
-            <p className="text-xs font-semibold text-textPrimary mb-2">Top contributors in your pantry</p>
+            <p className="text-xs font-semibold text-stone-900 mb-2">Top contributors in your pantry</p>
             <div className="space-y-2">
               {co2Data.items
                 .filter(i => i.co2Total > 0)
@@ -319,8 +319,8 @@ export default function Reports() {
                     <div className="flex items-center gap-2">
                       <span>{item.co2Label?.icon}</span>
                       <div>
-                        <p className="text-xs font-medium text-textPrimary">{item.name}</p>
-                        <p className="text-xs text-textMuted">{item.co2Label?.label} impact · {item.co2PerKg}kg CO2/kg</p>
+                        <p className="text-xs font-medium text-stone-900">{item.name}</p>
+                        <p className="text-xs text-stone-500">{item.co2Label?.label} impact · {item.co2PerKg}kg CO2/kg</p>
                       </div>
                     </div>
                     <span className="text-xs font-bold text-fresh-700">{item.co2Total}kg</span>
@@ -336,7 +336,7 @@ export default function Reports() {
             )}
           </>
         ) : (
-          <p className="text-sm text-textMuted">Add items to your pantry to see your CO2 footprint.</p>
+          <p className="text-sm text-stone-500">Add items to your pantry to see your CO2 footprint.</p>
         )}
       </div>
 
@@ -346,7 +346,7 @@ export default function Reports() {
       {isFeatureEnabled('costco_optimizer', plan) && (
       <div className="card mb-6 border border-orange-100 bg-orange-50/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="package" size={16} className="text-stone-500 flex-shrink-0" />Costco bulk optimizer</h2>
+          <h2 className="font-semibold text-stone-900 flex items-center gap-2"><Icon name="package" size={16} className="text-stone-500 flex-shrink-0" />Costco bulk optimizer</h2>
           <div className="flex items-center gap-2">
             {costcoData?.recommendations?.length > 0 && (
               <button onClick={() => setShowCostco(!showCostco)} className="text-xs text-primary hover:underline font-medium">
@@ -376,7 +376,7 @@ export default function Reports() {
           </div>
         ) : costcoData?.hasData ? (
           <>
-            <p className="text-xs text-textMuted mb-4">Based on your pantry items vs Costco Canada reference prices</p>
+            <p className="text-xs text-stone-500 mb-4">Based on your pantry items vs Costco Canada reference prices</p>
             <div className="space-y-2">
               {(showCostco ? costcoData.recommendations : costcoData.recommendations.slice(0, 4)).map((rec, i) => (
                 <div key={i} className={`rounded-btn px-3 py-3 border ${
@@ -388,29 +388,29 @@ export default function Reports() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm">{rec.icon}</span>
-                        <p className="text-sm font-semibold text-textPrimary">{rec.itemName}</p>
+                        <p className="text-sm font-semibold text-stone-900">{rec.itemName}</p>
                         {rec.savingsPercent > 0 && (
                           <span className="text-xs bg-food-50 text-food-700 px-2 py-0.5 rounded-pill font-medium border border-food-100">
                             Save {rec.savingsPercent}%
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-textMuted mt-1">{rec.reason}</p>
-                      <p className="text-xs text-textMuted mt-0.5">{rec.usageText}</p>
+                      <p className="text-xs text-stone-500 mt-1">{rec.reason}</p>
+                      <p className="text-xs text-stone-500 mt-0.5">{rec.usageText}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-semibold text-textPrimary">${rec.costcoPrice}</p>
-                      <p className="text-xs text-textMuted">{rec.costcoSize}</p>
-                      <p className="text-xs text-textMuted">${rec.costcoPricePerKg}/kg</p>
+                      <p className="text-xs font-semibold text-stone-900">${rec.costcoPrice}</p>
+                      <p className="text-xs text-stone-500">{rec.costcoSize}</p>
+                      <p className="text-xs text-stone-500">${rec.costcoPricePerKg}/kg</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-textMuted mt-3">* Prices are reference estimates. Always verify at your local Costco.</p>
+            <p className="text-xs text-stone-500 mt-3">* Prices are reference estimates. Always verify at your local Costco.</p>
           </>
         ) : (
-          <p className="text-sm text-textMuted">Add items to your pantry to get Costco bulk buying recommendations.</p>
+          <p className="text-sm text-stone-500">Add items to your pantry to get Costco bulk buying recommendations.</p>
         )}
       </div>
 
@@ -419,13 +419,13 @@ export default function Reports() {
       {/* Store breakdown */}
       {data?.stores?.length > 0 && (
         <div className="card mb-6">
-          <h2 className="font-semibold text-textPrimary mb-4">Spending by store</h2>
+          <h2 className="font-semibold text-stone-900 mb-4">Spending by store</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {data.stores.map((store, i) => (
               <div key={i} className="bg-stone-50 rounded-btn p-3 text-center border border-border">
                 <div className="mb-1 flex justify-center text-stone-500"><Icon name={STORE_ICONS[store.name] || 'grocery'} size={22} /></div>
-                <p className="text-sm font-semibold text-textPrimary">${store.amount}</p>
-                <p className="text-xs text-textMuted truncate">{store.name}</p>
+                <p className="text-sm font-semibold text-stone-900">${store.amount}</p>
+                <p className="text-xs text-stone-500 truncate">{store.name}</p>
               </div>
             ))}
           </div>
@@ -436,7 +436,7 @@ export default function Reports() {
       {isFeatureEnabled('budget_forecast', plan) && (
       <div className="card mb-6 border-2 border-yellow-100 bg-yellow-50/30">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-textPrimary flex items-center gap-2"><Icon name="info" size={16} className="text-stone-500" /> Budget intelligence</h2>
+          <h2 className="font-semibold text-stone-900 flex items-center gap-2"><Icon name="info" size={16} className="text-stone-500" /> Budget intelligence</h2>
           <button
             onClick={() => { fetchForecast(); fetchTips() }}
             disabled={tipsLoading || forecastLoading}
@@ -471,40 +471,40 @@ export default function Reports() {
             )}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
               <div className="bg-white rounded-btn p-3 border border-stone-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Next month</p>
+                <p className="text-xs text-stone-500 mb-1">Next month</p>
                 <p className="text-xl font-bold text-primary">${forecast.forecast?.nextMonthForecast}</p>
                 <p className={`text-xs font-medium mt-1 ${
                   forecast.forecast?.trend === 'increasing' ? 'text-amber-600' :
-                  forecast.forecast?.trend === 'decreasing' ? 'text-fresh-600' : 'text-textMuted'
+                  forecast.forecast?.trend === 'decreasing' ? 'text-fresh-600' : 'text-stone-500'
                 }`}>
                   {forecast.forecast?.trend === 'increasing' ? '↑' :
                    forecast.forecast?.trend === 'decreasing' ? '↓' : '→'} {Math.abs(forecast.forecast?.trendPercent)}%
                 </p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-food-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Could save</p>
+                <p className="text-xs text-stone-500 mb-1">Could save</p>
                 <p className="text-xl font-bold text-food-600">${forecast.forecast?.savingsOpportunity}</p>
-                <p className="text-xs text-textMuted mt-1">per month</p>
+                <p className="text-xs text-stone-500 mt-1">per month</p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-purple-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Top category</p>
+                <p className="text-xs text-stone-500 mb-1">Top category</p>
                 <p className="text-sm font-bold text-purple-600 truncate">{forecast.forecast?.topCategory}</p>
-                <p className="text-xs text-textMuted mt-1">highest spend</p>
+                <p className="text-xs text-stone-500 mt-1">highest spend</p>
               </div>
               <div className="bg-white rounded-btn p-3 border border-orange-100 text-center">
-                <p className="text-xs text-textMuted mb-1">Tracked items</p>
+                <p className="text-xs text-stone-500 mb-1">Tracked items</p>
                 <p className="text-xl font-bold text-orange-500">{forecast.itemCount}</p>
-                <p className="text-xs text-textMuted mt-1">purchased</p>
+                <p className="text-xs text-stone-500 mt-1">purchased</p>
               </div>
             </div>
             {forecast.forecast?.insights?.length > 0 && (
               <div className="mb-5">
-                <p className="text-xs font-semibold text-textPrimary mb-2 flex items-center gap-1.5"><Icon name="sparkle" size={12} className="text-primary" />Forecast insights</p>
+                <p className="text-xs font-semibold text-stone-900 mb-2 flex items-center gap-1.5"><Icon name="sparkle" size={12} className="text-primary" />Forecast insights</p>
                 <div className="space-y-2">
                   {forecast.forecast.insights.map((insight, i) => (
                     <div key={i} className="flex items-start gap-2 bg-white rounded-btn px-3 py-2 border border-indigo-100">
                       <span className="text-primary font-bold text-xs mt-0.5">→</span>
-                      <p className="text-xs text-textMuted">{insight}</p>
+                      <p className="text-xs text-stone-500">{insight}</p>
                     </div>
                   ))}
                 </div>
@@ -520,23 +520,23 @@ export default function Reports() {
             <a href="/app/settings?tab=plan" className="text-xs bg-yellow-500 text-white px-3 py-1.5 rounded-pill font-medium">Upgrade →</a>
           </div>
         ) : (
-          <p className="text-sm text-textMuted mb-4">{forecast?.message || 'No forecast data yet.'}</p>
+          <p className="text-sm text-stone-500 mb-4">{forecast?.message || 'No forecast data yet.'}</p>
         )}
 
         {forecast?.hasData && <div className="border-t border-yellow-100 mb-5" />}
 
-        <p className="text-xs font-semibold text-textPrimary mb-2 flex items-center gap-1.5"><Icon name="dollar" size={12} className="text-stone-500" />Savings tips</p>
+        <p className="text-xs font-semibold text-stone-900 mb-2 flex items-center gap-1.5"><Icon name="dollar" size={12} className="text-stone-500" />Savings tips</p>
         {tips.length > 0 ? (
           <div className="space-y-3">
             {tips.map((t, i) => (
               <div key={i} className="flex items-start gap-3 bg-white rounded-btn p-3 border border-yellow-100">
                 <span className="text-xl flex-shrink-0">{t.icon}</span>
-                <p className="text-sm text-textMuted leading-relaxed">{t.tip}</p>
+                <p className="text-sm text-stone-500 leading-relaxed">{t.tip}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-textMuted">
+          <p className="text-sm text-stone-500">
             {hasData ? 'Click "Generate insights" to get AI-powered savings suggestions.' : 'Start tracking purchases to get personalized savings tips.'}
           </p>
         )}
@@ -547,7 +547,7 @@ export default function Reports() {
       {/* Recent shopping trips */}
       <div className="card p-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-border">
-          <h2 className="font-semibold text-textPrimary">Recent shopping trips</h2>
+          <h2 className="font-semibold text-stone-900">Recent shopping trips</h2>
         </div>
         {data?.recentTrips?.length > 0 ? (
           <ul className="divide-y divide-border">
@@ -557,15 +557,15 @@ export default function Reports() {
                   <Icon name={STORE_ICONS[t.store] || 'grocery'} size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-textPrimary">{t.store}</p>
-                  <p className="text-xs text-textMuted mt-0.5">{t.date} · {t.items} item{t.items > 1 ? 's' : ''}</p>
+                  <p className="text-sm font-medium text-stone-900">{t.store}</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{t.date} · {t.items} item{t.items > 1 ? 's' : ''}</p>
                 </div>
-                <span className="text-sm font-bold text-textPrimary">{t.total}</span>
+                <span className="text-sm font-bold text-stone-900">{t.total}</span>
               </li>
             ))}
           </ul>
         ) : (
-          <div className="text-center py-8 text-textMuted">
+          <div className="text-center py-8 text-stone-500">
             <p className="text-sm">No shopping trips recorded yet</p>
             <p className="text-xs mt-1">Check off grocery items when you buy them to track trips</p>
           </div>

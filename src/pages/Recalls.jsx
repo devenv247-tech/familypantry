@@ -74,7 +74,7 @@ export default function Recalls() {
   }
 
   const getRiskColor = (risk) => {
-    if (!risk) return 'bg-gray-50 text-textMuted border-gray-100'
+    if (!risk) return 'bg-stone-50 text-stone-500 border-[#F1E4D6]'
     const r = risk.toLowerCase()
     if (r.includes('class 1') || r.includes('class i ')) return 'bg-red-50 text-danger border-red-100'
     if (r.includes('class 2') || r.includes('class ii')) return 'bg-orange-50 text-orange-600 border-orange-100'
@@ -96,17 +96,17 @@ export default function Recalls() {
       <div className="page-container">
         <div className="mb-8">
           <h1 className="page-heading">Recall alerts</h1>
-          <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
+          <p className="text-stone-500 mt-1">Health Canada recalls — live data</p>
         </div>
         <div className="card text-center py-16 border-2 border-orange-100 bg-orange-50/20">
           <div className="mb-4 flex justify-center"><Icon name="recalls" size={64} className="text-red-600" /></div>
-          <h2 className="text-xl font-bold text-textPrimary mb-2">Health Canada Recall Alerts</h2>
-          <p className="text-textMuted max-w-sm mx-auto mb-2">
+          <h2 className="text-xl font-bold text-stone-900 mb-2">Health Canada Recall Alerts</h2>
+          <p className="text-stone-500 max-w-sm mx-auto mb-2">
             Get notified when recalled food products match items in your pantry. Stay safe with live Health Canada data.
           </p>
           <div className="flex flex-col items-center gap-2 mb-8 mt-6">
             {['Live Health Canada recall data', 'Automatic pantry matching', 'Instant alerts for your family', 'All recent Canadian food recalls'].map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-textMuted">
+              <div key={i} className="flex items-center gap-2 text-sm text-stone-500">
                 <Icon name="check" size={14} className="text-success flex-shrink-0" />
                 {f}
               </div>
@@ -115,7 +115,7 @@ export default function Recalls() {
           <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary px-8 py-3 text-base">
             Upgrade to Family plan — $7/mo
           </button>
-          <p className="text-xs text-textMuted mt-3">Cancel anytime</p>
+          <p className="text-xs text-stone-500 mt-3">Cancel anytime</p>
         </div>
       </div>
     )
@@ -127,7 +127,7 @@ export default function Recalls() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="page-heading">Recall alerts</h1>
-          <p className="text-textMuted mt-1">Health Canada recalls — live data</p>
+          <p className="text-stone-500 mt-1">Health Canada recalls — live data</p>
         </div>
         <button onClick={checkMatches} disabled={checking} className="btn-primary flex items-center gap-2 disabled:opacity-50">
           {checking ? (
@@ -143,9 +143,9 @@ export default function Recalls() {
       </div>
 
       <div className="mb-8">
-        <h2 className="font-semibold text-textPrimary mb-3">
+        <h2 className="font-semibold text-stone-900 mb-3">
           My pantry matches
-          {lastChecked && <span className="text-xs text-textMuted font-normal ml-2">Last checked at {lastChecked}</span>}
+          {lastChecked && <span className="text-xs text-stone-500 font-normal ml-2">Last checked at {lastChecked}</span>}
         </h2>
 
         {visibleMatches.length > 0 ? (
@@ -169,11 +169,11 @@ export default function Recalls() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs bg-red-100 text-danger px-2 py-0.5 rounded-pill font-medium">In your pantry</span>
-                          <span className="text-sm font-semibold text-textPrimary">{match.pantryItem}</span>
+                          <span className="text-sm font-semibold text-stone-900">{match.pantryItem}</span>
                         </div>
-                        <p className="text-xs text-textMuted">Matches: {match.recallTitle}</p>
+                        <p className="text-xs text-stone-500">Matches: {match.recallTitle}</p>
                         <p className="text-xs text-red-500 mt-1">{match.reason}</p>
-                        <p className="text-xs text-textMuted mt-1">{new Date(match.date).toLocaleDateString('en-CA')}</p>
+                        <p className="text-xs text-stone-500 mt-1">{new Date(match.date).toLocaleDateString('en-CA')}</p>
                         <div className="flex items-center gap-3 mt-3">
                           {match.url && (
                             <a href={match.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline font-medium">
@@ -182,7 +182,7 @@ export default function Recalls() {
                           )}
                           <button
                             onClick={() => { setDismissedMatches(prev => [...prev, key]); showToast('Match dismissed — not your product') }}
-                            className="text-xs text-textMuted hover:text-danger transition-colors"
+                            className="text-xs text-stone-500 hover:text-danger transition-colors"
                           >
                             <Icon name="close" size={12} className="inline-block mr-1" />Not my product
                           </button>
@@ -203,7 +203,7 @@ export default function Recalls() {
               <Icon name="check" size={24} className="text-success flex-shrink-0" />
               <div>
                 <p className="font-semibold text-success">No recalled items found in your pantry</p>
-                <p className="text-sm text-textMuted mt-0.5">
+                <p className="text-sm text-stone-500 mt-0.5">
                   {lastChecked ? 'Your pantry is safe based on current Health Canada recalls' : 'Click "Check my pantry" to scan'}
                 </p>
               </div>
@@ -214,15 +214,15 @@ export default function Recalls() {
 
       <div>
         <div className="page-header-row">
-          <h2 className="font-semibold text-textPrimary">Recent recalls in Canada</h2>
-          <span className="text-xs text-textMuted bg-gray-100 px-3 py-1 rounded-pill">Last 7 days</span>
+          <h2 className="font-semibold text-stone-900">Recent recalls in Canada</h2>
+          <span className="text-xs text-stone-500 bg-stone-100 px-3 py-1 rounded-pill">Last 7 days</span>
         </div>
 
         <div className="flex gap-2 flex-wrap mb-4">
           {categories.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
               className={`px-4 py-1.5 rounded-pill border text-sm font-medium transition-all ${
-                activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
               }`}
             >
               {cat}
@@ -233,13 +233,13 @@ export default function Recalls() {
         {loading ? (
           <LoadingSpinner />
         ) : error ? (
-          <div className="text-center py-12 text-textMuted">
+          <div className="text-center py-12 text-stone-500">
             <div className="mb-3 flex justify-center"><Icon name="warning" size={48} className="text-amber-500" /></div>
             <p className="font-medium text-danger">{error}</p>
             <button onClick={fetchRecentRecalls} className="btn-secondary mt-4 text-sm">Try again</button>
           </div>
         ) : filteredRecalls.length === 0 ? (
-          <div className="text-center py-12 text-textMuted">
+          <div className="text-center py-12 text-stone-500">
             <div className="mb-3 flex justify-center"><Icon name="check" size={48} className="text-success" /></div>
             <p className="font-medium">No recent recalls in this category</p>
           </div>
@@ -255,12 +255,12 @@ export default function Recalls() {
                           Food
                         </span>
                       )}
-                      <p className="font-medium text-textPrimary text-sm">{recall.title}</p>
+                      <p className="font-medium text-stone-900 text-sm">{recall.title}</p>
                     </div>
-                    {recall.reason && <p className="text-xs text-textMuted mt-1">{recall.reason}</p>}
+                    {recall.reason && <p className="text-xs text-stone-500 mt-1">{recall.reason}</p>}
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="mealplan" size={12} />{new Date(recall.date).toLocaleDateString('en-CA')}</span>
-                      <span className="text-xs text-textMuted flex items-center gap-1"><Icon name="globe" size={12} />{recall.distribution}</span>
+                      <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="mealplan" size={12} />{new Date(recall.date).toLocaleDateString('en-CA')}</span>
+                      <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="globe" size={12} />{recall.distribution}</span>
                     </div>
                   </div>
                   <span className={`text-xs px-2.5 py-1 rounded-pill border font-medium flex-shrink-0 ${getRiskColor(recall.risk)}`}>
@@ -273,7 +273,7 @@ export default function Recalls() {
         )}
       </div>
 
-      <p className="text-xs text-textMuted text-center mt-8">
+      <p className="text-xs text-stone-500 text-center mt-8">
         Data sourced from Health Canada Recalls and Safety Alerts — recalls-rappels.canada.ca
       </p>
 
