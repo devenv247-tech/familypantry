@@ -8,6 +8,9 @@ import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
 import { suggestRecipes, generateFamilyRecipe, cookRecipe, getSubstitutions, estimateRecipeCosts, suggestDrinks, describeRequest } from '../api/recipes'
 import { addGroceryItem, updateGroceryItem, getGroceryItems } from '../api/grocery'
+import { getPantryItems } from '../api/pantry'
+import { isPantryIntent } from '../utils/pantryIntent'
+import PantryShelfAnswer from '../components/ui/PantryShelfAnswer'
 import { logCookedMeal, getCookingHistory } from '../api/mealPattern'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { logNutrition } from '../api/healthProgress'
@@ -138,6 +141,8 @@ export default function Recipes() {
   const [askUsage, setAskUsage] = useState(null)
   const [askPlaceholderIdx, setAskPlaceholderIdx] = useState(0)
   const [askPlaceholderFade, setAskPlaceholderFade] = useState(true)
+  const [pantryAnswer, setPantryAnswer] = useState(null)
+  const [pantryLoading, setPantryLoading] = useState(false)
   const [budgetMode, setBudgetMode] = useState(false)
   const [recipeCosts, setRecipeCosts] = useState({})
   const [cookedModal, setCookedModal] = useState(null)
@@ -286,13 +291,125 @@ export default function Recipes() {
     }
   }
 
+  const normalizePantryItems = (rawItems) => rawItems.map(item => {
+    const stockPct = item.maxQuantity > 0 && item.normalizedQty != null
+      ? Math.min(100, Math.round((item.normalizedQty / item.maxQuantity) * 100))
+      : null
+    const expiryDate = item.expiry || item.predictedExpiry
+    const daysUntilExpiry = expiryDate
+      ? Math.round((new Date(expiryDate) - new Date()) / (1000 * 60 * 60 * 24))
+      : null
+    let status = 'good'
+    if (stockPct !== null && stockPct <= 20) status = 'critical'
+    else if (stockPct !== null && stockPct <= 40) status = 'low'
+    else if (daysUntilExpiry !== null && daysUntilExpiry >= 0 && daysUntilExpiry <= 7) status = 'expiring'
+    return {
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      unit: item.unit,
+      displayQty: `${item.quantity || 0}${item.unit ? ' ' + item.unit : ''}`,
+      icon: item.icon,
+      category: item.category,
+      stockPct,
+      daysUntilExpiry,
+      status,
+    }
+  })
+
+  const parseAIGuideToShelfItems = (steps) => {
+    const stripEmoji = s => s.replace(/^[\u{1F000}-\u{1FFFF}☀-➿\s]+/gu, '').trim()
+    const items = []
+    let sectionStatus = 'good'
+    for (const step of steps) {
+      const clean = stripEmoji(step)
+      if (!clean) continue
+      if (clean.endsWith(':') || (clean.length < 50 && clean === clean.toUpperCase())) {
+        if (/restock|critical/i.test(clean)) sectionStatus = 'critical'
+        else if (/\blow\b/i.test(clean)) sectionStatus = 'low'
+        else if (/expir|use soon/i.test(clean)) sectionStatus = 'expiring'
+        else sectionStatus = 'good'
+        continue
+      }
+      if (!clean.includes(' — ')) continue
+      const idx = clean.indexOf(' — ')
+      const name = clean.slice(0, idx).trim()
+      const displayQty = clean.slice(idx + 3).replace(/\.$/, '').trim()
+      let status = sectionStatus
+      if (/critically low/i.test(clean)) status = 'critical'
+      else if (/\bvery low\b|\blow\b/i.test(clean)) status = 'low'
+      else if (/expir/i.test(clean)) status = 'expiring'
+      else if (/adequate|good|well stocked/i.test(clean)) status = 'good'
+      items.push({ name, displayQty, status })
+    }
+    return items
+  }
+
+  const isAIGuideStockReport = (guide) => {
+    if (!guide || guide.type !== 'guide') return false
+    const titleText = `${guide.title || ''} ${guide.description || ''}`.toLowerCase()
+    const steps = guide.steps || []
+    const itemLike = steps.filter(s => s.includes(' — ')).length
+    const hasKeyword = ['pantry', 'stock', 'inventory', 'restock', 'expir'].some(k => titleText.includes(k))
+    return (hasKeyword && itemLike > 0) || (itemLike / Math.max(steps.length, 1) >= 0.4)
+  }
+
   const handleAskNooka = async () => {
     if (!askQuery.trim()) return
+    const query = askQuery.trim()
+
+    if (isPantryIntent(query)) {
+      setAskResult(null)
+      setPantryAnswer(null)
+      setAskError('')
+      setLimitError('')
+      setPantryLoading(true)
+      try {
+        const rawItems = await getPantryItems()
+        setPantryAnswer({ items: normalizePantryItems(rawItems) })
+      } catch {
+        showToast('Failed to load pantry data', 'error')
+      } finally {
+        setPantryLoading(false)
+      }
+      return
+    }
+
     if (!hasAcknowledgedAI()) {
       setPendingAIAction('ask')
       setShowAIDisclosure(true)
       return
     }
+    setAskLoading(true)
+    setAskResult(null)
+    setPantryAnswer(null)
+    setAskError('')
+    setLimitError('')
+    try {
+      const data = await describeRequest(query)
+      setAskResult(data)
+      if (data.usage) setAskUsage(data.usage)
+    } catch (err) {
+      const errData = err.response?.data
+      if (errData?.limitReached) {
+        setLimitError(errData.message)
+      } else if (errData?.error) {
+        setAskError(errData.message)
+      } else {
+        showToast('Something went wrong. Please try again.', 'error')
+      }
+    } finally {
+      setAskLoading(false)
+    }
+  }
+
+  const handleAskWithAI = async () => {
+    if (!hasAcknowledgedAI()) {
+      setPendingAIAction('askWithAI')
+      setShowAIDisclosure(true)
+      return
+    }
+    setPantryAnswer(null)
     setAskLoading(true)
     setAskResult(null)
     setAskError('')
@@ -512,10 +629,9 @@ export default function Recipes() {
   return (
     <div className="page-container">
 
-      {/* Full screen loading overlays */}
+      {/* Full screen loading overlays — recipe generation only, never for Ask Nooka */}
       <CookingLoader mode="recipes" visible={loading} />
       <CookingLoader mode="family" visible={familyLoading} />
-      <CookingLoader mode="recipes" visible={askLoading} />
 
       {/* AI data disclosure modal — shown once per user before first recipe generation */}
       {showAIDisclosure && (
@@ -548,7 +664,7 @@ export default function Recipes() {
                 </li>
               ))}
             </ul>
-            <div className="bg-stone-50 rounded-btn px-3 py-2.5 mb-4">
+            <div className="bg-stone-50 rounded-2xl px-3 py-2.5 mb-4">
               <p className="text-xs text-stone-500 leading-relaxed">
                 Your <span className="font-semibold text-stone-900">name, email, and account details are never shared</span> with any AI service. Only anonymous health and pantry data is used.
               </p>
@@ -570,6 +686,7 @@ export default function Recipes() {
                   if (pendingAIAction === 'generate') handleGenerate()
                   if (pendingAIAction === 'family') handleFamilyRecipe()
                   if (pendingAIAction === 'ask') handleAskNooka()
+                  if (pendingAIAction === 'askWithAI') handleAskWithAI()
                   setPendingAIAction(null)
                 }}
                 className="btn-primary flex-1 text-sm">
@@ -692,7 +809,7 @@ export default function Recipes() {
 
             {/* Plan gate */}
             {plan === 'free' && (
-              <div className="bg-amber-50 border border-amber-200 rounded-btn px-4 py-3 mb-4 text-center">
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 mb-4 text-center">
                 <p className="text-sm font-medium text-amber-700 mb-1">Family plan feature</p>
                 <p className="text-xs text-amber-600">Upgrade to Family ($9.99/mo) to unlock drinks & remedies</p>
               </div>
@@ -768,7 +885,7 @@ export default function Recipes() {
                   </div>
 
                   {/* Why it helps */}
-                  <div className="bg-green-50 border border-green-100 rounded-btn px-3 py-2 mb-3">
+                  <div className="bg-green-50 border border-green-100 rounded-2xl px-3 py-2 mb-3">
                     <p className="text-xs text-green-700 leading-relaxed">
                       <span className="font-semibold">Why it helps: </span>{drink.why}
                     </p>
@@ -815,7 +932,7 @@ export default function Recipes() {
                       </ol>
 
                       {drink.tip && (
-                        <div className="bg-amber-50 border border-amber-100 rounded-btn px-3 py-2">
+                        <div className="bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2">
                           <p className="text-xs text-amber-700 flex items-center gap-1"><Icon name="info" size={12} className="text-amber-600 flex-shrink-0" />{drink.tip}</p>
                         </div>
                       )}
@@ -879,7 +996,7 @@ export default function Recipes() {
 
             {/* Inline error (off_topic, Request too long, unavailable) */}
             {askError && (
-              <div className="mt-4 bg-stone-50 border border-stone-200 rounded-btn px-4 py-3">
+              <div className="mt-4 bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3">
                 <p className="text-sm text-stone-500">{askError}</p>
               </div>
             )}
@@ -903,6 +1020,53 @@ export default function Recipes() {
               </div>
             )}
           </div>
+
+          {/* Pantry skeleton while fetching */}
+          {pantryLoading && (
+            <div className="card border border-border mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-stone-100 rounded-2xl animate-pulse flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 bg-stone-100 rounded-full animate-pulse w-3/4" />
+                  <div className="h-2.5 bg-stone-100 rounded-full animate-pulse w-1/2" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-24 bg-stone-100 rounded-3xl animate-pulse" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Local pantry answer — no AI used */}
+          {pantryAnswer && !pantryLoading && (
+            <PantryShelfAnswer
+              items={pantryAnswer.items}
+              showToast={showToast}
+              onAskWithAI={handleAskWithAI}
+            />
+          )}
+
+          {/* Inline loader for AI questions — replaces the full-screen cooking loader */}
+          {askLoading && (
+            <div className="card border border-indigo-100 bg-indigo-50/30 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Icon name="bubble" size={18} className="text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-stone-900 text-sm">Nooka is thinking...</p>
+                  <p className="text-xs text-stone-500 mt-0.5">Finding the best answer for you</p>
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                <div className="h-3 bg-indigo-100 rounded-full animate-pulse" style={{ width: '85%' }} />
+                <div className="h-3 bg-indigo-100 rounded-full animate-pulse" style={{ width: '68%' }} />
+                <div className="h-3 bg-indigo-100 rounded-full animate-pulse" style={{ width: '52%' }} />
+              </div>
+            </div>
+          )}
 
           {/* Safety response — calm info card */}
           {askResult?.type === 'safety' && (
@@ -969,11 +1133,11 @@ export default function Recipes() {
                   </div>
                 )}
 
-                {/* Two-column layout above md; single column on mobile */}
-                <div className="md:grid md:grid-cols-[2fr_3fr] md:gap-6">
+                {/* Two-column when left sidebar has content; full-width otherwise */}
+                <div className={(askResult.shoppingList?.length > 0 || askResult.ingredients?.length > 0 || askResult.equipment?.length > 0) ? 'md:grid md:grid-cols-[2fr_3fr] md:gap-6' : ''}>
 
-                  {/* Left column: need to buy, ingredients, equipment */}
-                  <div>
+                  {/* Left column: need to buy, ingredients, equipment — omitted when empty */}
+                  {(askResult.shoppingList?.length > 0 || askResult.ingredients?.length > 0 || askResult.equipment?.length > 0) && <div>
                     {askResult.shoppingList?.length > 0 && (
                       <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
@@ -1027,9 +1191,9 @@ export default function Recipes() {
                         </ul>
                       </div>
                     )}
-                  </div>
+                  </div>}
 
-                  {/* Right column: steps, nutrition */}
+                  {/* Right column: steps, nutrition — spans full width when left is empty */}
                   <div>
                     {askResult.steps?.length > 0 && (
                       <div className="mb-4">
@@ -1137,62 +1301,70 @@ export default function Recipes() {
                   </div>
                 )}
 
-                {/* Two-column layout above md; single column on mobile */}
-                <div className="md:grid md:grid-cols-[2fr_3fr] md:gap-6">
+                {/* If AI returned a stock report guide, render the shelf view */}
+                {isAIGuideStockReport(askResult) ? (
+                  <PantryShelfAnswer
+                    items={parseAIGuideToShelfItems(askResult.steps || [])}
+                    showToast={showToast}
+                    tips={askResult.tips}
+                  />
+                ) : (
+                  /* Two-column when equipment exists; full-width otherwise */
+                  <div className={askResult.equipment?.length > 0 ? 'md:grid md:grid-cols-[2fr_3fr] md:gap-6' : ''}>
 
-                  {/* Left column: equipment */}
-                  <div>
                     {askResult.equipment?.length > 0 && (
-                      <div className="mb-5">
-                        <p className="text-xs font-semibold text-stone-900 mb-2">Equipment</p>
-                        <ul className="space-y-1.5">
-                          {askResult.equipment.map((eq, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm">
-                              <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold ${eq.required ? 'bg-food-100 text-food-700' : 'bg-stone-100 text-stone-500'}`}>
-                                {eq.required ? '!' : '·'}
-                              </span>
-                              <span className="min-w-0">
-                                <span className="font-medium text-stone-900">{eq.item}</span>
-                                {eq.purpose && <span className="text-stone-500"> — {eq.purpose}</span>}
-                                {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right column: steps, tips */}
-                  <div>
-                    {askResult.steps?.length > 0 && (
-                      <div className="mb-5">
-                        <p className="text-xs font-semibold text-stone-900 mb-3">Steps</p>
-                        <ol className="space-y-3">
-                          {askResult.steps.map((step, i) => (
-                            <li key={i} className="flex items-start gap-3">
-                              <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                              <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
-                            </li>
-                          ))}
-                        </ol>
+                      <div>
+                        <div className="mb-5">
+                          <p className="text-xs font-semibold text-stone-900 mb-2">Equipment</p>
+                          <ul className="space-y-1.5">
+                            {askResult.equipment.map((eq, i) => (
+                              <li key={i} className="flex items-start gap-2 text-sm">
+                                <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold ${eq.required ? 'bg-food-100 text-food-700' : 'bg-stone-100 text-stone-500'}`}>
+                                  {eq.required ? '!' : '·'}
+                                </span>
+                                <span className="min-w-0">
+                                  <span className="font-medium text-stone-900">{eq.item}</span>
+                                  {eq.purpose && <span className="text-stone-500"> — {eq.purpose}</span>}
+                                  {!eq.required && <span className="text-stone-400 text-xs"> (optional)</span>}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     )}
 
-                    {askResult.tips?.length > 0 && (
-                      <div className="bg-amber-50 border border-amber-100 rounded-btn px-4 py-3">
-                        <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1.5">
-                          <Icon name="info" size={13} className="text-amber-600" />Tips
-                        </p>
-                        <ul className="space-y-1.5">
-                          {askResult.tips.map((tip, i) => (
-                            <li key={i} className="text-xs text-amber-700 leading-relaxed">· {tip}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    {/* Steps and tips — spans full width when no equipment */}
+                    <div>
+                      {askResult.steps?.length > 0 && (
+                        <div className="mb-5">
+                          <p className="text-xs font-semibold text-stone-900 mb-3">Steps</p>
+                          <ol className="space-y-3">
+                            {askResult.steps.map((step, i) => (
+                              <li key={i} className="flex items-start gap-3">
+                                <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                                <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {askResult.tips?.length > 0 && (
+                        <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3">
+                          <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1.5">
+                            <Icon name="info" size={13} className="text-amber-600" />Tips
+                          </p>
+                          <ul className="space-y-1.5">
+                            {askResult.tips.map((tip, i) => (
+                              <li key={i} className="text-xs text-amber-700 leading-relaxed">· {tip}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -1392,7 +1564,7 @@ export default function Recipes() {
               </div>
 
               {familyRecipe.balanceNote && (
-                <div className="bg-purple-50 border border-purple-100 rounded-btn px-4 py-3 mb-4">
+                <div className="bg-purple-50 border border-purple-100 rounded-2xl px-4 py-3 mb-4">
                   <p className="text-xs font-semibold text-purple-700 mb-1">Why this works for everyone</p>
                   <p className="text-sm text-purple-600">{familyRecipe.balanceNote}</p>
                 </div>
@@ -1403,7 +1575,7 @@ export default function Recipes() {
                   <p className="text-xs font-semibold text-stone-900 mb-2">Tips per member</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {familyRecipe.memberTips.map((t, i) => (
-                      <div key={i} className="flex items-start gap-2 bg-stone-50 rounded-btn px-3 py-2">
+                      <div key={i} className="flex items-start gap-2 bg-stone-50 rounded-2xl px-3 py-2">
                         <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{t.member[0]}</div>
                         <p className="text-xs text-stone-500">{t.member}: {t.tip}</p>
                       </div>
