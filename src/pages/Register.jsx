@@ -51,7 +51,7 @@ const handleStep2 = async (e) => {
 }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
@@ -59,7 +59,7 @@ const handleStep2 = async (e) => {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <NookaIcon size={32} />
           </div>
-          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
+          <span className="font-semibold text-stone-900 text-lg">Nooka</span>
         </Link>
       </nav>
 
@@ -68,8 +68,8 @@ const handleStep2 = async (e) => {
 
           {/* Steps indicator */}
           <div className="flex items-center gap-2 mb-8">
-            <div className={`flex-1 h-1.5 rounded-pill transition-all ${step >= 1 ? 'bg-primary' : 'bg-gray-100'}`} />
-            <div className={`flex-1 h-1.5 rounded-pill transition-all ${step >= 2 ? 'bg-primary' : 'bg-gray-100'}`} />
+            <div className={`flex-1 h-1.5 rounded-pill transition-all ${step >= 1 ? 'bg-primary' : 'bg-stone-200'}`} />
+            <div className={`flex-1 h-1.5 rounded-pill transition-all ${step >= 2 ? 'bg-primary' : 'bg-stone-200'}`} />
           </div>
 
           <div className="text-center mb-8">
@@ -78,13 +78,13 @@ const handleStep2 = async (e) => {
             </div>
             {step === 1 ? (
               <>
-                <h1 className="text-2xl font-bold text-textPrimary">Create your family</h1>
-                <p className="text-textMuted text-sm mt-1">Step 1 of 2 — Name your family account</p>
+                <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Create your family</h1>
+                <p className="text-stone-500 text-sm mt-1">Step 1 of 2 — Name your family account</p>
               </>
             ) : (
               <>
-                <h1 className="text-2xl font-bold text-textPrimary">Your account</h1>
-                <p className="text-textMuted text-sm mt-1">Step 2 of 2 — Create your personal login</p>
+                <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Your account</h1>
+                <p className="text-stone-500 text-sm mt-1">Step 2 of 2 — Create your personal login</p>
               </>
             )}
           </div>
@@ -106,7 +106,7 @@ const handleStep2 = async (e) => {
                   value={form.familyName}
                   onChange={e => update('familyName', e.target.value)}
                 />
-                <p className="text-xs text-textMuted mt-1.5">This is how your family account will appear in the app.</p>
+                <p className="text-xs text-stone-500 mt-1.5">This is how your family account will appear in the app.</p>
               </div>
               <button type="submit" className="btn-primary w-full py-3 text-base">
                 Continue
@@ -173,13 +173,13 @@ const handleStep2 = async (e) => {
             </form>
           )}
 
-          <p className="text-center text-sm text-textMuted mt-6">
+          <p className="text-center text-sm text-stone-500 mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-primary font-medium hover:underline">
               Sign in
             </Link>
           </p>
-          <p className="text-center text-xs text-textMuted mt-3">
+          <p className="text-center text-xs text-stone-500 mt-3">
             By creating an account you agree to our{' '}
             <Link to="/terms" className="text-primary hover:underline">Terms</Link>
             {' '}and{' '}

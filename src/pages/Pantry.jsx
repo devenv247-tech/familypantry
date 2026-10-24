@@ -427,13 +427,13 @@ export default function Pantry() {
       {/* Photo scan results modal */}
       {showPhotoResults && scannedItems.length > 0 && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl modal-sheet">
+          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-xl modal-sheet">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="aiScan" size={18} className="flex-shrink-0" /> Photo scan results</h3>
-                <button onClick={() => setShowPhotoResults(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted"><Icon name="close" size={16} /></button>
+                <h3 className="text-lg font-bold text-stone-900 flex items-center gap-2"><Icon name="aiScan" size={18} className="flex-shrink-0" /> Photo scan results</h3>
+                <button onClick={() => setShowPhotoResults(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-stone-500"><Icon name="close" size={16} /></button>
               </div>
-              <p className="text-sm text-textMuted mb-4">
+              <p className="text-sm text-stone-500 mb-4">
                 Found {scannedItems.length} items. Select which ones to add to your pantry.
               </p>
 
@@ -444,10 +444,10 @@ export default function Pantry() {
                 >
                   Select all
                 </button>
-                <span className="text-textMuted">·</span>
+                <span className="text-stone-500">·</span>
                 <button
                   onClick={() => setSelectedScannedItems([])}
-                  className="text-xs text-textMuted hover:underline"
+                  className="text-xs text-stone-500 hover:underline"
                 >
                   Deselect all
                 </button>
@@ -472,7 +472,7 @@ export default function Pantry() {
                     <span className="text-xl">{item.icon}</span>
                     <div className="flex-1 min-w-0" onClick={e => e.stopPropagation()}>
                       <input
-                        className="text-sm font-medium text-textPrimary bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-full"
+                        className="text-sm font-medium text-stone-900 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-primary focus:outline-none w-full"
                         value={item.name}
                         onChange={e => {
                           const updated = [...scannedItems]
@@ -482,7 +482,7 @@ export default function Pantry() {
                       />
                       <div className="flex items-center gap-1 mt-0.5 flex-wrap" onClick={e => e.stopPropagation()}>
                         <input
-                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none w-14"
+                          className="text-xs text-stone-500 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-primary focus:outline-none w-14"
                           type="number"
                           min="0.1"
                           step="0.1"
@@ -494,7 +494,7 @@ export default function Pantry() {
                           }}
                         />
                         <select
-                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none"
+                          className="text-xs text-stone-500 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-primary focus:outline-none"
                           value={item.unit}
                           onChange={e => {
                             const updated = [...scannedItems]
@@ -504,9 +504,9 @@ export default function Pantry() {
                         >
                           {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                         </select>
-                        <span className="text-xs text-textMuted">·</span>
+                        <span className="text-xs text-stone-500">·</span>
                         <select
-                          className="text-xs text-textMuted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary focus:outline-none"
+                          className="text-xs text-stone-500 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-primary focus:outline-none"
                           value={item.category}
                           onChange={e => {
                             const updated = [...scannedItems]
@@ -527,7 +527,7 @@ export default function Pantry() {
               {addingScanned && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs text-textMuted">Adding items...</p>
+                    <p className="text-xs text-stone-500">Adding items...</p>
                     <p className="text-xs font-medium text-primary">{addProgress}%</p>
                   </div>
                   <div className="h-1.5 bg-stone-100 rounded-pill overflow-hidden">
@@ -562,13 +562,13 @@ export default function Pantry() {
       {/* Templates modal */}
       {showTemplates && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-card shadow-xl modal-sheet">
+          <div className="bg-white w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-xl modal-sheet">
             <div className="p-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-bold text-textPrimary flex items-center gap-2"><Icon name="templates" size={18} /> Pantry starter templates</h3>
-                <button onClick={() => setShowTemplates(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-textMuted"><Icon name="close" size={16} /></button>
+                <h3 className="text-lg font-bold text-stone-900 flex items-center gap-2"><Icon name="templates" size={18} /> Pantry starter templates</h3>
+                <button onClick={() => setShowTemplates(false)} className="w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100 text-stone-500"><Icon name="close" size={16} /></button>
               </div>
-              <p className="text-sm text-textMuted mb-6">
+              <p className="text-sm text-stone-500 mb-6">
                 Choose a grocery template to quickly populate your pantry with common staples. Existing items won't be duplicated.
               </p>
               <div className="space-y-3">
@@ -577,8 +577,8 @@ export default function Pantry() {
                     <div className="flex items-center gap-3">
                       <span className="text-2xl leading-none w-8 text-center flex-shrink-0">{template.icon}</span>
                       <div>
-                        <p className="text-sm font-semibold text-textPrimary">{template.name}</p>
-                        <p className="text-xs text-textMuted">{template.description}</p>
+                        <p className="text-sm font-semibold text-stone-900">{template.name}</p>
+                        <p className="text-xs text-stone-500">{template.description}</p>
                         <p className="text-xs text-primary mt-0.5">{template.itemCount} items</p>
                       </div>
                     </div>
@@ -599,14 +599,14 @@ export default function Pantry() {
 
       {/* Scan result preview */}
       {scanResult && (
-        <div className="card mb-4 border border-primary bg-blue-50/20">
+        <div className="card mb-4 border border-primary bg-indigo-50">
           <div className="flex items-center gap-3">
             {scanResult.image && (
               <img src={scanResult.image} alt={scanResult.name} className="w-12 h-12 object-contain rounded-btn" />
             )}
             <div>
-              <p className="text-sm font-semibold text-textPrimary">{scanResult.name}</p>
-              {scanResult.brand && <p className="text-xs text-textMuted">{scanResult.brand}</p>}
+              <p className="text-sm font-semibold text-stone-900">{scanResult.name}</p>
+              {scanResult.brand && <p className="text-xs text-stone-500">{scanResult.brand}</p>}
               <p className="text-xs text-success mt-0.5 flex items-center gap-1"><Icon name="check" size={12} />Product found — form filled automatically</p>
             </div>
           </div>
@@ -616,8 +616,8 @@ export default function Pantry() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-textPrimary">Pantry</h1>
-          <p className="text-textMuted mt-1">{items.length} items tracked across your home</p>
+          <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Pantry</h1>
+          <p className="text-stone-500 mt-1">{items.length} items tracked across your home</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {/* Barcode scan */}
@@ -801,8 +801,8 @@ export default function Pantry() {
       {showForm && (
         <div className="card mb-6 border-food-600 border-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-textPrimary">Add new item</h2>
-            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
+            <h2 className="font-semibold text-stone-900">Add new item</h2>
+            <button onClick={() => { setShowForm(false); setFormError(''); setScanResult(null) }} className="text-stone-500 hover:text-stone-900 w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
           </div>
           {formError && (
             <div className="bg-red-50 border border-red-100 text-danger text-sm px-4 py-3 rounded-btn mb-4">{formError}</div>
@@ -839,7 +839,7 @@ export default function Pantry() {
                     }))
                   }}
                 />
-                <p className="text-xs text-textMuted mt-1.5 flex items-center gap-1"><Icon name="info" size={12} />Start typing to search 400+ Canadian grocery items</p>
+                <p className="text-xs text-stone-500 mt-1.5 flex items-center gap-1"><Icon name="info" size={12} />Start typing to search 400+ Canadian grocery items</p>
               </div>
               <div>
                 <label className="label">Quantity</label>
@@ -865,7 +865,7 @@ export default function Pantry() {
                 )}
               </div>
               <div>
-                <label className="label">Expiry date <span className="text-textMuted font-normal">(leave blank to auto-predict)</span></label>
+                <label className="label">Expiry date <span className="text-stone-500 font-normal">(leave blank to auto-predict)</span></label>
                 <input type="date" className="input" value={form.expiry} onChange={e => update('expiry', e.target.value)} />
               </div>
             </div>
@@ -880,7 +880,7 @@ export default function Pantry() {
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6 mt-4">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <input
             className="input pl-9"
             placeholder="Search by name, e.g. milk, chicken..."
@@ -890,7 +890,7 @@ export default function Pantry() {
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted hover:text-textPrimary w-5 h-5 flex items-center justify-center"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-900 w-5 h-5 flex items-center justify-center"
             >
               <Icon name="close" size={14} />
             </button>
@@ -908,16 +908,16 @@ export default function Pantry() {
               </option>
             ))}
           </select>
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6"/></svg>
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M6 9l6 6 6-6"/></svg>
         </div>
       </div>
 
       {/* Results count */}
       {!loading && !error && (search || activeCategory !== 'All') && (
-        <p className="text-xs text-textMuted mb-3">
+        <p className="text-xs text-stone-500 mb-3">
           {filtered.length} item{filtered.length !== 1 ? 's' : ''}
-          {search && <span> matching <span className="font-medium text-textPrimary">"{search}"</span></span>}
-          {activeCategory !== 'All' && <span> in <span className="font-medium text-textPrimary">{activeCategory}</span></span>}
+          {search && <span> matching <span className="font-medium text-stone-900">"{search}"</span></span>}
+          {activeCategory !== 'All' && <span> in <span className="font-medium text-stone-900">{activeCategory}</span></span>}
           {(search || activeCategory !== 'All') && (
             <button onClick={() => { setSearch(''); setActiveCategory('All') }} className="ml-2 text-primary hover:underline">
               Clear filters
@@ -934,9 +934,9 @@ export default function Pantry() {
           {filtered.map(item => {
             const itemCO2 = getItemCO2(item.name)
             return (
-              <div key={item.id} className="card hover:shadow-md transition-shadow relative group">
+              <div key={item.id} className="card card-hover relative group cursor-default">
                 <button onClick={() => handleDelete(item.id)}
-                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-stone-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center">
+                  className="absolute top-3 right-3 w-7 h-7 rounded-full bg-stone-100 text-stone-500 hover:bg-red-50 hover:text-danger transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center">
                   <Icon name="close" size={14} />
                 </button>
                 <button onClick={() => { setRestockingId(item.id); setRestockQty('') }}
@@ -945,18 +945,18 @@ export default function Pantry() {
                 </button>
                 {restockingId === item.id && (
                   <div className="mt-3 pt-3 border-t border-border">
-                    <p className="text-xs text-textMuted mb-2">How much did you buy?</p>
+                    <p className="text-xs text-stone-500 mb-2">How much did you buy?</p>
                     <div className="flex gap-2">
                       <input type="number" className="input text-sm py-1.5" placeholder={`Add ${item.unit}`} value={restockQty} onChange={e => setRestockQty(e.target.value)} autoFocus />
                       <button onClick={() => handleRestock(item.id)} className="text-xs px-3 py-1.5 whitespace-nowrap bg-food-600 text-white rounded-btn font-medium hover:bg-food-700 active:scale-95 transition-all duration-150 cursor-pointer">Add</button>
                       <button onClick={() => setRestockingId(null)} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
                     </div>
-                    <p className="text-xs text-textMuted mt-1">Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}</p>
+                    <p className="text-xs text-stone-500 mt-1">Current: {item.quantity} {item.unit} → New: {(item.quantity + (parseFloat(restockQty) || 0)).toFixed(1)} {item.unit}</p>
                   </div>
                 )}
                 <div className="text-3xl mb-3 mt-6">{item.icon}</div>
-                <p className="font-semibold text-textPrimary">{item.name}</p>
-                <p className="text-sm text-textMuted mt-0.5">{item.quantity} {item.unit}</p>
+                <p className="font-semibold text-stone-900">{item.name}</p>
+                <p className="text-sm text-stone-500 mt-0.5">{item.quantity} {item.unit}</p>
                 {item.maxQuantity > 0 && item.normalizedQty != null && (() => {
                   const pct = Math.min(100, Math.round((item.normalizedQty / item.maxQuantity) * 100))
                   const color = pct <= 10 ? 'bg-amber-500' : pct <= 25 ? 'bg-amber-300' : 'bg-fresh-600'
@@ -990,12 +990,12 @@ export default function Pantry() {
       {/* Voice restock confirmation */}
       {voiceConfirm && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-t-2xl sm:rounded-card shadow-xl w-full max-w-sm p-6 modal-sheet">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-xl w-full max-w-sm p-6 modal-sheet">
             <div className="text-3xl mb-3 text-center">{voiceConfirm.existing.icon}</div>
-            <h3 className="font-bold text-textPrimary text-center mb-1">Restock this item?</h3>
-            <p className="text-sm text-textMuted text-center mb-5">
-              Add <span className="font-semibold text-textPrimary">{voiceConfirm.parsed.quantity} {voiceConfirm.parsed.unit}</span> to{' '}
-              <span className="font-semibold text-textPrimary">{voiceConfirm.existing.name}</span>?
+            <h3 className="font-bold text-stone-900 text-center mb-1">Restock this item?</h3>
+            <p className="text-sm text-stone-500 text-center mb-5">
+              Add <span className="font-semibold text-stone-900">{voiceConfirm.parsed.quantity} {voiceConfirm.parsed.unit}</span> to{' '}
+              <span className="font-semibold text-stone-900">{voiceConfirm.existing.name}</span>?
               <br />
               <span className="text-xs">Current stock: {voiceConfirm.existing.quantity} {voiceConfirm.existing.unit}</span>
             </p>

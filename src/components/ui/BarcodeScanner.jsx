@@ -29,11 +29,11 @@ export default function BarcodeScanner({ onScan, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center sm:justify-center p-4">
-      <div className="bg-surface rounded-t-2xl sm:rounded-card w-full max-w-md shadow-xl overflow-hidden modal-sheet">
+      <div className="bg-surface rounded-t-3xl sm:rounded-3xl w-full max-w-md shadow-xl overflow-hidden modal-sheet">
 
         <div className="modal-header flex items-center justify-between px-5 py-4 border-b border-border">
-          <h3 className="font-semibold text-textPrimary">Scan barcode</h3>
-          <button onClick={onClose} className="text-textMuted hover:text-textPrimary p-1"><Icon name="close" size={16} /></button>
+          <h3 className="font-semibold text-stone-900">Scan barcode</h3>
+          <button onClick={onClose} className="text-stone-500 hover:text-stone-900 p-1"><Icon name="close" size={16} /></button>
         </div>
 
         <div className="p-5">
@@ -61,7 +61,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
               )}
             </div>
           )}
-          <p className="text-xs text-textMuted text-center mt-3">
+          <p className="text-xs text-stone-500 text-center mt-3">
             Point your camera at the barcode on the product
           </p>
         </div>

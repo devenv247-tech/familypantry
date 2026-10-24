@@ -7,13 +7,13 @@ export default function Blog() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <NookaIcon size={32} />
-          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
+          <span className="font-semibold text-stone-900 text-lg">Nooka</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/login')} className="btn-secondary">Log in</button>
@@ -23,8 +23,8 @@ export default function Blog() {
 
       {/* Header */}
       <section className="px-6 py-16 text-center max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold text-textPrimary mb-4">Nooka Blog</h1>
-        <p className="text-gray-600 text-lg">Meal planning tips, food waste advice, and healthy eating guides for Canadian families.</p>
+        <h1 className="text-4xl font-bold text-stone-900 mb-4">Nooka Blog</h1>
+        <p className="text-stone-500 text-lg">Meal planning tips, food waste advice, and healthy eating guides for Canadian families.</p>
       </section>
 
       {/* Posts grid */}
@@ -38,17 +38,17 @@ export default function Blog() {
             >
               <div className="mb-4 flex justify-center text-primary"><Icon name={post.image} size={40} /></div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs font-medium px-2.5 py-1 rounded-pill bg-blue-50 text-primary border border-blue-100">
+                <span className="text-xs font-medium px-2.5 py-1 rounded-pill bg-indigo-50 text-indigo-700 border border-indigo-200">
                   {post.category}
                 </span>
-                <span className="text-xs text-gray-500">{post.readTime}</span>
+                <span className="text-xs text-stone-500">{post.readTime}</span>
               </div>
-              <h2 className="font-bold text-textPrimary text-lg mb-2 leading-snug group-hover:text-primary transition-colors">
+              <h2 className="font-bold text-stone-900 text-lg mb-2 leading-snug group-hover:text-primary transition-colors">
                 {post.title}
               </h2>
-              <p className="text-gray-600 text-sm leading-relaxed flex-1">{post.description}</p>
+              <p className="text-stone-500 text-sm leading-relaxed flex-1">{post.description}</p>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs text-gray-400">{post.date}</span>
+                <span className="text-xs text-stone-500">{post.date}</span>
                 <span className="text-primary text-sm font-medium">Read more →</span>
               </div>
             </Link>
@@ -57,10 +57,10 @@ export default function Blog() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border px-6 py-8 text-center text-sm text-gray-500 mt-auto">
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-stone-500 mt-auto">
         <div className="flex items-center justify-center gap-2 mb-3">
           <NookaIcon size={24} />
-          <span className="font-semibold text-textPrimary">Nooka</span>
+          <span className="font-semibold text-stone-900">Nooka</span>
         </div>
         <p>
           © 2026 Nooka · Built for Canadian families ·{' '}

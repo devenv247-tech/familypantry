@@ -187,7 +187,7 @@ export default function Landing() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    document.title = 'Nooka — Family meal planning built for Canada'
+    document.title = 'Nooka - Family meal planning built for Canada'
     let meta = document.querySelector('meta[name="description"]')
     if (!meta) {
       meta = document.createElement('meta')
@@ -198,7 +198,7 @@ export default function Landing() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-dvh bg-white flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50">
@@ -534,7 +534,7 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border px-6 py-8 text-center text-sm text-gray-500">
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-stone-500">
         <div className="flex items-center justify-center gap-2 mb-3">
           <NookaIcon size={24} />
           <span className="font-semibold text-textPrimary">Nooka</span>

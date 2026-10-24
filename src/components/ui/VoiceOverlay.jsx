@@ -22,7 +22,7 @@ export default function VoiceOverlay({ state, onCancel }) {
 
         {/* Centre circle */}
         <div className={`relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
-          isListening ? 'bg-primary' : 'bg-blue-400'
+          isListening ? 'bg-primary' : 'bg-indigo-400'
         }`}>
           {isListening ? (
             /* Mic icon */

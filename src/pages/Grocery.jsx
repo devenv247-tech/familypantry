@@ -269,10 +269,10 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Price anomaly modal */}
       {anomalyModal && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 modal-sheet">
+          <div className="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-xl p-6 modal-sheet">
             <div className="text-3xl mb-3 text-center">{anomalyModal.icon}</div>
-            <h3 className="font-semibold text-textPrimary text-lg mb-2 text-center">{anomalyModal.message}</h3>
-            <p className="text-sm text-textMuted text-center mb-2">{anomalyModal.detail}</p>
+            <h3 className="font-semibold text-stone-900 text-lg mb-2 text-center">{anomalyModal.message}</h3>
+            <p className="text-sm text-stone-500 text-center mb-2">{anomalyModal.detail}</p>
             <div className={`rounded-btn px-4 py-3 mb-4 text-center ${anomalyModal.type === 'high' ? 'bg-orange-50 border border-orange-100' : 'bg-green-50 border border-green-100'
               }`}>
               <p className={`text-sm font-medium ${anomalyModal.type === 'high' ? 'text-orange-600' : 'text-success'}`}>
@@ -288,7 +288,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
         <div>
           <h1 className="page-heading">Grocery list</h1>
-          <p className="text-textMuted mt-1">{checkedCount} of {items.length} items checked off</p>
+          <p className="text-stone-500 mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {voiceSupported && canUseVoice && (
@@ -358,9 +358,9 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Icon name="sparkle" size={18} className="text-primary" />
-                <h2 className="font-semibold text-textPrimary">You might need these soon</h2>
+                <h2 className="font-semibold text-stone-900">You might need these soon</h2>
               </div>
-              <span className="text-xs text-textMuted">Stock levels & purchase history</span>
+              <span className="text-xs text-stone-500">Stock levels & purchase history</span>
             </div>
             <div className="space-y-2">
               {predictions.map((p, i) => (
@@ -373,8 +373,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                       {p.urgent ? <Icon name="warning" size={16} className="text-amber-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-500" /> : <Icon name="refresh" size={16} className="text-stone-500" />}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-textPrimary truncate">{p.name}</p>
-                      <p className={`text-xs truncate ${p.urgent ? 'text-amber-700' : 'text-textMuted'}`}>
+                      <p className="text-sm font-medium text-stone-900 truncate">{p.name}</p>
+                      <p className={`text-xs truncate ${p.urgent ? 'text-amber-700' : 'text-stone-500'}`}>
                         {p.reason}
                       </p>
                     </div>
@@ -400,8 +400,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <div className="flex items-center gap-3">
               <Icon name="sparkle" size={24} className="text-primary flex-shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-textPrimary">Predictive grocery list</p>
-                <p className="text-xs text-textMuted">Nooka learns your habits and reminds you before you run out</p>
+                <p className="text-sm font-semibold text-stone-900">Predictive grocery list</p>
+                <p className="text-xs text-stone-500">Nooka learns your habits and reminds you before you run out</p>
               </div>
             </div>
             <button
@@ -417,7 +417,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Price alerts */}
       {isFeatureEnabled('price_anomaly', plan) && priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
-          <h2 className="font-semibold text-textPrimary mb-3 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" /> Price alerts</h2>
+          <h2 className="font-semibold text-stone-900 mb-3 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" /> Price alerts</h2>
           <div className="space-y-2">
             {priceAlerts.map((alert, i) => (
               <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
@@ -428,7 +428,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     <p className={`font-medium ${alert.type === 'high' ? 'text-orange-700' : 'text-success'}`}>
                       {alert.itemName}
                     </p>
-                    <p className="text-textMuted">
+                    <p className="text-stone-500">
                       Avg: ${alert.avgPrice} → Now: ${alert.currentPrice}
                       {alert.store && ` at ${alert.store}`}
                     </p>
@@ -447,16 +447,16 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="card text-center">
-          <p className="text-2xl font-bold text-textPrimary">{items.length}</p>
-          <p className="text-xs text-textMuted mt-1">Total items</p>
+          <p className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">{items.length}</p>
+          <p className="text-xs text-stone-500 mt-1">Total items</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-success">{checkedCount}</p>
-          <p className="text-xs text-textMuted mt-1">Checked off</p>
+          <p className="text-xs text-stone-500 mt-1">Checked off</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-primary">${totalCost.toFixed(2)}</p>
-          <p className="text-xs text-textMuted mt-1">Estimated total</p>
+          <p className="text-xs text-stone-500 mt-1">Estimated total</p>
         </div>
       </div>
 
@@ -464,8 +464,8 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {showForm && (
         <div className="card mb-6 border-2 border-food-600">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-textPrimary">Add item</h2>
-            <button onClick={() => setShowForm(false)} className="text-textMuted hover:text-textPrimary w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
+            <h2 className="font-semibold text-stone-900">Add item</h2>
+            <button onClick={() => setShowForm(false)} className="text-stone-500 hover:text-stone-900 w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
           </div>
           <form onSubmit={handleAdd}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -498,11 +498,11 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 </div>
               </div>
               <div>
-                <label className="label">Estimated price <span className="text-textMuted font-normal">(for anomaly detection)</span></label>
+                <label className="label">Estimated price <span className="text-stone-500 font-normal">(for anomaly detection)</span></label>
                 <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                  <span className="px-3 text-textMuted text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
+                  <span className="px-3 text-stone-500 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                   <input
-                    className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+                    className="flex-1 px-3 py-2.5 text-sm text-stone-900 outline-none rounded-r-btn"
                     placeholder="0.00"
                     value={form.price?.replace('$', '') || ''}
                     onChange={e => update('price', e.target.value)}
@@ -553,7 +553,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Progress bar */}
       {items.length > 0 && (
         <div className="mb-6">
-          <div className="flex justify-between text-xs text-textMuted mb-1.5">
+          <div className="flex justify-between text-xs text-stone-500 mb-1.5">
             <span>Shopping progress</span>
             <span>{Math.round((checkedCount / items.length) * 100)}%</span>
           </div>
@@ -574,7 +574,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       ) : (
         <div className="card p-0 overflow-hidden">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-textMuted">
+            <div className="text-center py-12 text-stone-500">
               <div className="mb-3 flex justify-center text-stone-300"><Icon name="grocery" size={48} /></div>
               <p className="font-medium">No items yet</p>
               <p className="text-sm mt-1">Click Add item to get started</p>
@@ -585,7 +585,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 <li key={item.id} className="border-b border-border last:border-0">
                   {editingId === item.id ? (
                     <div className="px-5 py-4 bg-stone-50">
-                      <p className="text-xs font-semibold text-textPrimary mb-3">Edit item</p>
+                      <p className="text-xs font-semibold text-stone-900 mb-3">Edit item</p>
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
                           <label className="label">Name</label>
@@ -632,9 +632,9 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                         <div>
                           <label className="label">Price</label>
                           <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                            <span className="px-3 text-textMuted text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
+                            <span className="px-3 text-stone-500 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                             <input
-                              className="flex-1 px-3 py-2.5 text-sm text-textPrimary outline-none rounded-r-btn"
+                              className="flex-1 px-3 py-2.5 text-sm text-stone-900 outline-none rounded-r-btn"
                               placeholder="0.00"
                               value={editForm.price?.replace('$', '') || ''}
                               onChange={e => setEditForm(p => ({ ...p, price: e.target.value }))}
@@ -661,7 +661,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className={`text-sm font-medium ${item.checked ? 'line-through text-stone-400' : 'text-textPrimary'}`}>
+                          <p className={`text-sm font-medium ${item.checked ? 'line-through text-stone-400' : 'text-stone-900'}`}>
                             {item.name}
                           </p>
                           {/* Price alert badge on item */}
@@ -677,7 +677,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-textMuted">{item.qty}</span>
+                          <span className="text-xs text-stone-500">{item.qty}</span>
                           {item.category && (
                             <span className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-pill">{item.category}</span>
                           )}
@@ -688,7 +688,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                         {item.store || 'No store'}
                       </span>
 
-                      <span className="text-sm font-semibold text-textPrimary min-w-[48px] text-right">
+                      <span className="text-sm font-semibold text-stone-900 min-w-[48px] text-right">
                         {item.price}
                       </span>
 
@@ -704,7 +704,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             isCustomStore: false,
                           })
                         }}
-                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-700 text-textMuted transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
+                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-700 text-stone-500 transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
                         <Icon name="edit" size={14} />
                       </button>

@@ -87,8 +87,8 @@ export default function SavedRecipes() {
       {/* Header */}
       <div className="page-header-row">
         <div>
-          <h1 className="text-xl font-bold text-textPrimary">Cookbook</h1>
-          <p className="text-textMuted mt-1">{recipes.length} saved recipe{recipes.length !== 1 ? 's' : ''}</p>
+          <h1 className="font-display text-xl sm:text-2xl font-semibold text-stone-900 tracking-tight">Cookbook</h1>
+          <p className="text-stone-500 mt-1">{recipes.length} saved recipe{recipes.length !== 1 ? 's' : ''}</p>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export default function SavedRecipes() {
                 )}
                 <button
                   onClick={() => handleDelete(recipe.id)}
-                  className="w-7 h-7 rounded-full bg-stone-100 text-textMuted hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
+                  className="w-7 h-7 rounded-full bg-stone-100 text-stone-500 hover:bg-red-50 hover:text-danger transition-all flex items-center justify-center text-sm"
                 >
                   <Icon name="close" size={14} />
                 </button>
@@ -146,7 +146,7 @@ export default function SavedRecipes() {
 
               <h3 className="font-semibold text-stone-900 text-lg mb-1">{recipe.name}</h3>
               {recipe.description && (
-                <p className="text-sm text-textMuted mb-3 leading-relaxed line-clamp-2">{recipe.description}</p>
+                <p className="text-sm text-stone-500 mb-3 leading-relaxed line-clamp-2">{recipe.description}</p>
               )}
 
               {recipe.tags && recipe.tags.length > 0 && (
@@ -162,7 +162,7 @@ export default function SavedRecipes() {
               <div className="flex items-center gap-4 text-xs text-stone-600 mb-4 border-t border-border pt-3 flex-wrap">
                 {recipe.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} className="text-stone-500" />{recipe.time}</span>}
                 {recipe.serves && <span className="flex items-center gap-1"><Icon name="family" size={12} className="text-stone-500" />Serves {recipe.serves}</span>}
-                <span className="text-textMuted flex items-center gap-1">
+                <span className="text-stone-500 flex items-center gap-1">
                   <Icon name="bookmark" size={12} />Saved {new Date(recipe.createdAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
                 </span>
               </div>
@@ -221,16 +221,16 @@ export default function SavedRecipes() {
                   {/* Ingredients */}
                   {recipe.ingredients?.length > 0 && (
                     <>
-                      <p className="text-xs font-semibold text-textPrimary mb-2">Ingredients</p>
+                      <p className="text-xs font-semibold text-stone-900 mb-2">Ingredients</p>
                       <ul className="space-y-1.5 mb-5">
                         {recipe.ingredients.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                          <li key={i} className="flex items-center gap-2 text-sm text-stone-500">
                             <span className="w-4 h-4 rounded-full bg-fresh-100 text-fresh-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                           </li>
                         ))}
                         {recipe.missing?.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-textMuted">
+                          <li key={i} className="flex items-center gap-2 text-sm text-stone-500">
                             <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             <span className="text-xs text-orange-400">(need to buy)</span>
@@ -243,14 +243,14 @@ export default function SavedRecipes() {
                   {/* Steps */}
                   {recipe.steps?.length > 0 && (
                     <>
-                      <p className="text-xs font-semibold text-textPrimary mb-3">How to make it</p>
+                      <p className="text-xs font-semibold text-stone-900 mb-3">How to make it</p>
                       <ol className="space-y-3 mb-4">
                         {recipe.steps.map((step, i) => (
                           <li key={i} className="flex items-start gap-3">
                             <span className="w-6 h-6 rounded-full bg-food-100 text-food-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                               {i + 1}
                             </span>
-                            <p className="text-sm text-textMuted leading-relaxed">{step}</p>
+                            <p className="text-sm text-stone-500 leading-relaxed">{step}</p>
                           </li>
                         ))}
                       </ol>
@@ -266,7 +266,7 @@ export default function SavedRecipes() {
                           className={`text-xs px-3 py-1 rounded-pill border transition-all ${
                             (nutritionView[recipe.id] || 'serving') === 'serving'
                               ? 'bg-food-600 text-white border-food-600'
-                              : 'text-textMuted border-border'
+                              : 'text-stone-500 border-border'
                           }`}
                         >
                           Per serving
@@ -276,7 +276,7 @@ export default function SavedRecipes() {
                           className={`text-xs px-3 py-1 rounded-pill border transition-all ${
                             nutritionView[recipe.id] === 'total'
                               ? 'bg-food-600 text-white border-food-600'
-                              : 'text-textMuted border-border'
+                              : 'text-stone-500 border-border'
                           }`}
                         >
                           Total recipe
@@ -288,7 +288,7 @@ export default function SavedRecipes() {
                           <div className="grid grid-cols-4 gap-2">
                             {[
                               { label: 'Calories', value: n?.calories, unit: 'kcal', color: 'bg-orange-50 text-orange-600' },
-                              { label: 'Protein', value: n?.protein, unit: 'g', color: 'bg-blue-50 text-primary' },
+                              { label: 'Protein', value: n?.protein, unit: 'g', color: 'bg-indigo-50 text-indigo-700' },
                               { label: 'Carbs', value: n?.carbs, unit: 'g', color: 'bg-yellow-50 text-yellow-600' },
                               { label: 'Fat', value: n?.fat, unit: 'g', color: 'bg-red-50 text-danger' },
                               { label: 'Fiber', value: n?.fiber, unit: 'g', color: 'bg-green-50 text-success' },

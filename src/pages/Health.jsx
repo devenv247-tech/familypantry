@@ -729,8 +729,8 @@ const getGoalNudges = (member) => {
       <div className="page-container">
         <div className="text-center py-16">
           <div className="mb-4 flex justify-center text-stone-300"><Icon name="family" size={56} /></div>
-          <h2 className="text-xl font-bold text-textPrimary mb-2">No family members yet</h2>
-          <p className="text-textMuted mb-6">Add family members in Settings to start tracking health goals</p>
+          <h2 className="text-xl font-bold text-stone-900 mb-2">No family members yet</h2>
+          <p className="text-stone-500 mb-6">Add family members in Settings to start tracking health goals</p>
           <a href="/app/settings" className="btn-primary">Go to Settings</a>
         </div>
       </div>
@@ -743,8 +743,8 @@ const getGoalNudges = (member) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-textPrimary">Health tracker</h1>
-          <p className="text-textMuted mt-1">Nutrition, weight and goal tracking</p>
+          <h1 className="font-display text-xl sm:text-2xl font-semibold text-stone-900 tracking-tight">Health tracker</h1>
+          <p className="text-stone-500 mt-1">Nutrition, weight and goal tracking</p>
         </div>
         <div className="flex gap-2 flex-wrap sm:flex-nowrap">
           <button
@@ -782,7 +782,7 @@ const getGoalNudges = (member) => {
             className={`flex items-center gap-2 px-4 py-2 rounded-pill border text-sm font-medium transition-all whitespace-nowrap ${
               activeMemberId === member.id
                 ? 'bg-primary text-white border-primary'
-                : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
             }`}
           >
             <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
@@ -811,8 +811,8 @@ const getGoalNudges = (member) => {
                 <div className="flex items-center gap-2">
                   <Icon name="family" size={24} className="text-purple-500" />
                   <div>
-                    <h2 className="font-semibold text-textPrimary">Kids nutrition check</h2>
-                    <p className="text-xs text-textMuted">Weekly targets based on Health Canada guidelines</p>
+                    <h2 className="font-semibold text-stone-900">Kids nutrition check</h2>
+                    <p className="text-xs text-stone-500">Weekly targets based on Health Canada guidelines</p>
                   </div>
                 </div>
                 {kidsData && (
@@ -831,14 +831,14 @@ const getGoalNudges = (member) => {
               {kidsLoading ? (
                 <div className="flex items-center gap-3 py-4">
                   <div className="w-5 h-5 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" />
-                  <p className="text-sm text-textMuted">Checking {activeMember?.name}'s nutrition…</p>
+                  <p className="text-sm text-stone-500">Checking {activeMember?.name}'s nutrition…</p>
                 </div>
               ) : kidsData && (
                 <>
                   {!kidsData.hasData && (
                     <div className="bg-white/70 rounded-btn p-4 mb-4 text-center">
-                      <p className="text-sm text-textMuted">No meals logged yet this week for {kidsData.member.name}.</p>
-                      <p className="text-xs text-textMuted mt-1">Cook a recipe and click "I cooked this" to start tracking!</p>
+                      <p className="text-sm text-stone-500">No meals logged yet this week for {kidsData.member.name}.</p>
+                      <p className="text-xs text-stone-500 mt-1">Cook a recipe and click "I cooked this" to start tracking!</p>
                     </div>
                   )}
 
@@ -849,13 +849,13 @@ const getGoalNudges = (member) => {
                           <div className="flex items-center gap-2">
                             <span className="text-lg">{nutrient.emoji}</span>
                             <div>
-                              <p className="text-sm font-medium text-textPrimary">{nutrient.label}</p>
-                              <p className="text-xs text-textMuted">{nutrient.why}</p>
+                              <p className="text-sm font-medium text-stone-900">{nutrient.label}</p>
+                              <p className="text-xs text-stone-500">{nutrient.why}</p>
                             </div>
                           </div>
                           <div className="text-right flex-shrink-0 ml-2">
-                            <p className="text-sm font-semibold text-textPrimary">
-                              {nutrient.consumed}<span className="text-xs font-normal text-textMuted"> / {nutrient.target}{nutrient.unit} wk</span>
+                            <p className="text-sm font-semibold text-stone-900">
+                              {nutrient.consumed}<span className="text-xs font-normal text-stone-500"> / {nutrient.target}{nutrient.unit} wk</span>
                             </p>
                             <p className={`text-xs font-medium ${
                               nutrient.pct >= 80 ? 'text-fresh-600' :
@@ -875,7 +875,7 @@ const getGoalNudges = (member) => {
                           />
                         </div>
                         {nutrient.pct < 70 && (
-                          <p className="text-xs text-textMuted mt-1">
+                          <p className="text-xs text-stone-500 mt-1">
                             Try: {nutrient.foods.slice(0, 3).join(', ')}
                           </p>
                         )}
@@ -886,16 +886,16 @@ const getGoalNudges = (member) => {
                   {kidsData.aiTip ? (
                     <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-indigo-100">
                       <Icon name="bubble" size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-textPrimary leading-relaxed">{kidsData.aiTip}</p>
+                      <p className="text-sm text-stone-900 leading-relaxed">{kidsData.aiTip}</p>
                     </div>
                   ) : kidsData.hasData && (
                     <div className="flex items-start gap-3 bg-white/80 rounded-btn p-3 border border-indigo-100">
                       <Icon name="bubble" size={18} className="text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-textMuted">Log more meals this week to get personalized nutrition tips for {kidsData.member.name}.</p>
+                      <p className="text-sm text-stone-500">Log more meals this week to get personalized nutrition tips for {kidsData.member.name}.</p>
                     </div>
                   )}
 
-                  <p className="text-xs text-textMuted mt-3 text-center">
+                  <p className="text-xs text-stone-500 mt-3 text-center">
                     Based on Health Canada DRI for age {kidsData.member.age} · Micronutrient data from AI-enriched meal logs
                   </p>
                 </>
@@ -912,9 +912,9 @@ const getGoalNudges = (member) => {
               { label: 'Logging streak', value: activeMember.streak, unit: activeMember.streak === 1 ? 'day' : 'days', icon: 'star', color: 'bg-fresh-50 border-fresh-100' },
             ].map((card, i) => (
               <div key={i} className={`card border ${card.color}`}>
-                <Icon name={card.icon} size={22} className="mb-1 text-textMuted" />
-                <p className="text-xl font-bold text-textPrimary">{card.value} <span className="text-sm font-normal text-textMuted">{card.unit}</span></p>
-                <p className="text-xs text-textMuted mt-1">{card.label}</p>
+                <Icon name={card.icon} size={22} className="mb-1 text-stone-500" />
+                <p className="font-display text-xl sm:text-2xl font-semibold text-stone-900 tracking-tight">{card.value} <span className="text-sm font-normal text-stone-500">{card.unit}</span></p>
+                <p className="text-xs text-stone-500 mt-1">{card.label}</p>
               </div>
             ))}
           </div>
@@ -923,7 +923,7 @@ const getGoalNudges = (member) => {
           {activeMember.targets && (
             <div className="card mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-textPrimary">Daily targets</h2>
+                <h2 className="font-semibold text-stone-900">Daily targets</h2>
                 <span className="text-xs px-2.5 py-1 rounded-pill font-medium bg-primary/10 text-primary border border-primary/20">
                   {GOAL_LABELS[activeMember.fitnessGoal] || activeMember.fitnessGoal}
                   {activeMember.goalRatePct != null && (
@@ -935,20 +935,20 @@ const getGoalNudges = (member) => {
               </div>
 
               <div className="text-center mb-5">
-                <p className="text-4xl font-bold text-textPrimary">{activeMember.targets.calories}</p>
-                <p className="text-sm text-textMuted mt-0.5">kcal / day</p>
+                <p className="text-4xl font-bold text-stone-900">{activeMember.targets.calories}</p>
+                <p className="text-sm text-stone-500 mt-0.5">kcal / day</p>
               </div>
 
               <div className="grid grid-cols-4 gap-2 mb-4">
                 {[
-                  { label: 'Protein', value: activeMember.targets.macros.protein, color: 'text-blue-600' },
+                  { label: 'Protein', value: activeMember.targets.macros.protein, color: 'text-indigo-600' },
                   { label: 'Carbs',   value: activeMember.targets.macros.carbs,   color: 'text-yellow-600' },
                   { label: 'Fat',     value: activeMember.targets.macros.fat,     color: 'text-red-500' },
                   { label: 'Fiber',   value: activeMember.targets.macros.fiber,   color: 'text-green-600' },
                 ].map((m, i) => (
                   <div key={i} className="text-center bg-stone-50 rounded-btn py-2.5 px-1">
                     <p className={`text-base font-bold ${m.color}`}>{m.value}g</p>
-                    <p className="text-xs text-textMuted">{m.label}</p>
+                    <p className="text-xs text-stone-500">{m.label}</p>
                   </div>
                 ))}
               </div>
@@ -963,7 +963,7 @@ const getGoalNudges = (member) => {
                 </div>
               )}
 
-              <p className="text-xs text-textMuted flex items-center gap-1.5">
+              <p className="text-xs text-stone-500 flex items-center gap-1.5">
                 <Icon name="info" size={12} />
                 {activeMember.targets.source === 'adaptive'
                   ? 'Calibrated from your real data'
@@ -978,7 +978,7 @@ const getGoalNudges = (member) => {
               <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <Icon name="bubble" size={18} className="text-primary" />
-                  <h2 className="font-semibold text-textPrimary">Weekly coach check-in</h2>
+                  <h2 className="font-semibold text-stone-900">Weekly coach check-in</h2>
                 </div>
                 {(() => {
                   const vc = VERDICT_CONFIG[audit.verdict]
@@ -989,8 +989,8 @@ const getGoalNudges = (member) => {
                   ) : null
                 })()}
               </div>
-              <p className="text-sm text-textPrimary leading-relaxed mb-2">{audit.coachSummary}</p>
-              <p className="text-xs text-textMuted">
+              <p className="text-sm text-stone-900 leading-relaxed mb-2">{audit.coachSummary}</p>
+              <p className="text-xs text-stone-500">
                 Week of {new Date(audit.weekStart).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
               </p>
 
@@ -998,8 +998,8 @@ const getGoalNudges = (member) => {
                 <div className="mt-4 pt-4 border-t border-border space-y-2.5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-textPrimary">Drop {audit.metrics.options.dropCalories} kcal</p>
-                      <p className="text-xs text-textMuted">Reduce daily target to break the plateau</p>
+                      <p className="text-sm font-medium text-stone-900">Drop {audit.metrics.options.dropCalories} kcal</p>
+                      <p className="text-xs text-stone-500">Reduce daily target to break the plateau</p>
                     </div>
                     <button
                       onClick={handleDropCalories}
@@ -1011,13 +1011,13 @@ const getGoalNudges = (member) => {
                   </div>
                   <div className="flex items-start gap-3 px-3 py-2.5 bg-amber-50 border border-amber-100 rounded-btn">
                     <Icon name="info" size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-textPrimary">
+                    <p className="text-sm text-stone-900">
                       Diet break: {audit.metrics.options.dietBreakDays} days at {audit.metrics.options.dietBreakCalories} kcal
                     </p>
                   </div>
                   <div className="flex items-start gap-3 px-3 py-2.5 bg-indigo-50 border border-indigo-100 rounded-btn">
                     <Icon name="info" size={14} className="text-primary flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-textPrimary">
+                    <p className="text-sm text-stone-900">
                       +{audit.metrics.options.extraStepsMinutes} min daily steps
                     </p>
                   </div>
@@ -1030,10 +1030,10 @@ const getGoalNudges = (member) => {
           {activeMember.genderMissing && !dismissedGenderBanner && (
             <div className="flex items-start gap-3 px-3 py-3 rounded-btn border bg-indigo-50 border-indigo-100 mb-6">
               <Icon name="info" size={15} className="text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-textPrimary leading-relaxed flex-1">
+              <p className="text-sm text-stone-900 leading-relaxed flex-1">
                 Set gender in Settings for a more accurate daily calorie target.
               </p>
-              <button onClick={() => setDismissedGenderBanner(true)} className="text-textMuted hover:text-textPrimary flex-shrink-0 p-0.5">
+              <button onClick={() => setDismissedGenderBanner(true)} className="text-stone-500 hover:text-stone-900 flex-shrink-0 p-0.5">
                 <Icon name="close" size={14} />
               </button>
             </div>
@@ -1043,8 +1043,8 @@ const getGoalNudges = (member) => {
           {activeMember.dailyCalorieGoal && (
             <div className="card mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-textPrimary">Today's progress</h2>
-                <span className="text-xs text-textMuted">
+                <h2 className="font-semibold text-stone-900">Today's progress</h2>
+                <span className="text-xs text-stone-500">
                   {new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })}
                 </span>
               </div>
@@ -1062,8 +1062,8 @@ const getGoalNudges = (member) => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <p className="text-lg font-bold text-textPrimary">{activeMember.todayTotals.calories}</p>
-                    <p className="text-xs text-textMuted">of {activeMember.dailyCalorieGoal}</p>
+                    <p className="font-display text-lg font-semibold text-stone-900">{activeMember.todayTotals.calories}</p>
+                    <p className="text-xs text-stone-500">of {activeMember.dailyCalorieGoal}</p>
                   </div>
                 </div>
 
@@ -1077,8 +1077,8 @@ const getGoalNudges = (member) => {
                   ].map((macro, i) => (
                     <div key={i}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-textMuted">{macro.label}</span>
-                        <span className="text-xs text-textMuted">{macro.consumed}g / {macro.goal}g</span>
+                        <span className="text-xs font-medium text-stone-500">{macro.label}</span>
+                        <span className="text-xs text-stone-500">{macro.consumed}g / {macro.goal}g</span>
                       </div>
                       <div className="h-2 bg-stone-100 rounded-pill overflow-hidden">
                         <div
@@ -1097,7 +1097,7 @@ const getGoalNudges = (member) => {
                     return status ? (
                       <div>
                         <p className={`text-sm font-semibold ${status.color}`}>{status.text}</p>
-                        <p className="text-xs text-textMuted mt-1">based on your {activeMember.goals} goal</p>
+                        <p className="text-xs text-stone-500 mt-1">based on your {activeMember.goals} goal</p>
                       </div>
                     ) : null
                   })()}
@@ -1114,7 +1114,7 @@ const getGoalNudges = (member) => {
               <div className="card mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Icon name="sparkle" size={16} className="text-primary" />
-                  <h2 className="font-semibold text-textPrimary text-sm">
+                  <h2 className="font-semibold text-stone-900 text-sm">
                     {activeMember.goals
                       ? `Insights for your ${activeMember.goals} goal`
                       : 'This week\'s insights'}
@@ -1124,7 +1124,7 @@ const getGoalNudges = (member) => {
                   {nudges.map((nudge, i) => (
                     <div key={i} className={`flex items-start gap-3 px-3 py-3 rounded-btn border ${nudge.color}`}>
                       <Icon name={nudge.icon} size={15} className={`${nudge.iconClass} flex-shrink-0 mt-0.5`} />
-                      <p className="text-sm text-textPrimary leading-relaxed">{nudge.text}</p>
+                      <p className="text-sm text-stone-900 leading-relaxed">{nudge.text}</p>
                     </div>
                   ))}
                 </div>
@@ -1154,7 +1154,7 @@ const getGoalNudges = (member) => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-btn text-sm font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.id ? 'bg-white text-textPrimary shadow-sm' : 'text-textMuted hover:text-textPrimary'
+                  activeTab === tab.id ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
                 {tab.label}
@@ -1166,7 +1166,7 @@ const getGoalNudges = (member) => {
           {activeTab === 'today' && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-textPrimary">Meals logged today</h3>
+                <h3 className="font-semibold text-stone-900">Meals logged today</h3>
                 <button onClick={openMealModal} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
                   <Icon name="add" size={14} /> Add meal
                 </button>
@@ -1174,23 +1174,23 @@ const getGoalNudges = (member) => {
               {activeMember.todayMeals.length === 0 ? (
                 <div className="text-center py-8">
                   <Icon name="recipes" size={40} className="text-stone-200 mx-auto mb-3" />
-                  <p className="text-textMuted text-sm">No meals logged today</p>
-                  <p className="text-xs text-textMuted mt-1">Cook a recipe or add a meal manually</p>
+                  <p className="text-stone-500 text-sm">No meals logged today</p>
+                  <p className="text-xs text-stone-500 mt-1">Cook a recipe or add a meal manually</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {activeMember.todayMeals.map((meal, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-stone-50 rounded-btn">
                       <div className="min-w-0 flex-1 pr-3">
-                        <p className="text-sm font-medium text-textPrimary truncate">{meal.recipeName}</p>
-                        <p className="text-xs text-textMuted">{meal.mealType} · {new Date(meal.loggedAt).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="text-sm font-medium text-stone-900 truncate">{meal.recipeName}</p>
+                        <p className="text-xs text-stone-500">{meal.mealType} · {new Date(meal.loggedAt).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-right">
-                          {meal.calories && <p className="text-sm font-semibold text-textPrimary">{Math.round(meal.calories)} kcal</p>}
-                          {meal.protein && <p className="text-xs text-textMuted">{Math.round(meal.protein)}g protein</p>}
+                          {meal.calories && <p className="text-sm font-semibold text-stone-900">{Math.round(meal.calories)} kcal</p>}
+                          {meal.protein && <p className="text-xs text-stone-500">{Math.round(meal.protein)}g protein</p>}
                         </div>
-                        <button onClick={() => handleDeleteLog(meal.id)} className="text-textMuted hover:text-danger p-1">
+                        <button onClick={() => handleDeleteLog(meal.id)} className="text-stone-500 hover:text-danger p-1">
                           <Icon name="close" size={16} />
                         </button>
                       </div>
@@ -1204,11 +1204,11 @@ const getGoalNudges = (member) => {
           {/* 7-day history */}
           {activeTab === 'week' && (
             <div className="card">
-              <h3 className="font-semibold text-textPrimary mb-4">7-day calorie history</h3>
+              <h3 className="font-semibold text-stone-900 mb-4">7-day calorie history</h3>
               <div className="space-y-3">
                 {activeMember.last7Days.map((day, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <p className="text-xs text-textMuted w-20 flex-shrink-0">{day.date}</p>
+                    <p className="text-xs text-stone-500 w-20 flex-shrink-0">{day.date}</p>
                     <div className="flex-1 h-6 bg-stone-100 rounded-pill overflow-hidden relative">
                       <div
                         className={`h-full rounded-pill transition-all ${
@@ -1221,15 +1221,15 @@ const getGoalNudges = (member) => {
                       />
                     </div>
                     <div className="text-right w-24 flex-shrink-0">
-                      <p className="text-xs font-semibold text-textPrimary">{day.calories} kcal</p>
-                      {day.mealsLogged > 0 && <p className="text-xs text-textMuted">{day.mealsLogged} meals</p>}
-                      {day.calories === 0 && <p className="text-xs text-textMuted">Not logged</p>}
+                      <p className="text-xs font-semibold text-stone-900">{day.calories} kcal</p>
+                      {day.mealsLogged > 0 && <p className="text-xs text-stone-500">{day.mealsLogged} meals</p>}
+                      {day.calories === 0 && <p className="text-xs text-stone-500">Not logged</p>}
                     </div>
                   </div>
                 ))}
               </div>
               {activeMember.dailyCalorieGoal && (
-                <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-textMuted flex-wrap">
+                <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 text-xs text-stone-500 flex-wrap">
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-fresh-600"/><span>On track</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-orange-400"/><span>Near goal</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-danger"/><span>Over goal</span></div>
@@ -1243,7 +1243,7 @@ const getGoalNudges = (member) => {
           {activeTab === 'weight' && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-textPrimary">Weight history</h3>
+                <h3 className="font-semibold text-stone-900">Weight history</h3>
                 <button onClick={() => setShowWeightModal(true)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
                   <Icon name="add" size={14} /> Log weight
                 </button>
@@ -1255,7 +1255,7 @@ const getGoalNudges = (member) => {
                     <div>
                       <p className="text-sm font-medium text-fresh-700">Goal weight: {activeMember.goalWeight} kg</p>
                       {activeMember.currentWeight && (
-                        <p className="text-xs text-textMuted mt-0.5">
+                        <p className="text-xs text-stone-500 mt-0.5">
                           {(() => {
                             const currentKg = activeMember.weightUnit === 'lbs'
                               ? activeMember.currentWeight / 2.205
@@ -1276,8 +1276,8 @@ const getGoalNudges = (member) => {
               {activeMember.weightHistory.length === 0 ? (
                 <div className="text-center py-8">
                   <Icon name="dashboard" size={40} className="text-stone-200 mx-auto mb-3" />
-                  <p className="text-textMuted text-sm">No weight logged yet</p>
-                  <p className="text-xs text-textMuted mt-1">Log your weight to track progress over time</p>
+                  <p className="text-stone-500 text-sm">No weight logged yet</p>
+                  <p className="text-xs text-stone-500 mt-1">Log your weight to track progress over time</p>
                 </div>
               ) : (
                 <>
@@ -1321,7 +1321,7 @@ const getGoalNudges = (member) => {
                     const goalY = goalKg != null ? toY(goalKg) : null
 
                     const velocity = activeMember.targets?.weeklyVelocity
-                    let velColor = 'text-textMuted'
+                    let velColor = 'text-stone-500'
                     if (velocity != null) {
                       if (activeMember.fitnessGoal === 'cut') velColor = velocity < 0 ? 'text-success' : 'text-orange-500'
                       else if (activeMember.fitnessGoal === 'lean_bulk') velColor = velocity > 0 ? 'text-success' : 'text-orange-500'
@@ -1351,7 +1351,7 @@ const getGoalNudges = (member) => {
                         </svg>
                         {velocity != null && (
                           <p className="text-xs mt-0.5 pl-9">
-                            <span className="text-textMuted">Trending </span>
+                            <span className="text-stone-500">Trending </span>
                             <span className={`font-medium ${velColor}`}>
                               {velocity < 0 ? '−' : '+'}{Math.abs(velocity).toFixed(2)} kg/week
                             </span>
@@ -1364,22 +1364,22 @@ const getGoalNudges = (member) => {
                     {activeMember.weightHistory.map((log, i) => (
                       <div key={i} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
                         <div>
-                          <p className="text-sm font-semibold text-textPrimary">{log.weight} {log.unit}</p>
-                          {log.note && <p className="text-xs text-textMuted">{log.note}</p>}
+                          <p className="text-sm font-semibold text-stone-900">{log.weight} {log.unit}</p>
+                          {log.note && <p className="text-xs text-stone-500">{log.note}</p>}
                         </div>
                         <div className="flex items-center gap-3">
                           {i < activeMember.weightHistory.length - 1 && (
                             <span className={`text-xs font-medium flex items-center gap-0.5 ${
                               log.weight < activeMember.weightHistory[i + 1].weight ? 'text-success' :
                               log.weight > activeMember.weightHistory[i + 1].weight ? 'text-danger' :
-                              'text-textMuted'
+                              'text-stone-500'
                             }`}>
                               {log.weight < activeMember.weightHistory[i + 1].weight ? '↓' :
                                log.weight > activeMember.weightHistory[i + 1].weight ? '↑' : '→'}
                               {Math.abs(log.weight - activeMember.weightHistory[i + 1].weight).toFixed(1)} kg
                             </span>
                           )}
-                          <p className="text-xs text-textMuted">
+                          <p className="text-xs text-stone-500">
                             {new Date(log.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
                           </p>
                         </div>
@@ -1396,14 +1396,14 @@ const getGoalNudges = (member) => {
       {/* ── Log weight modal ── */}
       {showWeightModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-card shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
+          <div className="bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-xl p-6 max-h-[90vh] overflow-y-auto modal-sheet">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-textPrimary">Log weight</h3>
-              <button onClick={() => setShowWeightModal(false)} className="text-textMuted hover:text-textPrimary p-1">
+              <h3 className="font-bold text-stone-900">Log weight</h3>
+              <button onClick={() => setShowWeightModal(false)} className="text-stone-500 hover:text-stone-900 p-1">
                 <Icon name="close" size={20} />
               </button>
             </div>
-            <p className="text-sm text-textMuted mb-4">Logging for <strong>{activeMember?.name}</strong></p>
+            <p className="text-sm text-stone-500 mb-4">Logging for <strong>{activeMember?.name}</strong></p>
             <div className="space-y-3 mb-4">
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -1419,7 +1419,7 @@ const getGoalNudges = (member) => {
                 </div>
               </div>
               <div>
-                <label className="label">Note <span className="text-textMuted font-normal">(optional)</span></label>
+                <label className="label">Note <span className="text-stone-500 font-normal">(optional)</span></label>
                 <input className="input" placeholder="e.g. Morning weight, after workout..." value={weightForm.note} onChange={e => setWeightForm(p => ({ ...p, note: e.target.value }))} />
               </div>
             </div>
@@ -1437,16 +1437,16 @@ const getGoalNudges = (member) => {
       {/* ── Log meal modal ── */}
       {showMealModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-         <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
+         <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-xl overflow-hidden" style={{ maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}>
 
             {/* Header */}
             <div className="modal-header bg-white px-4 pt-4 pb-3 border-b border-border">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <h3 className="font-bold text-textPrimary text-base leading-tight">Log meal</h3>
-                  <p className="text-xs text-textMuted">Logging for <strong>{activeMember?.name}</strong></p>
+                  <h3 className="font-bold text-stone-900 text-base leading-tight">Log meal</h3>
+                  <p className="text-xs text-stone-500">Logging for <strong>{activeMember?.name}</strong></p>
                 </div>
-                <button onClick={resetMealModal} className="text-textMuted hover:text-textPrimary p-1 -mr-1">
+                <button onClick={resetMealModal} className="text-stone-500 hover:text-stone-900 p-1 -mr-1">
                   <Icon name="close" size={18} />
                 </button>
               </div>
@@ -1467,7 +1467,7 @@ const getGoalNudges = (member) => {
                       setDescribeError('')
                     }}
                     className={`flex-1 py-2 text-xs font-semibold transition-colors flex items-center justify-center gap-1 ${
-                      logMode === mode ? 'bg-primary text-white' : 'text-textMuted bg-white'
+                      logMode === mode ? 'bg-primary text-white' : 'text-stone-500 bg-white'
                     }`}
                   >
                     <Icon name={icon} size={12} />
@@ -1492,7 +1492,7 @@ const getGoalNudges = (member) => {
                       onChange={e => setMealDescription(e.target.value)}
                       autoFocus
                     />
-                    <p className="text-xs text-textMuted mt-1">Describe anything — home cooking, leftovers, a snack, any cuisine. Claude will estimate the macros.</p>
+                    <p className="text-xs text-stone-500 mt-1">Describe anything — home cooking, leftovers, a snack, any cuisine. Claude will estimate the macros.</p>
                     {describeError && (
                       <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-100 rounded-btn">
                         <Icon name="warning" size={14} className="text-danger flex-shrink-0 mt-0.5" />
@@ -1529,17 +1529,17 @@ const getGoalNudges = (member) => {
                         <div className="grid grid-cols-4 gap-2 text-center mb-3">
                           {[
                             { label: 'Cal', value: calcResult.calories, color: 'text-orange-600' },
-                            { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-blue-600' },
+                            { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-indigo-600' },
                             { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
                             { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
                           ].map((m, i) => (
                             <div key={i} className="bg-white rounded-btn p-2 border border-fresh-100">
                               <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
-                              <p className="text-xs text-textMuted">{m.label}</p>
+                              <p className="text-xs text-stone-500">{m.label}</p>
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-textMuted flex items-center gap-1">
+                        <p className="text-xs text-stone-500 flex items-center gap-1">
                           <Icon name="info" size={12} /> Confidence: {calcResult.confidence} · {calcResult.source}
                         </p>
                       </div>
@@ -1562,7 +1562,7 @@ const getGoalNudges = (member) => {
                       </div>
 
                       <div>
-                        <label className="label">Adjust nutrition <span className="text-textMuted font-normal">(edit if needed)</span></label>
+                        <label className="label">Adjust nutrition <span className="text-stone-500 font-normal">(edit if needed)</span></label>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="label text-xs">Calories</label>
@@ -1597,10 +1597,10 @@ const getGoalNudges = (member) => {
                           {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
                         </div>
                         <div className="text-left">
-                          <p className="text-sm font-medium text-textPrimary">Save to cookbook</p>
-                          <p className="text-xs text-textMuted">Recall this meal next time without recalculating</p>
+                          <p className="text-sm font-medium text-stone-900">Save to cookbook</p>
+                          <p className="text-xs text-stone-500">Recall this meal next time without recalculating</p>
                         </div>
-                        <Icon name="cookbook" size={16} className="ml-auto text-textMuted" />
+                        <Icon name="cookbook" size={16} className="ml-auto text-stone-500" />
                       </button>
                     </>
                   )}
@@ -1623,7 +1623,7 @@ const getGoalNudges = (member) => {
                         />
                         {showSuggestions && suggestions.length > 0 && (
                           <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-48 overflow-y-auto">
-                            {searchingCache && <div className="px-3 py-2 text-xs text-textMuted">Searching...</div>}
+                            {searchingCache && <div className="px-3 py-2 text-xs text-stone-500">Searching...</div>}
                             {suggestions.map((item, i) => (
                               <button
                                 key={i}
@@ -1631,8 +1631,8 @@ const getGoalNudges = (member) => {
                                 onMouseDown={() => handleSelectSuggestion(item)}
                                 className="w-full text-left px-3 py-2.5 hover:bg-stone-50 border-b border-border last:border-0 transition-colors"
                               >
-                                <p className="text-sm font-medium text-textPrimary">{item.mealName}</p>
-                                <p className="text-xs text-textMuted">
+                                <p className="text-sm font-medium text-stone-900">{item.mealName}</p>
+                                <p className="text-xs text-stone-500">
                                   {item.calories ? `${item.calories} kcal` : ''}{item.protein ? ` · ${item.protein}g protein` : ''} · {item.source || 'cached'}
                                 </p>
                               </button>
@@ -1654,7 +1654,7 @@ const getGoalNudges = (member) => {
                         Lookup
                       </button>
                     </div>
-                    <p className="text-xs text-textMuted mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
+                    <p className="text-xs text-stone-500 mt-1">Try "Big Mac", "Tim Hortons bagel", "chicken biryani"</p>
                   </div>
 
                   {/* Lookup result badge */}
@@ -1664,8 +1664,8 @@ const getGoalNudges = (member) => {
                     }`}>
                       <Icon name="check" size={14} className="text-success mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="font-medium text-textPrimary">{lookupResult.mealName}</p>
-                        <p className="text-textMuted mt-0.5">
+                        <p className="font-medium text-stone-900">{lookupResult.mealName}</p>
+                        <p className="text-stone-500 mt-0.5">
                           {lookupResult.servingSize} · {lookupResult.source}
                           {lookupResult.confidence === 'low' && ' · Estimated'}
                         </p>
@@ -1693,13 +1693,13 @@ const getGoalNudges = (member) => {
                         value={servings}
                         onChange={e => setServings(parseFloat(e.target.value) || 1)}
                       />
-                      <p className="text-xs text-textMuted">Change servings then lookup again to recalculate</p>
+                      <p className="text-xs text-stone-500">Change servings then lookup again to recalculate</p>
                     </div>
                   </div>
 
                   {/* Macros */}
                   <div>
-                    <label className="label">Nutrition <span className="text-textMuted font-normal">(auto-filled or enter manually)</span></label>
+                    <label className="label">Nutrition <span className="text-stone-500 font-normal">(auto-filled or enter manually)</span></label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="label text-xs">Calories</label>
@@ -1724,7 +1724,7 @@ const getGoalNudges = (member) => {
                 <>
                   {/* Ingredient builder */}
                   <div className="relative">
-                    <label className="label">Meal name <span className="text-textMuted font-normal">(optional)</span></label>
+                    <label className="label">Meal name <span className="text-stone-500 font-normal">(optional)</span></label>
                     <input
                       className="input"
                       placeholder="e.g. Protein Bowl..."
@@ -1740,7 +1740,7 @@ const getGoalNudges = (member) => {
                     />
                     {showSavedSuggestions && (
                       <div className="absolute top-full left-0 right-0 bg-white border border-border rounded-btn shadow-lg z-50 mt-1 max-h-40 overflow-y-auto">
-                        <p className="px-3 py-1.5 text-xs text-textMuted font-medium border-b border-border">Saved meals</p>
+                        <p className="px-3 py-1.5 text-xs text-stone-500 font-medium border-b border-border">Saved meals</p>
                         {savedMeals
                           .filter(r => !customMealName || r.name.toLowerCase().includes(customMealName.toLowerCase()))
                           .map((recipe, i) => (
@@ -1750,9 +1750,9 @@ const getGoalNudges = (member) => {
                               onMouseDown={() => handleLoadSavedMeal(recipe)}
                               className="w-full text-left px-3 py-2.5 hover:bg-stone-50 border-b border-border last:border-0"
                             >
-                              <p className="text-sm font-medium text-textPrimary">{recipe.name}</p>
+                              <p className="text-sm font-medium text-stone-900">{recipe.name}</p>
                               {recipe.nutrition && (
-                                <p className="text-xs text-textMuted">
+                                <p className="text-xs text-stone-500">
                                   {recipe.nutrition.calories} kcal · {recipe.nutrition.protein}g protein
                                 </p>
                               )}
@@ -1792,7 +1792,7 @@ const getGoalNudges = (member) => {
                           {ingredients.length > 1 && (
                             <button
                               onClick={() => removeIngredient(idx)}
-                              className="text-textMuted hover:text-danger shrink-0 p-1"
+                              className="text-stone-500 hover:text-danger shrink-0 p-1"
                             >
                               <Icon name="close" size={16} />
                             </button>
@@ -1840,17 +1840,17 @@ const getGoalNudges = (member) => {
                       <div className="grid grid-cols-4 gap-2 text-center mb-3">
                         {[
                           { label: 'Cal', value: calcResult.calories, color: 'text-orange-600' },
-                          { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-blue-600' },
+                          { label: 'Protein', value: `${calcResult.protein}g`, color: 'text-indigo-600' },
                           { label: 'Carbs', value: `${calcResult.carbs}g`, color: 'text-yellow-600' },
                           { label: 'Fat', value: `${calcResult.fat}g`, color: 'text-red-500' },
                         ].map((m, i) => (
                           <div key={i} className="bg-white rounded-btn p-2 border border-fresh-100">
                             <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
-                            <p className="text-xs text-textMuted">{m.label}</p>
+                            <p className="text-xs text-stone-500">{m.label}</p>
                           </div>
                         ))}
                       </div>
-                      <p className="text-xs text-textMuted flex items-center gap-1">
+                      <p className="text-xs text-stone-500 flex items-center gap-1">
                         <Icon name="info" size={12} /> Review and adjust below before logging
                       </p>
                     </div>
@@ -1871,10 +1871,10 @@ const getGoalNudges = (member) => {
                         {saveAsRecipe && <Icon name="check" size={12} className="text-white" strokeWidth={3} />}
                       </div>
                       <div className="text-left">
-                        <p className="text-sm font-medium text-textPrimary">Save to cookbook</p>
-                        <p className="text-xs text-textMuted">Recall this meal next time you log</p>
+                        <p className="text-sm font-medium text-stone-900">Save to cookbook</p>
+                        <p className="text-xs text-stone-500">Recall this meal next time you log</p>
                       </div>
-                      <Icon name="cookbook" size={16} className="ml-auto text-textMuted" />
+                      <Icon name="cookbook" size={16} className="ml-auto text-stone-500" />
                     </button>
                   )}
 
@@ -1888,7 +1888,7 @@ const getGoalNudges = (member) => {
 
                   {/* Editable macro fields — always shown in ingredient mode */}
                   <div>
-                    <label className="label">Adjust nutrition <span className="text-textMuted font-normal">(edit if needed)</span></label>
+                    <label className="label">Adjust nutrition <span className="text-stone-500 font-normal">(edit if needed)</span></label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="label text-xs">Calories</label>
@@ -1943,16 +1943,16 @@ const getGoalNudges = (member) => {
       {/* ── Set goals modal ── */}
       {showGoalModal && createPortal(
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
-          <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-card shadow-xl overflow-hidden" style={{ maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-xl overflow-hidden" style={{ maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
 
             {/* Header */}
             <div className="modal-header bg-white px-6 pt-5 pb-4 border-b border-border flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-textPrimary">Set goals</h3>
-                  <p className="text-sm text-textMuted mt-0.5">For <strong>{activeMember?.name}</strong></p>
+                  <h3 className="font-bold text-stone-900">Set goals</h3>
+                  <p className="text-sm text-stone-500 mt-0.5">For <strong>{activeMember?.name}</strong></p>
                 </div>
-                <button onClick={() => setShowGoalModal(false)} className="text-textMuted hover:text-textPrimary p-1">
+                <button onClick={() => setShowGoalModal(false)} className="text-stone-500 hover:text-stone-900 p-1">
                   <Icon name="close" size={20} />
                 </button>
               </div>
@@ -1977,14 +1977,14 @@ const getGoalNudges = (member) => {
                       className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                         goalForm.gender === opt.value
                           ? 'bg-primary text-white border-primary'
-                          : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                          : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                       }`}
                     >
                       {goalForm.gender === opt.value ? '✓ ' : ''}{opt.label}
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-textMuted mt-1.5">Used for accurate calorie math.</p>
+                <p className="text-xs text-stone-500 mt-1.5">Used for accurate calorie math.</p>
               </div>
 
               {/* Fitness goal */}
@@ -1992,10 +1992,10 @@ const getGoalNudges = (member) => {
                 <label className="label">Fitness goal</label>
                 {!isFeatureEnabled('fitness_coach', plan) ? (
                   <div className="flex items-center gap-3 p-3 bg-stone-50 border border-border rounded-btn">
-                    <Icon name="crown" size={18} className="text-textMuted flex-shrink-0" />
+                    <Icon name="crown" size={18} className="text-stone-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-textPrimary">Unlock with Premium</p>
-                      <p className="text-xs text-textMuted">Smart fitness goals, adaptive calorie targets and macro splits.</p>
+                      <p className="text-sm font-medium text-stone-900">Unlock with Premium</p>
+                      <p className="text-xs text-stone-500">Smart fitness goals, adaptive calorie targets and macro splits.</p>
                     </div>
                     <a href="/app/settings?tab=plan" className="text-xs text-primary font-medium hover:underline flex-shrink-0">Upgrade →</a>
                   </div>
@@ -2013,7 +2013,7 @@ const getGoalNudges = (member) => {
                           className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                             goalForm.fitnessGoal === opt.value
                               ? 'bg-primary text-white border-primary'
-                              : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                              : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                           }`}
                         >
                           {goalForm.fitnessGoal === opt.value ? '✓ ' : ''}{opt.label}
@@ -2039,7 +2039,7 @@ const getGoalNudges = (member) => {
                           className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                             goalForm.fitnessGoal === opt.value
                               ? 'bg-primary text-white border-primary'
-                              : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                              : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                           }`}
                         >
                           {goalForm.fitnessGoal === opt.value ? '✓ ' : ''}{opt.label}
@@ -2047,7 +2047,7 @@ const getGoalNudges = (member) => {
                       ))}
                     </div>
                     {goalForm.fitnessGoal != null && (
-                      <p className="text-xs text-textMuted leading-relaxed">
+                      <p className="text-xs text-stone-500 leading-relaxed">
                         {FITNESS_GOAL_OPTS.find(o => o.value === goalForm.fitnessGoal)?.desc}
                       </p>
                     )}
@@ -2070,7 +2070,7 @@ const getGoalNudges = (member) => {
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
                           goalForm.goalRatePct === rate.value
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-surface text-textMuted border-border hover:border-primary hover:text-primary'
+                            : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
                         }`}
                       >
                         {goalForm.goalRatePct === rate.value ? '✓ ' : ''}{rate.label} <span className={goalForm.goalRatePct === rate.value ? 'opacity-80' : 'opacity-60'}>{rate.sub}</span>
@@ -2082,7 +2082,7 @@ const getGoalNudges = (member) => {
 
               {/* Goal weight */}
               <div>
-                <label className="label">Goal weight <span className="text-textMuted font-normal">(optional)</span></label>
+                <label className="label">Goal weight <span className="text-stone-500 font-normal">(optional)</span></label>
                 <div className="flex gap-2">
                   <input
                     className="input flex-1"
@@ -2105,7 +2105,7 @@ const getGoalNudges = (member) => {
 
               {/* Manual calorie override */}
               <div>
-                <label className="label">Daily calorie goal <span className="text-textMuted font-normal">(optional override)</span></label>
+                <label className="label">Daily calorie goal <span className="text-stone-500 font-normal">(optional override)</span></label>
                 <input
                   className="input"
                   type="number"
@@ -2113,16 +2113,16 @@ const getGoalNudges = (member) => {
                   value={goalForm.dailyCalorieGoal}
                   onChange={e => setGoalForm(p => ({ ...p, dailyCalorieGoal: e.target.value }))}
                 />
-                <p className="text-xs text-textMuted mt-1">Leave blank to use auto-calculated goal based on your profile</p>
+                <p className="text-xs text-stone-500 mt-1">Leave blank to use auto-calculated goal based on your profile</p>
               </div>
 
               {/* Focus area — feeds the nudge system */}
               <div>
-                <label className="label">Focus area <span className="text-textMuted font-normal">(for personalized insights)</span></label>
+                <label className="label">Focus area <span className="text-stone-500 font-normal">(for personalized insights)</span></label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { value: 'lose weight',   icon: 'leaf',  label: 'Lose weight',    desc: 'Calorie deficit · balanced macros', color: 'border-fresh-100 bg-fresh-50',  activeColor: 'border-fresh-600 bg-fresh-50',  iconClass: 'text-fresh-600'  },
-                    { value: 'gain muscle',   icon: 'star',  label: 'Gain muscle',    desc: 'Calorie surplus · high protein',   color: 'border-blue-200 bg-blue-50',    activeColor: 'border-blue-500 bg-blue-50',    iconClass: 'text-blue-600'   },
+                    { value: 'gain muscle',   icon: 'star',  label: 'Gain muscle',    desc: 'Calorie surplus · high protein',   color: 'border-indigo-200 bg-indigo-50',    activeColor: 'border-indigo-500 bg-indigo-50',    iconClass: 'text-indigo-600'   },
                     { value: 'maintain',      icon: 'check', label: 'Maintain',       desc: 'Hit calorie goal · balanced',      color: 'border-indigo-100 bg-indigo-50', activeColor: 'border-indigo-400 bg-indigo-50', iconClass: 'text-primary' },
                     { value: 'improve energy',icon: 'sun',   label: 'Improve energy', desc: 'Focus on fiber · complex carbs',   color: 'border-orange-200 bg-orange-50', activeColor: 'border-orange-500 bg-orange-50', iconClass: 'text-orange-600' },
                   ].map(opt => (
@@ -2134,11 +2134,11 @@ const getGoalNudges = (member) => {
                         goalForm.goalType === opt.value ? opt.activeColor + ' ring-1 ring-offset-1' : 'border-border bg-surface hover:border-stone-300'
                       }`}
                     >
-                      <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-textMuted'}`} />
-                      <p className={`text-sm font-semibold ${goalForm.goalType === opt.value ? 'text-textPrimary' : 'text-textMuted'}`}>
+                      <Icon name={opt.icon} size={18} className={`mb-1.5 ${goalForm.goalType === opt.value ? opt.iconClass : 'text-stone-500'}`} />
+                      <p className={`text-sm font-semibold ${goalForm.goalType === opt.value ? 'text-stone-900' : 'text-stone-500'}`}>
                         {opt.label}
                       </p>
-                      <p className="text-xs text-textMuted mt-0.5 leading-tight">{opt.desc}</p>
+                      <p className="text-xs text-stone-500 mt-0.5 leading-tight">{opt.desc}</p>
                     </button>
                   ))}
                 </div>

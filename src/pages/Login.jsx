@@ -35,13 +35,13 @@ const handleSubmit = async (e) => {
 }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-dvh bg-background flex flex-col">
 
       {/* Navbar */}
       <nav className="bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <NookaIcon size={32} />
-          <span className="font-semibold text-textPrimary text-lg">Nooka</span>
+          <span className="font-semibold text-stone-900 text-lg">Nooka</span>
         </Link>
       </nav>
 
@@ -53,8 +53,8 @@ const handleSubmit = async (e) => {
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
               <NookaIcon size={32} />
             </div>
-            <h1 className="text-2xl font-bold text-textPrimary">Welcome back</h1>
-            <p className="text-textMuted text-sm mt-1">Sign in to your account</p>
+            <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Welcome back</h1>
+            <p className="text-stone-500 text-sm mt-1">Sign in to your account</p>
           </div>
 
           {error && (
@@ -96,13 +96,13 @@ const handleSubmit = async (e) => {
             </button>
           </form>
 
-          <p className="text-center text-sm text-textMuted mt-6">
+          <p className="text-center text-sm text-stone-500 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="text-primary font-medium hover:underline">
               Create one free
             </Link>
           </p>
-          <p className="text-center text-xs text-textMuted mt-4">
+          <p className="text-center text-xs text-stone-500 mt-4">
   By signing in you agree to our{' '}
   <Link to="/terms" className="text-primary hover:underline">Terms</Link>
   {' '}and{' '}
