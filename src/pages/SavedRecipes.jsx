@@ -181,8 +181,8 @@ export default function SavedRecipes() {
 
               {/* Missing ingredients */}
               {recipe.missing?.length > 0 && (
-                <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
-                  <div className="flex items-center justify-between mb-1">
+                <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <p className="text-xs font-medium text-food-700">Need to buy:</p>
                     <button
                       onClick={() => handleAddToGrocery(recipe, idx)}

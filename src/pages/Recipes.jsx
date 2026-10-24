@@ -975,7 +975,7 @@ export default function Recipes() {
                   {/* Left column: need to buy, ingredients, equipment */}
                   <div>
                     {askResult.shoppingList?.length > 0 && (
-                      <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
+                      <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                           <p className="text-xs font-medium text-food-700">Need to buy:</p>
                           <button
@@ -1071,10 +1071,10 @@ export default function Recipes() {
                 </div>
 
                 {/* Cook + Save */}
-                <div className="flex gap-3 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <button
                     onClick={() => handleCook(askResult, 'ask')}
-                    className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'ask' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'}`}
+                    className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === 'ask' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'}`}
                   >
                     {cookedId === 'ask'
                       ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</>
@@ -1084,7 +1084,7 @@ export default function Recipes() {
                     <button
                       onClick={() => handleSaveRecipe(askResult, 'ask')}
                       disabled={savingRecipe['ask'] || savedRecipes['ask']}
-                      className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${
+                      className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all border ${
                         savedRecipes['ask']
                           ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
                           : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
@@ -1430,8 +1430,8 @@ export default function Recipes() {
               )}
 
               {familyRecipe.missing?.length > 0 && (
-                <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <p className="text-xs font-medium text-food-700">Need to buy:</p>
                     <button
                       onClick={() => handleAddToGrocery(familyRecipe, 'family')}
@@ -1448,8 +1448,8 @@ export default function Recipes() {
                       const key = `family-${ingName}`
                       return (
                         <div key={i}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-stone-600">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                          <div className="flex items-start justify-between min-w-0">
+                            <span className="text-xs text-stone-600 flex-1 min-w-0">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                             <button
                               onClick={() => isPaidPlan ? handleFindSubstitutes(m, 'family', familyRecipe.name) : navigate('/app/settings?tab=plan')}
                               className="text-xs text-primary hover:underline font-medium ml-2 flex-shrink-0"
@@ -1528,10 +1528,10 @@ export default function Recipes() {
                 </div>
               )}
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex flex-wrap gap-2 mt-4">
                 <button
                   onClick={() => handleCook(familyRecipe, 'family')}
-                  className={`flex-1 py-3 rounded-btn text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
+                  className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                     }`}
                 >
                   {cookedId === 'family' ? <><Icon name="check" size={13} className="inline-block mr-1" />Cooked! Pantry updated</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this — update pantry</>}
@@ -1540,7 +1540,7 @@ export default function Recipes() {
                   <button
                     onClick={() => handleSaveRecipe(familyRecipe, 'family')}
                     disabled={savingRecipe['family'] || savedRecipes['family']}
-                    className={`py-3 px-4 rounded-btn text-sm font-medium transition-all border ${savedRecipes['family']
+                    className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all border ${savedRecipes['family']
                       ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
                       : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                       } disabled:opacity-50`}
@@ -1665,8 +1665,8 @@ export default function Recipes() {
 
                     {/* Missing ingredients */}
                     {recipe.missing?.length > 0 && (
-                      <div className="bg-food-50 border border-food-100 rounded-btn px-3 py-2 mb-4">
-                        <div className="flex items-center justify-between mb-2">
+                      <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                           <p className="text-xs font-medium text-food-700">Need to buy:</p>
                           <button
                             onClick={() => handleAddToGrocery(recipe, idx)}
@@ -1683,8 +1683,8 @@ export default function Recipes() {
                             const key = `${idx}-${ingName}`
                             return (
                               <div key={i}>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-stone-600">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
+                                <div className="flex items-start justify-between min-w-0">
+                                  <span className="text-xs text-stone-600 flex-1 min-w-0">{typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`}</span>
                                   {isFeatureEnabled('smart_substitutions', plan) && (
                                     <button
                                       onClick={() => canUseSubstitutions ? handleFindSubstitutes(m, idx, recipe.name) : navigate('/app/settings?tab=plan')}
@@ -1734,25 +1734,25 @@ export default function Recipes() {
                       </div>
                     )}
 
-                    <div className="flex gap-2 flex-wrap">
-                      <button
-                        onClick={() => setExpandedId(expandedId === idx ? null : idx)}
-                        className="btn-secondary flex-1 text-sm hover:border-food-600 hover:text-food-700"
-                      >
-                        {expandedId === idx ? 'Hide' : 'View ingredients'}
-                      </button>
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleCook(recipe, idx)}
-                        className={`flex-1 text-sm py-2 px-3 rounded-btn font-medium transition-all ${cookedId === idx ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
+                        className={`w-full h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === idx ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                           }`}
                       >
                         {cookedId === idx ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
+                      </button>
+                      <button
+                        onClick={() => setExpandedId(expandedId === idx ? null : idx)}
+                        className="btn-secondary flex-1 h-11 whitespace-nowrap px-4 text-sm hover:border-food-600 hover:text-food-700"
+                      >
+                        {expandedId === idx ? 'Hide' : 'View ingredients'}
                       </button>
                       {canSaveRecipes && (
                         <button
                           onClick={() => handleSaveRecipe(recipe, idx)}
                           disabled={savingRecipe[idx] || savedRecipes[idx]}
-                          className={`text-sm py-2 px-3 rounded-btn font-medium transition-all border ${savedRecipes[idx]
+                          className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all border ${savedRecipes[idx]
                             ? 'bg-yellow-50 text-yellow-600 border-yellow-200'
                             : 'bg-white text-stone-500 border-stone-200 hover:border-food-200 hover:text-food-600'
                             } disabled:opacity-50`}
