@@ -209,7 +209,7 @@ export default function SavedRecipes() {
               {/* Expand button */}
               <button
                 onClick={() => setExpandedId(expandedId === recipe.id ? null : recipe.id)}
-                className="btn-secondary w-full text-sm hover:border-food-600 hover:text-food-700"
+                className="btn-secondary w-full h-11 whitespace-nowrap text-sm hover:border-food-600 hover:text-food-700"
               >
                 {expandedId === recipe.id ? 'Hide details' : 'View recipe'}
               </button>
