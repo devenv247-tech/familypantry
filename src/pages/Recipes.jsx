@@ -120,7 +120,10 @@ export default function Recipes() {
   const [activeSubstitution, setActiveSubstitution] = useState(null)
   const [savedRecipes, setSavedRecipes] = useState({})
   const [savingRecipe, setSavingRecipe] = useState({})
-  const [mode, setMode] = useState('food') // 'food' | 'drinks'
+  const [mode, setMode] = useState(() => {
+    const p = new URLSearchParams(window.location.search).get('mode')
+    return p === 'ask' || p === 'drinks' ? p : 'food'
+  })
   const [drinkCondition, setDrinkCondition] = useState(null)
   const [drinks, setDrinks] = useState([])
   const [drinksLoading, setDrinksLoading] = useState(false)
@@ -145,6 +148,12 @@ export default function Recipes() {
   const aiDisclosureKey = `nooka_ai_disclosure_${family?.id}`
   const hasAcknowledgedAI = () => localStorage.getItem(aiDisclosureKey) === 'true'
   const acknowledgeAI = () => localStorage.setItem(aiDisclosureKey, 'true')
+
+  useEffect(() => {
+    const p = searchParams.get('mode')
+    if (p === 'ask' || p === 'drinks') setMode(p)
+    else if (p === 'food') setMode('food')
+  }, [searchParams])
 
   useEffect(() => {
     fetchMembers()

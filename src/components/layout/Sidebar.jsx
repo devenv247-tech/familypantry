@@ -97,7 +97,7 @@ export default function Sidebar({ onClose }) {
         </div>
         <p className="text-xs text-indigo-700 leading-snug">Ask anything about meals, nutrition or your pantry.</p>
         <NavLink
-          to="/app/recipes"
+          to="/app/recipes?mode=ask"
           onClick={handleNavClick}
           className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 hover:text-indigo-900 transition-colors"
         >
