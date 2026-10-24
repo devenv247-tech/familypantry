@@ -108,6 +108,7 @@ export default function Recipes() {
   const [familyRecipe, setFamilyRecipe] = useState(null)
   const [familyLoading, setFamilyLoading] = useState(false)
   const [cookedId, setCookedId] = useState(null)
+  const [cookedRecipes, setCookedRecipes] = useState({})
   const [cuisine, setCuisine] = useState('Any cuisine')
   const [nutritionView, setNutritionView] = useState({})
   const [addingToGrocery, setAddingToGrocery] = useState({})
@@ -433,6 +434,7 @@ export default function Recipes() {
   }
 
   const handleCook = async (recipe, idx) => {
+    if (cookedRecipes[idx]) return
     try {
       const cookResult = await cookRecipe(recipe)
       const _r = cookResult?.results || []
@@ -443,6 +445,7 @@ export default function Recipes() {
         : null
       setCookedId(idx)
       setTimeout(() => setCookedId(null), 3000)
+      setCookedRecipes(prev => ({ ...prev, [idx]: true }))
 
       const membersToLog = idx === 'family'
         ? members.map(m => m.name)
@@ -1238,9 +1241,10 @@ export default function Recipes() {
                 <div className="flex flex-wrap gap-2 mt-2">
                   <button
                     onClick={() => handleCook(askResult, 'ask')}
-                    className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === 'ask' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'}`}
+                    disabled={cookedRecipes['ask']}
+                    className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all disabled:opacity-70 disabled:cursor-not-allowed ${cookedRecipes['ask'] || cookedId === 'ask' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'}`}
                   >
-                    {cookedId === 'ask'
+                    {cookedRecipes['ask'] || cookedId === 'ask'
                       ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</>
                       : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
                   </button>
@@ -1703,10 +1707,11 @@ export default function Recipes() {
               <div className="flex flex-wrap gap-2 mt-4">
                 <button
                   onClick={() => handleCook(familyRecipe, 'family')}
-                  className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === 'family' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
+                  disabled={cookedRecipes['family']}
+                  className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all disabled:opacity-70 disabled:cursor-not-allowed ${cookedRecipes['family'] || cookedId === 'family' ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                     }`}
                 >
-                  {cookedId === 'family' ? <><Icon name="check" size={13} className="inline-block mr-1" />Cooked! Pantry updated</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this — update pantry</>}
+                  {cookedRecipes['family'] || cookedId === 'family' ? <><Icon name="check" size={13} className="inline-block mr-1" />Cooked! Pantry updated</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this — update pantry</>}
                 </button>
                 {canSaveRecipes && (
                   <button
@@ -1909,10 +1914,11 @@ export default function Recipes() {
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleCook(recipe, idx)}
-                        className={`w-full h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all ${cookedId === idx ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
+                        disabled={cookedRecipes[idx]}
+                        className={`flex-1 h-11 whitespace-nowrap px-4 rounded-full text-sm font-medium transition-all disabled:opacity-70 disabled:cursor-not-allowed ${cookedRecipes[idx] || cookedId === idx ? 'bg-fresh-600 text-white' : 'bg-food-600 text-white hover:bg-food-700'
                           }`}
                       >
-                        {cookedId === idx ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
+                        {cookedRecipes[idx] || cookedId === idx ? <><Icon name="check" size={13} className="inline-block mr-1" />Pantry updated!</> : <><Icon name="utensils" size={13} className="inline-block mr-1" />I cooked this</>}
                       </button>
                       <button
                         onClick={() => setExpandedId(expandedId === idx ? null : idx)}
