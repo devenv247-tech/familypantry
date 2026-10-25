@@ -231,7 +231,7 @@ export default function BabyProfile() {
   )
 
   if (!profile) return (
-    <div className="text-center py-20 text-stone-500">
+    <div className="text-center py-20 text-stone-600">
       <div className="mb-3 flex justify-center text-stone-300"><Icon name="bottle" size={40} /></div>
       <p className="font-medium">Baby profile not found</p>
       <button onClick={() => navigate('/app/settings')} className="btn-secondary mt-4">← Back to settings</button>
@@ -246,7 +246,7 @@ export default function BabyProfile() {
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/app/settings')} className="text-stone-500 hover:text-stone-900 text-sm">← Back</button>
+        <button onClick={() => navigate('/app/settings')} className="text-stone-600 hover:text-stone-900 text-sm">← Back</button>
       </div>
 
       <div className="card mb-6">
@@ -256,7 +256,7 @@ export default function BabyProfile() {
           </div>
           <div>
             <h1 className="page-heading">{profile.member.name}</h1>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-600">
               {profile.ageMonths !== null ? `${profile.ageMonths} months old` : 'Age unknown'}
               {profile.member.birthDate && (
                 <span className="ml-2 text-xs">· Born {new Date(profile.member.birthDate).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
@@ -303,7 +303,7 @@ export default function BabyProfile() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-btn text-xs font-medium transition-all ${
-              activeTab === tab.id ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-500 hover:text-stone-900'
+              activeTab === tab.id ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-600 hover:text-stone-900'
             }`}
           >
            <Icon name={tab.iconComponent} size={15} />
@@ -332,7 +332,7 @@ export default function BabyProfile() {
                     isCurrent ? `${s.color} border-current` : isPast ? 'bg-stone-50 border-stone-200 opacity-60' : 'bg-stone-50 border-stone-200'
                   }`}>
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                      isCurrent ? 'bg-white shadow' : isPast ? 'bg-stone-200 text-stone-500' : 'bg-stone-200 text-stone-400'
+                      isCurrent ? 'bg-white shadow' : isPast ? 'bg-stone-200 text-stone-600' : 'bg-stone-200 text-stone-500'
                     }`}>
                       {isPast ? <Icon name="check" size={12} /> : i}
                     </div>
@@ -343,7 +343,7 @@ export default function BabyProfile() {
                         </p>
                         {isCurrent && <span className="text-xs bg-white px-2 py-0.5 rounded-pill font-semibold shadow-sm">← Now</span>}
                       </div>
-                      <p className="text-xs text-stone-500 leading-relaxed">{s.foods}</p>
+                      <p className="text-xs text-stone-600 leading-relaxed">{s.foods}</p>
                     </div>
                   </div>
                 )
@@ -368,7 +368,7 @@ export default function BabyProfile() {
             <div className="card text-center py-10">
               <div className="mb-3 flex justify-center text-stone-300"><Icon name="leaf" size={40} /></div>
               <p className="font-semibold text-stone-900 mb-1">Family plan required</p>
-              <p className="text-sm text-stone-500 mb-4">Upgrade to track allergen introductions and keep a safety record.</p>
+              <p className="text-sm text-stone-600 mb-4">Upgrade to track allergen introductions and keep a safety record.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
             </div>
           ) : (
@@ -394,11 +394,11 @@ export default function BabyProfile() {
                         <p className="text-xs font-semibold text-stone-900 mb-0.5">{allergen}</p>
                         {intro ? (
                           <>
-                            <p className="text-xs text-stone-500">{new Date(intro.introducedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}</p>
+                            <p className="text-xs text-stone-600">{new Date(intro.introducedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}</p>
                             <p className="text-xs font-medium mt-0.5">{reaction?.label || 'Introduced'}</p>
                           </>
                         ) : (
-                          <p className="text-xs text-stone-500">Not yet</p>
+                          <p className="text-xs text-stone-600">Not yet</p>
                         )}
                       </div>
                     )
@@ -429,7 +429,7 @@ export default function BabyProfile() {
                       <button key={r.value} type="button"
                         onClick={() => setIntroForm(p => ({ ...p, reaction: r.value }))}
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                          introForm.reaction === r.value ? r.color : 'bg-surface text-stone-500 border-border'
+                          introForm.reaction === r.value ? r.color : 'bg-surface text-stone-600 border-border'
                         }`}
                       >
                         {r.label}
@@ -438,7 +438,7 @@ export default function BabyProfile() {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="label">Notes <span className="text-stone-500 font-normal">(optional)</span></label>
+                  <label className="label">Notes <span className="text-stone-600 font-normal">(optional)</span></label>
                   <input className="input" placeholder="e.g. mixed into oatmeal, ate well" value={introForm.notes} onChange={e => setIntroForm(p => ({ ...p, notes: e.target.value }))} />
                 </div>
                 <button onClick={handleLogAllergen} disabled={savingIntro || !introForm.allergen} className="w-full py-2 px-4 rounded-btn font-medium bg-fresh-600 hover:bg-fresh-700 text-white disabled:opacity-50 transition-all">
@@ -459,8 +459,8 @@ export default function BabyProfile() {
                             <span className={`text-xs px-2 py-0.5 rounded-pill border font-medium flex-shrink-0 ${reaction?.color || 'bg-fresh-50 text-fresh-700 border-fresh-100'}`}>
                               {a.allergen}
                             </span>
-                            <span className="text-xs text-stone-500">{new Date(a.introducedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                            {a.notes && <span className="text-xs text-stone-500 truncate">· {a.notes}</span>}
+                            <span className="text-xs text-stone-600">{new Date(a.introducedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            {a.notes && <span className="text-xs text-stone-600 truncate">· {a.notes}</span>}
                           </div>
                           <button onClick={() => handleRemoveAllergen(a.allergen)} className="text-xs text-danger hover:underline flex-shrink-0">Remove</button>
                         </div>
@@ -481,7 +481,7 @@ export default function BabyProfile() {
             <div className="card text-center py-10">
               <div className="mb-3 flex justify-center text-stone-300"><Icon name="bookmark" size={40} /></div>
               <p className="font-semibold text-stone-900 mb-1">Family plan required</p>
-              <p className="text-sm text-stone-500 mb-4">Upgrade to keep a daily feeding log for your baby.</p>
+              <p className="text-sm text-stone-600 mb-4">Upgrade to keep a daily feeding log for your baby.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
             </div>
           ) : (
@@ -495,7 +495,7 @@ export default function BabyProfile() {
                     <input className="input" placeholder="e.g. Sweet potato purée" value={feedForm.foodName} onChange={e => setFeedForm(p => ({ ...p, foodName: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="label">Amount (g) <span className="text-stone-500 font-normal">optional</span></label>
+                    <label className="label">Amount (g) <span className="text-stone-600 font-normal">optional</span></label>
                     <input className="input" type="number" placeholder="e.g. 60" value={feedForm.portionG} onChange={e => setFeedForm(p => ({ ...p, portionG: e.target.value }))} />
                   </div>
                   <div>
@@ -513,7 +513,7 @@ export default function BabyProfile() {
                       <button key={r.value} type="button"
                         onClick={() => setFeedForm(p => ({ ...p, reaction: r.value }))}
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all ${
-                          feedForm.reaction === r.value ? r.color : 'bg-surface text-stone-500 border-border'
+                          feedForm.reaction === r.value ? r.color : 'bg-surface text-stone-600 border-border'
                         }`}
                       >
                         {r.label}
@@ -522,7 +522,7 @@ export default function BabyProfile() {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="label">Notes <span className="text-stone-500 font-normal">(optional)</span></label>
+                  <label className="label">Notes <span className="text-stone-600 font-normal">(optional)</span></label>
                   <input className="input" placeholder="e.g. loved it, ate the whole portion" value={feedForm.notes} onChange={e => setFeedForm(p => ({ ...p, notes: e.target.value }))} />
                 </div>
                 <button onClick={handleAddFeedingLog} disabled={savingFeed || !feedForm.foodName.trim()} className="w-full py-2 px-4 rounded-btn font-medium bg-fresh-600 hover:bg-fresh-700 text-white disabled:opacity-50 transition-all">
@@ -532,7 +532,7 @@ export default function BabyProfile() {
 
               {/* Log entries */}
               {feedingLogs.length === 0 ? (
-                <div className="card text-center py-10 text-stone-500">
+                <div className="card text-center py-10 text-stone-600">
                   <div className="mb-2 flex justify-center text-stone-300"><Icon name="bookmark" size={40} /></div>
                   <p className="text-sm">No feeding entries yet — log your first one above</p>
                 </div>
@@ -553,7 +553,7 @@ export default function BabyProfile() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-stone-500 flex-wrap">
+                            <div className="flex items-center gap-2 text-xs text-stone-600 flex-wrap">
                               <span>{new Date(log.loggedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                               {log.portionG && <span>· {log.portionG}g</span>}
                               {log.texture && <span>· {log.texture}</span>}
@@ -579,7 +579,7 @@ export default function BabyProfile() {
           {/* Log new measurement — always visible */}
           <div className="card">
             <p className="font-semibold text-stone-900 mb-1">Log a measurement</p>
-            <p className="text-xs text-stone-500 mb-3">Weight and height are required to track growth accurately.</p>
+            <p className="text-xs text-stone-600 mb-3">Weight and height are required to track growth accurately.</p>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="label">Weight <span className="text-danger">*</span></label>
@@ -627,7 +627,7 @@ export default function BabyProfile() {
               </div>
             </div>
             <div className="mb-3">
-              <label className="label">Note <span className="text-stone-500 font-normal">optional</span></label>
+              <label className="label">Note <span className="text-stone-600 font-normal">optional</span></label>
               <input
                 className="input"
                 placeholder="e.g. 6-month well-baby visit"
@@ -656,23 +656,23 @@ export default function BabyProfile() {
                 <span className="text-2xl">{growthData.assessment.emoji}</span>
                 <div>
                   <p className="font-semibold text-stone-900">{growthData.assessment.verdict}</p>
-                  <p className="text-xs text-stone-500">Based on WHO Child Growth Standards</p>
+                  <p className="text-xs text-stone-600">Based on WHO Child Growth Standards</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white rounded-card px-3 py-2 border border-white/50">
-                  <p className="text-xs text-stone-500">Weight percentile</p>
+                  <p className="text-xs text-stone-600">Weight percentile</p>
                   <p className="font-display text-lg font-semibold text-stone-900">{growthData.assessment.weightPercentile}<span className="text-xs font-normal">th</span></p>
-                  <p className="text-xs text-stone-500">WHO median: {growthData.assessment.weightMedian}kg</p>
+                  <p className="text-xs text-stone-600">WHO median: {growthData.assessment.weightMedian}kg</p>
                 </div>
                 <div className="bg-white rounded-card px-3 py-2 border border-white/50">
-                  <p className="text-xs text-stone-500">Height percentile</p>
+                  <p className="text-xs text-stone-600">Height percentile</p>
                   <p className="font-display text-lg font-semibold text-stone-900">{growthData.assessment.heightPercentile}<span className="text-xs font-normal">th</span></p>
-                  <p className="text-xs text-stone-500">WHO median: {growthData.assessment.heightMedian}cm</p>
+                  <p className="text-xs text-stone-600">WHO median: {growthData.assessment.heightMedian}cm</p>
                 </div>
               </div>
               {growthData.nextDue && (
-                <p className="text-xs text-stone-500 mt-3">
+                <p className="text-xs text-stone-600 mt-3">
                   <span className="flex items-center gap-1"><Icon name="mealplan" size={12} />Next recommended measurement: <strong>{growthData.nextDue} months</strong></span>
                 </p>
               )}
@@ -682,9 +682,9 @@ export default function BabyProfile() {
           {/* Growth history */}
           {!canUseGrowthHistory ? (
             <div className="card text-center py-8">
-              <Icon name="reports" size={28} className="mx-auto mb-3 text-stone-500" />
+              <Icon name="reports" size={28} className="mx-auto mb-3 text-stone-600" />
               <p className="font-semibold text-stone-900 mb-1">Family plan required</p>
-              <p className="text-sm text-stone-500 mb-4">Upgrade to view full growth history and WHO percentile charts.</p>
+              <p className="text-sm text-stone-600 mb-4">Upgrade to view full growth history and WHO percentile charts.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
             </div>
           ) : growthData?.logs?.length > 0 ? (
@@ -699,13 +699,13 @@ export default function BabyProfile() {
                     const pct = Math.round((log.weight / maxW) * 100)
                     return (
                       <div key={log.id} className="flex flex-col items-center gap-1">
-                        <span className="text-xs text-stone-500">{log.weight}kg</span>
+                        <span className="text-xs text-stone-600">{log.weight}kg</span>
                         <div
                           className="w-8 bg-fresh-600 rounded-t-sm transition-all"
                           style={{ height: `${Math.max(pct * 0.5, 8)}px` }}
                           title={`${log.weight}kg · ${log.height}cm`}
                         />
-                        <span className="text-xs text-stone-500 whitespace-nowrap">
+                        <span className="text-xs text-stone-600 whitespace-nowrap">
                           {new Date(log.loggedAt).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}
                         </span>
                       </div>
@@ -721,11 +721,11 @@ export default function BabyProfile() {
                     <div>
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-medium text-stone-900">{log.weight}{log.weightUnit}</span>
-                        <span className="text-xs text-stone-500">·</span>
+                        <span className="text-xs text-stone-600">·</span>
                         <span className="text-sm font-medium text-stone-900">{log.height}{log.heightUnit}</span>
-                        {log.note && <span className="text-xs text-stone-500">· {log.note}</span>}
+                        {log.note && <span className="text-xs text-stone-600">· {log.note}</span>}
                       </div>
-                      <p className="text-xs text-stone-500 mt-0.5">
+                      <p className="text-xs text-stone-600 mt-0.5">
                         {new Date(log.loggedAt).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
                     </div>
@@ -734,7 +734,7 @@ export default function BabyProfile() {
               </div>
             </div>
           ) : (
-            <div className="card text-center py-8 text-stone-500">
+            <div className="card text-center py-8 text-stone-600">
               <Icon name="reports" size={28} className="mx-auto mb-3" />
               <p className="text-sm">No measurements yet — log your first one above</p>
             </div>
@@ -757,7 +757,7 @@ export default function BabyProfile() {
             <div className="card text-center py-10">
               <div className="flex justify-center mb-3"><Icon name="ai" size={32} className="text-primary" /></div>
               <p className="font-semibold text-stone-900 mb-1">Premium plan required</p>
-              <p className="text-sm text-stone-500 mb-4">Upgrade to generate AI baby-safe recipes tailored to your baby's exact stage and pantry.</p>
+              <p className="text-sm text-stone-600 mb-4">Upgrade to generate AI baby-safe recipes tailored to your baby's exact stage and pantry.</p>
               <button onClick={() => navigate('/app/settings?tab=plan')} className="btn-primary">View plans →</button>
             </div>
           ) : (
@@ -783,7 +783,7 @@ export default function BabyProfile() {
                         className={`text-xs px-3 py-1.5 rounded-pill border font-medium transition-all capitalize ${
                           recipeMealType === type
                             ? 'bg-primary text-white border-primary'
-                            : 'bg-surface text-stone-500 border-border hover:border-primary hover:text-primary'
+                            : 'bg-surface text-stone-600 border-border hover:border-primary hover:text-primary'
                         }`}
                       >
                         {type === 'any' ? 'Any meal' : type}
@@ -819,9 +819,9 @@ export default function BabyProfile() {
                       <h3 className="font-bold text-stone-900">{recipe.name}</h3>
                       <div className="flex items-center gap-2 flex-wrap mt-1">
                         <span className="text-xs bg-pink-50 text-pink-600 border border-pink-100 px-2 py-0.5 rounded-pill font-medium">Stage {recipe.stage}</span>
-                        <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
-                        <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="bottle" size={11} />{recipe.ageRange}</span>
-                        <span className="text-xs text-stone-500 flex items-center gap-1"><Icon name="utensils" size={11} />{recipe.texture}</span>
+                        <span className="text-xs text-stone-600 flex items-center gap-1"><Icon name="clock" size={11} />{recipe.time}</span>
+                        <span className="text-xs text-stone-600 flex items-center gap-1"><Icon name="bottle" size={11} />{recipe.ageRange}</span>
+                        <span className="text-xs text-stone-600 flex items-center gap-1"><Icon name="utensils" size={11} />{recipe.texture}</span>
                         {recipe.freezable && <span className="text-xs bg-indigo-50 text-primary border border-indigo-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="snowflake" size={11} />Freezable</span>}
                       </div>
                     </div>
@@ -845,13 +845,13 @@ export default function BabyProfile() {
 
                   {/* Ingredients */}
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-stone-900 mb-2">Ingredients <span className="text-stone-500 font-normal text-xs">({recipe.portions})</span></p>
+                    <p className="text-sm font-semibold text-stone-900 mb-2">Ingredients <span className="text-stone-600 font-normal text-xs">({recipe.portions})</span></p>
                     <div className="space-y-1.5">
                       {recipe.ingredients?.map((ing, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                           <span className="text-stone-900 font-medium">{ing.amount} {ing.name}</span>
-                          {ing.prep && <span className="text-stone-500">— {ing.prep}</span>}
+                          {ing.prep && <span className="text-stone-600">— {ing.prep}</span>}
                         </div>
                       ))}
                     </div>
@@ -864,7 +864,7 @@ export default function BabyProfile() {
                       {recipe.steps?.map((step, i) => (
                         <div key={i} className="flex items-start gap-2.5 text-xs">
                           <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                          <p className="text-stone-500 leading-relaxed">{step}</p>
+                          <p className="text-stone-600 leading-relaxed">{step}</p>
                         </div>
                       ))}
                     </div>

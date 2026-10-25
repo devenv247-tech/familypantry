@@ -28,7 +28,7 @@ export default function ConfirmEmail() {
           {status === 'loading' && (
             <>
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-stone-500 text-sm">Confirming your email...</p>
+              <p className="text-stone-600 text-sm">Confirming your email...</p>
             </>
           )}
           {status === 'success' && (
@@ -39,7 +39,7 @@ export default function ConfirmEmail() {
                 </svg>
               </div>
               <h1 className="text-xl font-bold text-stone-900 mb-2">Email confirmed!</h1>
-              <p className="text-stone-500 text-sm mb-6">Your email address has been updated. Please log in again with your new email.</p>
+              <p className="text-stone-600 text-sm mb-6">Your email address has been updated. Please log in again with your new email.</p>
               <Link to="/login" className="btn-primary inline-block">Sign in</Link>
             </>
           )}
@@ -51,7 +51,7 @@ export default function ConfirmEmail() {
                 </svg>
               </div>
               <h1 className="text-xl font-bold text-stone-900 mb-2">Link invalid or expired</h1>
-              <p className="text-stone-500 text-sm mb-6">This confirmation link is invalid or has expired. Try changing your email again from Settings.</p>
+              <p className="text-stone-600 text-sm mb-6">This confirmation link is invalid or has expired. Try changing your email again from Settings.</p>
               <Link to="/app/settings" className="btn-primary inline-block">Back to settings</Link>
             </>
           )}

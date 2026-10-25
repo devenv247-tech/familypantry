@@ -27,7 +27,7 @@ export default function Unsubscribe() {
         {status === 'loading' && (
           <>
             <p className="font-semibold text-stone-900">Processing...</p>
-            <p className="text-sm text-stone-500 mt-1">Just a moment</p>
+            <p className="text-sm text-stone-600 mt-1">Just a moment</p>
           </>
         )}
 
@@ -35,8 +35,8 @@ export default function Unsubscribe() {
           <>
             <div className="mb-3 flex justify-center"><Icon name="check" size={40} className="text-success" /></div>
             <h2 className="font-bold text-stone-900 text-lg">Unsubscribed</h2>
-            <p className="text-sm text-stone-500 mt-2">You've been removed from weekly digest emails.</p>
-            <p className="text-xs text-stone-500 mt-1">You can re-enable this anytime in Settings.</p>
+            <p className="text-sm text-stone-600 mt-2">You've been removed from weekly digest emails.</p>
+            <p className="text-xs text-stone-600 mt-1">You can re-enable this anytime in Settings.</p>
             <Link to="/app/settings?tab=notifications" className="btn-primary mt-6 inline-block text-sm">
               Go to settings
             </Link>
@@ -47,7 +47,7 @@ export default function Unsubscribe() {
           <>
             <div className="mb-3 flex justify-center"><Icon name="close" size={40} className="text-danger" /></div>
             <h2 className="font-bold text-stone-900 text-lg">Link not found</h2>
-            <p className="text-sm text-stone-500 mt-2">This unsubscribe link is invalid or has already been used.</p>
+            <p className="text-sm text-stone-600 mt-2">This unsubscribe link is invalid or has already been used.</p>
             <Link to="/" className="btn-secondary mt-6 inline-block text-sm">
               Back to home
             </Link>

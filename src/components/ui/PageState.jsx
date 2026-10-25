@@ -8,7 +8,7 @@ export function LoadingSpinner() {
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
         </svg>
-        <p className="text-sm text-stone-500">Loading…</p>
+        <p className="text-sm text-stone-600">Loading…</p>
       </div>
     </div>
   )
@@ -22,7 +22,7 @@ export function ErrorState({ message, onRetry }) {
           <Icon name="warning" size={48} />
         </div>
         <p className="font-semibold text-stone-900 mb-2">Something went wrong</p>
-        <p className="text-sm text-stone-500 mb-6">{message || 'Failed to load data. Please try again.'}</p>
+        <p className="text-sm text-stone-600 mb-6">{message || 'Failed to load data. Please try again.'}</p>
         {onRetry && (
           <button onClick={onRetry} className="btn-primary">
             Try again
@@ -40,7 +40,7 @@ export function EmptyState({ icon, title, subtitle, action, actionLabel }) {
         <Icon name={icon} size={48} />
       </div>
       <p className="font-semibold text-stone-900 mb-2">{title}</p>
-      {subtitle && <p className="text-sm text-stone-500 mb-6">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-stone-600 mb-6">{subtitle}</p>}
       {action && (
         <button onClick={action} className="btn-primary">
           {actionLabel}

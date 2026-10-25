@@ -86,7 +86,7 @@ export default function ItemAutocomplete({ value, onChange, onSelect, placeholde
         autoComplete="off"
       />
       {open && (
-        <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-[#F1E4D6] rounded-xl shadow-lg max-h-64 overflow-y-auto">
+        <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-[#E7D5C3] rounded-xl shadow-lg max-h-64 overflow-y-auto">
           {suggestions.map((item, i) => (
             <li
               key={i}
@@ -98,18 +98,18 @@ export default function ItemAutocomplete({ value, onChange, onSelect, placeholde
             >
               <span className="text-lg leading-none flex-shrink-0 w-7 text-center">{item.icon}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-stone-500 truncate">{item.name}</p>
+                <p className="text-sm font-medium text-stone-600 truncate">{item.name}</p>
                 {item.brand && (
-                  <p className="text-xs text-stone-500 truncate">{item.brand}</p>
+                  <p className="text-xs text-stone-600 truncate">{item.brand}</p>
                 )}
               </div>
               <div className="flex-shrink-0 text-right">
-                <span className="text-xs text-stone-500">{item.defaultQty} {item.unit}</span>
-                <p className="text-xs text-stone-500">{item.category}</p>
+                <span className="text-xs text-stone-600">{item.defaultQty} {item.unit}</span>
+                <p className="text-xs text-stone-600">{item.category}</p>
               </div>
             </li>
           ))}
-          <li className="px-3 py-2 text-xs text-stone-500 text-center border-t border-stone-100 bg-stone-50 rounded-b-xl">
+          <li className="px-3 py-2 text-xs text-stone-600 text-center border-t border-stone-100 bg-stone-50 rounded-b-xl">
             Type anything — you can always add custom items
           </li>
         </ul>

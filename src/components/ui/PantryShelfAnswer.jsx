@@ -24,7 +24,7 @@ function catStyle(category) {
     case 'dry goods':  return 'bg-amber-50 text-amber-700'
     case 'spices':     return 'bg-orange-50 text-orange-600'
     case 'snacks':     return 'bg-food-50 text-food-600'
-    default:           return 'bg-stone-50 text-stone-500'
+    default:           return 'bg-stone-50 text-stone-600'
   }
 }
 
@@ -46,7 +46,7 @@ function PantryItemTile({ item, onAddToGrocery, adding, added }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-medium text-stone-900 text-sm truncate">{item.name}</p>
-          <p className="text-xs text-stone-500 mt-0.5">{item.displayQty || '—'}</p>
+          <p className="text-xs text-stone-600 mt-0.5">{item.displayQty || '—'}</p>
         </div>
         {showExpiry && (
           <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-pill flex-shrink-0">
@@ -88,7 +88,7 @@ function Section({ title, iconName, items, onAddToGrocery, addingMap, addedMap }
       <h3 className="font-semibold text-stone-800 text-sm mb-2 flex items-center gap-1.5">
         <Icon name={iconName} size={14} className="flex-shrink-0" />
         {title}
-        <span className="text-xs font-normal text-stone-400 ml-1">({items.length})</span>
+        <span className="text-xs font-normal text-stone-500 ml-1">({items.length})</span>
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         {items.map(item => (
@@ -120,7 +120,7 @@ export default function PantryShelfAnswer({ items, showToast, onAskWithAI, tips 
       <div className="card border-2 border-dashed border-stone-200 text-center py-8 mb-6">
         <Icon name="pantry" size={36} className="mx-auto text-stone-300 mb-3" />
         <p className="font-semibold text-stone-900 mb-1">Your pantry is empty</p>
-        <p className="text-sm text-stone-500 mb-4">Add items to start tracking stock levels.</p>
+        <p className="text-sm text-stone-600 mb-4">Add items to start tracking stock levels.</p>
         <button onClick={() => navigate('/app/pantry')} className="btn-primary text-sm">
           Add items to pantry
         </button>
@@ -228,14 +228,14 @@ export default function PantryShelfAnswer({ items, showToast, onAskWithAI, tips 
           <span className={`text-xs px-3 py-1.5 rounded-pill ${
             lowCount > 0
               ? 'bg-food-50 text-food-600 border border-food-100'
-              : 'bg-stone-50 text-stone-500 border border-stone-100'
+              : 'bg-stone-50 text-stone-600 border border-stone-100'
           }`}>
             {lowCount} low
           </span>
           <span className={`text-xs px-3 py-1.5 rounded-pill ${
             expiringCount > 0
               ? 'bg-amber-50 text-amber-700 border border-amber-100'
-              : 'bg-stone-50 text-stone-500 border border-stone-100'
+              : 'bg-stone-50 text-stone-600 border border-stone-100'
           }`}>
             {expiringCount} expiring
           </span>
@@ -279,7 +279,7 @@ export default function PantryShelfAnswer({ items, showToast, onAskWithAI, tips 
             <h3 className="font-semibold text-stone-800 text-sm flex items-center gap-1.5">
               <Icon name="check" size={14} className="text-fresh-600" />
               Well stocked
-              <span className="text-xs font-normal text-stone-400 ml-1">({good.length})</span>
+              <span className="text-xs font-normal text-stone-500 ml-1">({good.length})</span>
             </h3>
             <button
               onClick={() => setShowWellStocked(v => !v)}
@@ -298,11 +298,11 @@ export default function PantryShelfAnswer({ items, showToast, onAskWithAI, tips 
                 >
                   <span>{item.icon || '🛒'}</span>
                   <span className="truncate max-w-[80px]">{item.name}</span>
-                  <span className="text-stone-400">{item.displayQty}</span>
+                  <span className="text-stone-500">{item.displayQty}</span>
                 </span>
               ))}
               {good.length > 6 && (
-                <span className="text-xs text-stone-400 py-1 self-center">+{good.length - 6} more</span>
+                <span className="text-xs text-stone-500 py-1 self-center">+{good.length - 6} more</span>
               )}
             </div>
           )}
@@ -342,7 +342,7 @@ export default function PantryShelfAnswer({ items, showToast, onAskWithAI, tips 
                     className="w-4 h-4 accent-food-600 flex-shrink-0"
                   />
                   <span className="text-sm text-stone-900 flex-1">{item.name}</span>
-                  <span className="text-xs text-stone-500">{item.displayQty}</span>
+                  <span className="text-xs text-stone-600">{item.displayQty}</span>
                 </label>
               )
             })}

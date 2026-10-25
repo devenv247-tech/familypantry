@@ -204,7 +204,7 @@ export default function Dashboard() {
         <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">
           {greeting}, {user?.name || 'there'} <Icon name="leaf" size={18} className="inline align-middle ml-1 text-fresh-600" />
         </h1>
-        <p className="text-stone-500 mt-1">
+        <p className="text-stone-600 mt-1">
           What's cooking at <span className="font-semibold text-stone-700">{family?.name || 'your place'}</span> today?
         </p>
       </div>
@@ -403,7 +403,7 @@ export default function Dashboard() {
             </div>
             <div className="min-w-0">
               <p className="font-display text-xl font-semibold text-stone-900">{s.value}</p>
-              <p className="text-xs text-stone-500 truncate">{s.label}</p>
+              <p className="text-xs text-stone-600 truncate">{s.label}</p>
             </div>
           </div>
         ))}
@@ -414,11 +414,11 @@ export default function Dashboard() {
         <div className="card mb-6 border border-green-200 bg-green-50">
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
-              <Icon name="grocery" size={14} className="text-stone-500" /> Set up your pantry
+              <Icon name="grocery" size={14} className="text-stone-600" /> Set up your pantry
             </p>
             <button onClick={() => navigate('/app/pantry')} className="text-xs text-indigo-700 hover:underline font-semibold py-1">Add items →</button>
           </div>
-          <p className="text-xs text-stone-500 mb-3">
+          <p className="text-xs text-stone-600 mb-3">
             {(stats?.pantryCount ?? 0) < 5
               ? 'Recipes are ready now — add more items for even better matches'
               : (stats?.pantryCount ?? 0) < 10
@@ -428,7 +428,7 @@ export default function Dashboard() {
           <div className="relative h-2 bg-green-100 rounded-full overflow-hidden mb-2">
             <div className="h-full bg-green-500 rounded-full transition-all duration-500" style={{ width: `${Math.min(((stats?.pantryCount ?? 0) / 15) * 100, 100)}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-stone-500 mb-3">
+          <div className="flex justify-between text-xs text-stone-600 mb-3">
             <span className={(stats?.pantryCount ?? 0) >= 5 ? 'text-green-700 font-semibold' : ''}>
               {(stats?.pantryCount ?? 0) >= 5 ? '✓' : '○'} <span className="hidden sm:inline">5 — Good suggestions</span><span className="sm:hidden">5</span>
             </span>
@@ -453,7 +453,7 @@ export default function Dashboard() {
           <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
             <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${Math.min((stats.recipeCount / 5) * 100, 100)}%` }} />
           </div>
-          <p className="text-xs text-stone-500 mt-1.5">{stats.recipeCount}/5 recipes used this week</p>
+          <p className="text-xs text-stone-600 mt-1.5">{stats.recipeCount}/5 recipes used this week</p>
         </div>
       )}
 
@@ -464,7 +464,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-stone-900 flex items-center gap-2">
               <Icon name="warning" size={16} className="text-amber-600" />
               Use it up before it turns
-              <span className="text-sm font-normal text-stone-500">({expiringSoon.length})</span>
+              <span className="text-sm font-normal text-stone-600">({expiringSoon.length})</span>
             </h2>
             <button onClick={() => navigate('/app/pantry')} className="text-xs text-indigo-700 hover:underline font-semibold">View pantry</button>
           </div>
@@ -475,7 +475,7 @@ export default function Dashboard() {
                   <span className="text-lg">{item.icon}</span>
                   <div>
                     <p className="text-sm font-medium text-stone-900">{item.name}</p>
-                    <p className="text-xs text-stone-500">{item.quantity} {item.unit}</p>
+                    <p className="text-xs text-stone-600">{item.quantity} {item.unit}</p>
                   </div>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
@@ -499,7 +499,7 @@ export default function Dashboard() {
             <span className="text-lg">🫧</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-stone-900">Plan meals with these</p>
-              <p className="text-xs text-stone-500">AI will prioritise recipes that use expiring items.</p>
+              <p className="text-xs text-stone-600">AI will prioritise recipes that use expiring items.</p>
             </div>
             <button onClick={() => navigate('/app/recipes?expiring=true')} className="btn-primary text-xs px-4 py-2.5 flex-shrink-0">
               Find recipes
@@ -525,7 +525,7 @@ export default function Dashboard() {
                 {['M','T','W','T','F','S','S'].map((label, i) => (
                   <div key={i} className="flex flex-col items-center gap-1">
                     <div className={`w-2.5 h-2.5 rounded-full ${wasteSavings.cookedDays?.includes(i) ? 'bg-green-500' : 'bg-stone-200'}`} />
-                    <span className="text-[9px] leading-none text-stone-400">{label}</span>
+                    <span className="text-[9px] leading-none text-stone-500">{label}</span>
                   </div>
                 ))}
               </div>
@@ -554,7 +554,7 @@ export default function Dashboard() {
                 ].map((s, i) => (
                   <div key={i} className="bg-white rounded-2xl border border-green-100 px-3 py-3 text-center">
                     <p className={`font-display text-xl font-semibold ${s.color}`}>{s.value}</p>
-                    <p className="text-xs text-stone-500 mt-0.5">{s.label}</p>
+                    <p className="text-xs text-stone-600 mt-0.5">{s.label}</p>
                   </div>
                 ))}
               </div>
@@ -575,7 +575,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 mb-3">
             <span className="text-lg">🫧</span>
             <h2 className="font-semibold text-stone-900">Nooka notices</h2>
-            <span className="text-xs text-stone-500 ml-auto">Based on your habits</span>
+            <span className="text-xs text-stone-600 ml-auto">Based on your habits</span>
           </div>
           <div className="space-y-2">
             {nudges.filter(n => !dismissedNudges.includes(n.message)).map((nudge, i) => (
@@ -609,9 +609,9 @@ export default function Dashboard() {
               <button
                 key={i}
                 onClick={() => navigate(a.to)}
-                className="flex items-center gap-2.5 p-3 rounded-2xl border border-[#F1E4D6] hover:bg-orange-50 hover:border-orange-200 transition-all text-left min-h-[44px]"
+                className="flex items-center gap-2.5 p-3 rounded-2xl border border-[#E7D5C3] hover:bg-orange-50 hover:border-orange-200 transition-all text-left min-h-[44px]"
               >
-                <Icon name={a.icon} size={18} className="text-stone-500 flex-shrink-0" />
+                <Icon name={a.icon} size={18} className="text-stone-600 flex-shrink-0" />
                 <span className="text-sm font-medium text-stone-800">{a.label}</span>
               </button>
             ))}
@@ -621,17 +621,17 @@ export default function Dashboard() {
         <div className="card">
           <h2 className="font-semibold text-stone-900 mb-4">Recent activity</h2>
           {activity.length === 0 ? (
-            <p className="text-sm text-stone-500">No activity yet — start by adding pantry items!</p>
+            <p className="text-sm text-stone-600">No activity yet — start by adding pantry items!</p>
           ) : (
             <div className="space-y-3">
               {activity.map((a, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-stone-50 rounded-full flex items-center justify-center text-lg border border-[#F1E4D6] flex-shrink-0">
+                  <div className="w-9 h-9 bg-stone-50 rounded-full flex items-center justify-center text-lg border border-[#E7D5C3] flex-shrink-0">
                     {a.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-stone-800 font-medium truncate">{a.text}</p>
-                    <p className="text-xs text-stone-500">{a.time}</p>
+                    <p className="text-xs text-stone-600">{a.time}</p>
                   </div>
                 </div>
               ))}
@@ -647,7 +647,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-stone-900 flex items-center gap-2">
               <Icon name="health" size={16} className="text-fresh-600" /> Health goal progress
             </h2>
-            <span className="text-xs text-stone-500">Last 7 days</span>
+            <span className="text-xs text-stone-600">Last 7 days</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {healthProgress.members.filter(m => m.hasData).map((member, i) => (
@@ -659,23 +659,23 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-stone-900">{member.name}</p>
-                      <p className="text-xs text-stone-500 capitalize">{member.goal}</p>
+                      <p className="text-xs text-stone-600 capitalize">{member.goal}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className={`font-display text-lg font-semibold ${member.overallScore >= 75 ? 'text-green-600' : member.overallScore >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
                       {member.overallScore}%
                     </p>
-                    <p className="text-xs text-stone-500">{member.mealsLogged} meals</p>
+                    <p className="text-xs text-stone-600">{member.mealsLogged} meals</p>
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   {member.metrics.map((metric, j) => (
                     <div key={j} className="flex items-center justify-between text-xs">
-                      <span className="text-stone-500">{metric.icon} {metric.label}</span>
+                      <span className="text-stone-600">{metric.icon} {metric.label}</span>
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-stone-800">{metric.value}{metric.unit}</span>
-                        {metric.targetText && <span className="text-stone-400">/ {metric.targetText}</span>}
+                        {metric.targetText && <span className="text-stone-500">/ {metric.targetText}</span>}
                       </div>
                     </div>
                   ))}
@@ -684,7 +684,7 @@ export default function Dashboard() {
             ))}
           </div>
           {healthProgress.members.some(m => !m.hasData) && (
-            <p className="text-xs text-stone-500 mt-3">Cook more meals and click "I cooked this" to track all members' progress.</p>
+            <p className="text-xs text-stone-600 mt-3">Cook more meals and click "I cooked this" to track all members' progress.</p>
           )}
         </div>
       )}
@@ -704,7 +704,7 @@ export default function Dashboard() {
                 {season.charAt(0).toUpperCase() + season.slice(1)}
               </span>
             </div>
-            <p className="text-xs text-stone-500 mb-3">Freshest and most affordable right now in Canada</p>
+            <p className="text-xs text-stone-600 mb-3">Freshest and most affordable right now in Canada</p>
             <div className="flex flex-wrap gap-2">
               {s.items.map((item, i) => (
                 <span key={i} className={`text-xs px-2.5 py-1 rounded-full border font-medium ${s.badge}`}>{item}</span>
@@ -722,10 +722,10 @@ export default function Dashboard() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {members.length === 0 ? (
-            <p className="text-sm text-stone-500">No members yet</p>
+            <p className="text-sm text-stone-600">No members yet</p>
           ) : (
             members.map((member, i) => (
-              <div key={i} className="flex items-center gap-2 bg-stone-50 rounded-full px-4 py-2 border border-[#F1E4D6]">
+              <div key={i} className="flex items-center gap-2 bg-stone-50 rounded-full px-4 py-2 border border-[#E7D5C3]">
                 <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                   {member.name?.[0]?.toUpperCase()}
                 </div>
@@ -735,7 +735,7 @@ export default function Dashboard() {
           )}
           <button
             onClick={() => navigate('/app/settings')}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-[#E7D5C3] text-sm text-stone-400 hover:border-indigo-300 hover:text-indigo-700 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-[#E7D5C3] text-sm text-stone-600 hover:border-indigo-300 hover:text-indigo-700 transition-all"
           >
             + Add member
           </button>
@@ -746,14 +746,14 @@ export default function Dashboard() {
       {cookAlong && tonightMeal && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm">
           <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md shadow-lift max-h-[90dvh] overflow-y-auto modal-sheet">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F1E4D6] sticky top-0 bg-white rounded-t-3xl modal-header">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E7D5C3] sticky top-0 bg-white rounded-t-3xl modal-header">
               <div>
-                <p className="text-xs text-stone-500 font-medium">Tonight's dinner</p>
+                <p className="text-xs text-stone-600 font-medium">Tonight's dinner</p>
                 <h3 className="font-display font-semibold text-stone-900">
                   {tonightMeal.recipeData?.icon} {tonightMeal.recipeName}
                 </h3>
               </div>
-              <button onClick={() => setCookAlong(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-500 transition-colors" aria-label="Close">
+              <button onClick={() => setCookAlong(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-600 transition-colors" aria-label="Close">
                 <Icon name="close" size={16} />
               </button>
             </div>
@@ -762,7 +762,7 @@ export default function Dashboard() {
                 <div className="text-center py-6">
                   <div className="mb-4 flex justify-center text-food-600"><Icon name="utensils" size={56} /></div>
                   <h3 className="font-display text-2xl font-semibold text-stone-900 mb-2">Nice cook!</h3>
-                  <p className="text-sm text-stone-500 mb-6">
+                  <p className="text-sm text-stone-600 mb-6">
                     {pantryLabel ? `Pantry updated — ${pantryLabel}. ` : ''}Nutrition logged for everyone.
                   </p>
                   <button onClick={() => setCookAlong(false)} className="btn-primary w-full">Done</button>
@@ -776,7 +776,7 @@ export default function Dashboard() {
                         style={{ width: `${((cookStep + 1) / tonightMeal.recipeData.steps.length) * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs text-stone-500 whitespace-nowrap">{cookStep + 1} / {tonightMeal.recipeData.steps.length}</span>
+                    <span className="text-xs text-stone-600 whitespace-nowrap">{cookStep + 1} / {tonightMeal.recipeData.steps.length}</span>
                   </div>
                   <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-5 py-6 mb-6 min-h-[120px] flex items-center">
                     <div className="flex items-start gap-4">
@@ -786,7 +786,7 @@ export default function Dashboard() {
                       <p className="text-base text-stone-800 leading-relaxed">{tonightMeal.recipeData.steps[cookStep]}</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-6 text-xs text-stone-500">
+                  <div className="flex flex-wrap gap-2 mb-6 text-xs text-stone-600">
                     {tonightMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="clock" size={11} /> {tonightMeal.recipeData.time}</span>}
                     {tonightMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="flame" size={11} className="text-food-600" /> {tonightMeal.recipeData.calories} kcal</span>}
                     {tonightMeal.recipeData?.serves && <span className="flex items-center gap-1"><Icon name="family" size={11} /> Serves {tonightMeal.recipeData.serves}</span>}
@@ -804,7 +804,7 @@ export default function Dashboard() {
                 </>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-stone-500 mb-6">No step-by-step available for this recipe.</p>
+                  <p className="text-sm text-stone-600 mb-6">No step-by-step available for this recipe.</p>
                   <button onClick={handleFinishCooking} disabled={cooking} className="btn-primary w-full">
                     {cooking ? 'Saving…' : <><Icon name="utensils" size={15} className="inline-block mr-1" />Mark as cooked</>}
                   </button>

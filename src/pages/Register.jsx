@@ -79,12 +79,12 @@ const handleStep2 = async (e) => {
             {step === 1 ? (
               <>
                 <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Create your family</h1>
-                <p className="text-stone-500 text-sm mt-1">Step 1 of 2 — Name your family account</p>
+                <p className="text-stone-600 text-sm mt-1">Step 1 of 2 — Name your family account</p>
               </>
             ) : (
               <>
                 <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Your account</h1>
-                <p className="text-stone-500 text-sm mt-1">Step 2 of 2 — Create your personal login</p>
+                <p className="text-stone-600 text-sm mt-1">Step 2 of 2 — Create your personal login</p>
               </>
             )}
           </div>
@@ -106,7 +106,7 @@ const handleStep2 = async (e) => {
                   value={form.familyName}
                   onChange={e => update('familyName', e.target.value)}
                 />
-                <p className="text-xs text-stone-500 mt-1.5">This is how your family account will appear in the app.</p>
+                <p className="text-xs text-stone-600 mt-1.5">This is how your family account will appear in the app.</p>
               </div>
               <button type="submit" className="btn-primary w-full py-3 text-base">
                 Continue
@@ -173,13 +173,13 @@ const handleStep2 = async (e) => {
             </form>
           )}
 
-          <p className="text-center text-sm text-stone-500 mt-6">
+          <p className="text-center text-sm text-stone-600 mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-primary font-medium hover:underline">
               Sign in
             </Link>
           </p>
-          <p className="text-center text-xs text-stone-500 mt-3">
+          <p className="text-center text-xs text-stone-600 mt-3">
             By creating an account you agree to our{' '}
             <Link to="/terms" className="text-primary hover:underline">Terms</Link>
             {' '}and{' '}

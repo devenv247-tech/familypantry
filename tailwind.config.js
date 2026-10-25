@@ -16,9 +16,9 @@ export default {
         primary: '#4338CA',
         surface: '#ffffff',
         background: '#FFF8F1',
-        border: '#F1E4D6',
+        border: '#E7D5C3',
         textPrimary: '#1c1917',   // stone-900
-        textMuted: '#78716c',     // stone-500
+        textMuted: '#57534e',     // stone-600
 
         // Semantic
         success: '#16a34a',       // green-600
@@ -44,7 +44,7 @@ export default {
         },
 
         // Design token extras
-        cardBorder: '#F1E4D6',
+        cardBorder: '#E7D5C3',
         chipBorder: '#E7D5C3',
       },
       borderRadius: {
@@ -55,7 +55,7 @@ export default {
         input: '16px',      // rounded-2xl inputs
       },
       boxShadow: {
-        card: '0 1px 2px rgba(59,29,15,0.04)',
+        card: '0 1px 3px rgba(60,29,15,0.08)',
         lift: '0 4px 16px rgba(59,29,15,0.10)',
         dropdown: '0 4px 16px rgba(0,0,0,0.10)',
       },

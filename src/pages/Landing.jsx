@@ -133,10 +133,10 @@ function DynamicPricingCards() {
                 {plan.badge}
               </div>
             )}
-            <p className="text-stone-500 text-sm font-medium mb-1">{plan.name}</p>
+            <p className="text-stone-600 text-sm font-medium mb-1">{plan.name}</p>
             <div className="flex items-baseline gap-1 mb-6">
               <span className="text-4xl font-bold text-stone-900">{plan.price}</span>
-              <span className="text-stone-500 text-sm">{plan.period}</span>
+              <span className="text-stone-600 text-sm">{plan.period}</span>
             </div>
             <ul className="space-y-2.5 mb-8 flex-1">
               {features.map((f, j) => (
@@ -242,7 +242,7 @@ export default function Landing() {
                 See how it works
               </button>
             </div>
-            <p className="text-xs text-stone-400">
+            <p className="text-xs text-stone-600">
               No credit card required · Free plan available · Data stored in Canada
             </p>
           </div>
@@ -366,7 +366,7 @@ export default function Landing() {
               ].map((s, i) => (
                 <div key={i} className="py-4 border-t border-stone-100">
                   <p className="text-2xl font-bold text-food-600 mb-1">{s.value}</p>
-                  <p className="text-sm text-stone-500">{s.label}</p>
+                  <p className="text-sm text-stone-600">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -459,7 +459,7 @@ export default function Landing() {
               Start free. Upgrade when you're ready. Cancel anytime.
             </p>
             <DynamicPricingCards />
-            <p className="text-center text-xs text-stone-400 mt-6">
+            <p className="text-center text-xs text-stone-600 mt-6">
               All prices in CAD · No hidden fees · Cancel anytime · Powered by Stripe
             </p>
           </div>
@@ -525,7 +525,7 @@ export default function Landing() {
             >
               Start for free
             </button>
-            <p className="text-xs text-stone-400 mt-4">
+            <p className="text-xs text-stone-600 mt-4">
               No credit card required · Free plan available · Data stored in Canada
             </p>
           </div>
@@ -534,7 +534,7 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border px-6 py-8 text-center text-sm text-stone-500">
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-stone-600">
         <div className="flex items-center justify-center gap-2 mb-3">
           <NookaIcon size={24} />
           <span className="font-semibold text-textPrimary">Nooka</span>

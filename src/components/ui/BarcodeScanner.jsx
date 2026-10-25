@@ -33,7 +33,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
 
         <div className="modal-header flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="font-semibold text-stone-900">Scan barcode</h3>
-          <button onClick={onClose} className="text-stone-500 hover:text-stone-900 p-1"><Icon name="close" size={16} /></button>
+          <button onClick={onClose} className="text-stone-600 hover:text-stone-900 p-1"><Icon name="close" size={16} /></button>
         </div>
 
         <div className="p-5">
@@ -61,7 +61,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
               )}
             </div>
           )}
-          <p className="text-xs text-stone-500 text-center mt-3">
+          <p className="text-xs text-stone-600 text-center mt-3">
             Point your camera at the barcode on the product
           </p>
         </div>

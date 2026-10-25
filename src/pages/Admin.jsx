@@ -218,7 +218,7 @@ export default function Admin() {
       <div className="min-h-dvh bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="mb-4 flex justify-center text-primary animate-pulse"><Icon name="lock" size={40} /></div>
-          <p className="text-stone-500">Loading admin panel...</p>
+          <p className="text-stone-600">Loading admin panel...</p>
         </div>
       </div>
     )
@@ -233,12 +233,12 @@ export default function Admin() {
           <NookaIcon size={32} />
           <div>
             <p className="font-semibold text-sm">Nooka Admin</p>
-            <p className="text-xs text-stone-500">Signed in as {user?.email}</p>
+            <p className="text-xs text-stone-600">Signed in as {user?.email}</p>
           </div>
         </div>
         <button
           onClick={() => navigate('/app')}
-          className="text-sm text-stone-500 hover:text-white transition-colors"
+          className="text-sm text-stone-600 hover:text-white transition-colors"
         >
           ← Back to app
         </button>
@@ -247,14 +247,14 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto px-6 py-8">
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white p-1 rounded-xl border border-[#F1E4D6] mb-8 w-fit overflow-x-auto">
+        <div className="flex gap-1 bg-white p-1 rounded-xl border border-[#E7D5C3] mb-8 w-fit overflow-x-auto">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id
                   ? 'bg-gray-900 text-white'
-                  : 'text-stone-500 hover:text-stone-500'
+                  : 'text-stone-600 hover:text-stone-600'
                 }`}
             >
               <Icon name={tab.icon} size={15} />
@@ -266,7 +266,7 @@ export default function Admin() {
         {/* Overview tab */}
         {activeTab === 'overview' && stats && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-stone-500">Platform overview</h2>
+            <h2 className="text-xl font-bold text-stone-600">Platform overview</h2>
 
             {/* API Status Alert */}
             {apiStatus && !apiStatus.anthropic.alive && (
@@ -302,9 +302,9 @@ export default function Admin() {
                 { label: 'Total users', value: stats.users.total, icon: 'family', color: 'bg-orange-50 border-orange-100' },
               ].map((s, i) => (
                 <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
-                  <div className="mb-2 text-stone-500"><Icon name={s.icon} size={22} /></div>
-                  <p className="text-2xl font-bold text-stone-500">{s.value}</p>
-                  <p className="text-xs text-stone-500 mt-1">{s.label}</p>
+                  <div className="mb-2 text-stone-600"><Icon name={s.icon} size={22} /></div>
+                  <p className="text-2xl font-bold text-stone-600">{s.value}</p>
+                  <p className="text-xs text-stone-600 mt-1">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -312,7 +312,7 @@ export default function Admin() {
             {/* Plan breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { plan: 'Free', count: stats.families.byPlan.free || 0, color: 'bg-stone-50 border-[#F1E4D6]', badge: 'bg-stone-100 text-stone-500' },
+                { plan: 'Free', count: stats.families.byPlan.free || 0, color: 'bg-stone-50 border-[#E7D5C3]', badge: 'bg-stone-100 text-stone-600' },
                 { plan: 'Family', count: stats.families.byPlan.family || 0, color: 'bg-indigo-50 border-indigo-200', badge: 'bg-indigo-100 text-indigo-700' },
                 { plan: 'Premium', count: stats.families.byPlan.premium || 0, color: 'bg-purple-50 border-purple-200', badge: 'bg-purple-100 text-purple-700' },
               ].map((p, i) => (
@@ -320,15 +320,15 @@ export default function Admin() {
                   <div className="flex items-center justify-between mb-3">
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${p.badge}`}>{p.plan}</span>
                   </div>
-                  <p className="text-3xl font-bold text-stone-500">{p.count}</p>
-                  <p className="text-xs text-stone-500 mt-1">families on {p.plan} plan</p>
+                  <p className="text-3xl font-bold text-stone-600">{p.count}</p>
+                  <p className="text-xs text-stone-600 mt-1">families on {p.plan} plan</p>
                 </div>
               ))}
             </div>
 
             {/* Content stats */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-              <h3 className="font-semibold text-stone-500 mb-4">Platform content</h3>
+            <div className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+              <h3 className="font-semibold text-stone-600 mb-4">Platform content</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
                   { label: 'Pantry items', value: stats.content.pantryItems, icon: 'pantry' },
@@ -339,10 +339,10 @@ export default function Admin() {
                   { label: 'Family members', value: stats.members.total, icon: 'family' },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center gap-3 bg-stone-50 rounded-lg px-4 py-3">
-                    <Icon name={s.icon} size={20} className="text-stone-500 flex-shrink-0" />
+                    <Icon name={s.icon} size={20} className="text-stone-600 flex-shrink-0" />
                     <div>
-                      <p className="font-bold text-stone-500">{s.value}</p>
-                      <p className="text-xs text-stone-500">{s.label}</p>
+                      <p className="font-bold text-stone-600">{s.value}</p>
+                      <p className="text-xs text-stone-600">{s.label}</p>
                     </div>
                   </div>
                 ))}
@@ -355,21 +355,21 @@ export default function Admin() {
         {activeTab === 'families' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-stone-500">Families ({familiesTotal})</h2>
-              <button onClick={fetchFamilies} className="text-sm text-stone-500 hover:text-stone-500">↻ Refresh</button>
+              <h2 className="text-xl font-bold text-stone-600">Families ({familiesTotal})</h2>
+              <button onClick={fetchFamilies} className="text-sm text-stone-600 hover:text-stone-600">↻ Refresh</button>
             </div>
 
             {/* Search and filter */}
             <div className="flex gap-3 flex-wrap">
               <input
-                className="flex-1 min-w-48 px-4 py-2 border border-[#F1E4D6] rounded-lg text-sm focus:outline-none focus:border-indigo-400"
+                className="flex-1 min-w-48 px-4 py-2 border border-[#E7D5C3] rounded-lg text-sm focus:outline-none focus:border-indigo-400"
                 placeholder="Search by family name or email..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && fetchFamilies()}
               />
               <select
-                className="px-4 py-2 border border-[#F1E4D6] rounded-lg text-sm focus:outline-none"
+                className="px-4 py-2 border border-[#E7D5C3] rounded-lg text-sm focus:outline-none"
                 value={planFilter}
                 onChange={e => { setPlanFilter(e.target.value); fetchFamilies() }}
               >
@@ -387,24 +387,24 @@ export default function Admin() {
             </div>
 
             {/* Families table */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] overflow-hidden">
+            <div className="bg-white rounded-xl border border-[#E7D5C3] overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-stone-50 border-b border-[#F1E4D6]">
+                <thead className="bg-stone-50 border-b border-[#E7D5C3]">
                   <tr>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Family</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Email</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Plan</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Members</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Pantry</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Joined</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Actions</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Family</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Email</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Plan</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Members</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Pantry</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Joined</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {families.map(family => (
                     <tr key={family.id} className="hover:bg-stone-50">
-                      <td className="px-4 py-3 font-medium text-stone-500">{family.name}</td>
-                      <td className="px-4 py-3 text-stone-500 text-xs">{family.users?.[0]?.email || '—'}</td>
+                      <td className="px-4 py-3 font-medium text-stone-600">{family.name}</td>
+                      <td className="px-4 py-3 text-stone-600 text-xs">{family.users?.[0]?.email || '—'}</td>
                       <td className="px-4 py-3">
                         <select
                           value={family.plan}
@@ -412,7 +412,7 @@ export default function Admin() {
                           disabled={updatingPlan === family.id}
                           className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${family.plan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
                               family.plan === 'family' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                                'bg-stone-100 text-stone-500 border-[#F1E4D6]'
+                                'bg-stone-100 text-stone-600 border-[#E7D5C3]'
                             }`}
                         >
                           <option value="free">Free</option>
@@ -420,9 +420,9 @@ export default function Admin() {
                           <option value="premium">Premium</option>
                         </select>
                       </td>
-                      <td className="px-4 py-3 text-stone-500">{family.members?.length || 0}</td>
-                      <td className="px-4 py-3 text-stone-500">{family._count?.pantryItems || 0}</td>
-                      <td className="px-4 py-3 text-stone-500 text-xs">
+                      <td className="px-4 py-3 text-stone-600">{family.members?.length || 0}</td>
+                      <td className="px-4 py-3 text-stone-600">{family._count?.pantryItems || 0}</td>
+                      <td className="px-4 py-3 text-stone-600 text-xs">
                         {new Date(family.createdAt).toLocaleDateString('en-CA')}
                       </td>
                       <td className="px-4 py-3">
@@ -439,7 +439,7 @@ export default function Admin() {
                 </tbody>
               </table>
               {families.length === 0 && (
-                <div className="text-center py-12 text-stone-500">
+                <div className="text-center py-12 text-stone-600">
                   <p>No families found</p>
                 </div>
               )}
@@ -450,24 +450,24 @@ export default function Admin() {
         {/* Feature flags tab */}
         {activeTab === 'features' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-stone-500">Feature flags</h2>
-            <p className="text-sm text-stone-500">Toggle features on/off and control which plan is required to access them.</p>
+            <h2 className="text-xl font-bold text-stone-600">Feature flags</h2>
+            <p className="text-sm text-stone-600">Toggle features on/off and control which plan is required to access them.</p>
 
-            <div className="bg-white rounded-xl border border-[#F1E4D6] overflow-hidden">
+            <div className="bg-white rounded-xl border border-[#E7D5C3] overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-stone-50 border-b border-[#F1E4D6]">
+                <thead className="bg-stone-50 border-b border-[#E7D5C3]">
                   <tr>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Feature</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Description</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Required plan</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Status</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Feature</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Description</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Required plan</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {flags.map(flag => (
                     <tr key={flag.id} className="hover:bg-stone-50">
-                      <td className="px-4 py-3 font-medium text-stone-500 font-mono text-xs">{flag.name}</td>
-                      <td className="px-4 py-3 text-stone-500 text-xs">{flag.description || '—'}</td>
+                      <td className="px-4 py-3 font-medium text-stone-600 font-mono text-xs">{flag.name}</td>
+                      <td className="px-4 py-3 text-stone-600 text-xs">{flag.description || '—'}</td>
                       <td className="px-4 py-3">
                         <select
                           value={flag.requiredPlan}
@@ -475,7 +475,7 @@ export default function Admin() {
                           disabled={updatingFlag === flag.id}
                           className={`text-xs px-2 py-1 rounded-full border font-medium focus:outline-none ${flag.requiredPlan === 'premium' ? 'bg-purple-50 text-purple-700 border-purple-200' :
                               flag.requiredPlan === 'family' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                                'bg-stone-100 text-stone-500 border-[#F1E4D6]'
+                                'bg-stone-100 text-stone-600 border-[#E7D5C3]'
                             }`}
                         >
                           <option value="free">Free</option>
@@ -523,26 +523,26 @@ export default function Admin() {
         {/* Announcements tab */}
         {activeTab === 'announcements' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-stone-500">Announcements</h2>
-            <p className="text-sm text-stone-500">Send in-app notifications to all users. They'll see a banner at the top of the app until they dismiss it.</p>
+            <h2 className="text-xl font-bold text-stone-600">Announcements</h2>
+            <p className="text-sm text-stone-600">Send in-app notifications to all users. They'll see a banner at the top of the app until they dismiss it.</p>
 
             {/* Create announcement */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] p-6">
-              <h3 className="font-semibold text-stone-500 mb-4">Create new announcement</h3>
+            <div className="bg-white rounded-xl border border-[#E7D5C3] p-6">
+              <h3 className="font-semibold text-stone-600 mb-4">Create new announcement</h3>
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="w-20">
-                    <label className="text-xs font-medium text-stone-500 mb-1 block">Icon</label>
+                    <label className="text-xs font-medium text-stone-600 mb-1 block">Icon</label>
                     <input
-                      className="w-full px-3 py-2 border border-[#F1E4D6] rounded-lg text-sm text-center"
+                      className="w-full px-3 py-2 border border-[#E7D5C3] rounded-lg text-sm text-center"
                       value={newAnnouncement.icon}
                       onChange={e => setNewAnnouncement(p => ({ ...p, icon: e.target.value }))}
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="text-xs font-medium text-stone-500 mb-1 block">Title</label>
+                    <label className="text-xs font-medium text-stone-600 mb-1 block">Title</label>
                     <input
-                      className="w-full px-3 py-2 border border-[#F1E4D6] rounded-lg text-sm focus:outline-none focus:border-indigo-400"
+                      className="w-full px-3 py-2 border border-[#E7D5C3] rounded-lg text-sm focus:outline-none focus:border-indigo-400"
                       placeholder="e.g. New feature: CO2 tracking!"
                       value={newAnnouncement.title}
                       onChange={e => setNewAnnouncement(p => ({ ...p, title: e.target.value }))}
@@ -550,9 +550,9 @@ export default function Admin() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-stone-500 mb-1 block">Message</label>
+                  <label className="text-xs font-medium text-stone-600 mb-1 block">Message</label>
                   <textarea
-                    className="w-full px-3 py-2 border border-[#F1E4D6] rounded-lg text-sm focus:outline-none focus:border-indigo-400 resize-none"
+                    className="w-full px-3 py-2 border border-[#E7D5C3] rounded-lg text-sm focus:outline-none focus:border-indigo-400 resize-none"
                     placeholder="e.g. You can now track the CO2 footprint of your pantry items. Check it out in the Pantry page!"
                     rows={3}
                     value={newAnnouncement.message}
@@ -585,10 +585,10 @@ export default function Admin() {
             </div>
 
             {/* Active announcements */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] p-6">
-              <h3 className="font-semibold text-stone-500 mb-4">Active announcements ({announcements.length})</h3>
+            <div className="bg-white rounded-xl border border-[#E7D5C3] p-6">
+              <h3 className="font-semibold text-stone-600 mb-4">Active announcements ({announcements.length})</h3>
               {announcements.length === 0 ? (
-                <p className="text-sm text-stone-500">No active announcements</p>
+                <p className="text-sm text-stone-600">No active announcements</p>
               ) : (
                 <div className="space-y-3">
                   {announcements.map(a => (
@@ -596,9 +596,9 @@ export default function Admin() {
                       <div className="flex items-start gap-3">
                         <span className="text-xl">{a.icon}</span>
                         <div>
-                          <p className="text-sm font-semibold text-stone-500">{a.title}</p>
-                          <p className="text-xs text-stone-500 mt-0.5">{a.message}</p>
-                          <p className="text-xs text-stone-500 mt-1">{new Date(a.createdAt).toLocaleDateString('en-CA')}</p>
+                          <p className="text-sm font-semibold text-stone-600">{a.title}</p>
+                          <p className="text-xs text-stone-600 mt-0.5">{a.message}</p>
+                          <p className="text-xs text-stone-600 mt-1">{new Date(a.createdAt).toLocaleDateString('en-CA')}</p>
                         </div>
                       </div>
                       <button
@@ -617,7 +617,7 @@ export default function Admin() {
         {/* Usage stats tab */}
         {activeTab === 'usage' && usage && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-stone-500">Usage statistics</h2>
+            <h2 className="text-xl font-bold text-stone-600">Usage statistics</h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -626,46 +626,46 @@ export default function Admin() {
                 { label: 'Recipes logged (7d)', value: usage.recipes.last7Days, icon: 'cookbook' },
                 { label: 'Recipes logged (30d)', value: usage.recipes.last30Days, icon: 'bubble' },
               ].map((s, i) => (
-                <div key={i} className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-                  <div className="mb-2 text-stone-500"><Icon name={s.icon} size={22} /></div>
-                  <p className="text-2xl font-bold text-stone-500">{s.value}</p>
-                  <p className="text-xs text-stone-500 mt-1">{s.label}</p>
+                <div key={i} className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+                  <div className="mb-2 text-stone-600"><Icon name={s.icon} size={22} /></div>
+                  <p className="text-2xl font-bold text-stone-600">{s.value}</p>
+                  <p className="text-xs text-stone-600 mt-1">{s.label}</p>
                 </div>
               ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Top cuisines */}
-              <div className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-                <h3 className="font-semibold text-stone-500 mb-4">Top cuisines</h3>
+              <div className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+                <h3 className="font-semibold text-stone-600 mb-4">Top cuisines</h3>
                 {usage.topCuisines.length > 0 ? (
                   <div className="space-y-3">
                     {usage.topCuisines.map((c, i) => (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-stone-500">{c.cuisine}</span>
-                        <span className="text-sm font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full">{c.count}</span>
+                        <span className="text-sm text-stone-600">{c.cuisine}</span>
+                        <span className="text-sm font-semibold text-stone-600 bg-stone-100 px-2.5 py-0.5 rounded-full">{c.count}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-stone-500">No data yet</p>
+                  <p className="text-sm text-stone-600">No data yet</p>
                 )}
               </div>
 
               {/* Top meal types */}
-              <div className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-                <h3 className="font-semibold text-stone-500 mb-4">Top meal types</h3>
+              <div className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+                <h3 className="font-semibold text-stone-600 mb-4">Top meal types</h3>
                 {usage.topMealTypes.length > 0 ? (
                   <div className="space-y-3">
                     {usage.topMealTypes.map((m, i) => (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-stone-500">{m.type}</span>
-                        <span className="text-sm font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full">{m.count}</span>
+                        <span className="text-sm text-stone-600">{m.type}</span>
+                        <span className="text-sm font-semibold text-stone-600 bg-stone-100 px-2.5 py-0.5 rounded-full">{m.count}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-stone-500">No data yet</p>
+                  <p className="text-sm text-stone-600">No data yet</p>
                 )}
               </div>
             </div>
@@ -675,18 +675,18 @@ export default function Admin() {
         {activeTab === 'cache' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-stone-500">Nutrition cache</h2>
+              <h2 className="text-xl font-bold text-stone-600">Nutrition cache</h2>
               <div className="flex gap-2">
                 <button
                   onClick={fetchCacheStats}
-                  className="text-sm text-stone-500 hover:text-stone-500"
+                  className="text-sm text-stone-600 hover:text-stone-600"
                 >
                   ↻ Refresh
                 </button>
                 <button
                   onClick={handleClearExpired}
                   disabled={clearingCache}
-                  className="text-sm px-3 py-1.5 border border-[#F1E4D6] rounded-lg hover:bg-stone-50 disabled:opacity-50"
+                  className="text-sm px-3 py-1.5 border border-[#E7D5C3] rounded-lg hover:bg-stone-50 disabled:opacity-50"
                 >
                   Clear expired
                 </button>
@@ -710,50 +710,50 @@ export default function Admin() {
                     { label: 'Expired items', value: cacheStats.expired, icon: 'clock', color: 'bg-orange-50 border-orange-100' },
                   ].map((s, i) => (
                     <div key={i} className={`bg-white rounded-xl border p-5 ${s.color}`}>
-                      <div className="mb-2 text-stone-500"><Icon name={s.icon} size={22} /></div>
-                      <p className="text-2xl font-bold text-stone-500">{s.value}</p>
-                      <p className="text-xs text-stone-500 mt-1">{s.label}</p>
+                      <div className="mb-2 text-stone-600"><Icon name={s.icon} size={22} /></div>
+                      <p className="text-2xl font-bold text-stone-600">{s.value}</p>
+                      <p className="text-xs text-stone-600 mt-1">{s.label}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Top cached items */}
-                <div className="bg-white rounded-xl border border-[#F1E4D6] overflow-hidden">
+                <div className="bg-white rounded-xl border border-[#E7D5C3] overflow-hidden">
                   <div className="px-5 py-4 border-b border-stone-100">
-                    <h3 className="font-semibold text-stone-500">Top cached items</h3>
-                    <p className="text-xs text-stone-500 mt-0.5">Most looked up nutrition items — served from cache</p>
+                    <h3 className="font-semibold text-stone-600">Top cached items</h3>
+                    <p className="text-xs text-stone-600 mt-0.5">Most looked up nutrition items — served from cache</p>
                   </div>
                   <table className="w-full text-sm">
-                    <thead className="bg-stone-50 border-b border-[#F1E4D6]">
+                    <thead className="bg-stone-50 border-b border-[#E7D5C3]">
                       <tr>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Meal</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Source</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Calories</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Hits</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Expires</th>
-                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Action</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Meal</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Source</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Calories</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Hits</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Expires</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100">
                       {cacheStats.topItems.map((item, i) => (
                         <tr key={item.id} className="hover:bg-stone-50">
                           <td className="px-4 py-3">
-                            <p className="font-medium text-stone-500 text-xs">{item.mealName}</p>
+                            <p className="font-medium text-stone-600 text-xs">{item.mealName}</p>
                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${item.confidence === 'high' ? 'bg-green-100 text-green-700' :
                                 item.confidence === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-stone-100 text-stone-500'
+                                  'bg-stone-100 text-stone-600'
                               }`}>
                               {item.confidence}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-stone-500 text-xs">{item.source}</td>
-                          <td className="px-4 py-3 text-stone-500 text-xs">{item.calories ? `${Math.round(item.calories)} kcal` : '—'}</td>
+                          <td className="px-4 py-3 text-stone-600 text-xs">{item.source}</td>
+                          <td className="px-4 py-3 text-stone-600 text-xs">{item.calories ? `${Math.round(item.calories)} kcal` : '—'}</td>
                           <td className="px-4 py-3">
                             <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
                               {item.hitCount}x
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-stone-500 text-xs">
+                          <td className="px-4 py-3 text-stone-600 text-xs">
                             {new Date(item.expiresAt) < new Date() ? (
                               <span className="text-orange-500">Expired</span>
                             ) : (
@@ -772,7 +772,7 @@ export default function Admin() {
                       ))}
                       {cacheStats.topItems.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="px-4 py-8 text-center text-stone-500 text-sm">
+                          <td colSpan={6} className="px-4 py-8 text-center text-stone-600 text-sm">
                             No cached items yet. Users will populate the cache as they look up nutrition info.
                           </td>
                         </tr>
@@ -791,7 +791,7 @@ export default function Admin() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-12 text-stone-500">
+              <div className="text-center py-12 text-stone-600">
                 <p>Loading cache stats...</p>
               </div>
             )}
@@ -800,11 +800,11 @@ export default function Admin() {
         {/* Costs & revenue tab */}
         {activeTab === 'costs' && stats && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-stone-500">Costs & revenue</h2>
+            <h2 className="text-xl font-bold text-stone-600">Costs & revenue</h2>
 
             {/* Revenue */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] p-6">
-              <h3 className="font-semibold text-stone-500 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" />Revenue</h3>
+            <div className="bg-white rounded-xl border border-[#E7D5C3] p-6">
+              <h3 className="font-semibold text-stone-600 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-600" />Revenue</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { label: 'Monthly recurring revenue', value: `$${stats.revenue.mrr}`, sub: 'Active subscriptions', color: 'text-green-600' },
@@ -812,17 +812,17 @@ export default function Admin() {
                   { label: 'Active subscriptions', value: stats.revenue.activeSubscriptions, sub: 'Paying customers', color: 'text-purple-600' },
                 ].map((s, i) => (
                   <div key={i} className="bg-stone-50 rounded-xl p-4 border border-stone-100">
-                    <p className="text-xs text-stone-500 mb-1">{s.label}</p>
+                    <p className="text-xs text-stone-600 mb-1">{s.label}</p>
                     <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                    <p className="text-xs text-stone-500 mt-1">{s.sub}</p>
+                    <p className="text-xs text-stone-600 mt-1">{s.sub}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Costs */}
-            <div className="bg-white rounded-xl border border-[#F1E4D6] p-6">
-              <h3 className="font-semibold text-stone-500 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" />Monthly costs</h3>
+            <div className="bg-white rounded-xl border border-[#E7D5C3] p-6">
+              <h3 className="font-semibold text-stone-600 mb-4 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-600" />Monthly costs</h3>
               <div className="space-y-3">
                 {[
                   { service: 'DigitalOcean', cost: '$12.00', note: 'Backend server — fixed monthly', status: 'Active' },
@@ -833,19 +833,19 @@ export default function Admin() {
                 ].map((s, i) => (
                   <div key={i} className="flex items-center justify-between py-3 border-b border-stone-100 last:border-0">
                     <div>
-                      <p className="text-sm font-medium text-stone-500">{s.service}</p>
-                      <p className="text-xs text-stone-500 mt-0.5">{s.note}</p>
+                      <p className="text-sm font-medium text-stone-600">{s.service}</p>
+                      <p className="text-xs text-stone-600 mt-0.5">{s.note}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-stone-500">{s.cost}</p>
+                      <p className="text-sm font-bold text-stone-600">{s.cost}</p>
                       <p className="text-xs text-green-600 flex items-center justify-end gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />{s.status}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-[#F1E4D6] flex items-center justify-between">
-                <p className="text-sm font-semibold text-stone-500">Fixed costs total</p>
-                <p className="text-lg font-bold text-stone-500">$12.00/month</p>
+              <div className="mt-4 pt-4 border-t border-[#E7D5C3] flex items-center justify-between">
+                <p className="text-sm font-semibold text-stone-600">Fixed costs total</p>
+                <p className="text-lg font-bold text-stone-600">$12.00/month</p>
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-sm font-semibold text-green-600">Net profit (MRR - Fixed)</p>
@@ -857,9 +857,9 @@ export default function Admin() {
             {apiStatus && (
               <>
                 {/* 1. Health strip */}
-                <div className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-                  <h3 className="font-semibold text-stone-500 mb-3 flex items-center gap-2">
-                    <Icon name="bubble" size={16} className="text-stone-500" />
+                <div className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+                  <h3 className="font-semibold text-stone-600 mb-3 flex items-center gap-2">
+                    <Icon name="bubble" size={16} className="text-stone-600" />
                     Anthropic API
                   </h3>
                   {apiStatus.anthropic.creditError ? (
@@ -881,14 +881,14 @@ export default function Admin() {
                       <p className="text-sm font-medium text-red-700">{apiStatus.anthropic.error}</p>
                     </div>
                   )}
-                  <p className="text-xs text-stone-500">Last checked: {relativeTime(apiStatus.anthropic.lastChecked)}</p>
+                  <p className="text-xs text-stone-600">Last checked: {relativeTime(apiStatus.anthropic.lastChecked)}</p>
                 </div>
 
                 {apiStatus.usage && (
                   <>
                     {/* 2. This month */}
-                    <div className="bg-white rounded-xl border border-[#F1E4D6] p-5">
-                      <h3 className="font-semibold text-stone-500 mb-4">This month</h3>
+                    <div className="bg-white rounded-xl border border-[#E7D5C3] p-5">
+                      <h3 className="font-semibold text-stone-600 mb-4">This month</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                         {[
                           { label: 'API calls', value: apiStatus.usage.thisMonth.calls.toLocaleString(), icon: 'reports' },
@@ -900,57 +900,57 @@ export default function Admin() {
                           },
                         ].map((s, i) => (
                           <div key={i} className="bg-stone-50 rounded-xl p-4 border border-stone-100">
-                            <div className="mb-2 text-stone-500"><Icon name={s.icon} size={18} /></div>
-                            <p className="text-2xl font-bold text-stone-500">{s.value}</p>
-                            <p className="text-xs text-stone-500 mt-1">{s.label}</p>
+                            <div className="mb-2 text-stone-600"><Icon name={s.icon} size={18} /></div>
+                            <p className="text-2xl font-bold text-stone-600">{s.value}</p>
+                            <p className="text-xs text-stone-600 mt-1">{s.label}</p>
                           </div>
                         ))}
                       </div>
                       {Object.keys(apiStatus.usage.thisMonth.byEndpoint).length > 0 && (
                         <div className="mb-5">
-                          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">By endpoint</p>
+                          <p className="text-xs font-semibold text-stone-600 uppercase tracking-wide mb-2">By endpoint</p>
                           <div className="space-y-1">
                             {Object.entries(apiStatus.usage.thisMonth.byEndpoint)
                               .sort(([, a], [, b]) => b - a)
                               .map(([endpoint, count]) => (
                                 <div key={endpoint} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
-                                  <span className="font-mono text-xs text-stone-500">{endpoint}</span>
-                                  <span className="text-sm font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full">{count.toLocaleString()}</span>
+                                  <span className="font-mono text-xs text-stone-600">{endpoint}</span>
+                                  <span className="text-sm font-semibold text-stone-600 bg-stone-100 px-2.5 py-0.5 rounded-full">{count.toLocaleString()}</span>
                                 </div>
                               ))}
                           </div>
                         </div>
                       )}
-                      <div className="pt-3 border-t border-stone-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-stone-500">
-                        <span>All time: <span className="font-semibold text-stone-500">{apiStatus.usage.allTime.calls.toLocaleString()} calls</span></span>
-                        <span><span className="font-semibold text-stone-500">${apiStatus.usage.allTime.costUSD.toFixed(4)}</span> total cost</span>
+                      <div className="pt-3 border-t border-stone-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-stone-600">
+                        <span>All time: <span className="font-semibold text-stone-600">{apiStatus.usage.allTime.calls.toLocaleString()} calls</span></span>
+                        <span><span className="font-semibold text-stone-600">${apiStatus.usage.allTime.costUSD.toFixed(4)}</span> total cost</span>
                       </div>
                     </div>
 
                     {/* 3. Monthly history */}
                     {apiStatus.usage.history.length > 0 && (
-                      <div className="bg-white rounded-xl border border-[#F1E4D6] overflow-hidden">
+                      <div className="bg-white rounded-xl border border-[#E7D5C3] overflow-hidden">
                         <div className="px-5 py-4 border-b border-stone-100">
-                          <h3 className="font-semibold text-stone-500">Monthly history</h3>
+                          <h3 className="font-semibold text-stone-600">Monthly history</h3>
                         </div>
                         <table className="w-full text-sm">
-                          <thead className="bg-stone-50 border-b border-[#F1E4D6]">
+                          <thead className="bg-stone-50 border-b border-[#E7D5C3]">
                             <tr>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Month</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Calls</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Cost</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Input tokens</th>
-                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase">Output tokens</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Month</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Calls</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Cost</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Input tokens</th>
+                              <th className="text-left px-4 py-3 text-xs font-semibold text-stone-600 uppercase">Output tokens</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-stone-100">
                             {apiStatus.usage.history.map((row, i) => (
                               <tr key={i} className="hover:bg-stone-50">
-                                <td className="px-4 py-3 font-medium text-stone-500">{row.month}</td>
-                                <td className="px-4 py-3 text-stone-500">{row.calls.toLocaleString()}</td>
-                                <td className="px-4 py-3 text-stone-500">${row.costUSD.toFixed(4)}</td>
-                                <td className="px-4 py-3 text-stone-500 text-xs">{row.inputTokens.toLocaleString()}</td>
-                                <td className="px-4 py-3 text-stone-500 text-xs">{row.outputTokens.toLocaleString()}</td>
+                                <td className="px-4 py-3 font-medium text-stone-600">{row.month}</td>
+                                <td className="px-4 py-3 text-stone-600">{row.calls.toLocaleString()}</td>
+                                <td className="px-4 py-3 text-stone-600">${row.costUSD.toFixed(4)}</td>
+                                <td className="px-4 py-3 text-stone-600 text-xs">{row.inputTokens.toLocaleString()}</td>
+                                <td className="px-4 py-3 text-stone-600 text-xs">{row.outputTokens.toLocaleString()}</td>
                               </tr>
                             ))}
                           </tbody>

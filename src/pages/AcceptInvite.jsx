@@ -52,7 +52,7 @@ export default function AcceptInvite() {
               <NookaIcon size={32} />
             </div>
             <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">You're invited to Nooka</h1>
-            <p className="text-stone-500 text-sm mt-1">Set a password to create your login</p>
+            <p className="text-stone-600 text-sm mt-1">Set a password to create your login</p>
           </div>
 
           {error && (
@@ -63,7 +63,7 @@ export default function AcceptInvite() {
 
           {!token ? (
             <div className="text-center py-4">
-              <p className="text-sm text-stone-500 mb-4">This invite link is invalid or has expired.</p>
+              <p className="text-sm text-stone-600 mb-4">This invite link is invalid or has expired.</p>
               <Link to="/login" className="btn-primary inline-block">Back to login</Link>
             </div>
           ) : (
@@ -96,7 +96,7 @@ export default function AcceptInvite() {
               >
                 {loading ? 'Setting up your account...' : 'Create my account'}
               </button>
-              <p className="text-center text-xs text-stone-500">
+              <p className="text-center text-xs text-stone-600">
                 Already have an account?{' '}
                 <Link to="/login" className="text-primary hover:underline">Sign in</Link>
               </p>

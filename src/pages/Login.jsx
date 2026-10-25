@@ -54,7 +54,7 @@ const handleSubmit = async (e) => {
               <NookaIcon size={32} />
             </div>
             <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Welcome back</h1>
-            <p className="text-stone-500 text-sm mt-1">Sign in to your account</p>
+            <p className="text-stone-600 text-sm mt-1">Sign in to your account</p>
           </div>
 
           {error && (
@@ -96,13 +96,13 @@ const handleSubmit = async (e) => {
             </button>
           </form>
 
-          <p className="text-center text-sm text-stone-500 mt-6">
+          <p className="text-center text-sm text-stone-600 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="text-primary font-medium hover:underline">
               Create one free
             </Link>
           </p>
-          <p className="text-center text-xs text-stone-500 mt-4">
+          <p className="text-center text-xs text-stone-600 mt-4">
   By signing in you agree to our{' '}
   <Link to="/terms" className="text-primary hover:underline">Terms</Link>
   {' '}and{' '}

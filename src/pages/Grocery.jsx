@@ -272,7 +272,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           <div className="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-xl p-6 modal-sheet">
             <div className="text-3xl mb-3 text-center">{anomalyModal.icon}</div>
             <h3 className="font-semibold text-stone-900 text-lg mb-2 text-center">{anomalyModal.message}</h3>
-            <p className="text-sm text-stone-500 text-center mb-2">{anomalyModal.detail}</p>
+            <p className="text-sm text-stone-600 text-center mb-2">{anomalyModal.detail}</p>
             <div className={`rounded-btn px-4 py-3 mb-4 text-center ${anomalyModal.type === 'high' ? 'bg-orange-50 border border-orange-100' : 'bg-green-50 border border-green-100'
               }`}>
               <p className={`text-sm font-medium ${anomalyModal.type === 'high' ? 'text-orange-600' : 'text-success'}`}>
@@ -288,7 +288,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
         <div>
           <h1 className="page-heading">Grocery list</h1>
-          <p className="text-stone-500 mt-1">{checkedCount} of {items.length} items checked off</p>
+          <p className="text-stone-600 mt-1">{checkedCount} of {items.length} items checked off</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {voiceSupported && canUseVoice && (
@@ -360,7 +360,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 <Icon name="sparkle" size={18} className="text-primary" />
                 <h2 className="font-semibold text-stone-900">You might need these soon</h2>
               </div>
-              <span className="text-xs text-stone-500">Stock levels & purchase history</span>
+              <span className="text-xs text-stone-600">Stock levels & purchase history</span>
             </div>
             <div className="space-y-2">
               {predictions.map((p, i) => (
@@ -370,11 +370,11 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                   }`}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="flex-shrink-0 flex items-center">
-                      {p.urgent ? <Icon name="warning" size={16} className="text-amber-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-500" /> : <Icon name="refresh" size={16} className="text-stone-500" />}
+                      {p.urgent ? <Icon name="warning" size={16} className="text-amber-600" /> : p.source === 'low_stock' ? <Icon name="chart" size={16} className="text-stone-600" /> : <Icon name="refresh" size={16} className="text-stone-600" />}
                     </span>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-stone-900 truncate">{p.name}</p>
-                      <p className={`text-xs truncate ${p.urgent ? 'text-amber-700' : 'text-stone-500'}`}>
+                      <p className={`text-xs truncate ${p.urgent ? 'text-amber-700' : 'text-stone-600'}`}>
                         {p.reason}
                       </p>
                     </div>
@@ -401,7 +401,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
               <Icon name="sparkle" size={24} className="text-primary flex-shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-stone-900">Predictive grocery list</p>
-                <p className="text-xs text-stone-500">Nooka learns your habits and reminds you before you run out</p>
+                <p className="text-xs text-stone-600">Nooka learns your habits and reminds you before you run out</p>
               </div>
             </div>
             <button
@@ -417,7 +417,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Price alerts */}
       {isFeatureEnabled('price_anomaly', plan) && priceAlerts.length > 0 && !priceAlerts.locked && (
         <div className="card mb-6 border border-orange-100 bg-orange-50/20">
-          <h2 className="font-semibold text-stone-900 mb-3 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-500" /> Price alerts</h2>
+          <h2 className="font-semibold text-stone-900 mb-3 flex items-center gap-2"><Icon name="dollar" size={16} className="text-stone-600" /> Price alerts</h2>
           <div className="space-y-2">
             {priceAlerts.map((alert, i) => (
               <div key={i} className={`flex items-center justify-between rounded-btn px-3 py-2 border text-xs ${alert.type === 'high' ? 'bg-orange-50 border-orange-100' : 'bg-green-50 border-green-100'
@@ -428,7 +428,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                     <p className={`font-medium ${alert.type === 'high' ? 'text-orange-700' : 'text-success'}`}>
                       {alert.itemName}
                     </p>
-                    <p className="text-stone-500">
+                    <p className="text-stone-600">
                       Avg: ${alert.avgPrice} → Now: ${alert.currentPrice}
                       {alert.store && ` at ${alert.store}`}
                     </p>
@@ -448,15 +448,15 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="card text-center">
           <p className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">{items.length}</p>
-          <p className="text-xs text-stone-500 mt-1">Total items</p>
+          <p className="text-xs text-stone-600 mt-1">Total items</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-success">{checkedCount}</p>
-          <p className="text-xs text-stone-500 mt-1">Checked off</p>
+          <p className="text-xs text-stone-600 mt-1">Checked off</p>
         </div>
         <div className="card text-center">
           <p className="text-2xl font-bold text-primary">${totalCost.toFixed(2)}</p>
-          <p className="text-xs text-stone-500 mt-1">Estimated total</p>
+          <p className="text-xs text-stone-600 mt-1">Estimated total</p>
         </div>
       </div>
 
@@ -465,7 +465,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
         <div className="card mb-6 border-2 border-food-600">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-stone-900">Add item</h2>
-            <button onClick={() => setShowForm(false)} className="text-stone-500 hover:text-stone-900 w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
+            <button onClick={() => setShowForm(false)} className="text-stone-600 hover:text-stone-900 w-7 h-7 flex items-center justify-center rounded-btn hover:bg-stone-100"><Icon name="close" size={16} /></button>
           </div>
           <form onSubmit={handleAdd}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
@@ -498,9 +498,9 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                 </div>
               </div>
               <div>
-                <label className="label">Estimated price <span className="text-stone-500 font-normal">(for anomaly detection)</span></label>
+                <label className="label">Estimated price <span className="text-stone-600 font-normal">(for anomaly detection)</span></label>
                 <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                  <span className="px-3 text-stone-500 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
+                  <span className="px-3 text-stone-600 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                   <input
                     className="flex-1 px-3 py-2.5 text-sm text-stone-900 outline-none rounded-r-btn"
                     placeholder="0.00"
@@ -553,7 +553,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Progress bar */}
       {items.length > 0 && (
         <div className="mb-6">
-          <div className="flex justify-between text-xs text-stone-500 mb-1.5">
+          <div className="flex justify-between text-xs text-stone-600 mb-1.5">
             <span>Shopping progress</span>
             <span>{Math.round((checkedCount / items.length) * 100)}%</span>
           </div>
@@ -574,7 +574,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       ) : (
         <div className="card p-0 overflow-hidden">
           {filtered.length === 0 ? (
-            <div className="text-center py-12 text-stone-500">
+            <div className="text-center py-12 text-stone-600">
               <div className="mb-3 flex justify-center text-stone-300"><Icon name="grocery" size={48} /></div>
               <p className="font-medium">No items yet</p>
               <p className="text-sm mt-1">Click Add item to get started</p>
@@ -632,7 +632,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                         <div>
                           <label className="label">Price</label>
                           <div className="flex items-center border border-border rounded-btn focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-primary transition-all">
-                            <span className="px-3 text-stone-500 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
+                            <span className="px-3 text-stone-600 text-sm border-r border-border bg-stone-50 rounded-l-btn py-2.5">$</span>
                             <input
                               className="flex-1 px-3 py-2.5 text-sm text-stone-900 outline-none rounded-r-btn"
                               placeholder="0.00"
@@ -677,7 +677,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-stone-500">{item.qty}</span>
+                          <span className="text-xs text-stone-600">{item.qty}</span>
                           {item.category && (
                             <span className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-pill">{item.category}</span>
                           )}
@@ -704,7 +704,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
                             isCustomStore: false,
                           })
                         }}
-                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-700 text-stone-500 transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
+                        className="w-7 h-7 rounded-full hover:bg-stone-100 hover:text-stone-700 text-stone-600 transition-all opacity-60 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center"
                       >
                         <Icon name="edit" size={14} />
                       </button>
@@ -727,7 +727,7 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
       {/* Clear checked */}
       {checkedCount > 0 && (
         <div className="mt-4 flex justify-end">
-          <button onClick={handleClearChecked} className="text-sm text-stone-500 hover:text-stone-700 hover:underline font-medium">
+          <button onClick={handleClearChecked} className="text-sm text-stone-600 hover:text-stone-700 hover:underline font-medium">
             Remove {checkedCount} checked item{checkedCount > 1 ? 's' : ''}
           </button>
         </div>

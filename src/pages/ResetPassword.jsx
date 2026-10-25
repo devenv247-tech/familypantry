@@ -46,7 +46,7 @@ export default function ResetPassword() {
         <div className="text-center mb-8">
           <div className="mb-3 flex justify-center text-primary"><Icon name="lock" size={44} /></div>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Set new password</h1>
-          <p className="text-stone-500 mt-2 text-sm">Choose a strong password for your account</p>
+          <p className="text-stone-600 mt-2 text-sm">Choose a strong password for your account</p>
         </div>
 
         <div className="card">
@@ -54,7 +54,7 @@ export default function ResetPassword() {
             <div className="text-center py-4">
               <div className="mb-4 flex justify-center"><Icon name="check" size={52} className="text-success" /></div>
               <h2 className="font-semibold text-stone-900 mb-2">Password reset!</h2>
-              <p className="text-sm text-stone-500 mb-6">
+              <p className="text-sm text-stone-600 mb-6">
                 Your password has been updated. Redirecting to login...
               </p>
               <Link to="/login" className="btn-primary inline-block">
@@ -70,7 +70,7 @@ export default function ResetPassword() {
               )}
               {!token ? (
                 <div className="text-center py-4">
-                  <p className="text-sm text-stone-500 mb-4">This reset link is invalid or has expired.</p>
+                  <p className="text-sm text-stone-600 mb-4">This reset link is invalid or has expired.</p>
                   <Link to="/forgot-password" className="btn-primary inline-block">
                     Request new link
                   </Link>
@@ -107,7 +107,7 @@ export default function ResetPassword() {
                   </button>
                 </>
               )}
-              <p className="text-center text-sm text-stone-500 mt-4">
+              <p className="text-center text-sm text-stone-600 mt-4">
                 <Link to="/login" className="text-primary hover:underline font-medium">
                   Back to login
                 </Link>

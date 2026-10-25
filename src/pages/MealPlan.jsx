@@ -224,8 +224,8 @@ export default function MealPlan() {
 
   const modalBase = 'fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center sm:justify-center sm:p-4 backdrop-blur-sm'
   const modalBox = 'bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md shadow-lift max-h-[90dvh] overflow-y-auto modal-sheet'
-  const modalHeader = 'flex items-center justify-between px-6 py-4 border-b border-[#F1E4D6] sticky top-0 bg-white rounded-t-3xl modal-header'
-  const closeBtn = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-500 transition-colors'
+  const modalHeader = 'flex items-center justify-between px-6 py-4 border-b border-[#E7D5C3] sticky top-0 bg-white rounded-t-3xl modal-header'
+  const closeBtn = 'w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-600 transition-colors'
 
   return (
     <div className="page-container">
@@ -243,8 +243,8 @@ export default function MealPlan() {
             </div>
             <div className="p-6 modal-body">
               <h2 className="font-display text-xl font-semibold text-stone-900 mb-1">{selectedMeal.recipeName}</h2>
-              {selectedMeal.recipeData?.description && <p className="text-sm text-stone-500 mb-4">{selectedMeal.recipeData.description}</p>}
-              <div className="flex items-center gap-4 text-xs text-stone-500 mb-4 flex-wrap">
+              {selectedMeal.recipeData?.description && <p className="text-sm text-stone-600 mb-4">{selectedMeal.recipeData.description}</p>}
+              <div className="flex items-center gap-4 text-xs text-stone-600 mb-4 flex-wrap">
                 {selectedMeal.recipeData?.time && <span className="flex items-center gap-1"><Icon name="clock" size={12} />{selectedMeal.recipeData.time}</span>}
                 {selectedMeal.recipeData?.calories && <span className="flex items-center gap-1"><Icon name="flame" size={12} className="text-food-600" />{selectedMeal.recipeData.calories} kcal</span>}
               </div>
@@ -259,7 +259,7 @@ export default function MealPlan() {
                   ].map((item, i) => (
                     <div key={i} className={`rounded-2xl p-2 text-center ${item.bg}`}>
                       <p className={`text-sm font-bold ${item.color}`}>{item.value}</p>
-                      <p className="text-xs text-stone-400">{item.unit}</p>
+                      <p className="text-xs text-stone-500">{item.unit}</p>
                       <p className={`text-xs font-semibold mt-0.5 ${item.color}`}>{item.label}</p>
                     </div>
                   ))}
@@ -271,7 +271,7 @@ export default function MealPlan() {
                   <p className="text-xs font-semibold text-stone-700 mb-2">Ingredients in pantry</p>
                   <div className="space-y-1">
                     {selectedMeal.recipeData.ingredients.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-stone-500">
+                      <div key={i} className="flex items-center gap-2 text-xs text-stone-600">
                         <span className="w-4 h-4 rounded-full bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0"><Icon name="check" size={10} /></span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                       </div>
@@ -285,7 +285,7 @@ export default function MealPlan() {
                   <p className="text-xs font-semibold text-amber-800 mb-2">Need to buy</p>
                   <div className="space-y-1">
                     {selectedMeal.recipeData.missing.map((ing, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-stone-500">
+                      <div key={i} className="flex items-center gap-2 text-xs text-stone-600">
                         <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">+</span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                       </div>
@@ -344,13 +344,13 @@ export default function MealPlan() {
               <button onClick={() => setShowMemberModal(false)} className={closeBtn} aria-label="Close"><Icon name="close" size={16} /></button>
             </div>
             <div className="p-6">
-              <p className="text-sm text-stone-500 mb-4">Who should this meal plan be for? Leave all unselected to plan for the whole family.</p>
+              <p className="text-sm text-stone-600 mb-4">Who should this meal plan be for? Leave all unselected to plan for the whole family.</p>
               {members.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-6">
                   {members.map(m => (
                     <button key={m.id} onClick={() => toggleMember(m.name)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all ${selectedMembers.includes(m.name) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-stone-600 border-[#E7D5C3] hover:border-indigo-300 hover:text-indigo-700'}`}>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-indigo-600' : 'bg-stone-100 text-stone-500'}`}>{m.name[0]}</div>
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${selectedMembers.includes(m.name) ? 'bg-white text-indigo-600' : 'bg-stone-100 text-stone-600'}`}>{m.name[0]}</div>
                       {m.name}
                     </button>
                   ))}
@@ -358,7 +358,7 @@ export default function MealPlan() {
               )}
               <div className="mb-6">
                 <p className="text-sm font-semibold text-stone-800 mb-1">Cuisine preferences</p>
-                <p className="text-xs text-stone-500 mb-3">Leave unselected to mix all cuisines</p>
+                <p className="text-xs text-stone-600 mb-3">Leave unselected to mix all cuisines</p>
                 <div className="flex flex-wrap gap-2">
                   {CUISINES.map(c => (
                     <button key={c.label} onClick={() => toggleCuisine(c.label)}
@@ -405,8 +405,8 @@ export default function MealPlan() {
                   {saving ? 'Saving…' : 'Add to plan'}
                 </button>
               </div>
-              <div className="mt-4 pt-4 border-t border-[#F1E4D6]">
-                <p className="text-xs text-stone-500 mb-2">Or generate a recipe with AI</p>
+              <div className="mt-4 pt-4 border-t border-[#E7D5C3]">
+                <p className="text-xs text-stone-600 mb-2">Or generate a recipe with AI</p>
                 <button onClick={() => { setShowAddModal(false); navigate('/app/recipes') }} className="w-full text-sm text-indigo-700 border border-indigo-200 bg-indigo-50 rounded-2xl py-2.5 hover:bg-indigo-100 transition-all flex items-center justify-center gap-2">
                   <span>🫧</span> Go to recipe suggestions
                 </button>
@@ -420,7 +420,7 @@ export default function MealPlan() {
       <div className="flex flex-col justify-between gap-3 mb-6">
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 tracking-tight">Meal planner</h1>
-          <p className="text-stone-500 mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
+          <p className="text-stone-600 mt-1 text-sm">{formatWeekLabel(weekStart)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {isFeatureEnabled('grocery_from_plan', plan) && (
@@ -452,15 +452,15 @@ export default function MealPlan() {
       </div>
 
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-5 bg-white rounded-3xl border border-[#F1E4D6] px-5 py-3.5">
-        <button onClick={() => setWeekOffset(prev => prev - 1)} className="flex items-center gap-1 text-sm text-stone-500 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
+      <div className="flex items-center justify-between mb-5 bg-white rounded-3xl border border-[#E7D5C3] px-5 py-3.5">
+        <button onClick={() => setWeekOffset(prev => prev - 1)} className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
           ← Prev
         </button>
         <div className="text-center">
           <p className="text-sm font-semibold text-stone-900">{formatWeekLabel(weekStart)}</p>
           {weekOffset === 0 && <span className="text-xs bg-indigo-600 text-white px-2.5 py-0.5 rounded-full mt-1 inline-block">This week</span>}
         </div>
-        <button onClick={() => setWeekOffset(prev => prev + 1)} className="flex items-center gap-1 text-sm text-stone-500 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
+        <button onClick={() => setWeekOffset(prev => prev + 1)} className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
           Next →
         </button>
       </div>
@@ -469,7 +469,7 @@ export default function MealPlan() {
       <div className="card mb-5 py-4">
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold text-stone-800">Week planning progress</p>
-          <p className="text-sm text-stone-500">{plannedCount}/{totalSlots} meals planned</p>
+          <p className="text-sm text-stone-600">{plannedCount}/{totalSlots} meals planned</p>
         </div>
         <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
           <div className="h-full bg-food-600 rounded-full transition-all duration-500" style={{ width: `${(plannedCount / totalSlots) * 100}%` }} />
@@ -490,7 +490,7 @@ export default function MealPlan() {
               {DAYS.map(day => {
                 const isToday = weekOffset === 0 && day === todayName
                 return (
-                  <div key={day} className={`text-xs font-semibold uppercase tracking-wide py-2 text-center rounded-xl ${isToday ? 'bg-indigo-600 text-white' : 'text-stone-400'}`}>
+                  <div key={day} className={`text-xs font-semibold uppercase tracking-wide py-2 text-center rounded-xl ${isToday ? 'bg-indigo-600 text-white' : 'text-stone-500'}`}>
                     {day.slice(0, 3)}
                   </div>
                 )
@@ -513,7 +513,7 @@ export default function MealPlan() {
                         meal
                           ? isToday
                             ? 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100'
-                            : 'bg-white border-[#F1E4D6] hover:bg-orange-50 hover:border-orange-200'
+                            : 'bg-white border-[#E7D5C3] hover:bg-orange-50 hover:border-orange-200'
                           : 'bg-white border-dashed border-[#E7D5C3] hover:border-indigo-300 hover:bg-indigo-50'
                       }`}
                       onClick={() => meal ? handleMealClick(meal, { stopPropagation: () => {} }) : handleSlotClick(day, mealType)}
@@ -523,9 +523,9 @@ export default function MealPlan() {
                           <DishArt category={getRecipeCategory(meal.recipeName)} size="xs" />
                           <p className="text-xs font-semibold text-stone-900 leading-tight line-clamp-2">{meal.recipeName}</p>
                           {meal.cooked && <span className="text-xs text-green-700 font-semibold flex items-center gap-0.5"><Icon name="check" size={9} />Done</span>}
-                          {meal.recipeData?.calories && <p className="text-xs text-stone-500 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories}</p>}
+                          {meal.recipeData?.calories && <p className="text-xs text-stone-600 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories}</p>}
                           {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                            <p className="text-xs text-stone-400 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                            <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                           )}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id, e) }}
@@ -594,9 +594,9 @@ export default function MealPlan() {
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-semibold text-stone-900 truncate">{meal.recipeName}</p>
                                 {meal.cooked && <span className="text-xs text-green-700 font-semibold flex items-center gap-0.5"><Icon name="check" size={9} />Done</span>}
-                                {meal.recipeData?.calories && <p className="text-xs text-stone-500 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories} kcal</p>}
+                                {meal.recipeData?.calories && <p className="text-xs text-stone-600 flex items-center gap-0.5"><Icon name="flame" size={10} className="text-food-600" />{meal.recipeData.calories} kcal</p>}
                                 {Array.isArray(meal.recipeData?.plannedFor) && meal.recipeData.plannedFor.length > 0 && (
-                                  <p className="text-xs text-stone-400 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
+                                  <p className="text-xs text-stone-500 truncate">{meal.recipeData.plannedFor.join(', ')}</p>
                                 )}
                               </div>
                               <button
@@ -632,18 +632,18 @@ export default function MealPlan() {
           <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-lift w-full sm:max-w-sm p-6 modal-sheet">
             <div className="flex justify-center mb-3"><Icon name="check" size={48} className="text-green-600" /></div>
             <h3 className="font-display text-xl font-semibold text-stone-900 text-center mb-1">Nice cook!</h3>
-            <p className="text-sm text-stone-500 text-center mb-5">Here's what Nooka updated for you</p>
+            <p className="text-sm text-stone-600 text-center mb-5">Here's what Nooka updated for you</p>
             <div className="space-y-2.5 mb-6">
               {[
                 { icon: 'pantry', ok: !!cookedModal.pantryLabel, label: cookedModal.pantryLabel ? 'Pantry updated' : 'Pantry unchanged', sub: cookedModal.pantryLabel ?? 'No items matched' },
                 { icon: 'health', ok: cookedModal.membersLogged.length > 0, label: 'Nutrition logged', sub: cookedModal.membersLogged.length > 0 ? `For ${cookedModal.membersLogged.join(', ')}` : 'No nutrition data available' },
                 { icon: 'mealplan', ok: true, label: 'Meal plan', sub: 'Slot marked as done' },
               ].map((row, i) => (
-                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${row.ok ? 'bg-green-50 border-green-200' : 'bg-stone-50 border-[#F1E4D6]'}`}>
-                  <Icon name={row.icon} size={20} className={`${row.ok ? 'text-green-600' : 'text-stone-400'} flex-shrink-0`} />
+                <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${row.ok ? 'bg-green-50 border-green-200' : 'bg-stone-50 border-[#E7D5C3]'}`}>
+                  <Icon name={row.icon} size={20} className={`${row.ok ? 'text-green-600' : 'text-stone-500'} flex-shrink-0`} />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-stone-900">{row.label}</p>
-                    <p className="text-xs text-stone-500">{row.sub}</p>
+                    <p className="text-xs text-stone-600">{row.sub}</p>
                   </div>
                   {row.ok ? <Icon name="check" size={18} className="text-green-600 flex-shrink-0" /> : <span className="text-stone-300 text-lg">—</span>}
                 </div>
