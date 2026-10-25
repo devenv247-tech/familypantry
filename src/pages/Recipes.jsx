@@ -985,9 +985,22 @@ export default function Recipes() {
               <button
                 onClick={handleAskNooka}
                 disabled={!askQuery.trim() || askLoading}
-                className="w-9 h-9 flex-shrink-0 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-40 hover:opacity-90 transition-all self-end"
+                aria-label="Send question"
+                title="Send"
+                className={`w-11 h-11 flex-shrink-0 rounded-full flex items-center justify-center transition-all self-end focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 ${
+                  askQuery.trim() && !askLoading
+                    ? 'bg-indigo-700 text-white hover:opacity-90 cursor-pointer'
+                    : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                }`}
               >
-                <Icon name="refresh" size={16} />
+                {askLoading ? (
+                  <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <circle cx="12" cy="12" r="9" strokeOpacity="0.25"/>
+                    <path d="M12 3a9 9 0 0 1 9 9"/>
+                  </svg>
+                ) : (
+                  <Icon name="arrowUp" size={18} />
+                )}
               </button>
             </div>
 
