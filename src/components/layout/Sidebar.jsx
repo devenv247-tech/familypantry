@@ -66,7 +66,7 @@ export default function Sidebar({ onClose }) {
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto min-h-0">
+      <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto min-h-0 scrollbar-hide">
         {getLinks(showHealth, babyMembers).map(link => (
           <NavLink
             key={link.to}
@@ -89,38 +89,35 @@ export default function Sidebar({ onClose }) {
         ))}
       </nav>
 
-      {/* 🫧 Ask Nooka card */}
-      <div className="mx-3 mb-3 p-3 bg-indigo-50 border border-indigo-200 rounded-2xl flex-shrink-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-base leading-none">🫧</span>
-          <span className="text-xs font-semibold text-indigo-800">Ask Nooka</span>
-        </div>
-        <p className="text-xs text-indigo-700 leading-snug">Ask anything about meals, nutrition or your pantry.</p>
-        <NavLink
-          to="/app/recipes?mode=ask"
-          onClick={handleNavClick}
-          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 hover:text-indigo-900 transition-colors"
-        >
-          Open Ask Nooka →
-        </NavLink>
-      </div>
-
-      {/* User section */}
-      <div
-        className="px-4 py-4 border-t border-[#F1E4D6] flex-shrink-0"
-        style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
+      {/* Ask Nooka slim row — hidden on short viewports */}
+      <NavLink
+        to="/app/recipes?mode=ask"
+        onClick={handleNavClick}
+        className="mx-3 mb-2 flex items-center gap-2.5 px-3 py-2.5 bg-indigo-50 rounded-2xl text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors flex-shrink-0 [@media(max-height:760px)]:hidden"
       >
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            {user?.name?.[0]?.toUpperCase() || 'U'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-stone-900 truncate">{user?.name || 'User'}</p>
-            <p className="text-xs text-stone-500 truncate">{user?.email || ''}</p>
-          </div>
+        <Icon name="bubble" size={16} />
+        <span>Ask Nooka</span>
+      </NavLink>
+
+      {/* User row */}
+      <div
+        className="px-3 py-2.5 border-t border-[#F1E4D6] flex-shrink-0 flex items-center gap-2"
+        style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          {user?.name?.[0]?.toUpperCase() || 'U'}
         </div>
-        <button onClick={handleLogout} className="btn-secondary w-full text-sm py-2.5">
-          Sign out
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-stone-900 truncate leading-tight">{user?.name || 'User'}</p>
+          <p className="text-xs text-stone-400 truncate leading-tight">{user?.email || ''}</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          aria-label="Sign out"
+          title="Sign out"
+          className="w-10 h-10 flex items-center justify-center rounded-full text-stone-500 hover:bg-stone-100 hover:text-stone-700 transition-colors flex-shrink-0"
+        >
+          <Icon name="logout" size={18} />
         </button>
       </div>
     </aside>

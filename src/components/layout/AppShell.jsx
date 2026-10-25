@@ -172,39 +172,41 @@ export default function AppShell() {
         <>
           <div className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setShowMoreDrawer(false)} />
           <div
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-lift"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-lift flex flex-col"
+            style={{ maxHeight: '80dvh', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
           >
-            <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-3 mb-5" />
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest px-5 mb-4">More</p>
+            <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-3 mb-5 flex-shrink-0" />
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest px-5 mb-4 flex-shrink-0">More</p>
 
-            <div className="grid grid-cols-3 gap-0 px-2 pb-4">
-              {moreItems.map(item => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setShowMoreDrawer(false)}
-                  className={({ isActive }) =>
-                    `flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all ${
-                      isActive ? 'bg-orange-50 text-orange-900' : 'text-stone-600 hover:bg-stone-50'
-                    }`
-                  }
+            <div className="overflow-y-auto scrollbar-hide flex-1 min-h-0">
+              <div className="grid grid-cols-3 gap-0 px-2 pb-4">
+                {moreItems.map(item => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setShowMoreDrawer(false)}
+                    className={({ isActive }) =>
+                      `flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all ${
+                        isActive ? 'bg-orange-50 text-orange-900' : 'text-stone-600 hover:bg-stone-50'
+                      }`
+                    }
+                  >
+                    <Icon name={item.icon} size={22} />
+                    <span className="text-xs font-medium">{item.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+
+              {/* Sign out in More sheet */}
+              <div className="px-4 pb-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-stone-600 hover:bg-stone-100 transition-colors"
                 >
-                  <Icon name={item.icon} size={22} />
-                  <span className="text-xs font-medium">{item.label}</span>
-                </NavLink>
-              ))}
-            </div>
-
-            {/* Sign out in More sheet */}
-            <div className="px-4 pb-2">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-stone-600 hover:bg-stone-100 transition-colors"
-              >
-                <Icon name="close" size={18} />
-                Sign out
-              </button>
+                  <Icon name="logout" size={18} />
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </>
