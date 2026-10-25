@@ -13,6 +13,7 @@ import { useAppConfigStore } from '../store/appConfigStore'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import DishArt from '../components/ui/DishArt'
 import { getRecipeCategory } from '../utils/recipeImagery'
+import { filterStaples } from '../utils/assumedStaples'
 import { useToast } from '../hooks/useToast'
 
 const SEASONAL_DATA = {
@@ -115,7 +116,7 @@ export default function Dashboard() {
     setCooking(true)
     try {
       if (tonightMeal.recipeData?.ingredients?.length) {
-        const cookResult = await cookRecipe({ ingredients: tonightMeal.recipeData.ingredients })
+        const cookResult = await cookRecipe({ ingredients: filterStaples(tonightMeal.recipeData.ingredients) })
         const _r = cookResult?.results || []
         const _ok = _r.filter(r => !r.reason).length
         const _skip = _r.filter(r => r.reason).length

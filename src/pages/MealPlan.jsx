@@ -4,6 +4,7 @@ import CookingLoader from '../components/ui/CookingLoader'
 import Icon from '../components/ui/Icon'
 import DishArt from '../components/ui/DishArt'
 import { getRecipeCategory } from '../utils/recipeImagery'
+import { isAssumedStaple, filterStaples } from '../utils/assumedStaples'
 import { getMealPlan, saveMeal, deleteMeal, generateGroceryFromPlan, generateWeekPlan, markMealCooked } from '../api/mealplan'
 import { cookRecipe } from '../api/recipes'
 import { logNutrition } from '../api/healthProgress'
@@ -190,7 +191,7 @@ export default function MealPlan() {
     if (!meal.recipeData?.ingredients) { showToast('No recipe data available for this meal', 'error'); return }
     setCooking(true)
     try {
-      const cookResult = await cookRecipe({ ingredients: meal.recipeData.ingredients })
+      const cookResult = await cookRecipe({ ingredients: filterStaples(meal.recipeData.ingredients) })
       const _r = cookResult?.results || []
       const _ok = _r.filter(r => !r.reason).length
       const _skip = _r.filter(r => r.reason).length
@@ -280,11 +281,11 @@ export default function MealPlan() {
                 </div>
               )}
 
-              {selectedMeal.recipeData?.missing?.length > 0 && (
+              {filterStaples(selectedMeal.recipeData?.missing).length > 0 && (
                 <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl px-3 py-3">
                   <p className="text-xs font-semibold text-amber-800 mb-2">Need to buy</p>
                   <div className="space-y-1">
-                    {selectedMeal.recipeData.missing.map((ing, i) => (
+                    {filterStaples(selectedMeal.recipeData.missing).map((ing, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs text-stone-600">
                         <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">+</span>
                         {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}

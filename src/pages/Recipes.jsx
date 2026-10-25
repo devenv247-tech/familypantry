@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import Icon from '../components/ui/Icon'
 import DishArt from '../components/ui/DishArt'
 import { getRecipeCategory, groupAllergenWarnings } from '../utils/recipeImagery'
+import { isAssumedStaple, filterStaples } from '../utils/assumedStaples'
 import { getExpiringSoon } from '../api/expiry'
 import { getMembers } from '../api/family'
 import CookingLoader from '../components/ui/CookingLoader'
@@ -436,7 +437,7 @@ export default function Recipes() {
   const handleCook = async (recipe, idx) => {
     if (cookedRecipes[idx]) return
     try {
-      const cookResult = await cookRecipe(recipe)
+      const cookResult = await cookRecipe({ ...recipe, ingredients: filterStaples(recipe.ingredients) })
       const _r = cookResult?.results || []
       const _ok = _r.filter(r => !r.reason).length
       const _skip = _r.filter(r => r.reason).length
@@ -526,12 +527,13 @@ export default function Recipes() {
   }
 
   const handleAddToGrocery = async (recipe, idx) => {
-    if (!recipe.missing || recipe.missing.length === 0) return
+    const missing = filterStaples(recipe.missing)
+    if (!missing.length) return
     setAddingToGrocery(prev => ({ ...prev, [idx]: true }))
     try {
       const currentList = await getGroceryItems()
       await Promise.all(
-        recipe.missing.map(async (item) => {
+        missing.map(async (item) => {
           const name = typeof item === 'string' ? item : item.name
           const qty = typeof item === 'string' ? '' : `${item.quantity} ${item.unit}`
           const quantity = typeof item === 'string' ? 0 : (parseFloat(item.quantity) || 0)
@@ -895,7 +897,7 @@ export default function Recipes() {
                   </div>
 
                   {/* Pantry badge */}
-                  {drink.fullyFromPantry && (
+                  {(drink.fullyFromPantry || (drink.ingredients || []).every(ing => ing.inPantry || isAssumedStaple(ing.name))) && (
                     <div className="flex items-center gap-1.5 mb-3">
                       <span className="text-xs bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-pill font-medium flex items-center gap-1"><Icon name="check" size={10} />All in your pantry</span>
                     </div>
@@ -912,16 +914,18 @@ export default function Recipes() {
                     <div className="mt-4 pt-4 border-t border-border">
                       <p className="text-xs font-semibold text-stone-900 mb-2">Ingredients</p>
                       <ul className="space-y-1.5 mb-4">
-                        {drink.ingredients?.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
-                            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${ing.inPantry ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600'
-                              }`}>
-                              {ing.inPantry ? '✓' : '+'}
-                            </span>
-                            {ing.name} — {ing.quantity} {ing.unit}
-                            {!ing.inPantry && <span className="text-xs text-orange-400">(buy)</span>}
-                          </li>
-                        ))}
+                        {drink.ingredients?.map((ing, i) => {
+                          const available = ing.inPantry || isAssumedStaple(ing.name)
+                          return (
+                            <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
+                              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${available ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600'}`}>
+                                {available ? '✓' : '+'}
+                              </span>
+                              {ing.name} — {ing.quantity} {ing.unit}
+                              {!available && <span className="text-xs text-orange-400">(buy)</span>}
+                            </li>
+                          )
+                        })}
                       </ul>
 
                       <p className="text-xs font-semibold text-stone-900 mb-2">Steps</p>
@@ -1154,12 +1158,12 @@ export default function Recipes() {
 
                   {/* Left column: need to buy, ingredients, equipment — omitted when empty */}
                   {(askResult.shoppingList?.length > 0 || askResult.ingredients?.length > 0 || askResult.equipment?.length > 0) && <div>
-                    {askResult.shoppingList?.length > 0 && (
+                    {filterStaples(askResult.shoppingList).length > 0 && (
                       <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                           <p className="text-xs font-medium text-food-700">Need to buy:</p>
                           <button
-                            onClick={() => handleAddToGrocery({ missing: askResult.shoppingList }, 'ask')}
+                            onClick={() => handleAddToGrocery({ missing: filterStaples(askResult.shoppingList) }, 'ask')}
                             disabled={addingToGrocery['ask']}
                             className={`text-xs px-2.5 py-1 rounded-pill font-medium transition-all ${
                               addedToGrocery['ask'] ? 'bg-success text-white' : 'bg-food-600 text-white hover:bg-food-700'
@@ -1168,7 +1172,7 @@ export default function Recipes() {
                             {addingToGrocery['ask'] ? 'Adding...' : addedToGrocery['ask'] ? '✓ Added!' : '+ Add to grocery'}
                           </button>
                         </div>
-                        <p className="text-xs text-stone-600">{askResult.shoppingList.join(', ')}</p>
+                        <p className="text-xs text-stone-600">{filterStaples(askResult.shoppingList).join(', ')}</p>
                       </div>
                     )}
 
@@ -1618,7 +1622,7 @@ export default function Recipes() {
                 </div>
               )}
 
-              {familyRecipe.missing?.length > 0 && (
+              {filterStaples(familyRecipe.missing).length > 0 && (
                 <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <p className="text-xs font-medium text-food-700">Need to buy:</p>
@@ -1632,7 +1636,7 @@ export default function Recipes() {
                     </button>
                   </div>
                   <div className="space-y-2">
-                    {familyRecipe.missing.map((m, i) => {
+                    {filterStaples(familyRecipe.missing).map((m, i) => {
                       const ingName = typeof m === 'string' ? m : m.name
                       const key = `family-${ingName}`
                       return (
@@ -1770,9 +1774,10 @@ export default function Recipes() {
 
               {/* Ingredient tier filter */}
               {(() => {
-                const cookNow = recipes.filter(r => !r.missing || r.missing.length === 0)
-                const tonight = recipes.filter(r => r.missing?.length === 1)
-                const planAhead = recipes.filter(r => r.missing?.length >= 2)
+                const effMiss = r => filterStaples(r.missing)
+                const cookNow = recipes.filter(r => effMiss(r).length === 0)
+                const tonight = recipes.filter(r => effMiss(r).length === 1)
+                const planAhead = recipes.filter(r => effMiss(r).length >= 2)
                 return (
                   <div className="grid grid-cols-3 gap-3 mb-6">
                     {[
@@ -1798,9 +1803,10 @@ export default function Recipes() {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {recipes.filter(r => {
-                  if (activeFilter === 'cookNow') return !r.missing || r.missing.length === 0
-                  if (activeFilter === 'tonight') return r.missing?.length === 1
-                  if (activeFilter === 'planAhead') return r.missing?.length >= 2
+                  const eff = filterStaples(r.missing)
+                  if (activeFilter === 'cookNow') return eff.length === 0
+                  if (activeFilter === 'tonight') return eff.length === 1
+                  if (activeFilter === 'planAhead') return eff.length >= 2
                   return true
                 }).sort((a, b) => {
                   if (!budgetMode) return 0
@@ -1854,7 +1860,7 @@ export default function Recipes() {
                     )}
 
                     {/* Missing ingredients */}
-                    {recipe.missing?.length > 0 && (
+                    {filterStaples(recipe.missing).length > 0 && (
                       <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                           <p className="text-xs font-medium text-food-700">Need to buy:</p>
@@ -1868,7 +1874,7 @@ export default function Recipes() {
                           </button>
                         </div>
                         <div className="space-y-2">
-                          {recipe.missing.map((m, i) => {
+                          {filterStaples(recipe.missing).map((m, i) => {
                             const ingName = typeof m === 'string' ? m : m.name
                             const key = `${idx}-${ingName}`
                             return (
@@ -1918,7 +1924,7 @@ export default function Recipes() {
                       </div>
                     )}
 
-                    {recipe.missing?.length === 0 && (
+                    {filterStaples(recipe.missing).length === 0 && (
                       <div className="bg-fresh-50 border border-fresh-100 rounded-btn px-3 py-2 mb-4">
                         <p className="text-xs font-medium text-fresh-700 flex items-center gap-1"><Icon name="check" size={12} />All ingredients in stock!</p>
                       </div>
@@ -1963,13 +1969,19 @@ export default function Recipes() {
                               {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                             </li>
                           ))}
-                          {recipe.missing?.map(ing => (
-                            <li key={typeof ing === 'string' ? ing : ing.name} className="flex items-center gap-2 text-sm text-stone-600">
-                              <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
-                              {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
-                              <span className="text-xs text-orange-400">(need to buy)</span>
-                            </li>
-                          ))}
+                          {recipe.missing?.map(ing => {
+                            const n = typeof ing === 'string' ? ing : ing.name
+                            const staple = isAssumedStaple(n)
+                            return (
+                              <li key={n} className="flex items-center gap-2 text-sm text-stone-600">
+                                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${staple ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600'}`}>
+                                  {staple ? <Icon name="check" size={10} /> : '+'}
+                                </span>
+                                {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
+                                {!staple && <span className="text-xs text-orange-400">(need to buy)</span>}
+                              </li>
+                            )
+                          })}
                         </ul>
 
                         {recipe.steps?.length > 0 && (

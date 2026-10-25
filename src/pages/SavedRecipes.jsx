@@ -6,6 +6,7 @@ import { useToast } from '../hooks/useToast'
 import Icon from '../components/ui/Icon'
 import RecipeCardHeader from '../components/ui/RecipeCardHeader'
 import { groupAllergenWarnings } from '../utils/recipeImagery'
+import { isAssumedStaple, filterStaples } from '../utils/assumedStaples'
 
 export default function SavedRecipes() {
   const { toast, showToast, hideToast } = useToast()
@@ -45,12 +46,13 @@ export default function SavedRecipes() {
   }
 
   const handleAddToGrocery = async (recipe, idx) => {
-    if (!recipe.missing || recipe.missing.length === 0) return
+    const missing = filterStaples(recipe.missing)
+    if (!missing.length) return
     setAddingToGrocery(prev => ({ ...prev, [idx]: true }))
     try {
       const currentList = await getGroceryItems()
       await Promise.all(
-        recipe.missing.map(async (item) => {
+        missing.map(async (item) => {
           const name = typeof item === 'string' ? item : item.name
           const qty = typeof item === 'string' ? '' : `${item.quantity} ${item.unit}`
           const quantity = typeof item === 'string' ? 0 : (parseFloat(item.quantity) || 0)
@@ -180,7 +182,7 @@ export default function SavedRecipes() {
               )}
 
               {/* Missing ingredients */}
-              {recipe.missing?.length > 0 && (
+              {filterStaples(recipe.missing).length > 0 && (
                 <div className="bg-food-50 border border-food-100 rounded-2xl p-4 mb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <p className="text-xs font-medium text-food-700">Need to buy:</p>
@@ -195,12 +197,12 @@ export default function SavedRecipes() {
                     </button>
                   </div>
                   <p className="text-xs text-stone-600">
-                    {recipe.missing.map(m => typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
+                    {filterStaples(recipe.missing).map(m => typeof m === 'string' ? m : `${m.name} (${m.quantity} ${m.unit})`).join(', ')}
                   </p>
                 </div>
               )}
 
-              {recipe.missing?.length === 0 && (
+              {filterStaples(recipe.missing).length === 0 && (
                 <div className="bg-fresh-50 border border-fresh-100 rounded-btn px-3 py-2 mb-4">
                   <p className="text-xs font-medium text-fresh-700 flex items-center gap-1"><Icon name="check" size={12} />All ingredients in stock!</p>
                 </div>
@@ -229,13 +231,19 @@ export default function SavedRecipes() {
                             {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
                           </li>
                         ))}
-                        {recipe.missing?.map((ing, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
-                            <span className="w-4 h-4 rounded-full bg-food-100 text-food-600 flex items-center justify-center text-xs flex-shrink-0">+</span>
-                            {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
-                            <span className="text-xs text-orange-400">(need to buy)</span>
-                          </li>
-                        ))}
+                        {recipe.missing?.map((ing, i) => {
+                          const n = typeof ing === 'string' ? ing : ing.name
+                          const staple = isAssumedStaple(n)
+                          return (
+                            <li key={i} className="flex items-center gap-2 text-sm text-stone-600">
+                              <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${staple ? 'bg-fresh-100 text-fresh-700' : 'bg-food-100 text-food-600 text-xs'}`}>
+                                {staple ? <Icon name="check" size={10} /> : '+'}
+                              </span>
+                              {typeof ing === 'string' ? ing : `${ing.name} — ${ing.quantity} ${ing.unit}`}
+                              {!staple && <span className="text-xs text-orange-400">(need to buy)</span>}
+                            </li>
+                          )
+                        })}
                       </ul>
                     </>
                   )}
