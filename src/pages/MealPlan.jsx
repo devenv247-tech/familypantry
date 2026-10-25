@@ -452,7 +452,7 @@ export default function MealPlan() {
       </div>
 
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-5 bg-white rounded-3xl border border-[#E7D5C3] px-5 py-3.5">
+      <div className="flex items-center justify-between mb-5 bg-white rounded-3xl border border-[#E7D5C3] px-5 py-3.5 shadow-card">
         <button onClick={() => setWeekOffset(prev => prev - 1)} className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 transition-colors px-2 py-1.5 rounded-full hover:bg-stone-100">
           ← Prev
         </button>

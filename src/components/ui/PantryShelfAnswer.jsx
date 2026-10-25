@@ -39,7 +39,7 @@ function PantryItemTile({ item, onAddToGrocery, adding, added }) {
     && item.daysUntilExpiry >= 0 && item.daysUntilExpiry <= 7
 
   return (
-    <div className="bg-white rounded-3xl border border-border p-3 flex flex-col gap-2">
+    <div className="bg-white rounded-3xl border border-border p-3 flex flex-col gap-2 shadow-card">
       <div className="flex items-start gap-2.5">
         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl ${catStyle(item.category)}`}>
           {item.icon || '🛒'}
