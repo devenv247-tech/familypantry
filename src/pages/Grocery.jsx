@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useVoiceInput } from '../hooks/useVoiceInput'
-import { parseVoiceItem } from '../api/pantry'
+import { parseVoiceItem, getPantryItems } from '../api/pantry'
 import VoiceOverlay from '../components/ui/VoiceOverlay'
 import Icon from '../components/ui/Icon'
 import { getGroceryItems, addGroceryItem, updateGroceryItem, toggleGroceryItem, deleteGroceryItem, clearCheckedItems, getGroceryPredictions } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
+import GroceryToPantrySheet from '../components/ui/GroceryToPantrySheet'
 import { useToast } from '../hooks/useToast'
 import { useAuthStore } from '../store/authStore'
 import { useAppConfigStore } from '../store/appConfigStore'
@@ -25,6 +26,10 @@ export default function Grocery() {
   const [addingPrediction, setAddingPrediction] = useState({})
   const [autoGenerating, setAutoGenerating] = useState(false)
   const [anomalyModal, setAnomalyModal] = useState(null)
+  const [showPantrySheet, setShowPantrySheet] = useState(false)
+  const [pantryItems, setPantryItems] = useState([])
+  const [pantrySheetLoading, setPantrySheetLoading] = useState(false)
+  const [syncedIds, setSyncedIds] = useState([])
   const { toast, showToast, hideToast } = useToast()
   const navigate = useNavigate()
   const { family } = useAuthStore()
@@ -72,6 +77,43 @@ export default function Grocery() {
       setPriceAlerts(data.alerts || [])
     } catch (err) {
       console.error('Failed to load price alerts:', err)
+    }
+  }
+
+  useEffect(() => {
+    if (!family?.id) return
+    try {
+      const stored = JSON.parse(localStorage.getItem(`nooka_pantry_synced_${family.id}`) || '[]')
+      setSyncedIds(stored)
+    } catch {}
+  }, [family?.id])
+
+  const openPantrySheet = async () => {
+    setPantrySheetLoading(true)
+    try {
+      const data = await getPantryItems()
+      setPantryItems(data)
+      setShowPantrySheet(true)
+    } catch (err) {
+      showToast('Failed to load pantry items', 'error')
+    } finally {
+      setPantrySheetLoading(false)
+    }
+  }
+
+  const handlePantryDone = (newSyncedIds, added, failed) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(`nooka_pantry_synced_${family.id}`) || '[]')
+      const updated = [...new Set([...existing, ...newSyncedIds])]
+      localStorage.setItem(`nooka_pantry_synced_${family.id}`, JSON.stringify(updated))
+      setSyncedIds(updated)
+    } catch {}
+    if (failed === 0) {
+      if (added > 0) showToast(`${added} item${added !== 1 ? 's' : ''} added to pantry`)
+      setShowPantrySheet(false)
+    } else {
+      showToast(`${added} added, ${failed} failed`, 'error')
+      if (added > 0) setShowPantrySheet(false)
     }
   }
 
@@ -290,6 +332,16 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
             <button onClick={() => setAnomalyModal(null)} className="btn-primary w-full">Got it</button>
           </div>
         </div>
+      )}
+
+      {/* Review and add-to-pantry sheet */}
+      {showPantrySheet && (
+        <GroceryToPantrySheet
+          checkedItems={items.filter(i => i.checked && !syncedIds.includes(i.id))}
+          pantryItems={pantryItems}
+          onClose={() => setShowPantrySheet(false)}
+          onDone={handlePantryDone}
+        />
       )}
 
       {/* Header */}
@@ -573,6 +625,29 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
           </div>
         </div>
       )}
+
+      {/* Add-to-pantry banner */}
+      {(() => {
+        const pendingCount = items.filter(i => i.checked && !syncedIds.includes(i.id)).length
+        if (pendingCount === 0) return null
+        return (
+          <div className="mb-4 flex items-center justify-between gap-4 bg-food-50 border border-food-200 rounded-2xl px-4 py-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Icon name="pantry" size={18} className="text-food-600 flex-shrink-0" />
+              <p className="text-sm font-medium text-food-700 truncate">
+                Add {pendingCount} checked item{pendingCount !== 1 ? 's' : ''} to pantry
+              </p>
+            </div>
+            <button
+              onClick={openPantrySheet}
+              disabled={pantrySheetLoading}
+              className="flex-shrink-0 min-h-[44px] px-4 bg-food-600 text-white text-sm font-semibold rounded-btn hover:bg-food-700 disabled:opacity-60 transition-all"
+            >
+              {pantrySheetLoading ? 'Loading…' : 'Review and add'}
+            </button>
+          </div>
+        )
+      })()}
 
       {/* Items list */}
       {loading ? (
