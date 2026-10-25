@@ -209,171 +209,185 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Health Canada Recall Alert */}
-      <div className="bg-red-50 border border-red-200 rounded-3xl px-5 py-4 mb-6 flex items-start gap-3">
-        <Icon name="recalls" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-red-700">Health Canada Recall Alert</p>
-          <p className="text-sm text-red-600 mt-0.5">Check the Recall alerts page for items that may match your pantry.</p>
-          <button onClick={() => navigate('/app/recalls')} className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:text-red-900 underline py-1">
-            View recalls →
-          </button>
-        </div>
-      </div>
+      {/* Hero row: recipe suggestion (left) + recall alert (right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-stretch mb-6">
 
-      {/* Tonight's dinner — big hero card */}
-      {tonightMeal === null ? (
-        <div className="rounded-3xl bg-stone-100 animate-pulse h-40 mb-6" />
-      ) : tonightMeal !== false ? (
-        tonightMeal.cooked ? (
-          <div className="rounded-3xl bg-green-50 border border-green-200 px-6 py-5 mb-6 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Icon name="check" size={24} className="text-green-700" />
+        {/* LEFT: Tonight's dinner / AI suggestion */}
+        {tonightMeal === null ? (
+          <div className="rounded-3xl bg-stone-100 animate-pulse min-h-[160px]" />
+        ) : tonightMeal !== false ? (
+          tonightMeal.cooked ? (
+            <div className="rounded-3xl bg-green-50 border border-green-200 px-6 py-5 h-full flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <Icon name="check" size={24} className="text-green-700" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-lg font-semibold text-green-800">Dinner's done!</p>
+                <p className="text-sm text-green-700 flex items-center gap-1 mt-0.5">
+                  <Icon name="check" size={12} className="text-green-600 flex-shrink-0" />{tonightMeal.recipeName} — nice cook!
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-display text-lg font-semibold text-green-800">Dinner's done!</p>
-              <p className="text-sm text-green-700 flex items-center gap-1 mt-0.5">
-                <Icon name="check" size={12} className="text-green-600 flex-shrink-0" />{tonightMeal.recipeName} — nice cook!
-              </p>
+          ) : (
+            <div className="hero-card h-full overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-0">
+                <div className="flex-1 px-6 pt-6 pb-5 sm:pb-6 min-w-0">
+                  <p className="text-xs font-semibold text-orange-200 uppercase tracking-widest mb-2">Tonight's dinner</p>
+                  <h2 className="font-display text-3xl 2xl:text-4xl font-semibold text-[#FFF7ED] leading-tight mb-3 line-clamp-2">
+                    {tonightMeal.recipeName}
+                  </h2>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    {tonightMeal.recipeData?.time && (
+                      <span className="flex items-center gap-1.5 text-sm text-orange-200">
+                        <Icon name="clock" size={13} /> {tonightMeal.recipeData.time}
+                      </span>
+                    )}
+                    {tonightMeal.recipeData?.calories && (
+                      <span className="flex items-center gap-1.5 text-sm text-orange-200">
+                        <Icon name="flame" size={13} /> {tonightMeal.recipeData.calories} kcal
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleCookAlong}
+                    className="bg-[#C2410C] hover:bg-food-700 text-white px-6 py-3 rounded-full font-semibold text-sm active:scale-95 transition-all duration-150 w-full sm:w-auto"
+                  >
+                    Start cooking
+                  </button>
+                </div>
+                <div className="hidden sm:flex flex-shrink-0 justify-center items-end px-4 pb-2 sm:px-6 sm:py-4">
+                  <DishArt
+                    category={getRecipeCategory(tonightMeal.recipeName)}
+                    size="lg"
+                    className="xl:w-[120px] xl:h-auto 2xl:w-[200px]"
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        ) : aiSuggestion === null ? (
+          <div className="rounded-3xl bg-stone-100 animate-pulse min-h-[160px]" />
+        ) : aiSuggestion === false ? (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-3xl px-6 py-5 h-full flex items-start gap-4">
+            <span className="text-2xl">🫧</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-indigo-900">What's for dinner tonight?</p>
+              <p className="text-sm text-indigo-700 mt-0.5 mb-4">Add at least 3 pantry items and Nooka will suggest tonight's dinner.</p>
+              <button onClick={() => navigate('/app/pantry')} className="btn-primary text-sm">
+                Add pantry items
+              </button>
             </div>
           </div>
         ) : (
-          <div className="hero-card mb-6 overflow-hidden">
+          /* AI suggestion card */
+          <div className="hero-card h-full">
             <div className="flex flex-col sm:flex-row sm:items-center gap-0">
-              {/* Text side */}
-              <div className="flex-1 px-6 pt-6 pb-5 sm:pb-6">
-                <p className="text-xs font-semibold text-orange-200 uppercase tracking-widest mb-2">Tonight's dinner</p>
-                <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#FFF7ED] leading-tight mb-3 line-clamp-2">
-                  {tonightMeal.recipeName}
+              <div className="flex-1 px-6 pt-6 pb-5 sm:pb-6 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-base">🫧</span>
+                  <span className="text-xs font-semibold text-orange-200 uppercase tracking-widest">Suggested for tonight</span>
+                </div>
+                <h2 className="font-display text-3xl 2xl:text-4xl font-semibold text-[#FFF7ED] leading-tight mb-3 line-clamp-2">
+                  {aiSuggestion.recipe.name}
                 </h2>
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {tonightMeal.recipeData?.time && (
-                    <span className="flex items-center gap-1.5 text-sm text-orange-200">
-                      <Icon name="clock" size={13} /> {tonightMeal.recipeData.time}
-                    </span>
-                  )}
-                  {tonightMeal.recipeData?.calories && (
-                    <span className="flex items-center gap-1.5 text-sm text-orange-200">
-                      <Icon name="flame" size={13} /> {tonightMeal.recipeData.calories} kcal
-                    </span>
-                  )}
+                {(aiSuggestion.recipe.time || aiSuggestion.recipe.difficulty) && (
+                  <div className="flex items-center gap-3 mb-3 text-sm text-orange-200">
+                    {aiSuggestion.recipe.time && <span className="flex items-center gap-1.5"><Icon name="clock" size={13} /> {aiSuggestion.recipe.time}</span>}
+                    {aiSuggestion.recipe.difficulty && <span>{aiSuggestion.recipe.difficulty}</span>}
+                  </div>
+                )}
+                {!aiExpanded && aiSuggestion.recipe.ingredients?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {aiSuggestion.recipe.ingredients.slice(0, 4).map((ing, i) => (
+                      <span key={i} className="text-xs bg-white/10 text-orange-100 px-2.5 py-1 rounded-full border border-white/20">
+                        {ing.name}
+                      </span>
+                    ))}
+                    {aiSuggestion.recipe.ingredients.length > 4 && (
+                      <span className="text-xs text-orange-300 px-1 py-1">+{aiSuggestion.recipe.ingredients.length - 4} more</span>
+                    )}
+                  </div>
+                )}
+                {aiExpanded && (
+                  <div className="mb-4 space-y-4">
+                    {aiSuggestion.recipe.ingredients?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-orange-300 uppercase tracking-wide mb-2">Ingredients</p>
+                        <ul className="space-y-1.5">
+                          {aiSuggestion.recipe.ingredients.map((ing, i) => (
+                            <li key={i} className="flex items-baseline gap-2 text-sm text-[#FFF7ED]">
+                              <span className="w-1 h-1 rounded-full bg-orange-300 flex-shrink-0 mt-2" />
+                              {[ing.quantity, ing.unit, ing.name].filter(Boolean).join(' ')}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {aiSuggestion.recipe.steps?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-orange-300 uppercase tracking-wide mb-2">Steps</p>
+                        <ol className="space-y-2">
+                          {aiSuggestion.recipe.steps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm text-[#FFF7ED]">
+                              <span className="w-5 h-5 rounded-full bg-white/15 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
+                              {step}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(() => {
+                  const goalMember = members.find(m => m.userId === user?.id) || members.find(m => m.fitnessGoal)
+                  const goalLabel = GOAL_LABELS[goalMember?.fitnessGoal]
+                  if (!goalLabel || !isFeatureEnabled('fitness_coach', plan)) return null
+                  return (
+                    <p className="flex items-center gap-1 text-xs text-orange-200 mb-3">
+                      <Icon name="bubble" size={12} className="flex-shrink-0" />
+                      Fits {goalMember.name}'s {goalLabel} plan
+                    </p>
+                  )
+                })()}
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    onClick={() => setAiExpanded(prev => !prev)}
+                    className="bg-[#C2410C] hover:bg-food-700 text-white px-6 py-3 rounded-full font-semibold text-sm active:scale-95 transition-all duration-150"
+                  >
+                    {aiExpanded ? 'Hide recipe ↑' : 'See recipe →'}
+                  </button>
+                  <button onClick={() => navigate('/app/recipes')} className="text-sm text-orange-200 font-medium hover:text-white transition-colors py-1">
+                    Generate more ideas →
+                  </button>
                 </div>
-                <button
-                  onClick={handleCookAlong}
-                  className="bg-[#C2410C] hover:bg-food-700 text-white px-6 py-3 rounded-full font-semibold text-sm active:scale-95 transition-all duration-150 w-full sm:w-auto"
-                >
-                  Start cooking
-                </button>
               </div>
-              {/* Art side */}
-              <div className="sm:flex-shrink-0 flex justify-center items-end px-4 pb-2 sm:px-6 sm:py-4">
-                <DishArt category={getRecipeCategory(tonightMeal.recipeName)} size="lg" />
+              <div className="hidden sm:flex flex-shrink-0 justify-center items-end px-4 pb-2 sm:px-6 sm:py-4">
+                <DishArt
+                  category={getRecipeCategory(aiSuggestion.recipe.name)}
+                  size="lg"
+                  className="xl:w-[120px] xl:h-auto 2xl:w-[200px]"
+                />
               </div>
             </div>
           </div>
-        )
-      ) : aiSuggestion === null ? (
-        <div className="rounded-3xl bg-stone-100 animate-pulse h-40 mb-6" />
-      ) : aiSuggestion === false ? (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-3xl px-6 py-5 mb-6 flex items-start gap-4">
-          <span className="text-2xl">🫧</span>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-indigo-900">What's for dinner tonight?</p>
-            <p className="text-sm text-indigo-700 mt-0.5 mb-4">Add at least 3 pantry items and Nooka will suggest tonight's dinner.</p>
-            <button onClick={() => navigate('/app/pantry')} className="btn-primary text-sm">
-              Add pantry items
-            </button>
+        )}
+
+        {/* RIGHT: Health Canada Recall Alert */}
+        <div className="bg-red-50 border border-red-200 rounded-3xl p-6 h-full flex flex-col">
+          <div className="flex items-center gap-2.5 mb-3">
+            <Icon name="recalls" size={20} className="text-red-600 flex-shrink-0" />
+            <p className="text-sm font-semibold text-red-700">Health Canada Recall Alert</p>
           </div>
+          <p className="text-sm text-red-600 leading-relaxed">Check the Recall alerts page for items that may match your pantry.</p>
+          <button
+            onClick={() => navigate('/app/recalls')}
+            className="mt-auto pt-3 self-start inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:text-red-900 underline"
+          >
+            View recalls →
+          </button>
         </div>
-      ) : (
-        /* AI suggestion card */
-        <div className="hero-card mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-0">
-            <div className="flex-1 px-6 pt-6 pb-5 sm:pb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-base">🫧</span>
-                <span className="text-xs font-semibold text-orange-200 uppercase tracking-widest">Suggested for tonight</span>
-              </div>
-              <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[#FFF7ED] leading-tight mb-3 line-clamp-2">
-                {aiSuggestion.recipe.name}
-              </h2>
-              {(aiSuggestion.recipe.time || aiSuggestion.recipe.difficulty) && (
-                <div className="flex items-center gap-3 mb-3 text-sm text-orange-200">
-                  {aiSuggestion.recipe.time && <span className="flex items-center gap-1.5"><Icon name="clock" size={13} /> {aiSuggestion.recipe.time}</span>}
-                  {aiSuggestion.recipe.difficulty && <span>{aiSuggestion.recipe.difficulty}</span>}
-                </div>
-              )}
-              {!aiExpanded && aiSuggestion.recipe.ingredients?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {aiSuggestion.recipe.ingredients.slice(0, 4).map((ing, i) => (
-                    <span key={i} className="text-xs bg-white/10 text-orange-100 px-2.5 py-1 rounded-full border border-white/20">
-                      {ing.name}
-                    </span>
-                  ))}
-                  {aiSuggestion.recipe.ingredients.length > 4 && (
-                    <span className="text-xs text-orange-300 px-1 py-1">+{aiSuggestion.recipe.ingredients.length - 4} more</span>
-                  )}
-                </div>
-              )}
-              {aiExpanded && (
-                <div className="mb-4 space-y-4">
-                  {aiSuggestion.recipe.ingredients?.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-orange-300 uppercase tracking-wide mb-2">Ingredients</p>
-                      <ul className="space-y-1.5">
-                        {aiSuggestion.recipe.ingredients.map((ing, i) => (
-                          <li key={i} className="flex items-baseline gap-2 text-sm text-[#FFF7ED]">
-                            <span className="w-1 h-1 rounded-full bg-orange-300 flex-shrink-0 mt-2" />
-                            {[ing.quantity, ing.unit, ing.name].filter(Boolean).join(' ')}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {aiSuggestion.recipe.steps?.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-orange-300 uppercase tracking-wide mb-2">Steps</p>
-                      <ol className="space-y-2">
-                        {aiSuggestion.recipe.steps.map((step, i) => (
-                          <li key={i} className="flex items-start gap-3 text-sm text-[#FFF7ED]">
-                            <span className="w-5 h-5 rounded-full bg-white/15 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
-                            {step}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </div>
-              )}
-              {(() => {
-                const goalMember = members.find(m => m.userId === user?.id) || members.find(m => m.fitnessGoal)
-                const goalLabel = GOAL_LABELS[goalMember?.fitnessGoal]
-                if (!goalLabel || !isFeatureEnabled('fitness_coach', plan)) return null
-                return (
-                  <p className="flex items-center gap-1 text-xs text-orange-200 mb-3">
-                    <Icon name="bubble" size={12} className="flex-shrink-0" />
-                    Fits {goalMember.name}'s {goalLabel} plan
-                  </p>
-                )
-              })()}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
-                <button
-                  onClick={() => setAiExpanded(prev => !prev)}
-                  className="bg-[#C2410C] hover:bg-food-700 text-white px-6 py-3 rounded-full font-semibold text-sm active:scale-95 transition-all duration-150 w-full sm:w-auto"
-                >
-                  {aiExpanded ? 'Hide recipe ↑' : 'See recipe →'}
-                </button>
-                <button onClick={() => navigate('/app/recipes')} className="text-sm text-orange-200 font-medium hover:text-white transition-colors py-1 text-center sm:text-left">
-                  Generate more ideas →
-                </button>
-              </div>
-            </div>
-            <div className="sm:flex-shrink-0 flex justify-center items-end px-4 pb-2 sm:px-6 sm:py-4">
-              <DishArt category={getRecipeCategory(aiSuggestion.recipe.name)} size="lg" />
-            </div>
-          </div>
-        </div>
-      )}
+
+      </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
