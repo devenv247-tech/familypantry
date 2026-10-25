@@ -44,7 +44,7 @@ export default function Sidebar({ onClose }) {
 
   return (
     <aside
-      className="w-64 bg-white border-r border-[#F1E4D6] flex flex-col"
+      className="w-64 bg-white border-r border-[#E7D5C3] flex flex-col"
       style={{ height: '100dvh' }}
     >
       {/* Wordmark */}
@@ -61,7 +61,7 @@ export default function Sidebar({ onClose }) {
 
       {/* Family badge */}
       <div className="px-4 mx-3 mb-4 py-3 bg-orange-50 rounded-2xl border border-[#E7D5C3] flex-shrink-0">
-        <p className="text-xs text-stone-500">Family</p>
+        <p className="text-xs text-stone-600">Family</p>
         <p className="text-sm font-semibold text-stone-900 truncate">{family?.name || 'My Family'}</p>
       </div>
 
@@ -73,18 +73,33 @@ export default function Sidebar({ onClose }) {
             to={link.to}
             end={link.end}
             onClick={handleNavClick}
+            aria-current={undefined}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-full text-sm font-medium transition-all ${
+              `relative flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm transition-all overflow-hidden ${
                 isActive
                   ? link.isBaby
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'bg-orange-100 text-orange-900'
-                  : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                    ? 'bg-pink-100 text-pink-700 font-semibold'
+                    : 'bg-orange-100 text-orange-900 font-semibold'
+                  : 'text-stone-700 font-medium hover:bg-orange-50 hover:text-stone-900'
               }`
             }
           >
-            <Icon name={link.isBaby ? 'health' : link.icon} size={18} />
-            {link.label}
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <span
+                    className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full"
+                    style={{ background: link.isBaby ? '#be185d' : '#C2410C' }}
+                  />
+                )}
+                <Icon
+                  name={link.isBaby ? 'health' : link.icon}
+                  size={18}
+                  style={isActive ? { color: link.isBaby ? '#be185d' : '#C2410C' } : undefined}
+                />
+                {link.label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -101,7 +116,7 @@ export default function Sidebar({ onClose }) {
 
       {/* User row */}
       <div
-        className="px-3 py-2.5 border-t border-[#F1E4D6] flex-shrink-0 flex items-center gap-2"
+        className="px-3 py-2.5 border-t border-[#E7D5C3] flex-shrink-0 flex items-center gap-2"
         style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -109,7 +124,7 @@ export default function Sidebar({ onClose }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-stone-900 truncate leading-tight">{user?.name || 'User'}</p>
-          <p className="text-xs text-stone-400 truncate leading-tight">{user?.email || ''}</p>
+          <p className="text-xs text-stone-500 truncate leading-tight">{user?.email || ''}</p>
         </div>
         <button
           onClick={handleLogout}

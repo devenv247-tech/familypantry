@@ -97,7 +97,7 @@ export default function AppShell() {
               <div className="text-center">
                 <div className="text-5xl mb-4">{announcement.icon}</div>
                 <h3 className="font-display text-xl font-semibold text-stone-900 mb-2">{announcement.title}</h3>
-                <p className="text-sm text-stone-500 leading-relaxed mb-6">{announcement.message}</p>
+                <p className="text-sm text-stone-600 leading-relaxed mb-6">{announcement.message}</p>
                 <button
                   onClick={() => dismissAnnouncement(announcement.id)}
                   className="btn-primary w-full py-3"
@@ -128,7 +128,7 @@ export default function AppShell() {
 
         {/* Mobile top bar */}
         <div
-          className="lg:hidden bg-white border-b border-[#F1E4D6] px-4 flex items-center justify-between sticky top-0 z-30"
+          className="lg:hidden bg-white border-b border-[#E7D5C3] px-4 flex items-center justify-between sticky top-0 z-30"
           style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)', paddingBottom: '12px' }}
         >
           <button
@@ -176,7 +176,7 @@ export default function AppShell() {
             style={{ maxHeight: '80dvh', paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
           >
             <div className="w-10 h-1 bg-stone-200 rounded-full mx-auto mt-3 mb-5 flex-shrink-0" />
-            <p className="text-xs font-semibold text-stone-400 uppercase tracking-widest px-5 mb-4 flex-shrink-0">More</p>
+            <p className="text-xs font-semibold text-stone-500 uppercase tracking-widest px-5 mb-4 flex-shrink-0">More</p>
 
             <div className="overflow-y-auto scrollbar-hide flex-1 min-h-0">
               <div className="grid grid-cols-3 gap-0 px-2 pb-4">
@@ -186,13 +186,24 @@ export default function AppShell() {
                     to={item.to}
                     onClick={() => setShowMoreDrawer(false)}
                     className={({ isActive }) =>
-                      `flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all ${
-                        isActive ? 'bg-orange-50 text-orange-900' : 'text-stone-600 hover:bg-stone-50'
+                      `relative flex flex-col items-center justify-center gap-2 py-4 rounded-2xl transition-all overflow-hidden ${
+                        isActive ? 'bg-orange-100 text-orange-900 font-semibold' : 'text-stone-700 font-medium hover:bg-orange-50'
                       }`
                     }
                   >
-                    <Icon name={item.icon} size={22} />
-                    <span className="text-xs font-medium">{item.label}</span>
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <span className="absolute top-0 left-3 right-3 h-0.5 rounded-full" style={{ background: '#C2410C' }} />
+                        )}
+                        <Icon
+                          name={item.icon}
+                          size={22}
+                          style={isActive ? { color: '#C2410C' } : undefined}
+                        />
+                        <span className="text-xs">{item.label}</span>
+                      </>
+                    )}
                   </NavLink>
                 ))}
               </div>
@@ -201,7 +212,7 @@ export default function AppShell() {
               <div className="px-4 pb-2">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-stone-600 hover:bg-stone-100 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors"
                 >
                   <Icon name="logout" size={18} />
                   Sign out
@@ -214,7 +225,7 @@ export default function AppShell() {
 
       {/* Fixed bottom tab bar — mobile only */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#F1E4D6]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E7D5C3]"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 12px)',
           paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 4px)',
@@ -232,16 +243,19 @@ export default function AppShell() {
               end={item.end}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center gap-1 flex-1 py-1 rounded-2xl transition-all min-h-[44px] ${
-                  isActive ? 'text-indigo-700' : 'text-stone-400'
+                  isActive ? 'text-indigo-700' : 'text-stone-600'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <span className={`p-1.5 rounded-2xl transition-colors ${isActive ? 'bg-indigo-50' : ''}`}>
+                  <span className={`relative p-1.5 rounded-2xl transition-colors ${isActive ? 'bg-indigo-50' : ''}`}>
+                    {isActive && (
+                      <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-indigo-600" />
+                    )}
                     <Icon name={item.icon} size={22} strokeWidth={isActive ? 2 : 1.75} />
                   </span>
-                  <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-indigo-700' : 'text-stone-400'}`}>
+                  <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-indigo-700' : 'text-stone-600'}`}>
                     {item.label}
                   </span>
                 </>
@@ -252,7 +266,7 @@ export default function AppShell() {
           {/* More tab */}
           <button
             onClick={() => setShowMoreDrawer(prev => !prev)}
-            className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 rounded-2xl transition-all min-h-[44px] ${showMoreDrawer ? 'text-indigo-700' : 'text-stone-400'}`}
+            className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 rounded-2xl transition-all min-h-[44px] ${showMoreDrawer ? 'text-indigo-700' : 'text-stone-600'}`}
           >
             <span className={`p-1.5 rounded-2xl transition-colors ${showMoreDrawer ? 'bg-indigo-50' : ''}`}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
