@@ -4,7 +4,7 @@ import { useVoiceInput } from '../hooks/useVoiceInput'
 import { parseVoiceItem } from '../api/pantry'
 import VoiceOverlay from '../components/ui/VoiceOverlay'
 import Icon from '../components/ui/Icon'
-import { getGroceryItems, addGroceryItem, updateGroceryItem, deleteGroceryItem, clearCheckedItems, getGroceryPredictions } from '../api/grocery'
+import { getGroceryItems, addGroceryItem, updateGroceryItem, toggleGroceryItem, deleteGroceryItem, clearCheckedItems, getGroceryPredictions } from '../api/grocery'
 import { recordPrice, checkPriceAnomaly, getPriceAlerts } from '../api/priceAnomaly'
 import { LoadingSpinner, ErrorState, Toast } from '../components/ui/PageState'
 import { useToast } from '../hooks/useToast'
@@ -150,8 +150,12 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
 
   const toggleCheck = async (id) => {
     const item = items.find(i => i.id === id)
+    if (!(item.name || '').trim()) {
+      showToast('Failed to update item', 'error')
+      return
+    }
     try {
-      const updated = await updateGroceryItem(id, { checked: !item.checked, purchased: !item.checked, purchasedAt: !item.checked ? new Date() : null })
+      const updated = await toggleGroceryItem(item)
       setItems(prev => prev.map(i => i.id === id ? updated : i))
 
       // Record price when item is checked off
@@ -206,8 +210,12 @@ const { state: voiceState, supported: voiceSupported, start: startVoice, stop: s
   }
 
   const handleEdit = async (id) => {
+    if (!(editForm.name || '').trim()) {
+      showToast('Failed to update item', 'error')
+      return
+    }
     try {
-      const updated = await updateGroceryItem(id, editForm)
+      const updated = await updateGroceryItem(id, { ...editForm, name: editForm.name.trim() })
       setItems(prev => prev.map(i => i.id === id ? updated : i))
       setEditingId(null)
       setEditForm({})

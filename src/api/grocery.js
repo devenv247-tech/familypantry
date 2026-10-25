@@ -15,6 +15,23 @@ export const updateGroceryItem = async (id, data) => {
   return res.data
 }
 
+export const toggleGroceryItem = async (item) => {
+  const name = (item.name || '').trim()
+  if (!name) throw new Error('Item name is required')
+  const newChecked = !item.checked
+  const res = await client.put(`/grocery/${item.id}`, {
+    name,
+    qty: item.qty || '',
+    store: item.store || '',
+    price: item.price || '',
+    category: item.category || '',
+    checked: newChecked,
+    purchased: newChecked,
+    purchasedAt: newChecked ? new Date() : null,
+  })
+  return res.data
+}
+
 export const deleteGroceryItem = async (id) => {
   const res = await client.delete(`/grocery/${id}`)
   return res.data
